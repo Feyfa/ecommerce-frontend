@@ -1,5 +1,5 @@
 <template>
-  <header class="navbar bg-violet-500 flex justify-between items-center h-14 px-10 fixed top-0 left-0 right-0 z-50">
+  <header class="navbar bg-violet-500 flex justify-between items-center h-14 px-10 fixed top-0 left-0 right-0 z-50 shadow-lg">
     <h1 class="text-2xl text-white">My Ecommerce</h1>
     <form>
         <button

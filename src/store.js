@@ -21,6 +21,36 @@ export default createStore({
       this.state.user = JSON.parse(localStorage.getItem('user'));
     },
 
+    minusKeranjang(context, data) {
+      return new Promise((resolve, reject) => {
+        axios.post('/keranjang/minus', {
+          user_id_buyer: data.user_id_buyer,
+          product_id: data.product_id,
+        })
+        .then(response => {
+          resolve(response);
+        })
+        .catch(error => {
+          reject(error);
+        })
+      });
+    },
+
+    plusKeranjang(context, data) {
+      return new Promise((resolve, reject) => {
+        axios.post('/keranjang/plus', {
+          user_id_buyer: data.user_id_buyer,
+          product_id: data.product_id,
+        })
+        .then(response => {
+          resolve(response);
+        })
+        .catch(error => {
+          reject(error);
+        })
+      });
+    },
+
     deleteKeranjang(context, data) {
       return new Promise((resolve, reject) => {
         axios.delete(`/keranjang/${data.user_id_buyer}/${data.product_id}`)
@@ -35,13 +65,17 @@ export default createStore({
 
     checkedKeranjang(context, data) {
       return new Promise((resolve, reject) => {
-        axios.post(`/keranjang/checked/${data.user_id_buyer}/${data.product_id}/${data.checked}`)
-             .then(response => {
-              resolve(response);
-             })
-             .catch(error => {
-              reject(error);
-             })
+        axios.post(`/keranjang/checked`, {
+          user_id_buyer: data.user_id_buyer,
+          product_id: data.product_id,
+          checked: data.checked,
+        })
+        .then(response => {
+          resolve(response);
+        })
+        .catch(error => {
+          reject(error);
+        })
       });
     },
 
@@ -59,13 +93,17 @@ export default createStore({
 
     addKeranjang(context, data) {
       return new Promise((resolve, reject) => {
-        axios.post(`/keranjang/${data.user_id_seller}/${data.user_id_buyer}/${data.product_id}`)
-             .then(response => {
-              resolve(response);
-             })
-             .catch(error => {
-              reject(error);
-             })
+        axios.post(`/keranjang`, {
+          user_id_seller: data.user_id_seller,
+          user_id_buyer: data.user_id_buyer,
+          product_id: data.product_id,
+        })
+        .then(response => {
+          resolve(response);
+        })
+        .catch(error => {
+          reject(error);
+        })
       });
     },
 
