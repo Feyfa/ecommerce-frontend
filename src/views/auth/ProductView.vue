@@ -14,7 +14,7 @@
         </div>
         
         <div>
-          <div class="px-1.5 flex flex-col">
+          <div class="px-1.5 flex flex-col"> 
             <h4 class="text-[.9rem] leading-6">{{ product.name }}</h4>
             <h4 class="font-semibold text-[.9rem]">Rp {{ product.price.toLocaleString('id-ID') }}</h4>
           </div>
