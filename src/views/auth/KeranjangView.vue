@@ -20,7 +20,7 @@
           <div class="flex flex-col justify-start items-start gap-1">
             <div class="flex gap-2">
               <img 
-                :src="`http://ecommerce.backend.com/storage/${keranjang.p_img}`" 
+                :src="`${APP_BACKEND_URL}/storage/${keranjang.p_img}`"
                 alt="keranjang" 
                 class="w-[25%] rounded-sm shadow-md bg-white">
 
@@ -97,6 +97,7 @@
 export default {
   data() {
     return {
+      APP_BACKEND_URL: import.meta.env.VITE_APP_BACKEND_URL,
       keranjangs: [],
       totalPrice: ''
     }

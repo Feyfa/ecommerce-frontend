@@ -7,7 +7,7 @@
     <div class="w-full p-4 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 2xl:grid-cols-5 gap-x-3 gap-y-5">   
       <div v-for="product in products" class="row flex flex-col justify-end gap-2 border border-neutral-500 bg-white rounded shadow-md">
         <img 
-          :src="`http://ecommerce.backend.com/storage/${product.img}`"
+          :src="`${APP_BACKEND_URL}/storage/${product.img}`"
           alt="product" 
           class="w-full h-max rounded-sm shadow-md bg-white">
         
@@ -62,6 +62,7 @@ import { RouterLink } from "vue-router";
 export default {
   data() {
     return {
+      APP_BACKEND_URL: import.meta.env.VITE_APP_BACKEND_URL,
       ProductImage: ProductImage,
       products: [],
     }
