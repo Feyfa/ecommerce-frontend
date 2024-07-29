@@ -156,7 +156,6 @@ export default {
                     console.log(response);
 
                     $('#image-file').val('');
-                    this.isProcessImageUser = false;
 
                     if(response.data.status === 200) {
                       ElNotification({
@@ -174,6 +173,10 @@ export default {
                       
                       this.$global.personImage = `${import.meta.env.VITE_APP_BACKEND_BASE_URL}/${import.meta.env.VITE_SYMLINK_FOLDER}/${response.data.user.img}`;
                       this.disable.deleteImage = false;
+                      this.isProcessImageUser = false;
+                    }
+                    else {
+                      this.isProcessImageUser = false;
                     }
                    })
                    .catch(error => {
