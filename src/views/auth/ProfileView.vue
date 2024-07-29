@@ -30,7 +30,7 @@ export default {
   },
 
   mounted() {
-    this.$global.personImage = this.$store.getters.user.img ? `${import.meta.env.VITE_APP_BACKEND_URL}/storage/${this.$store.getters.user.img}` : PersonImage;
+    this.$global.personImage = this.$store.getters.user.img ? `${import.meta.env.VITE_APP_BACKEND_BASE_URL}/${import.meta.env.VITE_SYMLINK_FOLDER}/${this.$store.getters.user.img}` : PersonImage;
   }
 }
 </script>

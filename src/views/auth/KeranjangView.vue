@@ -25,7 +25,7 @@
             <div class="flex gap-3">
               <div class="w-32 h-32">
                 <img 
-                  :src="`${APP_BACKEND_URL}/storage/${keranjang.p_img}`"
+                  :src="`${APP_BACKEND_BASE_URL}/${SYMLINK_FOLDER}/${keranjang.p_img}`"
                   alt="keranjang" 
                   class="w-full h-full rounded-sm shadow-md bg-white">
               </div>
@@ -103,7 +103,8 @@
 export default {
   data() {
     return {
-      APP_BACKEND_URL: import.meta.env.VITE_APP_BACKEND_URL,
+      APP_BACKEND_BASE_URL: import.meta.env.VITE_APP_BACKEND_BASE_URL,
+      SYMLINK_FOLDER: import.meta.env.VITE_SYMLINK_FOLDER,
       keranjangs: [],
       totalPrice: '',
     }

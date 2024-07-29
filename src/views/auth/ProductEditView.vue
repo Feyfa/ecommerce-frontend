@@ -280,7 +280,7 @@ export default {
         } else {
           this.id = response.data.product.id;
           this.oldProductImage = response.data.product.img;
-          this.ProductImage = `${import.meta.env.VITE_APP_BACKEND_URL}/storage/${response.data.product.img}`;
+          this.ProductImage = `${import.meta.env.VITE_APP_BACKEND_BASE_URL}/${import.meta.env.VITE_SYMLINK_FOLDER}/${response.data.product.img}`;
           this.name = response.data.product.name;
           this.price = response.data.product.price;
           this.stock = response.data.product.stock;
@@ -332,7 +332,7 @@ export default {
                       this.price = response.data.product.price;
                       this.stock = response.data.product.stock;
                       this.oldProductImage = response.data.product.img;
-                      this.ProductImage = `http://ecommerce.backend.com/storage/${response.data.product.img}`;
+                      this.ProductImage = `${import.meta.env.VITE_APP_BACKEND_BASE_URL}/${import.meta.env.VITE_SYMLINK_FOLDER}/${response.data.product.img}`;
                     }
 
                    })

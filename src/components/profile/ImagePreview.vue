@@ -172,7 +172,7 @@ export default {
                       this.$store.dispatch('fetchUserFromLocalStorage');
                       /* UPDATE PENGAMBILAN DARI LOCALSTORAGE */
                       
-                      this.$global.personImage = `http://ecommerce.backend.com/storage/${response.data.user.img}`;
+                      this.$global.personImage = `${import.meta.env.VITE_SYMLINK_URL}/${response.data.user.img}`;
                       this.disable.deleteImage = false;
                     }
                    })

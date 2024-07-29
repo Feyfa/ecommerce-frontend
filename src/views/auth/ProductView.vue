@@ -8,7 +8,7 @@
       <div v-for="product in products" class="row flex flex-col justify-between gap-2 border border-neutral-400 bg-white rounded shadow-md">
         <div class="h-52">
           <img 
-            :src="`${APP_BACKEND_URL}/storage/${product.img}`"
+            :src="`${APP_BACKEND_BASE_URL}/${VITE_SYMLINK_FOLDER}/${product.img}`"
             alt="product" 
             class="w-full h-full rounded-sm shadow-md bg-white">
         </div>
@@ -66,7 +66,8 @@ import { RouterLink } from "vue-router";
 export default {
   data() {
     return {
-      APP_BACKEND_URL: import.meta.env.VITE_APP_BACKEND_URL,
+      APP_BACKEND_BASE_URL: import.meta.env.VITE_APP_BACKEND_BASE_URL,
+      VITE_SYMLINK_FOLDER: import.meta.env.VITE_SYMLINK_FOLDER,
       ProductImage: ProductImage,
       products: [],
     }
