@@ -2,7 +2,7 @@
   <div class="w-full text-xl">
     <h1 class="text-center text-3xl font-medium">Product Saya</h1>
 
-    <h1 id="empty" class="text-center mt-10 hidden">Produt Anda Kosong</h1>
+    <h1 ref="empty" class="text-center mt-5 text-base font-medium hidden">Produt Anda Kosong</h1>
     
     <div class="w-full p-4 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 2xl:grid-cols-5 gap-x-3 gap-y-5">   
       <div v-for="product in products" class="row flex flex-col justify-between gap-2 border border-neutral-400 bg-white rounded shadow-md">
