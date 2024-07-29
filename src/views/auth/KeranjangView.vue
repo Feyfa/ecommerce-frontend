@@ -23,12 +23,7 @@
           </div>
           <div class="flex flex-col justify-start items-start gap-1">
             <div class="flex gap-3">
-              <div class="w-32 h-32">
-                <img 
-                  :src="`${APP_BACKEND_BASE_URL}/${SYMLINK_FOLDER}/${keranjang.p_img}`"
-                  alt="keranjang" 
-                  class="w-full h-full rounded-sm shadow-md bg-white">
-              </div>
+              <div class="w-32 h-32 bg-cover bg-no-repeat bg-center rounded" :style="{ backgroundImage: `url(${APP_BACKEND_BASE_URL}/${SYMLINK_FOLDER}/${keranjang.p_img})` }"></div>
 
               <div class=" flex flex-col gap-1">
                 <span class="text-[.8rem] font-semibold">{{ keranjang.u_seller_name }}</span>

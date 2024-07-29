@@ -32,12 +32,12 @@
     <!-- zoom img -->
     
     <div class="w-max mx-auto relative">
-      <img 
-        :src="ProductImage" 
-        alt="product" 
-        class="product w-[400px] h-[225px] border border-neutral-500 rounded shadow-md"
+      <div
+        class="product w-[350px] h-[200px] border border-neutral-500 rounded shadow-md bg-cover bg-no-repeat bg-center"
+        :style="{ backgroundImage: `url(${ProductImage})` }"
         @click="togglePreview"
         @click.stop>
+      </div>
 
       <div class="text-center">
         <small 
@@ -48,7 +48,7 @@
       </div>
 
       <ul 
-        class="absolute bg-white z-50 top-52 left-[21rem] rounded transition-all duration-75 ease-in-out overflow-hidden"
+        class="absolute bg-white z-50 top-44 left-80 rounded transition-all duration-75 ease-in-out overflow-hidden"
         :class="this.$global.isCLickDropdown.product ? 'border border-neutral-500 h-[4.5rem] shadow-lg p-2' : 'h-0'">
         <li>
           <span 

@@ -4,23 +4,18 @@
 
     <h1 ref="empty" class="text-center mt-5 text-base font-medium hidden">Barang Belanja Kosong</h1>
     
-    <div class="w-full p-4 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 2xl:grid-cols-5 gap-x-3 gap-y-5">   
-      <div v-for="product in products" class="row flex flex-col justify-between gap-2 border border-neutral-400 bg-white rounded shadow-md">
-        <div class="h-52">
-          <img 
-            :src="`${APP_BACKEND_BASE_URL}/${SYMLINK_FOLDER}/${product.p_img}`"
-            alt="product" 
-            class="w-full h-full rounded-sm shadow-md bg-white">
-        </div>
-        
-        <div>
+    <div class="w-full p-4 grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 2xl:grid-cols-6 gap-x-3 gap-y-5">   
+      <div v-for="product in products" class="row flex flex-col justify-between gap-2 border border-neutral-400 bg-white rounded shadow-md h-72">
+        <div class="h-44 border w-full bg-cover bg-no-repeat bg-center" :style="{ backgroundImage: `url(${APP_BACKEND_BASE_URL}/${SYMLINK_FOLDER}/${product.p_img})` }"></div>
+
+        <div class="mb-1">
           <div class="px-1.5 flex flex-col">
             <h4 class="font-semibold text-[.8rem]">{{ product.u_name }}</h4>
-            <h4 class="text-[.9rem] leading-6">{{ product.p_name }}</h4>
+            <h4 class="text-[.9rem] leading-6 whitespace-nowrap overflow-hidden text-ellipsis">{{ product.p_name }}</h4>
             <h4 class="font-semibold text-[.9rem]">Rp {{ product.p_price.toLocaleString('id-ID') }}</h4>
           </div>
   
-          <div class="flex justify-between px-1.5 py-1">
+          <div class="flex justify-between px-1.5">
             <div>
               <h6 class="text-[.8rem]">stock : {{ product.p_stock }}</h6>
             </div>

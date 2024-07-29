@@ -4,18 +4,13 @@
 
     <h1 ref="empty" class="text-center mt-5 text-base font-medium hidden">Produt Anda Kosong</h1>
     
-    <div class="w-full p-4 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 2xl:grid-cols-5 gap-x-3 gap-y-5">   
-      <div v-for="product in products" class="row flex flex-col justify-between gap-2 border border-neutral-400 bg-white rounded shadow-md">
-        <div class="h-52">
-          <img 
-            :src="`${APP_BACKEND_BASE_URL}/${VITE_SYMLINK_FOLDER}/${product.img}`"
-            alt="product" 
-            class="w-full h-full rounded-sm shadow-md bg-white">
-        </div>
+    <div class="w-full p-4 grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 2xl:grid-cols-6 gap-x-3 gap-y-5">   
+      <div v-for="product in products" class="row flex flex-col justify-between gap-2 border border-neutral-400 bg-white rounded shadow-md h-72">
+        <div class="h-44 w-full bg-cover bg-no-repeat bg-center" :style="{ backgroundImage: `url(${APP_BACKEND_BASE_URL}/${SYMLINK_FOLDER}/${product.img})` }"></div>
         
-        <div>
+        <div class="mb-1">
           <div class="px-1.5 flex flex-col">
-            <h4 class="text-[.9rem] leading-6">{{ product.name }}</h4>
+            <h4 class="text-[.9rem] leading-6 whitespace-nowrap overflow-hidden text-ellipsis">{{ product.name }}</h4>
             <h4 class="font-semibold text-[.9rem]">Rp {{ product.price.toLocaleString('id-ID') }}</h4>
           </div>
   
@@ -67,7 +62,7 @@ export default {
   data() {
     return {
       APP_BACKEND_BASE_URL: import.meta.env.VITE_APP_BACKEND_BASE_URL,
-      VITE_SYMLINK_FOLDER: import.meta.env.VITE_SYMLINK_FOLDER,
+      SYMLINK_FOLDER: import.meta.env.VITE_SYMLINK_FOLDER,
       ProductImage: ProductImage,
       products: [],
     }
