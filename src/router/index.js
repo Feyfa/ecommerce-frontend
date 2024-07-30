@@ -1,6 +1,7 @@
 import { createRouter, createWebHistory } from 'vue-router'
 import axios from '@/axios';
 import store from '@/store';
+import global from '@/global';
 
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
@@ -78,6 +79,10 @@ const router = createRouter({
 });
 
 router.beforeEach((to, from, next) => {
+  /**CLOSE SIDEBAR */
+  global.isSidebarOpen = false;
+  /**CLOSE SIDEBAR */
+
   /* REFRESH GET ITEM LOCALSTORAGE */
   store.dispatch('fetchTokenFromLocalStorage');
   store.dispatch('fetchUserFromLocalStorage');

@@ -11,7 +11,7 @@
 
     <!-- input -->
     <div class="mt-5">
-      <div class="grid grid-cols-4 items-start gap-y-4 gap-x-8">
+      <div class="grid grid-cols-1 sm500:grid-cols-2 md:grid-cols-4 items-start gap-y-4 gap-x-4 lg:gap-x-6">
         <div class="input-container flex flex-col w-full">
           <label 
             for="name">
@@ -85,7 +85,7 @@
         </div>
       </div>
   
-      <div class="input-container flex flex-col w-full mt-3">
+      <div class="input-container flex flex-col w-full mt-4">
         <label 
           for="alamat">
           Alamat

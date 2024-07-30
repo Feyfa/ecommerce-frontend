@@ -4,7 +4,7 @@
 
     <div class="keranjang-container flex justify-start items-start px-3 py-2 gap-5">
 
-      <div class="w-[70%] h-screen-minus-banyak overflow-auto flex flex-col gap-3">         
+      <div class="w-full lg:w-[65%] xl:w-[70%] 2xl:w-[75%] h-screen-minus-banyak overflow-auto flex flex-col gap-3 pb-[7.5rem] lg:pb-0">         
         <h3
           ref="empty" 
           class="w-full text-center text-base font-medium hidden">
@@ -13,61 +13,63 @@
         
         <div
           v-for="(keranjang, index) in keranjangs" 
-          class="row flex items-start border border-neutral-400 bg-white rounded shadow-md p-2 gap-2 relative">
-          <div>
+          class="row flex items-start border border-neutral-400 bg-white rounded shadow-md p-2 gap-2">
+          <div class="w-5 h-5 border">
             <input
               @change="checkedKeranjang($event, keranjang.p_id)" 
               :checked="keranjang.k_checked != 0 ? true : false"
               type="checkbox" 
               class="w-5 h-5">
           </div>
-          <div class="flex flex-col justify-start items-start gap-1">
-            <div class="flex gap-3">
-              <div class="w-32 h-32 bg-cover bg-no-repeat bg-center rounded" :style="{ backgroundImage: `url(${APP_BACKEND_BASE_URL}/${SYMLINK_FOLDER}/${keranjang.p_img})` }"></div>
+          <div class="w-screen flex flex-col justify-start items-start gap-1">
+            <div class="flex gap-3 sm500:gap-5 w-full">
+              <div class="w-24 h-24 bg-cover bg-no-repeat bg-center rounded" :style="{ backgroundImage: `url(${APP_BACKEND_BASE_URL}/${SYMLINK_FOLDER}/${keranjang.p_img})` }"></div>
 
-              <div class=" flex flex-col gap-1">
-                <span class="text-[.8rem] font-semibold">{{ keranjang.u_seller_name }}</span>
-                <div class="text-[.9rem]">
+              <div class="sm:relative flex flex-col gap-1 justify-center w-full">
+                <span class="text-[.7rem] font-semibold">{{ keranjang.u_seller_name }}</span>
+                <div class="text-[.8rem]">
                   <span class="w-[3.3rem] inline-block">Name</span>
                   <span class="mr-2">:</span>
                   <span>{{ keranjang.p_name }}</span>
                 </div>
-                <div class="text-[.9rem]">
+                <div class="text-[.8rem]">
                   <span class="w-[3.3rem] inline-block">Price</span>
                   <span class="mr-2">:</span>
                   <span class="font-semibold">Rp {{ keranjang.p_price.toLocaleString('id-ID') }}</span>
                 </div>
-                <div class="text-[.9rem]">
+                <div class="text-[.8rem]">
                   <span class="w-[3.3rem] inline-block">Stock</span>
                   <span class="mr-2">:</span>
                   <span>{{ keranjang.p_stock }}</span>
                 </div>
-                <div class="total-keranjang-container flex border border-zinc-300 absolute bottom-2 right-2 py-0.5 px-1 rounded">
-                  <span>
-                    <i 
-                      v-if="keranjang.k_total > 1"
-                      @click="minusKeranjang(keranjang.p_id)"
-                      class="bi bi-dash-lg mr-2.5 cursor-pointer">
-                    </i>
-                    <i 
-                      v-else
-                      @click="deleteKeranjang(keranjang.p_id)"
-                      class="fa-regular fa-trash-can mr-2.5 cursor-pointer">
-                    </i>
-                  </span>
-                  <input
-                    v-model="keranjang.k_total"
-                    class="input-keranjang text-center outline-none text-sm w-12 mr-2" 
-                    type="text"
-                    readonly
-                    @input="changeTotalKeranjang(index)"
-                    min="1" >
-                  <span>
-                    <i
-                      @click="plusKeranjang(keranjang.p_id)" 
-                      class="bi bi-plus-lg cursor-pointer">
-                    </i>
-                  </span>
+                <div class="flex justify-end w-full">
+                  <div class="total-keranjang-container flex border border-zinc-400 lg:absolute lg:bottom-2 lg:right-2 py-0.5 px-1 rounded sm:absolute sm:bottom-0">
+                    <span>
+                      <i 
+                        v-if="keranjang.k_total > 1"
+                        @click="minusKeranjang(keranjang.p_id)"
+                        class="bi bi-dash-lg mr-2.5 cursor-pointer">
+                      </i>
+                      <i 
+                        v-else
+                        @click="deleteKeranjang(keranjang.p_id)"
+                        class="fa-regular fa-trash-can mr-2.5 cursor-pointer">
+                      </i>
+                    </span>
+                    <input
+                      v-model="keranjang.k_total"
+                      class="input-keranjang text-center outline-none text-sm w-12 mr-2" 
+                      type="text"
+                      readonly
+                      @input="changeTotalKeranjang(index)"
+                      min="1" >
+                    <span>
+                      <i
+                        @click="plusKeranjang(keranjang.p_id)" 
+                        class="bi bi-plus-lg cursor-pointer">
+                      </i>
+                    </span>
+                  </div>
                 </div>
               </div>
             </div>
@@ -76,10 +78,10 @@
 
       </div>
 
-      <div class="w-[30%] border border-neutral-400 bg-white rounded shadow-md px-2">
+      <div class="lg:w-[35%] xl:w-[30%] 2xl:w-[25%] bottom-0 left-3 right-3 border border-neutral-300 bg-white rounded shadow-md px-2 fixed lg:static">
         <div class="border-b border-b-neutral-300 py-2">
-          <h2 class="text-lg font-semibold">Ringkasan Belanja</h2>
-          <div class="mt-1 flex items-center justify-between">
+          <h2 class="text-base font-semibold">Ringkasan Belanja</h2>
+          <div class="mt-1 flex items-center justify-between text-sm">
             <h3>Total</h3>
             <h3 class="font-semibold">Rp {{ totalPrice.toLocaleString('id-ID') }}</h3>
           </div>
