@@ -1,10 +1,10 @@
 <template>
-  <div class="w-full px-4 flex flex-col justify-center gap-5">
+  <div class="w-full px-4 pb-2 flex flex-col justify-center gap-5">
 
     <div class="row relative">
       <router-link 
         to="/product"
-        class="absolute top-0 end-0 left-2 w-max">
+        class="absolute top-1.5 w-max">
         <svg 
           class="w-5 cursor-pointer"
           xmlns="http://www.w3.org/2000/svg" 
@@ -14,7 +14,7 @@
         </svg>
       </router-link>
       
-      <h1 class="text-center text-4xl tracking-wide">Tambah Product</h1>
+      <h1 class="text-center text-2xl sm:text-3xl tracking-wide">Tambah Product</h1>
     </div>
 
     <!-- zoom img -->
@@ -25,130 +25,129 @@
       <img 
         :src="ProductImage"
         alt="product"
-        width="500"
-        class="border border-neutral-400 rounded-md shadow-xl cursor-default"
+        class="w-80 sm400:w-[21rem] sm500:w-96 sm:w-[26rem] lg:w-[30rem] border border-neutral-400 rounded-md shadow-xl cursor-default"
         @click.stop/>  
     </div>
     <!-- zoom img -->
-    
-    <div class="w-max mx-auto relative">
-      <div
-        class="product w-[350px] h-[200px] border border-neutral-500 rounded shadow-md bg-cover bg-no-repeat bg-center"
-        :style="{ backgroundImage: `url(${ProductImage})` }"
-        @click="togglePreview"
-        @click.stop>
-      </div>
 
-      <div class="text-center">
-        <small 
-          v-if="errors.file"
-          class="text-red-500 text-[.8rem]">
-          {{ errors.file }}
-        </small>
-      </div>
-
-      <ul 
-        class="absolute bg-white z-50 top-44 left-80 rounded transition-all duration-75 ease-in-out overflow-hidden"
-        :class="this.$global.isCLickDropdown.product ? 'border border-neutral-500 h-[4.5rem] shadow-lg p-2' : 'h-0'">
-        <li>
-          <span 
-            class="inline-block px-1 rounded h-7 w-36 leading-7 hover:bg-violet-500 cursor-pointer"
-            @click="zoomUserImage('in')">
-            Zoom Image
-          </span>
-        </li>
-        <li>
-          <div>
-            <input
-              class="top-0 left-0 right-0 bottom-0 hidden"
-              type="file"
-              id="image-file"
-              ref="imageFile"
-              name="file"
-              @change="imageFileChange"/>
+    <div class="flex flex-col gap-y-3 md:gap-x-5 md:flex-row md:justify-center md:items-start">
+      <div class="md:w-[35%] xl:w-[30%] relative md:pt-2.5 flex justify-center md:justify-start">
+        <div
+          class="product w-[300px] h-[200px] sm500:w-[325px] sm500:h-[225px] border border-neutral-500 rounded shadow-md bg-cover bg-no-repeat bg-center"
+          :style="{ backgroundImage: `url(${ProductImage})` }"
+          @click="togglePreview"
+          @click.stop>
+        </div>
+  
+        <div class="text-center">
+          <small 
+            v-if="errors.file"
+            class="text-red-500 text-[.8rem]">
+            {{ errors.file }}
+          </small>
+        </div>
+  
+        <ul 
+          class="absolute bg-white z-50 top-44 left-80 rounded transition-all duration-75 ease-in-out overflow-hidden"
+          :class="this.$global.isCLickDropdown.product ? 'border border-neutral-500 h-[4.5rem] shadow-lg p-2' : 'h-0'">
+          <li>
             <span 
               class="inline-block px-1 rounded h-7 w-36 leading-7 hover:bg-violet-500 cursor-pointer"
-              @click="this.$refs.imageFile.click()">
-              Upload Image
+              @click="zoomUserImage('in')">
+              Zoom Image
             </span>
-          </div>
-        </li>
-      </ul>
-    </div>
-
-    <div class="grid grid-cols-3 gap-5 text-xl">
-      <div class="input-container flex flex-col w-full">
-        <label 
-          for="name">
-          name
-        </label>
-        <input
-          placeholder="name" 
-          id="name" 
-          type="text" 
-          class="border w-full border-neutral-500 rounded outline-none h-12 px-2.5 shadow" 
-          :class="{'border border-red-500': errors.name}"
-          v-model="name"
-          @input="watchInputName">
-        <small 
-          v-if="errors.name"
-          class="text-red-500 text-[.8rem]">
-          {{ errors.name }}
-        </small>
+          </li>
+          <li>
+            <div>
+              <input
+                class="top-0 left-0 right-0 bottom-0 hidden"
+                type="file"
+                id="image-file"
+                ref="imageFile"
+                name="file"
+                @change="imageFileChange"/>
+              <span 
+                class="inline-block px-1 rounded h-7 w-36 leading-7 hover:bg-violet-500 cursor-pointer"
+                @click="this.$refs.imageFile.click()">
+                Upload Image
+              </span>
+            </div>
+          </li>
+        </ul>
       </div>
-      
-      <div class="input-container flex flex-col w-full">
-        <label 
-          for="price">
-          price
-        </label>
-        <input
-          placeholder="price" 
-          id="price" 
-          type="number"
-          min="1" 
-          class="border w-full border-neutral-500 rounded outline-none h-12 px-2.5 shadow" 
-          :class="{'border border-red-500': errors.price}"
-          v-model="price"
-          @input="watchInputPrice">
-        <small 
-          v-if="errors.price"
-          class="text-red-500 text-[.8rem]">
-          {{ errors.price }}
-        </small>
+  
+      <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-2 md:w-[65%] xl:w-[70%] gap-y-3 sm:gap-y-1 gap-x-5 items-end text-xl">
+        <div class="input-container flex flex-col w-full">
+          <label 
+            for="name">
+            name
+          </label>
+          <input
+            placeholder="name" 
+            id="name" 
+            type="text" 
+            class="border w-full border-neutral-500 rounded outline-none h-12 px-2.5 shadow" 
+            :class="{'border border-red-500': errors.name}"
+            v-model="name"
+            @input="watchInputName">
+          <small 
+            v-if="errors.name"
+            class="text-red-500 text-[.8rem]">
+            {{ errors.name }}
+          </small>
+        </div>
+        
+        <div class="input-container flex flex-col w-full">
+          <label 
+            for="price">
+            price
+          </label>
+          <input
+            placeholder="price" 
+            id="price" 
+            type="number"
+            min="1" 
+            class="border w-full border-neutral-500 rounded outline-none h-12 px-2.5 shadow" 
+            :class="{'border border-red-500': errors.price}"
+            v-model="price"
+            @input="watchInputPrice">
+          <small 
+            v-if="errors.price"
+            class="text-red-500 text-[.8rem]">
+            {{ errors.price }}
+          </small>
+        </div>
+        
+        <div class="input-container flex flex-col w-full">
+          <label 
+            for="stock">
+            stock
+          </label>
+          <input
+            placeholder="stock" 
+            id="stock"
+            type="number"
+            min="1" 
+            class="border w-full border-neutral-500 rounded outline-none h-12 px-2.5 shadow" 
+            :class="{'border border-red-500': errors.stock}"
+            v-model="stock"
+            @input="watchInputStock">
+          <small 
+            v-if="errors.stock"
+            class="text-red-500 text-[.8rem]">
+            {{ errors.stock }}
+          </small>
+        </div>
+  
+        <button 
+          class="h-12 px-2.5 border border-neutral-500 rounded shadow-lg bg-blue-500 mt-4 hover:bg-[#428bff]"
+          :class="isProcessEditProduct ? 'opacity-85' : 'hover:bg-[#428bff]'"
+          :disabled="isProcessEditProduct"
+          @click="editProduct">
+          Edit
+          <i v-if="isProcessEditProduct" class="ml-1 fas fa-spinner fa-pulse"></i>
+        </button>
       </div>
-      
-      <div class="input-container flex flex-col w-full">
-        <label 
-          for="stock">
-          stock
-        </label>
-        <input
-          placeholder="stock" 
-          id="stock"
-          type="number"
-          min="1" 
-          class="border w-full border-neutral-500 rounded outline-none h-12 px-2.5 shadow" 
-          :class="{'border border-red-500': errors.stock}"
-          v-model="stock"
-          @input="watchInputStock">
-        <small 
-          v-if="errors.stock"
-          class="text-red-500 text-[.8rem]">
-          {{ errors.stock }}
-        </small>
-      </div>
-    </div>
-
-    <div class="grid grid-cols-3 gap-5">
-      <button 
-        class="h-12 px-2.5 border border-neutral-500 rounded shadow-lg bg-blue-500 mt-2 hover:bg-[#428bff]"
-        :class="isProcessEditProduct ? 'opacity-85' : 'hover:bg-[#428bff]'"
-        :disabled="isProcessEditProduct"
-        @click="editProduct">
-        Edit
-        <i v-if="isProcessEditProduct" class="ml-1 fas fa-spinner fa-pulse"></i>
-      </button>
     </div>
 
   </div>
