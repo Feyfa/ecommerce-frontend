@@ -92,7 +92,7 @@
         </label>
         <textarea 
           id="alamat"
-          rows="2"
+          :rows="rows"
           class="border w-full border-neutral-500 rounded outline-none py-1 px-2.5 shadow"
           v-model="alamat"
           :disabled="!isEdit"
@@ -159,14 +159,31 @@ export default {
         name: '',
         email: '',
       },
+
+      rows: 4,
     }
   },
 
   mounted() {
     this.getUser();
+    this.setRowsTextAreaBasedOnScreenSize();
+    window.addEventListener('resize', this.setRowsTextAreaBasedOnScreenSize);
+  },
+
+  beforeUnmount() {
+    window.removeEventListener('resize', this.setRowsTextAreaBasedOnScreenSize);
   },
 
   methods: {
+    setRowsTextAreaBasedOnScreenSize() {
+      if(window.innerWidth < 500) 
+        this.rows = 4;
+      else if(window.innerWidth < 600)
+        this.rows = 3;
+      else
+        this.rows = 2;
+    },
+
     getUser() {
       this.name = this.$store.getters.user.name;
       this.email = this.$store.getters.user.email;
