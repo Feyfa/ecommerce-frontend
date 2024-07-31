@@ -4,6 +4,7 @@
     <svg 
       v-if="!this.$global.isSidebarOpen"
       @click="toggleSidebarOpen"
+      @click.stop
       xmlns="http://www.w3.org/2000/svg" 
       width="25" 
       height="25" 
@@ -15,6 +16,7 @@
     <svg 
       v-if="this.$global.isSidebarOpen"
       @click="toggleSidebarOpen"
+      @click.stop
       xmlns="http://www.w3.org/2000/svg" 
       width="30" 
       height="30" 

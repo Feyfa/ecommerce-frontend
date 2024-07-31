@@ -35,6 +35,7 @@ export default {
   methods: {
     globalCLick() {
       this.closeDropdown();
+      this.closeSidebar();
     },
 
     closeDropdown() {
@@ -42,6 +43,12 @@ export default {
         this.$global.isCLickDropdown.profile = false;
       if(this.$global.isCLickDropdown.product) 
         this.$global.isCLickDropdown.product = false;
+    },
+    
+    closeSidebar() {
+      if(this.$global.isSidebarOpen) {
+        this.$global.isSidebarOpen = false;
+      }
     },
 
     showNavbarSidebar() {
