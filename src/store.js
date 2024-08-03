@@ -21,9 +21,25 @@ export default createStore({
       this.state.user = JSON.parse(localStorage.getItem('user'));
     },
 
-    minusKeranjang(context, data) {
+    storeTotalKeranjang(context, data) {
       return new Promise((resolve, reject) => {
-        axios.post('/keranjang/minus', {
+        axios.post('/keranjang/total/change', {
+          user_id_buyer: data.user_id_buyer,
+          product_id: data.product_id,
+          total: data.total,
+        })
+        .then(response => {
+          resolve(response);
+        })
+        .catch(error => {
+          reject(error);
+        })
+      });
+    },
+
+    minusTotalKeranjang(context, data) {
+      return new Promise((resolve, reject) => {
+        axios.post('/keranjang/total/minus', {
           user_id_buyer: data.user_id_buyer,
           product_id: data.product_id,
         })
@@ -36,9 +52,9 @@ export default createStore({
       });
     },
 
-    plusKeranjang(context, data) {
+    plusTotalKeranjang(context, data) {
       return new Promise((resolve, reject) => {
-        axios.post('/keranjang/plus', {
+        axios.post('/keranjang/total/plus', {
           user_id_buyer: data.user_id_buyer,
           product_id: data.product_id,
         })

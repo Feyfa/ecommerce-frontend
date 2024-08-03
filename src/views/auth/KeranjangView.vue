@@ -47,7 +47,7 @@
                     <span>
                       <i 
                         v-if="keranjang.k_total > 1"
-                        @click="minusKeranjang(keranjang.p_id)"
+                        @click="minusTotalKeranjang(keranjang.p_id)"
                         class="bi bi-dash-lg mr-2.5 cursor-pointer">
                       </i>
                       <i 
@@ -60,12 +60,12 @@
                       v-model="keranjang.k_total"
                       class="input-keranjang text-center outline-none text-sm w-12 mr-2" 
                       type="text"
-                      readonly
-                      @input="changeTotalKeranjang(index)"
+                      @input="validationTotalKeranjang($event, index)"
+                      @blur="changeTotalKeranjang(keranjang.p_id, index)"
                       min="1" >
                     <span>
                       <i
-                        @click="plusKeranjang(keranjang.p_id)" 
+                        @click="plusTotalKeranjang(keranjang.p_id)" 
                         class="bi bi-plus-lg cursor-pointer">
                       </i>
                     </span>
@@ -97,6 +97,8 @@
 </template>
 
 <script>
+import { ElNotification } from 'element-plus';
+
 export default {
   data() {
     return {
@@ -112,8 +114,70 @@ export default {
   },
 
   methods: {
-    minusKeranjang(product_id) {
-      this.$store.dispatch('minusKeranjang', {
+    validationTotalKeranjang(event, index) {
+      let newValue = event.target.value;
+
+      // Remove any non-digit characters
+      newValue = newValue.replace(/[^0-9]/g, '');
+
+      // Convert the sanitized value to an integer
+      const integerValue = parseInt(newValue, 10);
+
+      // Check if the integer value is valid and greater than 0
+      if (integerValue > 0) {
+        // Update the total value with a valid integer
+        this.keranjangs[index].k_total = integerValue;
+      } 
+      else if(integerValue <= 0) {
+        this.keranjangs[index].k_total = 1;
+      }
+      else if(newValue === '') {
+        this.keranjangs[index].k_total = '';
+      }
+    },
+
+    changeTotalKeranjang(product_id, index) {
+      if(this.keranjangs[index].k_total === '') {
+        this.keranjangs[index].k_total = 1;
+      }
+
+      this.$store.dispatch('storeTotalKeranjang', {
+        user_id_buyer: this.$store.getters.user.id,
+        product_id,
+        total: this.keranjangs[index].k_total
+      })
+      .then(response => {
+        console.log(response);
+
+        this.keranjangs = response.data.keranjangs;
+        this.totalPrice = response.data.totalPrice;
+      })
+      .catch(error => {
+        console.error(error);
+
+        this.keranjangs = error.response.data.keranjangs;
+        this.totalPrice = error.response.data.totalPrice;
+
+        if(error.response.data.status == 422) {
+          const message = error.response.data.message;
+          
+          Object.keys(message).forEach(key => {
+            switch(key) {
+              case 'stock_maximum' : 
+                ElNotification({
+                  type: 'error',
+                  title: 'Error',
+                  message: message[key][0]
+                })   
+                break;
+            }
+          });
+        }
+      });
+    },
+
+    minusTotalKeranjang(product_id) {
+      this.$store.dispatch('minusTotalKeranjang', {
         user_id_buyer: this.$store.getters.user.id,
         product_id
       })
@@ -128,8 +192,8 @@ export default {
       });
     },
 
-    plusKeranjang(product_id) {
-      this.$store.dispatch('plusKeranjang', {
+    plusTotalKeranjang(product_id) {
+      this.$store.dispatch('plusTotalKeranjang', {
         user_id_buyer: this.$store.getters.user.id,
         product_id
       })
@@ -141,6 +205,22 @@ export default {
       })
       .catch(error => {
         console.error(error);
+
+        if(error.response.data.status == 422) {
+          const message = error.response.data.message;
+          
+          Object.keys(message).forEach(key => {
+            switch(key) {
+              case 'stock_maximum' : 
+                ElNotification({
+                  type: 'error',
+                  title: 'Error',
+                  message: message[key][0]
+                })   
+                break;
+            }
+          });
+        }
       });
     },
 

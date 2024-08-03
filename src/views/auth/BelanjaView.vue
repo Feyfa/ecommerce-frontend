@@ -73,6 +73,22 @@ export default {
       })
       .catch(error => {
         console.error(error);
+
+        if(error.response.data.status == 422) {
+          const message = error.response.data.message;
+          
+          Object.keys(message).forEach(key => {
+            switch(key) {
+              case 'stock_maximum' : 
+                ElNotification({
+                  type: 'error',
+                  title: 'Error',
+                  message: message[key][0]
+                })   
+                break;
+            }
+          });
+        }
       })
     },
 
