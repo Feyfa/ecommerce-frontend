@@ -1,6 +1,6 @@
 <template>
   <div 
-    class="w-full min-h-screen flex justify-center items-center bg-utama bg-cover bg-no-repeat">
+    class="w-full min-h-screen overflow-hidden flex justify-center items-center bg-utama bg-cover bg-no-repeat">
     <form 
       class="text-xl font-normal border border-neutral-500 rounded w-[90%] sm500:w-[70%] sm:w-[60%] md:w-[50%] lg:w-[40%] xl:w-[35%] 2xl:w-[30%] p-3 shadow-2xl bg-[rgba(255,255,255,.7)]">
 

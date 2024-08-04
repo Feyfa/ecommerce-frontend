@@ -1,5 +1,5 @@
 <template>
-  <div class="w-full border bg-neutral-50 border-neutral-400 shadow-md p-5 rounded mb-5">
+  <div class="w-full border bg-neutral-50 border-neutral-400 shadow-md p-5 rounded mb-3">
     <!-- title -->
     <div class="relative">
       <h3 class="text-xl text-center">User Setting</h3>
