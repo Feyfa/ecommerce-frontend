@@ -50,7 +50,7 @@
                         @click="minusTotalKeranjang(keranjang.p_id)"
                         class="bi bi-dash-lg mr-2.5 cursor-pointer">
                       </i>
-                      <i 
+                      <i
                         v-else
                         @click="deleteKeranjang(keranjang.p_id)"
                         class="fa-regular fa-trash-can mr-2.5 cursor-pointer">
