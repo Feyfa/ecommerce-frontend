@@ -21,6 +21,21 @@ export default createStore({
       this.state.user = JSON.parse(localStorage.getItem('user'));
     },
 
+    createTokenMidtrans(context, data) {
+      return new Promise((resolve, reject) => {
+        axios.post('/payment/createtokenmidtrans', {
+          user_id_buyer: data.user_id_buyer,
+          user_name_buyer: data.user_name_buyer,
+        })
+        .then(response => {
+          resolve(response)
+        })
+        .catch(error => {
+          reject(error);
+        })
+      })
+    },
+
     storeTotalKeranjang(context, data) {
       return new Promise((resolve, reject) => {
         axios.post('/keranjang/total/change', {

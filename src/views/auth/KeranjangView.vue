@@ -87,7 +87,14 @@
           </div>
         </div>
         <div class="border-b border-b-neutral-300 py-2">
-          <button type="button" class="w-full border border-neutral-300 rounded-md bg-blue-500 py-1.5 text-white font-medium">Bayar</button>
+          <button 
+            @click="checkout" 
+            class="w-full border border-neutral-300 rounded-md bg-blue-500 py-1.5 text-white font-medium"
+            :class="{'button-disabled': !disabled.buttonBayar || isProcessBayar}"
+            :disabled="!disabled.buttonBayar || isProcessBayar">
+            Bayar
+            <i v-if="isProcessBayar" class="ml-1 fas fa-spinner fa-pulse"></i>
+          </button>
         </div>
       </div>
 
@@ -104,8 +111,15 @@ export default {
     return {
       APP_BACKEND_BASE_URL: import.meta.env.VITE_APP_BACKEND_BASE_URL,
       SYMLINK_FOLDER: import.meta.env.VITE_SYMLINK_FOLDER,
+
       keranjangs: [],
       totalPrice: '',
+
+      isProcessBayar: false,
+      
+      disabled: {
+        buttonBayar: false
+      }
     }
   },
 
@@ -114,6 +128,28 @@ export default {
   },
 
   methods: {
+    checkout() {
+      // cek apakah ada 1 saja keranjang yang checked
+      const keranjangAlReadyChecked = this.keranjangs.some(item => item.k_checked === 1);
+
+      if(keranjangAlReadyChecked) {
+        this.isProcessBayar = true;
+        
+        this.$store.dispatch('createTokenMidtrans', {
+          user_id_buyer: this.$store.getters.user.id,
+          user_name_buyer: this.$store.getters.user.name
+        })
+        .then(response => {
+          // console.log(response);
+          window.snap.pay(response.data.token);
+          this.isProcessBayar = false;
+        })
+        .catch(error => {
+          // console.error(error);
+        })
+      }
+    },
+
     validationTotalKeranjang(event, index) {
       let newValue = event.target.value;
 
@@ -147,13 +183,13 @@ export default {
         total: this.keranjangs[index].k_total
       })
       .then(response => {
-        console.log(response);
+        // console.log(response);
 
         this.keranjangs = response.data.keranjangs;
         this.totalPrice = response.data.totalPrice;
       })
       .catch(error => {
-        console.error(error);
+        // console.error(error);
 
         this.keranjangs = error.response.data.keranjangs;
         this.totalPrice = error.response.data.totalPrice;
@@ -182,13 +218,13 @@ export default {
         product_id
       })
       .then(response => {
-        console.log(response);
+        // console.log(response);
 
         this.keranjangs = response.data.keranjangs;
         this.totalPrice = response.data.totalPrice;
       })
       .catch(error => {
-        console.error(error);
+        // console.error(error);
       });
     },
 
@@ -198,13 +234,13 @@ export default {
         product_id
       })
       .then(response => {
-        console.log(response);
+        // console.log(response);
 
         this.keranjangs = response.data.keranjangs;
         this.totalPrice = response.data.totalPrice;
       })
       .catch(error => {
-        console.error(error);
+        // console.error(error);
 
         if(error.response.data.status == 422) {
           const message = error.response.data.message;
@@ -259,6 +295,10 @@ export default {
           this.$refs.empty.classList.remove('hidden');
           this.$refs.empty.classList.add('visible');
         }
+
+        // cek apakah ada 1 saja keranjang yang checked
+        const keranjangAlReadyChecked = this.keranjangs.some(item => item.k_checked === 1);
+        this.disabled.buttonBayar = keranjangAlReadyChecked;
       })
       .catch(error => {
         // console.error(error);
@@ -276,6 +316,10 @@ export default {
 
         this.keranjangs = response.data.keranjangs;
         this.totalPrice = response.data.totalPrice;
+
+        // cek apakah ada 1 saja keranjang yang checked
+        const keranjangAlReadyChecked = this.keranjangs.some(item => item.k_checked === 1);
+        this.disabled.buttonBayar = keranjangAlReadyChecked;
       })
       .catch(error => {
         // console.error(error);

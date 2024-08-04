@@ -32,6 +32,32 @@ export default {
     SidebarComponent
   },
 
+  data() {
+    return {
+      snapScriptElement: null
+    }
+  },
+
+  mounted() {
+    // URL script Midtrans dan client key dari environment variable
+    const snapScript = "https://app.sandbox.midtrans.com/snap/snap.js";
+    const clientKey = import.meta.env.VITE_MIDTRANS_CLIENT_KEY;
+    const script = document.createElement('script');
+    
+    script.src = snapScript;
+    script.setAttribute('data-client-key', clientKey);
+    script.async = true;
+
+    document.body.appendChild(script);
+    this.snapScriptElement = script;
+  },
+
+  beforeUnmount() {
+    if (this.snapScriptElement) {
+      document.body.removeChild(this.snapScriptElement);
+    }
+  },
+
   methods: {
     globalCLick() {
       this.closeDropdown();

@@ -5,3 +5,6 @@
 .input-disabled {
   @apply bg-[rgba(210,210,210,.1)] opacity-90;
 }
+.button-disabled {
+  @apply opacity-50
+}
