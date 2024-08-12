@@ -91,6 +91,7 @@
 
 <script>
 import { ElNotification } from 'element-plus';
+import Swal from 'sweetalert2';
 import { RouterLink } from 'vue-router';
 
 export default {
@@ -149,7 +150,81 @@ export default {
         .then(response => {
           // console.log(response);
 
-          if(response.data.status == 200) {
+          /* IF USER USE TWO FACTORY AUTHENTICATION */
+          if(response.data.status == 200 && response.data.type == 'send_otp') {
+            this.isProcessLogin = false;
+
+            Swal.fire({
+              input: 'number',
+              inputLabel: 'Number OTP',
+              inputPlaceholder: 'Enter a number OTP',
+              preConfirm: (otp) => {
+                if (!otp) {
+                  Swal.showValidationMessage('Please enter a number OTP'); // Menampilkan pesan validasi
+                  return false; // Menjaga modal tetap terbuka
+                }
+                return otp; // Mengembalikan nilai jika valid
+              }
+            }).then((result) => {
+              const otp = result.value;
+
+              if (otp) {
+                this.$store.dispatch('loginSubmit', {
+                  email: this.email,
+                  password: this.password,
+                  otp,
+                  type: 'verification_otp'
+                })
+                .then(response => {
+                  if(response.data.status == 200) {
+                    localStorage.setItem('token', response.data.token);
+                    localStorage.setItem('user', JSON.stringify(response.data.user));
+
+                    /* UPDATE PENGAMBILAN DARI LOCALSTORAGE */
+                    this.$store.dispatch('fetchTokenFromLocalStorage');
+                    this.$store.dispatch('fetchUserFromLocalStorage');
+                    /* UPDATE PENGAMBILAN DARI LOCALSTORAGE */
+
+                    this.$router.push('/');
+                  }
+                  else {
+                    this.isProcessLogin = false;
+                  }
+                })
+                .catch(error => {
+                  console.error(error);
+
+                  this.isProcessLogin = false;
+                            
+                  if(error.response.data.status == 422) {
+                    const message = error.response.data.message;
+                    
+                    Object.keys(message).forEach(key => {
+                      switch(key) {
+                        case 'email' : 
+                          this.errors.email = message[key][0];
+                          break;
+                        case 'password' : 
+                          this.errors.password = message[key][0];
+                          break;
+                      }
+                    })
+                  }
+                  else if(error.response.data.status == 401) {
+                    ElNotification({
+                      type: 'error',
+                      title: 'error',
+                      message: error.response.data.message
+                    });
+                  }
+                })
+              }
+            });
+          }
+          /* IF USER USE TWO FACTORY AUTHENTICATION */
+
+          /* IF USER NOT USE TWO FACTORY AUTHENTICATION */
+          else if(response.data.status == 200) {
             localStorage.setItem('token', response.data.token);
             localStorage.setItem('user', JSON.stringify(response.data.user));
 
@@ -159,12 +234,17 @@ export default {
             /* UPDATE PENGAMBILAN DARI LOCALSTORAGE */
 
             this.$router.push('/');
-          } else {
+          }
+          /* IF USER NOT USE TWO FACTORY AUTHENTICATION */
+
+          /* DAN LAIN LAIN */
+          else {
             this.isProcessLogin = false;
           }
+          /* DAN LAIN LAIN */
         })
         .catch(error => {
-          // console.error(error);
+          console.error(error);
 
           this.isProcessLogin = false;
           

@@ -83,6 +83,22 @@
             :disabled="!isEdit"
             :class="{'input-disabled': !isEdit}">
         </div>
+        
+        <div class="input-container flex flex-col w-full">
+          <label 
+            for="tfa">
+            TFA
+          </label>
+          <select 
+            id="tfa" 
+            class="border w-full border-neutral-500 rounded outline-none h-12 px-2.5 shadow"
+            v-model="tfa"
+            :disabled="!isEdit"
+            :class="{'input-disabled': !isEdit}">
+            <option value="F">Off</option>
+            <option value="T">On</option>
+          </select>
+        </div>
       </div>
   
       <div class="input-container flex flex-col w-full mt-4">
@@ -150,6 +166,7 @@ export default {
       email: '',
       jenis_kelamin: '',
       tanggal_lahir: '',
+      tfa: '',
       alamat: '',
 
       isEdit: false,
@@ -190,6 +207,7 @@ export default {
       this.jenis_kelamin = this.$store.getters.user.jenis_kelamin;
       this.tanggal_lahir = this.$store.getters.user.tanggal_lahir;
       this.alamat = this.$store.getters.user.alamat;
+      this.tfa = this.$store.getters.user.tfa;
     },
 
     clearErrors() {
@@ -221,6 +239,7 @@ export default {
           email: this.email,
           jenis_kelamin: this.jenis_kelamin,
           tanggal_lahir: this.tanggal_lahir,
+          tfa: this.tfa,
           alamat: this.alamat,
         })
         .then(response => {

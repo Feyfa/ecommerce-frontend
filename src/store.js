@@ -218,6 +218,7 @@ export default createStore({
           email: data.email,
           jenis_kelamin: data.jenis_kelamin,
           tanggal_lahir: data.tanggal_lahir,
+          tfa: data.tfa,
           alamat: data.alamat,
         })
         .then(response => {
@@ -274,6 +275,8 @@ export default createStore({
         axios.post('/login', {
           email: data.email,
           password: data.password,
+          otp: data.otp,
+          type: data.type,
         })
         .then(response => {
           resolve(response);
