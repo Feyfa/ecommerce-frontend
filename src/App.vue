@@ -7,7 +7,7 @@
       <SidebarComponent 
         class="sidebar h-screen overflow-y-auto absolute lg:static lg:w-[25%] xl:w-[20%] 2xl:[w-15%] lg:p-4 lg:border-r-2 lg:border-r-neutral-300 lg:bg-white lg:pt-[4.5rem] lg:shadow-neutral-500 lg:shadow-lg transition-all ease-in-out duration-300  flex flex-col gap-5 text-lg z-40 lg:z-0"
         :class="{'w-0 overflow-hidden p-0 pt-[4.5rem] border-none shadow-none': !this.$global.isSidebarOpen, ' w-[50%] sm500:w-[40%] sm:w-[30%] md:w-[25%] p-4 border-r-2 border-r-neutral-300 bg-white pt-[4.5rem] shadow-neutral-500 shadow-lg': this.$global.isSidebarOpen}"
-        v-if="this.$route.path !== '/register' && this.$route.path !== '/login'" />
+        v-if="showNavbarSidebar()" />
       
       <div 
         class="h-screen bg-[rgba(255,255,255,.5)]"
@@ -78,7 +78,7 @@ export default {
     },
 
     showNavbarSidebar() {
-      return !['/register', '/login'].includes(this.$route.path);
+      return this.$global.isAuth;
     }
   }
 
