@@ -1,5 +1,5 @@
 <template>
-  <div v-if="_show" class="bg-[rgba(0,0,0,.4)] fixed inset-0 z-[999] flex justify-center items-center">
+  <div v-if="show" class="bg-[rgba(0,0,0,.4)] fixed inset-0 z-[999] flex justify-center items-center">
     <form class="text-xl font-normal border border-neutral-500 rounded-md w-[90%] sm500:w-[80%] sm:w-[70%] md:w-[60%] lg:w-[50%] xl:w-[40%] 2xl:w-[30%] p-4 shadow-2xl bg-white">
       <span class="fixed top-7 right-5 sm400:right-7 sm500:right-10 sm:right-12">
         <i class="fa-solid fa-xmark text-[3rem] text-neutral-50 cursor-pointer" @click="closeFormOtp"></i>
@@ -75,7 +75,6 @@ export default {
 
   data() {
     return {
-      _show: false,
       valueOtp: '',
       inputOtp: Array(6).fill(""),
       verifiedImage: VerifiedImage,
@@ -83,15 +82,9 @@ export default {
     }
   },
 
-  watch: {
-    show(value) {
-      this._show = value;
-    }
-  },
-
   methods: {
     closeFormOtp() {
-      this._show = false;
+      this.$emit('update:show', false);
     },
 
     restrictInput(event) {
