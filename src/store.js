@@ -287,8 +287,9 @@ export default createStore({
         axios.post('/login', {
           email: data.email,
           password: data.password,
-          otp: data.otp,
           type: data.type,
+          otpSecretKey: data.otpSecretKey,
+          otpCode: data.otpCode,
         })
         .then(response => {
           resolve(response);

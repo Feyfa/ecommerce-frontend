@@ -172,8 +172,9 @@ export default {
                 this.$store.dispatch('loginSubmit', {
                   email: this.email,
                   password: this.password,
-                  otp,
-                  type: 'verification_otp'
+                  type: 'verification_otp',
+                  otpSecretKey: response.data.otp_secret_key,
+                  otpCode: otp,
                 })
                 .then(response => {
                   if(response.data.status == 200) {
@@ -206,6 +207,11 @@ export default {
                           break;
                         case 'password' : 
                           this.errors.password = message[key][0];
+                          break;
+                        case 'otp_invalid' :
+                        case 'otp_expired' :
+                        case 'user_secret_key' :
+                          ElNotification({ type: 'error', title: 'error', message: message[key][0] });
                           break;
                       }
                     })
@@ -259,6 +265,9 @@ export default {
                 case 'password' : 
                   this.errors.password = message[key][0];
                   break;
+                case 'user_secret_key' :
+                        ElNotification({ type: 'error', title: 'error', message: message[key][0] });
+                        break;
               }
             })
           }
