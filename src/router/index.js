@@ -93,6 +93,7 @@ router.beforeEach((to, from, next) => {
 
   // kondisi ketika belum login token masih belum ada
   if(!to.meta.public && !token) {
+    global.isAuth = false;
     next({name: 'login'});
   }
   // jika path di url mengarahkan ke /register dan /login
@@ -106,17 +107,20 @@ router.beforeEach((to, from, next) => {
            .then(response => {
             // console.log(response)
             if(response.status === 200 && response.data.message === 'token valid')
+              global.isAuth = true;
               next({name: 'home'})
            })
            // jika token tidak valid, maka yaudah biarkan saja ke halaman register atau login 
            .catch(error => {
             // console.error(error);
             if(error.response.status === 401 && error.response.data.message === 'Unauthenticated.') 
-             next();
+              global.isAuth = false;
+              next();
            }); 
     }
     // kondisi ketika belum ada token, mau ke url register atau login
     else {
+      global.isAuth = false;
       next();
     }
   }
@@ -128,12 +132,14 @@ router.beforeEach((to, from, next) => {
          .then(response => {
           // console.log(response)
           if(response.status === 200 && response.data.message === 'token valid')
+            global.isAuth = true;
             next();
          })
          // jika token tidak valid, maka paksa di ke wilayah yang belm di autentikasi
          .catch(error => {
           // console.error(error);
           if(error.response.status === 401 && error.response.data.message === 'Unauthenticated.') 
+            global.isAuth = false;
             next({name: 'login'});
          });  
   }

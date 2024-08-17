@@ -7,7 +7,8 @@ const global = reactive({
     profile: false,
     product: false
   },
-  isSidebarOpen: false
+  isSidebarOpen: false,
+  isAuth: false,
 });
 
 export default global;
