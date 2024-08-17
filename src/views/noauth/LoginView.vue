@@ -1,6 +1,9 @@
 <template>
   <div 
     class="w-full min-h-screen overflow-hidden flex justify-center items-center bg-utama bg-cover bg-no-repeat">
+
+    <FormOtpView :show="show.formOtpView" :otpSecretKey="otpSecretKey" :email="email" :password="password" />
+
     <form 
       class="text-xl font-normal border border-neutral-500 rounded w-[90%] sm500:w-[70%] sm:w-[60%] md:w-[50%] lg:w-[40%] xl:w-[35%] 2xl:w-[30%] p-3 shadow-2xl bg-[rgba(255,255,255,.7)]">
 
@@ -91,14 +94,20 @@
 
 <script>
 import { ElNotification } from 'element-plus';
+import FormOtpView from '@/components/partials/FormOtpView.vue';
 import Swal from 'sweetalert2';
 import { RouterLink } from 'vue-router';
 
 export default {
+  components: {
+    FormOtpView
+  },
+
   data() {
     return  {
       email: '',
       password: '',
+      otpSecretKey: '',
 
       isShowPassword: false,
       isProcessLogin: false,
@@ -106,6 +115,10 @@ export default {
       errors: {
         email: '',
         password: ''
+      },
+
+      show: {
+        formOtpView: false
       }
     }
   },
@@ -153,79 +166,8 @@ export default {
           /* IF USER USE TWO FACTORY AUTHENTICATION */
           if(response.data.status == 200 && response.data.type == 'send_otp') {
             this.isProcessLogin = false;
-
-            Swal.fire({
-              input: 'number',
-              inputLabel: 'Number OTP',
-              inputPlaceholder: 'Enter a number OTP',
-              preConfirm: (otp) => {
-                if (!otp) {
-                  Swal.showValidationMessage('Please enter a number OTP'); // Menampilkan pesan validasi
-                  return false; // Menjaga modal tetap terbuka
-                }
-                return otp; // Mengembalikan nilai jika valid
-              }
-            }).then((result) => {
-              const otp = result.value;
-
-              if (otp) {
-                this.$store.dispatch('loginSubmit', {
-                  email: this.email,
-                  password: this.password,
-                  type: 'verification_otp',
-                  otpSecretKey: response.data.otp_secret_key,
-                  otpCode: otp,
-                })
-                .then(response => {
-                  if(response.data.status == 200) {
-                    localStorage.setItem('token', response.data.token);
-                    localStorage.setItem('user', JSON.stringify(response.data.user));
-
-                    /* UPDATE PENGAMBILAN DARI LOCALSTORAGE */
-                    this.$store.dispatch('fetchTokenFromLocalStorage');
-                    this.$store.dispatch('fetchUserFromLocalStorage');
-                    /* UPDATE PENGAMBILAN DARI LOCALSTORAGE */
-
-                    this.$router.push('/');
-                  }
-                  else {
-                    this.isProcessLogin = false;
-                  }
-                })
-                .catch(error => {
-                  console.error(error);
-
-                  this.isProcessLogin = false;
-                            
-                  if(error.response.data.status == 422) {
-                    const message = error.response.data.message;
-                    
-                    Object.keys(message).forEach(key => {
-                      switch(key) {
-                        case 'email' : 
-                          this.errors.email = message[key][0];
-                          break;
-                        case 'password' : 
-                          this.errors.password = message[key][0];
-                          break;
-                        case 'otp_invalid' :
-                        case 'otp_expired' :
-                        case 'user_secret_key' :
-                          ElNotification({ type: 'error', title: 'error', message: message[key][0] });
-                          break;
-                      }
-                    })
-                  }
-                  else if(error.response.data.status == 401) {
-                    ElNotification({
-                      type: 'error',
-                      title: 'error',
-                      message: error.response.data.message
-                    });
-                  }
-                })
-              }
-            });
+            this.show.formOtpView = true;
+            this.otpSecretKey = response.data.otp_secret_key;
           }
           /* IF USER USE TWO FACTORY AUTHENTICATION */
 

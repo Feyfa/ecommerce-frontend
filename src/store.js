@@ -20,18 +20,6 @@ export default createStore({
     fetchUserFromLocalStorage() {
       this.state.user = JSON.parse(localStorage.getItem('user'));
     },
-    
-    sendEmailWithMessend(context, data) {
-      return new Promise((resolve, reject) => {
-        axios.post('/messend/gmail/send')
-             .then(response => {
-              resolve(response);
-             })
-             .catch(error => {
-              reject(error);
-             })
-      });
-    },
 
     createTokenMidtrans(context, data) {
       return new Promise((resolve, reject) => {
