@@ -1,6 +1,6 @@
 <template>
   <div v-if="show" class="bg-[rgba(0,0,0,.4)] fixed inset-0 z-[999] flex justify-center items-center w-screen h-screen">
-    <form class="text-xl font-normal border border-neutral-500 rounded-md w-[90%] sm500:w-[80%] sm:w-[70%] md:w-[60%] lg:w-[50%] xl:w-[40%] 2xl:w-[30%] p-4 shadow-2xl bg-white">
+    <form class="text-xl font-normal border border-neutral-500 rounded-md w-[90%] sm500:w-[80%] sm:w-[70%] md:w-[60%] lg:w-[50%] xl:w-[40%] 2xl:w-[30%] p-4 shadow-2xl shadow-neutral-500 bg-white">
       <span class="fixed top-7 right-5 sm400:right-7 sm500:right-10 sm:right-12">
         <i class="fa-solid fa-xmark text-[3rem] text-neutral-50 cursor-pointer" @click="closeFormOtp"></i>
       </span>
@@ -17,7 +17,7 @@
         </div>
       </div>
 
-      <div class="mt-8">
+      <div class="mt-6">
         <div class="grid grid-cols-6 gap-x-3 sm500:gap-x-4 sm:gap-x-5 md:gap-x-6 lg:gap-x-7 xl:gap-x-8">
           <input 
             v-for="(input, index) in 6" 
@@ -29,12 +29,25 @@
             type="text"
             class="border border-neutral-500 rounded-md text-center text-xl outline-none h-11 sm400:h-[3.3rem] md:h-[3.5rem]">
         </div>
-        <div class="text-center mt-4">
-          Not Send OTP ? <span class="text-blue-700 underline cursor-pointer">Resend</span>
+        <div class="text-center mt-4 flex justify-between">
+          <div>
+            <span class="font-light text-[1.1rem] sm:text-[1.2rem] md:text-[1.3rem]">expired {{ formattedTime }}</span>
+          </div>
+          <div>
+            <button 
+              type="button" 
+              @click="resend"
+              :disabled="disabled.resend"
+              class="text-blue-700 underline text-[1.1rem] sm:text-[1.2rem] md:text-[1.3rem]"
+              :class="disabled.resend ? 'opacity-50' : 'cursor-pointer'">
+              Resend
+              <i v-if="isResend" class="ml-1 fas fa-spinner fa-pulse"></i>
+            </button>
+          </div>
         </div>
       </div>
     
-      <div class="mt-8">
+      <div class="mt-2">
         <button 
           type="button" 
           class="w-full h-12 border border-neutral-300 rounded shadow bg-blue-500 mt-4"
@@ -51,6 +64,7 @@
 
 <script>
 import VerifiedImage from "@/assets/img/verified.png";
+import { isReferencedIdentifier } from "@vue/compiler-core";
 import { ElNotification } from "element-plus";
 
 export default {
@@ -78,13 +92,135 @@ export default {
       valueOtp: '',
       inputOtp: Array(6).fill(""),
       verifiedImage: VerifiedImage,
-      isProcessVerifyOtp: false
+      isProcessVerifyOtp: false,
+      isResend: false,
+
+      timeSecond: 120, 
+      timeFormat: '00:00',
+      interval: {
+        time: null,
+      },
+
+      disabled: {
+        resend: true,
+      }
     }
   },
 
+  computed: {
+    formattedTime() {
+      const minutes = String(Math.floor(this.timeSecond / 60)).padStart(2, '0');
+      const seconds = String(this.timeSecond % 60).padStart(2, '0');
+      return `${minutes}:${seconds}`;
+    },
+  },
+
+  watch: {
+    show(value) {
+      if(value) {
+        this.startCountdown();
+        this.clearInputOtp();
+      }
+    },
+
+    timeSecond(value) {
+      this.disabled.resend = value > 0 ? true : false;
+    }
+  },
+
+  beforeDestroy() {
+    clearInterval(this.interval.time);
+  },
+
   methods: {
+    clearInputOtp() {
+      this.valueOtp = '';
+      this.inputOtp = Array(6).fill("");
+    },
+
+    resend() {
+      this.disabled.resend = true;
+      this.isResend = true;
+
+      this.$store.dispatch('loginSubmit', {
+        email: this.email,
+        password: this.password
+      })
+      .then(response => {
+        // console.log(response);
+
+        this.isResend = false;
+        this.timeSecond = 120
+        this.startCountdown();
+
+        /* IF USER USE TWO FACTORY AUTHENTICATION */
+        if(response.data.status == 200 && response.data.type == 'send_otp') {
+          this.$emit('update:otpSecretKey', response.data.otp_secret_key);
+        }
+        /* IF USER USE TWO FACTORY AUTHENTICATION */
+
+        /* IF USER NOT USE TWO FACTORY AUTHENTICATION */
+        else if(response.data.status == 200) {
+          localStorage.setItem('token', response.data.token);
+          localStorage.setItem('user', JSON.stringify(response.data.user));
+
+          /* UPDATE PENGAMBILAN DARI LOCALSTORAGE */
+          this.$store.dispatch('fetchTokenFromLocalStorage');
+          this.$store.dispatch('fetchUserFromLocalStorage');
+          /* UPDATE PENGAMBILAN DARI LOCALSTORAGE */
+
+          this.$router.push('/');
+        }
+        /* IF USER NOT USE TWO FACTORY AUTHENTICATION */
+      })
+      .catch(error => {
+        console.error(error);
+
+        this.isResend = false;
+        this.disabled.resend = false;
+        
+        if(error.response.data.status == 422) {
+          const message = error.response.data.message;
+          
+          Object.keys(message).forEach(key => {
+            switch(key) {
+              case 'email' : 
+                this.errors.email = message[key][0];
+                break;
+              case 'password' : 
+                this.errors.password = message[key][0];
+                break;
+              case 'user_secret_key' :
+                ElNotification({ type: 'error', title: 'error', message: message[key][0] });
+                break;
+            }
+          })
+        }
+        else if(error.response.data.status == 401) {
+          ElNotification({
+            type: 'error',
+            title: 'error',
+            message: error.response.data.message
+          });
+        }
+        
+      })
+    },
+
+    startCountdown() {
+      this.interval.time = setInterval(() => {
+        if (this.timeSecond > 0) {
+          this.timeSecond--;
+        } else {
+          clearInterval(this.interval.time);
+        }
+      }, 1000);
+    },
+
     closeFormOtp() {
       this.$emit('update:show', false);
+      this.timeSecond = 120;
+      clearInterval(this.interval.time);
     },
 
     restrictInput(event) {
@@ -101,8 +237,6 @@ export default {
     moveInputFocus(event, index) {
       const input = event.target.value;
       const char = event.key;
-
-      console.log(char);
 
       if (['Backspace', 'ArrowLeft', 'ArrowRight', 'Tab', 'Shift', 'Alt'].includes(char)) {
         return; 
