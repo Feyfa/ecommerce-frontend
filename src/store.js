@@ -278,6 +278,8 @@ export default createStore({
           type: data.type,
           otpSecretKey: data.otpSecretKey,
           otpCode: data.otpCode,
+          now: data.now,
+          expired: data.expired,
         })
         .then(response => {
           resolve(response);

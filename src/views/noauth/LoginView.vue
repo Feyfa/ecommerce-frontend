@@ -154,11 +154,16 @@ export default {
 
       /* SUCCESS VALIDATION INPUT */
       else {
+        // expired 2 menit 5 detik dari sekarang
+        // penambahan 5 deitk diperlukan karena adanya keterlambatan saat waktu telah dikirm dengan animasi countdown 
+        // waktu saat dikirm > animasi countdown
+        const expired = (Math.floor(Date.now() / 1000)) + (2 * 60) + (5);
         this.isProcessLogin = true;
 
         this.$store.dispatch('loginSubmit', {
           email: this.email,
-          password: this.password
+          password: this.password,
+          expired
         })
         .then(response => {
           // console.log(response);

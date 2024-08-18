@@ -139,12 +139,17 @@ export default {
     },
 
     resend() {
+      // expired 2 menit 5 detik dari sekarang
+      // penambahan 5 deitk diperlukan karena adanya keterlambatan saat waktu telah dikirm dengan animasi countdown 
+      // waktu saat dikirm > animasi countdown
+      const expired = (Math.floor(Date.now() / 1000)) + (2 * 60) + (5);
       this.disabled.resend = true;
       this.isResend = true;
 
       this.$store.dispatch('loginSubmit', {
         email: this.email,
-        password: this.password
+        password: this.password,
+        expired
       })
       .then(response => {
         // console.log(response);
@@ -262,14 +267,16 @@ export default {
         return;
       }
       else {
+        const now = Math.floor(Date.now() / 1000);
         this.isProcessVerifyOtp = true;
-
+        
         this.$store.dispatch('loginSubmit', {
           email: this.email,
           password: this.password,
           type: 'verification_otp',
           otpSecretKey: this.otpSecretKey,
           otpCode: this.valueOtp,
+          now
         })
         .then(response => {
           this.isProcessVerifyOtp = false;
