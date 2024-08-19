@@ -117,7 +117,8 @@
             :disabled="!isEdit"
             :class="{'input-disabled': !isEdit}">
             <option value="F">Off</option>
-            <option value="T">On</option>
+            <option value="Email">Email</option>
+            <option value="Phone">Phone</option>
           </select>
         </div>
       </div>
