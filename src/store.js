@@ -218,6 +218,7 @@ export default createStore({
           email: data.email,
           jenis_kelamin: data.jenis_kelamin,
           tanggal_lahir: data.tanggal_lahir,
+          phone: data.phone,
           tfa: data.tfa,
           alamat: data.alamat,
         })

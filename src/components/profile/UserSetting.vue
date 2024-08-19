@@ -83,6 +83,27 @@
             :disabled="!isEdit"
             :class="{'input-disabled': !isEdit}">
         </div>
+
+        <div class="input-container flex flex-col w-full">
+          <label 
+            for="phone">
+            Phone
+          </label>
+          <input 
+            type="text" 
+            id="phone"
+            class="border w-full border-neutral-500 rounded outline-none h-12 px-2.5 shadow"
+            v-model="phone"
+            @keypress="validatePhone"
+            :disabled="!isEdit"
+            :class="{'input-disabled': !isEdit, 'border border-red-500': errors.phone}"
+            @input="watchInputPhone">
+          <small 
+          v-if="errors.phone"
+          class="text-red-500">
+            {{ errors.phone }}
+          </small>
+        </div>
         
         <div class="input-container flex flex-col w-full">
           <label 
@@ -166,6 +187,7 @@ export default {
       email: '',
       jenis_kelamin: '',
       tanggal_lahir: '',
+      phone: '081388992799',
       tfa: '',
       alamat: '',
 
@@ -175,6 +197,7 @@ export default {
       errors: {
         name: '',
         email: '',
+        phone: ''
       },
 
       rows: 4,
@@ -192,6 +215,13 @@ export default {
   },
 
   methods: {
+    validatePhone(event) {
+      const key = event.key;
+      if (!/^[\d()+-\s]$/.test(key)) {
+        event.preventDefault();
+      }
+    },
+    
     setRowsTextAreaBasedOnScreenSize() {
       if(window.innerWidth < 500) 
         this.rows = 4;
@@ -206,6 +236,7 @@ export default {
       this.email = this.$store.getters.user.email;
       this.jenis_kelamin = this.$store.getters.user.jenis_kelamin;
       this.tanggal_lahir = this.$store.getters.user.tanggal_lahir;
+      this.phone = this.$store.getters.user.phone;
       this.alamat = this.$store.getters.user.alamat;
       this.tfa = this.$store.getters.user.tfa;
     },
@@ -230,7 +261,7 @@ export default {
     },
 
     updateInput() {
-      if(!this.isProcessUpdate && !this.errors.name && !this.errors.email) {
+      if(!this.isProcessUpdate && !this.errors.name && !this.errors.email && !this.errors.phone) {
         this.isProcessUpdate = true;
   
         this.$store.dispatch('updateUser', {
@@ -239,6 +270,7 @@ export default {
           email: this.email,
           jenis_kelamin: this.jenis_kelamin,
           tanggal_lahir: this.tanggal_lahir,
+          phone: this.phone,
           tfa: this.tfa,
           alamat: this.alamat,
         })
@@ -281,6 +313,9 @@ export default {
                 case 'email' : 
                   this.errors.email = message[key][0];
                   break;
+                case 'phone' : 
+                  this.errors.phone = message[key][0];
+                  break;
               }
             });
           }
@@ -304,6 +339,14 @@ export default {
         this.errors.email = '';
       }
     },
+
+    watchInputPhone() {
+      if(this.phone.trim() === '') {
+        this.errors.phone = 'input phone is required';
+      } else {
+        this.errors.phone = '';
+      }
+    }
   }
 
 }
