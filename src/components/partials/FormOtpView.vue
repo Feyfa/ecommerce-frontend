@@ -24,8 +24,10 @@
             :key="index" 
             ref="inputOtps" 
             v-model="inputOtp[index]" 
-            @keyup="moveInputFocus($event, index)" 
-            @keydown="restrictInput" 
+            @input="moveToNext(index)"
+            @keydown="handleKeyDown($event, index)"
+            @keypress="validateNumber"
+            @paste="handlePaste($event)"
             type="text"
             class="border border-neutral-500 rounded-md text-center text-xl outline-none h-11 sm400:h-[3.3rem] md:h-[3.5rem]">
         </div>
@@ -133,6 +135,48 @@ export default {
   },
 
   methods: {
+    moveToNext(index) {
+      if (this.inputOtp[index] !== '' && index < this.inputOtp.length - 1) {
+        this.$refs.inputOtps[index + 1].focus();
+      }
+    },
+    
+    handleKeyDown(event, index) {
+      const key = event.key;
+
+      if (key === 'Backspace') {
+        if (this.inputOtp[index] === '' && index > 0) {
+          this.$refs.inputOtps[index - 1].focus(); 
+          this.inputOtp[index - 1] = ''; 
+        } else {
+          this.inputOtp[index] = ''; 
+        }
+      }
+    },
+    
+    validateNumber(event) {
+      const key = event.key;
+      if (!/^\d$/.test(key)) {
+        event.preventDefault();
+      }
+    },
+
+    handlePaste(event) {
+      const pasteData = event.clipboardData.getData('text');
+      const pasteArray = pasteData.split('').filter(char => !isNaN(char)).slice(0, this.inputOtp.length);
+
+      pasteArray.forEach((char, i) => {
+        this.inputOtp[i] = char;
+      });
+
+      const lastFilledIndex = pasteArray.length - 1;
+      if (lastFilledIndex < this.inputOtp.length - 1) {
+        this.$refs.inputOtps[lastFilledIndex + 1].focus();
+      }
+
+      event.preventDefault();
+    },
+
     clearInputOtp() {
       this.valueOtp = '';
       this.inputOtp = Array(6).fill("");
