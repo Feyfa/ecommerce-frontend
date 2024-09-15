@@ -74,6 +74,12 @@ const router = createRouter({
       component: () => import('../views/auth/KeranjangView.vue'),
       meta: {public: false}
     },
+    {
+      path: '/invoice',
+      name: 'invoice',
+      component: () => import('../views/auth/InvoiceView.vue'),
+      meta: {public: false}
+    }
     /* AUTH */
   ],
 });

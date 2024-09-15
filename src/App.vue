@@ -62,6 +62,7 @@ export default {
     globalCLick() {
       this.closeDropdown();
       this.closeSidebar();
+      this.closeFilter();
     },
 
     closeDropdown() {
@@ -74,6 +75,12 @@ export default {
     closeSidebar() {
       if(this.$global.isSidebarOpen) {
         this.$global.isSidebarOpen = false;
+      }
+    },
+
+    closeFilter() {
+      if(this.$global.isFilterOpen) {
+        this.$global.isFilterOpen = false;
       }
     },
 

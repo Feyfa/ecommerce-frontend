@@ -21,6 +21,34 @@ export default createStore({
       this.state.user = JSON.parse(localStorage.getItem('user'));
     },
 
+    getInvoice(context, data) {
+      return new Promise((resolve, reject) => {
+        axios.get('/invoice', {
+          params: {
+            user_id_buyer: data.user_id_buyer
+          }
+        })
+        .then(response => {
+          resolve(response)
+        })
+        .catch(error => {
+          reject(error)
+        })
+      });
+    },
+
+    deleteTransaction(context, data) {
+      return new Promise((resolve, reject) => {
+        axios.delete(`/transaction/${data.user_id_buyer}/${data.order_id}`)
+             .then(response => {
+              resolve(response);
+             })
+             .catch(error => {
+              reject(error);
+             })
+      });
+    },
+
     createTokenMidtrans(context, data) {
       return new Promise((resolve, reject) => {
         axios.post('/payment/createtokenmidtrans', {

@@ -8,6 +8,7 @@ const global = reactive({
     product: false
   },
   isSidebarOpen: false,
+  isFilterOpen: false,
   isAuth: false,
 });
 

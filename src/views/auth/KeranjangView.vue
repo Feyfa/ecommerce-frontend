@@ -86,7 +86,7 @@
             <h3 class="font-semibold">Rp {{ totalPrice.toLocaleString('id-ID') }}</h3>
           </div>
         </div>
-        <div class="border-b border-b-neutral-300 py-2">
+        <div class="py-2">
           <button 
             @click="checkout" 
             class="w-full border border-neutral-300 rounded-md bg-blue-500 py-1.5 text-white font-medium"
@@ -141,7 +141,44 @@ export default {
         })
         .then(response => {
           // console.log(response);
-          window.snap.pay(response.data.token);
+          window.snap.pay(response.data.token, {
+            // ketika snap di close, dan belum milih pembayaran
+            onClose: () => {
+              console.log('onClose');
+              this.$store.dispatch('deleteTransaction', {
+                'user_id_buyer': response.data.user_id_buyer,
+                'order_id': response.data.order_id,
+              })
+              .then(response => {
+                console.log(response);
+
+                if(response.data.status == 200) {
+                  ElNotification({ type: 'info', title: 'Info', message: response.data.message });
+                }
+              })
+              .catch(error => {
+                // console.error(error);
+              });
+            },
+
+            onError: () => {
+              console.log('onError');
+              this.$store.dispatch('deleteTransaction', {
+                'user_id_buyer': response.data.user_id_buyer,
+                'order_id': response.data.order_id,
+              })
+              .then(response => {
+                console.log(response);
+
+                if(response.data.status == 200) {
+                  ElNotification({ type: 'info', title: 'Info', message: response.data.message });
+                }
+              })
+              .catch(error => {
+                // console.error(error);
+              });
+            },
+          });
           this.isProcessBayar = false;
         })
         .catch(error => {
