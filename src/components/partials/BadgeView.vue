@@ -4,6 +4,7 @@
     :class="{
       'bg-blue-500': type == 'pending',
       'bg-green-500': type == 'done',
+      'bg-red-500': type == 'expire'
     }">
     {{ text }}
   </h3>
