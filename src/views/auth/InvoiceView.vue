@@ -60,6 +60,12 @@
                 <h3>Pembayaran</h3>
                 <h3 class="font-semibold">{{ invoice.payment_type }}</h3>
               </div>
+              <!-- untuk mandiri -->
+              <div v-if="invoice.va_biller_code == '70012'" class="mt-1 flex items-center justify-between text-[.75rem]">
+                <h3>Nomor Biller Code</h3>
+                <h3 class="font-semibold">{{ invoice.va_biller_code }}</h3>
+              </div>
+              <!-- untuk mandiri -->
               <div class="mt-1 flex items-center justify-between text-[.75rem]">
                 <h3>Nomor Virtual Account</h3>
                 <h3 class="font-semibold">{{ invoice.va_number }}</h3>
