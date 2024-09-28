@@ -140,6 +140,9 @@ export default {
         if(this.invoices.length == 0) {
           this.$refs.empty.classList.remove('hidden');
           this.$refs.empty.classList.add('visible');
+        } else {
+          this.$refs.empty.classList.add('hidden');
+          this.$refs.empty.classList.remove('visible');
         }
 
         // console.log(response);
