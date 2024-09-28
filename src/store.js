@@ -25,7 +25,8 @@ export default createStore({
       return new Promise((resolve, reject) => {
         axios.get('/invoice', {
           params: {
-            user_id_buyer: data.user_id_buyer
+            user_id_buyer: data.user_id_buyer,
+            filter: data.filter,
           }
         })
         .then(response => {

@@ -11,7 +11,7 @@
       </h3>
 
       <div class="w-full flex justify-end items-center">
-        <FilterView />
+        <FilterView @onSave="saveFilter" />
       </div>
 
       <!-- holder invoice -->
@@ -110,7 +110,8 @@ export default {
       APP_BACKEND_BASE_URL: import.meta.env.VITE_APP_BACKEND_BASE_URL,
       SYMLINK_FOLDER: import.meta.env.VITE_SYMLINK_FOLDER,
 
-      invoices: []
+      invoices: [],
+      filter: '',
     }
   },
 
@@ -119,9 +120,19 @@ export default {
   },
 
   methods: {
-    getInvoice() {
+    saveFilter(value) {
+      if(this.filter == value) {
+        return false
+      }
+      
+      this.filter = value;
+      this.getInvoice(value);
+    },
+
+    getInvoice(filter) {
       this.$store.dispatch('getInvoice', {
-        user_id_buyer: this.$store.getters.user.id
+        user_id_buyer: this.$store.getters.user.id,
+        filter: filter
       })
       .then(response => {
         this.invoices = response.data.invoices;
