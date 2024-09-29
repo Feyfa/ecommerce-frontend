@@ -21,6 +21,21 @@ export default createStore({
       this.state.user = JSON.parse(localStorage.getItem('user'));
     },
 
+    checkOrderId(context, data) {
+      return new Promise((resolve, reject) => {
+        axios.post('/invoice/order-id-exists', {
+          order_id: data.order_id,
+          user_id_buyer: data.user_id_buyer,
+        })
+        .then(response => {
+          resolve(response);
+        })
+        .catch(error => {
+          reject(error);
+        })
+      });
+    },
+
     getInvoice(context, data) {
       return new Promise((resolve, reject) => {
         axios.get('/invoice', {

@@ -142,6 +142,35 @@ export default {
         .then(response => {
           // console.log(response);
           window.snap.pay(response.data.token, {
+            onPending: (result) => {
+              /* CHECK ORDER ID SEKALIGUS GET KERANJANGS */
+              this.$store.dispatch('checkOrderId', {
+                'order_id': response.data.order_id,
+                'user_id_buyer': response.data.user_id_buyer,
+              })
+              .then(response => {
+                console.log(response);
+                this.keranjangs = response.data.keranjangs;
+                this.totalPrice = response.data.totalPrice;
+
+                if(this.keranjangs.length == 0) {
+                  this.$refs.empty.classList.remove('hidden');
+                  this.$refs.empty.classList.add('visible');
+                }
+
+                // cek apakah ada 1 saja keranjang yang checked
+                const keranjangAlReadyChecked = this.keranjangs.some(item => item.k_checked === 1);
+                this.disabled.buttonBayar = keranjangAlReadyChecked;
+
+                ElNotification({ type: 'success', title: 'Success', message: response.data.message });
+              })
+              .catch(error => {
+                // console.error(error);
+                ElNotification({ type: 'error', title: 'Error', message: response.data.message });
+              });
+              /* CHECK ORDER ID SEKALIGUS GET KERANJANGS */
+            },
+
             // ketika snap di close, dan belum milih pembayaran
             onClose: () => {
               console.log('onClose');
@@ -158,6 +187,7 @@ export default {
               })
               .catch(error => {
                 // console.error(error);
+                ElNotification({ type: 'error', title: 'Error', message: response.data.message });
               });
             },
 
@@ -176,6 +206,7 @@ export default {
               })
               .catch(error => {
                 // console.error(error);
+                ElNotification({ type: 'error', title: 'Error', message: response.data.message });
               });
             },
           });
