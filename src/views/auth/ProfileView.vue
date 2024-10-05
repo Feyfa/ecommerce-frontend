@@ -1,5 +1,5 @@
 <template>
-  <div class="px-5 lg:px-10 w-full flex flex-col justify-center mb-4">
+  <div class="px-5 lg:px-10 w-full flex flex-col justify-center mb-48">
     
     <!-- image setting -->
     <div class="row w-full flex justify-center">
@@ -15,6 +15,12 @@
     </div>
     <!-- user setting -->
 
+    <!-- Connected Account -->
+    <div id="connected-account" class="mt-10">
+      <ConnectedAccount />
+    </div>
+    <!-- Connected Account -->
+
   </div>
 </template>
 
@@ -22,11 +28,13 @@
 import ImagePreview from "@/components/profile/ImagePreview.vue";
 import UserSetting from "@/components/profile/UserSetting.vue";
 import PersonImage from "@/assets/img/person.png";
+import ConnectedAccount from "@/components/profile/ConnectedAccount.vue";
 
 export default {
   components: {
     ImagePreview,
     UserSetting,
+    ConnectedAccount
   },
 
   mounted() {

@@ -21,6 +21,36 @@ export default createStore({
       this.state.user = JSON.parse(localStorage.getItem('user'));
     },
 
+    checkConnectAccountStripe(context, data) {
+      return new Promise((resolve, reject) => {
+        axios.get('/stripe/check-connect-account', {
+          params: {
+            user_id_seller: data.user_id_seller,
+          }
+        })
+        .then(response => {
+          resolve(response);
+        })
+        .catch(error => {
+          reject(error);
+        })
+      });
+    },
+
+    connectAccountStripe(context, data) {
+      return new Promise((resolve, reject) => {
+        axios.post('/stripe/connect-account', {
+          user_id_seller: data.user_id_seller,
+        })
+        .then(response => {
+          resolve(response);
+        })
+        .catch(error => {
+          reject(error);
+        })
+      });
+    },
+
     checkOrderId(context, data) {
       return new Promise((resolve, reject) => {
         axios.post('/invoice/order-id-exists', {
