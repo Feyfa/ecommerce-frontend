@@ -21,6 +21,134 @@ export default createStore({
       this.state.user = JSON.parse(localStorage.getItem('user'));
     },
 
+    replaceAch(context, data) {
+      return new Promise((resolve, reject) => {
+        axios.put('/stripe/replace-ach', {
+          user_id_seller: data.user_id_seller,
+          holder_type: data.holder_type,
+          holder_name: data.holder_name,
+          routing_number: data.routing_number,
+          account_number: data.account_number,
+        })
+        .then(response => {
+          resolve(response);
+        })
+        .catch(error=> {
+          reject(error);
+        })
+      });
+    },
+
+    deleteAch(context, data) {
+      return new Promise((resolve, reject) => {
+        axios.delete('/stripe/delete-ach', {
+          data: {
+            user_id_seller: data.user_id_seller
+          }
+        })
+        .then(response => {
+          resolve(response);
+        })
+        .catch(error => {
+          reject(error);
+        })
+      });
+    },
+
+    verifyAch(context, data) {
+      return new Promise((resolve, reject) => {
+        axios.post('/stripe/verify-ach', {
+          user_id_seller: data.user_id_seller,
+          micro_deposite_1: data.micro_deposite_1,
+          micro_deposite_2: data.micro_deposite_2,
+        })
+        .then(response => {
+          resolve(response);
+        })
+        .catch(error => {
+          reject(error);
+        })
+      });
+    },
+
+    createAch(context, data) {
+      return new Promise((resolve, reject) => {
+        axios.post('/stripe/create-ach', {
+          user_id_seller: data.user_id_seller,
+          holder_type: data.holder_type,
+          holder_name: data.holder_name,
+          routing_number: data.routing_number,
+          account_number: data.account_number,
+        })
+        .then(response => {
+          resolve(response);
+        })
+        .catch(error => {
+          reject(error);
+        });
+      });
+    },
+
+    getInfoPaymentMethod(context, data) {
+      return new Promise((resolve, reject) => {
+        axios.get('/stripe/get-info-payment-method', {
+          params: {
+            user_id_seller: data.user_id_seller
+          }
+        })
+        .then(response => {
+          resolve(response);
+        })
+        .catch(error => {
+          reject(error);
+        });
+      });
+    },
+
+    createCreditCard(context, data) {
+      return new Promise((resolve, reject) => {
+        axios.post('/stripe/create-credit-card', {
+          user_id_seller: data.user_id_seller,
+          token: data.token,
+          zip: data.zip,
+          email: data.email,
+          card_holder_name: data.card_holder_name,
+          address: data.address,
+          country: data.country,
+          state: data.state,
+          city: data.city,
+        })
+        .then(response => {
+          resolve(response);
+        })
+        .catch(error => {
+          reject(error);
+        })
+      });
+    },
+
+    replaceCreditCard(context, data) {
+      return new Promise((resolve, reject) => {
+        axios.put('/stripe/replace-credit-card', {
+          user_id_seller: data.user_id_seller,
+          token: data.token,
+          zip: data.zip,
+          email: data.email,
+          card_holder_name: data.card_holder_name,
+          address: data.address,
+          country: data.country,
+          state: data.state,
+          city: data.city,
+        })
+        .then(response => {
+          resolve(response);
+        })
+        .catch(error => {
+          reject(error);
+        })
+      });
+    },
+
     checkConnectAccountStripe(context, data) {
       return new Promise((resolve, reject) => {
         axios.get('/stripe/check-connect-account', {

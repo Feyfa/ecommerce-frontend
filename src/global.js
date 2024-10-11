@@ -10,6 +10,7 @@ const global = reactive({
   isSidebarOpen: false,
   isFilterOpen: false,
   isAuth: false,
+  isConnectedAccountComplete: false,
 });
 
 export default global;

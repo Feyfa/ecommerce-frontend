@@ -21,6 +21,12 @@
     </div>
     <!-- Connected Account -->
 
+    <!-- Topup Stripe -->
+    <div id="topup" class="mt-10">
+      <PaymentStripe />
+    </div>
+    <!-- Topup Stripe -->
+
   </div>
 </template>
 
@@ -29,12 +35,14 @@ import ImagePreview from "@/components/profile/ImagePreview.vue";
 import UserSetting from "@/components/profile/UserSetting.vue";
 import PersonImage from "@/assets/img/person.png";
 import ConnectedAccount from "@/components/profile/ConnectedAccount.vue";
+import PaymentStripe from "@/components/profile/PaymentStripe.vue";
 
 export default {
   components: {
     ImagePreview,
     UserSetting,
-    ConnectedAccount
+    ConnectedAccount,
+    PaymentStripe
   },
 
   mounted() {

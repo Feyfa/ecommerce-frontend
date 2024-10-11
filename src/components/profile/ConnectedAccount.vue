@@ -77,21 +77,18 @@ export default {
 
   methods: {
     checkConnectAccountStripe(){
+      this.$global.isConnectedAccountComplete = false;
+      
       this.$store.dispatch('checkConnectAccountStripe', {
         user_id_seller: this.$store.getters.user.id
       })
       .then(response => {
-        console.log(response);
+        // console.log(response);
 
         if(response.data.result == 'success' && response.data.account != '') {
           this.topup_enabled = response.data.account.charges_enabled;
           this.payout_enabled = response.data.account.payouts_enabled;
           this.disable.status_connect_account = true;
-
-          console.log({
-            'topup_enabled': this.topup_enabled ,
-            'payout_enabled': this.payout_enabled 
-          });
 
           if(
             response.data.account.requirements.currently_due.length > 0 || 
@@ -101,6 +98,9 @@ export default {
             $('#text-connect-stripe').text('Continue Connect Your Stripe');
             ElNotification({ type: 'warning', title: 'Warning', message: 'Please Continue Connect Your Account' });
           }
+          else {
+            this.$global.isConnectedAccountComplete = true;
+          }
 
         }
         else if(response.data.result == 'success' && response.data.account == '') {
@@ -109,7 +109,7 @@ export default {
         }
       })
       .catch(error => {
-        console.error(error);
+        // console.error(error);
         ElNotification({ type: 'error', title: 'Error', message: error.data.message });
       });
     },
@@ -122,7 +122,7 @@ export default {
         user_id_seller: this.$store.getters.user.id
       })
       .then(response => {
-        console.log(response);
+        // console.log(response);
 
         this.loading.button_connect_account = false;
         
@@ -133,17 +133,17 @@ export default {
           ElNotification({ type: 'error', title: 'Error', message: response.data.message });
         }
 
-        console.log(this.loading.button_connect_account);
+        // console.log(this.loading.button_connect_account);
 
       })
       .catch(error => {
-        console.error(error);
+        // console.error(error);
 
         this.loading.button_connect_account = false;
 
         ElNotification({ type: 'error', title: 'Error', message: response.data.message });
 
-        console.log(this.loading.button_connect_account);
+        // console.log(this.loading.button_connect_account);
 
       });
     }
