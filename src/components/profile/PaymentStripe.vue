@@ -151,7 +151,7 @@
             <!-- Form  -->
             
             <!-- Information Card -->
-            <div class="mt-5 flex justify-between items-end">
+            <div class="mt-7 flex flex-col-reverse sm:flex-row sm:justify-between sm:items-end justify-center gap-5">
               <ul class="flex flex-col gap-1">
                 <li v-show="creditCardInfo.lastNumber">
                   <span class="w-[7.5rem] inline-block">Last Number</span>
@@ -186,7 +186,7 @@
               </ul>
               <div>
                 <button  
-                  class="border border-neutral-300 rounded-md transition-all duration-300 hover:-translate-y-[1px] py-1.5 px-8 text-white font-medium"
+                  class="border w-full border-neutral-300 rounded-md transition-all duration-300 hover:-translate-y-[1px] h-12 px-8 text-white font-medium"
                   :class="{'bg-neutral-400': loading.button_credit_card, 'bg-neutral-500 cursor-pointer': !loading.button_credit_card}"
                   :disabled="loading.button_credit_card || !$global.isConnectedAccountComplete"
                   @click="createOrReplaceCreditCard">
@@ -381,7 +381,8 @@
             <!-- Form For Not Status Or Status Verified  -->
             
             <!-- Information Card -->
-            <div class="mt-5 flex justify-between items-end">
+            <!-- <div class="mt-5 flex justify-between items-end"> -->
+            <div class="mt-7 flex flex-col-reverse sm:flex-row sm:justify-between sm:items-end justify-center gap-5">
               <ul class="flex flex-col gap-1">
                 <li v-show="achInfo.lastNumber">
                   <span class="w-[9rem] inline-block">Last Number</span>
@@ -411,7 +412,7 @@
               </ul>
               <div>
                 <button v-show="achInfo.status == '' || achInfo.status == 'verify'"
-                  class="border border-neutral-300 rounded-md transition-all duration-300 hover:-translate-y-[1px] py-1.5 px-8 text-white font-medium"
+                  class="border w-full border-neutral-300 rounded-md transition-all duration-300 hover:-translate-y-[1px] h-12 px-8 text-white font-medium"
                   :class="{'bg-neutral-400': loading.button_ach, 'bg-neutral-500 cursor-pointer': !loading.button_ach}"
                   :disabled="loading.button_ach || !$global.isConnectedAccountComplete"
                   @click="createOrReplaceAch">
@@ -420,7 +421,7 @@
                 </button>
 
                 <button v-show="achInfo.status == 'pending'"
-                  class="border border-neutral-300 rounded-md transition-all duration-300 hover:-translate-y-[1px] py-1.5 px-8 text-white font-medium"
+                  class="border w-full border-neutral-300 rounded-md transition-all duration-300 hover:-translate-y-[1px] h-12 px-8 text-white font-medium"
                   :class="{'bg-neutral-400': loading.button_ach, 'bg-neutral-500 cursor-pointer': !loading.button_ach}"
                   :disabled="loading.button_ach || !$global.isConnectedAccountComplete"
                   @click="verifyAch">
@@ -429,7 +430,7 @@
                 </button>
 
                 <button v-show="achInfo.status == 'failed'"
-                  class="border border-neutral-300 rounded-md transition-all duration-300 hover:-translate-y-[1px] py-1.5 px-8 text-white font-medium"
+                  class="border w-full border-neutral-300 rounded-md transition-all duration-300 hover:-translate-y-[1px] h-12 px-8 text-white font-medium"
                   :class="{'bg-neutral-400': loading.button_ach, 'bg-neutral-500 cursor-pointer': !loading.button_ach}"
                   :disabled="loading.button_ach || !$global.isConnectedAccountComplete"
                   @click="deleteAch">
