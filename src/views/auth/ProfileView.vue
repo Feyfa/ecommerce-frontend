@@ -1,5 +1,5 @@
 <template>
-  <div class="px-5 lg:px-10 w-full flex flex-col justify-center mb-48">
+  <div class="px-5 lg:px-10 w-full flex flex-col justify-center mb-8">
     
     <!-- image setting -->
     <div class="row w-full flex justify-center">
