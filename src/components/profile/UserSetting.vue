@@ -13,7 +13,7 @@
     <div class="mt-5">
       <div class="grid grid-cols-1 sm500:grid-cols-2 md:grid-cols-3 items-start gap-y-4 gap-x-4 lg:gap-x-6">
         <div class="input-container flex flex-col w-full">
-          <label 
+          <label
             for="name">
             Name
           </label>
