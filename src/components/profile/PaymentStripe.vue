@@ -656,6 +656,7 @@ export default {
         this.error.ach.account_number = true;
 
       if(this.error.ach.holder_type || this.error.ach.holder_name || this.error.ach.routing_number || this.error.ach.account_number) {
+        this.loading.button_ach = false;
         return false;
       }
       /* VALIDATOR */
