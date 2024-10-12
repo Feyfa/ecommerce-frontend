@@ -21,6 +21,54 @@ export default createStore({
       this.state.user = JSON.parse(localStorage.getItem('user'));
     },
 
+    getTopupHistory(context, data) {
+      return new Promise((resolve, reject) => {
+        axios.get('/topup/get-topup-history', {
+          params: {
+            user_id_seller: data.user_id_seller
+          }
+        })
+        .then(response => {
+          resolve(response);
+        })
+        .catch(error => {
+          reject(error);
+        })
+      });
+    },
+
+    storeTopup(context, data) {
+      return new Promise((resolve, reject) => {
+        axios.post('/topup/store', {
+          user_id_seller: data.user_id_seller,
+          select_payment: data.select_payment,
+          amount: data.amount,
+        })
+        .then(response => {
+          resolve(response);
+        })
+        .catch(error => {
+          reject(error);
+        })
+      });
+    },
+
+    getPaymentList(context, data) {
+      return new Promise((resolve, reject) => {
+        axios.get('/topup/get-payment-list', {
+          params: {
+            user_id_seller: data.user_id_seller
+          }
+        })
+        .then(response => {
+          resolve(response);
+        })
+        .catch(error => {
+          reject(error);
+        })
+      });
+    },
+
     replaceAch(context, data) {
       return new Promise((resolve, reject) => {
         axios.put('/stripe/replace-ach', {
