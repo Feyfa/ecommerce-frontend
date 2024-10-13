@@ -110,7 +110,7 @@ export default {
       })
       .catch(error => {
         // console.error(error);
-        ElNotification({ type: 'error', title: 'Error', message: error.data.message });
+        ElNotification({ type: 'error', title: 'Error', message: error.response.data.message });
       });
     },
 

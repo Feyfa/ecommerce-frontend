@@ -6,7 +6,7 @@
      
     <!-- HEADING TOPUP -->
     <div class="text-center flex flex-col-reverse gap-6 sm:relative">
-      <h1 class="text-xl font-semibold sm:absolute sm:left-0 sm:top-0 sm:bottom-0 sm:mt-0.5">$10000.00</h1>
+      <h1 v-show="balance !== ''" class="text-xl font-semibold sm:absolute sm:left-0 sm:top-0 sm:bottom-0 sm:mt-0.5">${{ balance }}</h1>
       <h1 class="text-xl">Topup Setting</h1>
     </div>
     <!-- HEADING TOPUP -->
@@ -70,10 +70,35 @@
     </div>
     <!-- TOPUP INPUT -->
 
+    <!-- TOPUP CALCULATION -->
+    <div class="mt-5" v-show="select_payment.trim() != '' && amount.trim() != ''">
+      <h3 class="text-[1rem]">Topup Calculation</h3>
+      <div class="w-full">
+        <div class="mt-2 sm500:mt-1 flex items-center justify-between text-[.75rem]">
+          <h3>Amount</h3>
+          <h3 class="font-semibold">${{ amount }}</h3>
+        </div>
+        <div class="mt-2 sm500:mt-1 flex items-center justify-between text-[.75rem]">
+          <div class="flex flex-col gap-1 sm500:flex-row">
+            <h3>Biaya Admin Stripe</h3>
+            <h3>((${{ amount }} * 2.9) + 30) / (97.1)</h3>
+          </div>
+          <h3 class="font-semibold">${{ stripe_process_fee }}</h3>
+        </div>
+        <div class="mt-2 sm500:mt-1 flex items-center justify-between text-[.75rem]">
+          <h3>Total Amount</h3>
+          <h3 class="font-semibold">${{ total_amount }}</h3>
+        </div>
+      </div>
+    </div>
+    <!-- TOPUP CALCULATION -->
+
     <!-- TOPUP HISTORY -->
     <div class="mt-5">
       <h3 class="text-[1rem]">Topup History</h3>
       <div class="mt-2 flex flex-col gap-2 border border-neutral-400 bg-whie rounded shadow p-2 w-full max-h-[26rem] overflow-auto">
+        <h3 v-if="topupHistory.length == 0" class="text-center">Topup Kosong</h3>
+
         <div v-for="item in topupHistory" class="border w-full border-neutral-300 rounded px-2 h-[8rem] flex items-center">
           <div class="p-2 border-black w-full">
             <div class="flex items-center justify-between mb-2">
@@ -94,7 +119,7 @@
             </div>
             <div class="mt-1 flex items-center justify-between text-[.75rem]">
               <h3>Amount</h3>
-              <h3 class="font-semibold">${{ item.amount }}</h3>
+              <h3 class="font-semibold">${{ item.amount }} + (${{ item.stripe_process_fee }})</h3>
             </div>
           </div>
         </div>
@@ -121,8 +146,12 @@ export default {
       paymentList: [],
       topupHistory: [],
 
+      balance: '',
+
       select_payment: '',
       amount: '',
+      stripe_process_fee: '',
+      total_amount: '',
 
       error: {
         select_payment: false,
@@ -134,6 +163,10 @@ export default {
         amount: 'Amount name the required',
       },
 
+      show: {
+        topupCalculation: false
+      },
+
       loading: {
         button_topup: false
       }
@@ -141,11 +174,30 @@ export default {
   },
 
   mounted() {
+    this.getBalance();
     this.getPaymentList();
     this.getTopupHistory();
   },
 
   methods: {
+    getBalance() {
+      this.$store.dispatch('getBalance', {
+        user_id_seller: this.$store.getters.user.id
+      })
+      .then(response => {
+        console.log(response);
+
+        if(response.data.result == 'success') {
+          this.balance = response.data.balance;
+        }
+      })
+      .catch(error => {
+        console.error(error);
+
+        ElNotification({ type: 'error', title: 'Error', message: error.response.data.message });
+      })
+    },
+
     clearFormTopup() {
       this.select_payment = '';
       this.amount = '';
@@ -164,12 +216,20 @@ export default {
         this.loading.button_topup = false;
         return false;
       }
+
+      if(this.select_payment == 'bank_account') {
+        this.loading.button_topup = false;
+        ElNotification({ type: 'warning', title: 'Warning', message: 'Feature Topup With Bank Account Not Yet Available' });
+        return false;
+      }
       /* VALIDATOR */
 
       this.$store.dispatch('storeTopup', {
         user_id_seller: this.$store.getters.user.id,
         select_payment: this.select_payment,
-        amount: this.amount
+        amount: this.amount,
+        stripe_process_fee: this.stripe_process_fee,
+        total_amount: this.total_amount
       })
       .then(response => {
         console.log(response);
@@ -247,14 +307,26 @@ export default {
     watchInput(type) {
       /* CREDIT CARD */
       if(type == 'select_payment' && this.select_payment.trim() != '') {
+        this.calculationtotal_amount();
         if(this.error.select_payment) {
           this.error.select_payment = false;
         }
       }
       else if(type == 'amount' && this.amount.trim() != '') {
+        this.calculationtotal_amount();
         if(this.error.amount) {
           this.error.amount = false;
         }
+      }
+    },
+
+    calculationtotal_amount() {
+      if(this.select_payment == 'credit_card') {
+        this.stripe_process_fee = parseFloat(((parseFloat(this.amount) * 2.9) + 30) / (97.1));
+        this.total_amount = parseFloat(parseFloat(this.amount) + this.stripe_process_fee);
+
+        this.stripe_process_fee = this.stripe_process_fee.toFixed(2);
+        this.total_amount = this.total_amount.toFixed(2);
       }
     }
   }
