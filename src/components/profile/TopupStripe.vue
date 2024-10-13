@@ -80,7 +80,7 @@
         </div>
         <div class="mt-2 sm500:mt-1 flex items-center justify-between text-[.75rem]">
           <div class="flex flex-col gap-1 sm500:flex-row">
-            <h3>Biaya Admin Stripe</h3>
+            <h3>Stripe Process Fee</h3>
             <h3>((${{ amount }} * 2.9) + 30) / (97.1)</h3>
           </div>
           <h3 class="font-semibold">${{ stripe_process_fee }}</h3>
