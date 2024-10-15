@@ -5,11 +5,28 @@
     <!-- HIDE TOPUP -->
      
     <!-- HEADING TOPUP -->
-    <div class="text-center flex flex-col-reverse gap-6 sm:relative">
-      <h1 v-show="balance !== ''" class="text-xl font-semibold sm:absolute sm:left-0 sm:top-0 sm:bottom-0 sm:mt-0.5">${{ balance }}</h1>
+    <div class="text-center">
       <h1 class="text-xl">Topup Setting</h1>
     </div>
     <!-- HEADING TOPUP -->
+    
+    <!-- BALANCE -->
+    <div class="mt-5" v-show="balance_available !== '' || balance_pending != ''">
+      <div class="flex flex-col items-center gap-5 sm:flex-row sm:justify-evenly sm:gap-0">
+        <div class="flex items-center gap-2">
+          <h2 class="text-xl">Available</h2>
+          <h2>:</h2>
+          <h2 class="text-xl font-semibold">{{ balance_available }}</h2>
+        </div>
+  
+        <div class="flex items-center gap-2">
+          <h2 class="text-xl">Pending</h2>
+          <h2>:</h2>
+          <h2 class="text-xl font-semibold">{{ balance_pending }}</h2>
+        </div>
+      </div>
+    </div>
+    <!-- BALANCE -->
 
     <!-- TOPUP INPUT -->
     <div class="mt-5">
@@ -81,7 +98,7 @@
         <div class="mt-2 sm500:mt-1 flex items-center justify-between text-[.75rem]">
           <div class="flex flex-col gap-1 sm500:flex-row">
             <h3>Stripe Process Fee</h3>
-            <h3>((${{ amount }} * 2.9) + 30) / (97.1)</h3>
+            <h3>{{ stripe_process_fee_formula }}</h3>
           </div>
           <h3 class="font-semibold">${{ stripe_process_fee }}</h3>
         </div>
@@ -100,9 +117,9 @@
         <h3 v-if="topupHistory.length == 0" class="text-center">Topup Kosong</h3>
 
         <div v-for="item in topupHistory" class="border w-full border-neutral-300 rounded px-2 h-[8rem] flex items-center">
-          <div class="p-2 border-black w-full">
+          <div class="px-1 py-2 w-full">
             <div class="flex items-center justify-between mb-2">
-              <h2 class="text-base font-semibold">Ringkasan Topup</h2>
+              <h2 class="text-sm sm:text-base font-semibold">Topup #{{ item.id }}</h2>
               <BadgeView :type="item.status" :text="item.status" />
             </div>
             <div class="mt-1 flex items-center justify-between text-[.75rem]">
@@ -146,11 +163,13 @@ export default {
       paymentList: [],
       topupHistory: [],
 
-      balance: '',
+      balance_available: '',
+      balance_pending: '',
 
       select_payment: '',
       amount: '',
       stripe_process_fee: '',
+      stripe_process_fee_formula: '',
       total_amount: '',
 
       error: {
@@ -188,7 +207,16 @@ export default {
         console.log(response);
 
         if(response.data.result == 'success') {
-          this.balance = response.data.balance;
+          this.balance_available = response.data.balance_available;
+          this.balance_pending = response.data.balance_pending;
+
+          this.balance_available = Number(this.balance_available) > 0 ? `$${this.balance_available}` : String(this.balance_available).replace('-', '- $');
+          this.balance_pending = Number(this.balance_pending) > 0 ? `$${this.balance_pending}` : String(this.balance_pending).replace('-', '- $');
+
+          console.log({
+            'this.balance_available': this.balance_available,
+            'this.balance_pending': this.balance_pending,
+          });
         }
       })
       .catch(error => {
@@ -214,12 +242,6 @@ export default {
 
       if(this.error.select_payment || this.error.amount) {
         this.loading.button_topup = false;
-        return false;
-      }
-
-      if(this.select_payment == 'bank_account') {
-        this.loading.button_topup = false;
-        ElNotification({ type: 'warning', title: 'Warning', message: 'Feature Topup With Bank Account Not Yet Available' });
         return false;
       }
       /* VALIDATOR */
@@ -327,6 +349,22 @@ export default {
 
         this.stripe_process_fee = this.stripe_process_fee.toFixed(2);
         this.total_amount = this.total_amount.toFixed(2);
+
+        this.stripe_process_fee_formula = `((${ this.amount } * 2.9) + 30) / (97.1)`;
+      }
+      else if(this.select_payment == 'bank_account') {
+        this.stripe_process_fee = parseFloat((parseFloat(this.amount) * 0.8) / (99.2));
+
+        if(this.stripe_process_fee > 5) {
+          this.stripe_process_fee = parseFloat(5);
+        }
+
+        this.total_amount = parseFloat(parseFloat(this.amount) + this.stripe_process_fee);
+ 
+        this.stripe_process_fee = this.stripe_process_fee.toFixed(2);
+        this.total_amount = this.total_amount.toFixed(2);
+
+        this.stripe_process_fee_formula = `(${ this.amount } * 0.8) / (99.2), max $5`;
       }
     }
   }
