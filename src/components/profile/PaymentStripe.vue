@@ -951,6 +951,8 @@ export default {
         } 
         catch (error) {
           console.error(error);
+
+          this.loading.button_credit_card = true;
   
           ElNotification({ type: 'error', title: 'Error', message: error.response.data.message })
         }
@@ -1001,6 +1003,8 @@ export default {
         } 
         catch (error) {
           console.error(error);
+
+          this.loading.button_credit_card = true;
   
           ElNotification({ type: 'error', title: 'Error', message: error.response.data.message })
         }

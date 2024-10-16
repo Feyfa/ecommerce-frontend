@@ -158,8 +158,6 @@ export default {
 
   data() {
     return {
-      array: ['','','','',''],
-
       paymentList: [],
       topupHistory: [],
 
@@ -193,30 +191,30 @@ export default {
   },
 
   mounted() {
-    this.getBalance();
+    this.getTopupBalance();
     this.getPaymentList();
-    this.getTopupHistory();
   },
 
   methods: {
-    getBalance() {
-      this.$store.dispatch('getBalance', {
+    getTopupBalance() {
+      this.$store.dispatch('getTopupBalance', {
         user_id_seller: this.$store.getters.user.id
       })
       .then(response => {
         console.log(response);
 
         if(response.data.result == 'success') {
+          /* TOPUP */
+          this.topupHistory = response.data.topup_history;
+          /* TOPUP */
+
+          /* BALANCE */
           this.balance_available = response.data.balance_available;
           this.balance_pending = response.data.balance_pending;
 
           this.balance_available = Number(this.balance_available) > 0 ? `$${this.balance_available}` : String(this.balance_available).replace('-', '- $');
           this.balance_pending = Number(this.balance_pending) > 0 ? `$${this.balance_pending}` : String(this.balance_pending).replace('-', '- $');
-
-          console.log({
-            'this.balance_available': this.balance_available,
-            'this.balance_pending': this.balance_pending,
-          });
+          /* BALANCE */
         }
       })
       .catch(error => {
@@ -271,7 +269,13 @@ export default {
       .catch(error => {
         console.error(error);
 
+        this.clearFormTopup();
+
         this.loading.button_topup = false;
+
+        if(typeof error.response.data.topup_history == 'object') {
+          this.topupHistory = error.response.data.topup_history;
+        }
 
         ElNotification({ type: 'error', title: 'Error', message: error.response.data.message });
       });
@@ -307,22 +311,6 @@ export default {
         console.error(error);
 
         ElNotification({ type: 'error', title: 'Error', message: error.response.data.message })
-      })
-    },
-
-    getTopupHistory() {
-      this.$store.dispatch('getTopupHistory', {
-        user_id_seller: this.$store.getters.user.id
-      })
-      .then(response => {
-        console.log(response);
-
-        if(response.data.result == 'success') {
-          this.topupHistory = response.data.topup_history;
-        }
-      })
-      .catch(error => {
-        console.error(error);
       })
     },
 

@@ -21,25 +21,9 @@ export default createStore({
       this.state.user = JSON.parse(localStorage.getItem('user'));
     },
 
-    getBalance(context, data) {
+    getTopupBalance(context, data) {
       return new Promise((resolve, reject) => {
-        axios.get('/topup/get-balance', {
-          params: {
-            user_id_seller: data.user_id_seller
-          }
-        })
-        .then(response => {
-          resolve(response);
-        })
-        .catch(error => {
-          reject(error);
-        });
-      });
-    },
-
-    getTopupHistory(context, data) {
-      return new Promise((resolve, reject) => {
-        axios.get('/topup/get-topup-history', {
+        axios.get('/topup/get-topup-balance', {
           params: {
             user_id_seller: data.user_id_seller
           }
@@ -50,7 +34,7 @@ export default createStore({
         .catch(error => {
           reject(error);
         })
-      });
+      })
     },
 
     storeTopup(context, data) {
