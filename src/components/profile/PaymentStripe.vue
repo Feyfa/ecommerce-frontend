@@ -614,6 +614,8 @@ export default {
 
           this.cleanFormAch();
 
+          this.$emit('onUpdatePayment');
+
           ElNotification({ type: 'success', title: 'Success', message: response.data.message })
         }
 
@@ -690,6 +692,8 @@ export default {
 
             this.cleanFormAch();
 
+            this.$emit('onUpdatePayment');
+
             ElNotification({ type: 'success', title: 'Success', message: response.data.message })
           }
         })
@@ -728,6 +732,8 @@ export default {
             }
 
             this.cleanFormAch();
+
+            this.$emit('onUpdatePayment');
 
             ElNotification({ type: 'success', title: 'Success', message: response.data.message })
           }
@@ -935,6 +941,8 @@ export default {
             this.replace.creditCard = true;
   
             this.cleanFormCreditcard();
+
+            this.$emit('onUpdatePayment');
   
             ElNotification({ type: 'success', title: 'Success', message: 'Success Create Credit Card' })
   
@@ -947,6 +955,8 @@ export default {
             this.creditCardInfo.country = '';
             this.creditCardInfo.state = '';
             this.creditCardInfo.city = '';
+
+            this.$emit('onUpdatePayment');
           }
         } 
         catch (error) {
@@ -988,6 +998,8 @@ export default {
             this.cardText = 'Replace';
   
             this.cleanFormCreditcard();
+
+            this.$emit('onUpdatePayment');
   
             ElNotification({ type: 'success', title: 'Success', message: 'Success Create Credit Card' })
   
@@ -999,6 +1011,8 @@ export default {
             this.creditCardInfo.country = '';
             this.creditCardInfo.state = '';
             this.creditCardInfo.city = '';
+
+            this.$emit('onUpdatePayment');
           }
         } 
         catch (error) {

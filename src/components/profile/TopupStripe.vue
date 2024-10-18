@@ -288,6 +288,8 @@ export default {
       .then(response => {
         console.log(response);
 
+        this.paymentList = [];
+
         if(response.data.result == 'success') {
           if(response.data.params_cc != '') {
             this.paymentList.push({
