@@ -6,7 +6,7 @@
 
     <!-- HEADING CREDIT CARD -->
     <div class="text-center m-5">
-      <h1 class="text-xl">Payment <span class="font-medium">{{ $store.getters.user.name ?? "" }}</span></h1>
+      <h1 class="text-xl">Payment <span class="font-medium">{{ $store.getters.user?.name }}</span></h1>
     </div>
     <!-- HEADING CREDIT CARD -->
 
@@ -82,17 +82,19 @@
                       for="country">
                       Country
                     </label>
-                    <select 
-                      id="country" 
+                    <el-select
                       v-model="creditCardInput.country"
-                      class="border w-full border-neutral-500 rounded outline-none h-12 px-2.5 shadow"
-                      :class="{'input-disabled': !$global.isConnectedAccountComplete}"
-                      :disabled="!$global.isConnectedAccountComplete"
-                      @change="watchInput('credit_card.country')">
-                      <option value="United State">United State</option>
-                      <option value="Indonesia">Indonesia</option>
-                      <option value="India">India</option>
-                    </select>
+                      filterable
+                      placeholder="Country"
+                      @change="countryChange"
+                      :disabled="!$global.isConnectedAccountComplete">
+                      <el-option
+                        v-for="item in countries"
+                        :key="item.value"
+                        :label="item.label"
+                        :value="item.value"
+                      />
+                    </el-select>
                     <small 
                       v-if="error.creditCard.country"
                       class="text-red-500">
@@ -105,17 +107,19 @@
                       for="state">
                       State
                     </label>
-                    <select 
-                      id="state" 
+                    <el-select
                       v-model="creditCardInput.state"
-                      class="border w-full border-neutral-500 rounded outline-none h-12 px-2.5 shadow"
-                      :class="{'input-disabled': !$global.isConnectedAccountComplete}"
-                      :disabled="!$global.isConnectedAccountComplete"
-                      @change="watchInput('credit_card.state')">
-                      <option value="Ohio">Ohio</option>
-                      <option value="Jawa Barat">Jawa Barat</option>
-                      <option value="Blawan">Blawan</option>
-                    </select>
+                      filterable
+                      placeholder="State"
+                      @change="stateChange"
+                      :disabled="!$global.isConnectedAccountComplete">
+                      <el-option
+                        v-for="item in states"
+                        :key="item.value"
+                        :label="item.label"
+                        :value="item.value"
+                      />
+                    </el-select>
                     <small 
                       v-if="error.creditCard.state"
                       class="text-red-500">
@@ -128,17 +132,18 @@
                       for="city">
                       City
                     </label>
-                    <select 
-                      id="city" 
+                    <el-select
                       v-model="creditCardInput.city"
-                      class="border w-full border-neutral-500 rounded outline-none h-12 px-2.5 shadow"
-                      :class="{'input-disabled': !$global.isConnectedAccountComplete}"
-                      :disabled="!$global.isConnectedAccountComplete"
-                      @change="watchInput('credit_card.city')">
-                      <option value="Ohio City">Ohio City</option>
-                      <option value="Jakarta">Jakarta</option>
-                      <option value="Blawan City">Blawan City</option>
-                    </select>
+                      filterable
+                      placeholder="City"
+                      :disabled="!$global.isConnectedAccountComplete">
+                      <el-option
+                        v-for="item in cities"
+                        :key="item.value"
+                        :label="item.label"
+                        :value="item.value"
+                      />
+                    </el-select>
                     <small 
                       v-if="error.creditCard.city"
                       class="text-red-500">
@@ -465,6 +470,10 @@ export default {
       stripe: null,
       cardElement: null,
 
+      countries: [],
+      states: [],
+      cities: [],
+
       creditCardInfo: {
         brand: '',
         lastNumber: '',
@@ -541,9 +550,65 @@ export default {
   async mounted() {
     this.setupInputCreditCard();
     this.getInfoPaymentMethod();
+    this.getCountries();
   },
 
   methods: {
+    getCountries() {
+      this.$store.dispatch('getCountries')
+                 .then(response => {
+                  // console.log(response);
+
+                  if(response.data.result == 'success') {
+                    this.countries = response.data.countries;
+                  }
+                 })
+                 .catch(error => {
+                  console.error(error);
+                 })
+    },
+
+    countryChange(selectedValue) {
+      this.creditCardInput.state = '';
+      this.creditCardInput.city = '';
+
+      const selectedCountry = this.countries.find(country => country.value === selectedValue);
+
+      this.$store.dispatch('getStates', {
+        country_id: selectedCountry.id
+      })
+      .then(response => {
+        // console.log(response);
+
+        if(response.data.result == 'success') {
+          this.states = response.data.states
+        }
+      })
+      .catch(error => {
+        console.error(error);
+      })
+    },
+
+    stateChange(selectedValue) {
+      this.creditCardInput.city = '';
+
+      const selectedCity = this.states.find(state => state.value === selectedValue);
+
+      this.$store.dispatch('getCites', {
+        city_id: selectedCity.id
+      })
+      .then(response => {
+        // console.log(response);
+
+        if(response.data.result == 'success') {
+          this.cities = response.data.cities
+        }
+      })
+      .catch(error => {
+        console.error(error);
+      })
+    },
+
     deleteAch() {
       this.loading.button_ach = true;
 
@@ -551,7 +616,7 @@ export default {
         user_id_seller: this.$store.getters.user.id,
       })
       .then(response => {
-        console.log(response);
+        // console.log(response);
 
         this.loading.button_ach = false;
 
@@ -595,7 +660,7 @@ export default {
         micro_deposite_2: this.achInput.micro_deposite_2,
       })
       .then(response => {
-        console.log(response);
+        // console.log(response);
 
         this.loading.button_ach = false;
 
@@ -673,7 +738,7 @@ export default {
           account_number: this.achInput.account_number,
         })
         .then(response => {
-          console.log(response);
+          // console.log(response);
 
           this.loading.button_ach = false;
 
@@ -714,7 +779,7 @@ export default {
           account_number: this.achInput.account_number,
         })
         .then(response => {
-          console.log(response);
+          // console.log(response);
 
           this.loading.button_ach = false;
 
@@ -786,7 +851,7 @@ export default {
         user_id_seller: this.$store.getters.user.id
       })
       .then(response => {
-        console.log(response);
+        // console.log(response);
 
         if(response.data.result == 'success') {
 
@@ -924,7 +989,7 @@ export default {
             city: this.creditCardInput.city
           });
   
-          console.log(response);
+          // console.log(response);
   
           this.loading.button_credit_card = false;
   
@@ -983,7 +1048,7 @@ export default {
             city: this.creditCardInput.city
           });
 
-          console.log(response);
+          // console.log(response);
   
           this.loading.button_credit_card = false;
   

@@ -1,0 +1,30 @@
+/* SELECT */
+.el-select__wrapper {
+    @apply border w-full border-neutral-500 rounded outline-none h-12 px-2.5 shadow text-base text-black;
+}
+.el-select__wrapper.is-hovering:not(.is-focused) {
+    @apply shadow-none;
+}
+.el-select__wrapper.is-hovering {
+    @apply shadow-none;
+}
+.el-select__wrapper.is-focused {
+    @apply shadow-none;
+}
+/* SELECT */
+
+/* OPTION */
+.el-select-dropdown__list {
+    @apply box-border list-none m-0 p-0;
+}
+.el-select-dropdown__wrap {
+    @apply max-h-[200px];
+}
+.el-select-dropdown__item {
+    @apply box-border text-black cursor-pointer text-base h-[40px] leading-[40px] overflow-hidden px-3 relative text-ellipsis whitespace-nowrap
+}
+.el-select-dropdown__item.is-hovering {
+    @apply bg-blue-500 text-white; 
+}
+/* OPTION */
+

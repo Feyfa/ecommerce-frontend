@@ -201,7 +201,7 @@ export default {
         user_id_seller: this.$store.getters.user.id
       })
       .then(response => {
-        console.log(response);
+        // console.log(response);
 
         if(response.data.result == 'success') {
           /* TOPUP */
@@ -252,7 +252,7 @@ export default {
         total_amount: this.total_amount
       })
       .then(response => {
-        console.log(response);
+        // console.log(response);
 
         console.log(response.data.result);
 
@@ -286,7 +286,7 @@ export default {
         user_id_seller: this.$store.getters.user.id
       })
       .then(response => {
-        console.log(response);
+        // console.log(response);
 
         this.paymentList = [];
 
@@ -305,8 +305,6 @@ export default {
               text: `Bank Account #${response.data.params_ach.last4}`
             });
           }
-          console.log('getPaymentList');
-          console.log(this.paymentList);
         }
       })
       .catch(error => {

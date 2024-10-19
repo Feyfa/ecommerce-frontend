@@ -1,4 +1,4 @@
-import './assets/style.css'
+import './assets/style/style.css'
 
 import { createApp } from 'vue'
 import App from './App.vue'
@@ -7,6 +7,7 @@ import store from './store'
 import GlobalPlugin from "./plugin/GlobalPlugin"
 import ElementPlus from 'element-plus'
 import 'element-plus/dist/index.css'
+import './assets/style/select-element-ui.css'
 
 const app = createApp(App)
 

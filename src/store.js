@@ -21,6 +21,50 @@ export default createStore({
       this.state.user = JSON.parse(localStorage.getItem('user'));
     },
 
+    getCountries(context, data) {
+      return new Promise((resolve, reject) => {
+        axios.get('/countries')
+             .then(response => {
+              resolve(response);
+             })
+             .catch(error => {
+              reject(error);
+             });
+      });
+    },
+
+    getStates(context, data) {
+      return new Promise((resolve, reject) => {
+        axios.get('/states', {
+          params: {
+            country_id: data.country_id
+          }
+        })
+        .then(response => {
+          resolve(response);
+        })
+        .catch(error => {
+          reject(error);
+        })
+      });
+    },
+
+    getCites(context, data) {
+      return new Promise((resolve, reject) => {
+        axios.get('/cities', {
+          params: {
+            city_id: data.city_id
+          }
+        })
+        .then(response => {
+          resolve(response);
+        })
+        .catch(error => {
+          reject(error);
+        })
+      });
+    },
+
     getTopupBalance(context, data) {
       return new Promise((resolve, reject) => {
         axios.get('/topup/get-topup-balance', {
