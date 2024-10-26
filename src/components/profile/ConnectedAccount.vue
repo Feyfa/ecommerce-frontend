@@ -103,14 +103,17 @@ export default {
           }
 
         }
-        else if(response.data.result == 'success' && response.data.account == '') {
-          this.disable.button_connect_account = true;
-          ElNotification({ type: 'warning', title: 'Warning', message: response.data.message });
-        }
       })
       .catch(error => {
         // console.error(error);
-        ElNotification({ type: 'error', title: 'Error', message: error.response.data.message });
+        this.disable.button_connect_account = true;
+
+        if(error.response.data.result == 'warning') {
+          ElNotification({ type: 'warning', title: 'Warning', message: error.response.data.message });
+        }
+        else if(error.response.data.result == 'error') {
+          ElNotification({ type: 'error', title: 'Error', message: error.response.data.message });
+        }
       });
     },
 

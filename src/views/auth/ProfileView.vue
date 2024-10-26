@@ -55,9 +55,24 @@ export default {
 
   mounted() {
     this.$global.personImage = this.$store.getters.user.img ? `${import.meta.env.VITE_APP_BACKEND_BASE_URL}/${import.meta.env.VITE_SYMLINK_FOLDER}/${this.$store.getters.user.img}` : PersonImage;
+  
+    this.scrollBehavior('smooth');
   },
 
   methods: {
+    scrollBehavior(behavior) {
+      const hash = this.$route.hash;
+      console.log(hash);
+      
+      if (hash) {
+        const el = document.querySelector(hash);
+        
+        if (el) {
+          el.scrollIntoView({ behavior: behavior });
+        }
+      }
+    },
+
     onUpdatePayment() {
       if(this.$refs.topupStripe) {
         this.$refs.topupStripe.getPaymentList();

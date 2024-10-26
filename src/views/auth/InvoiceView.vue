@@ -1,5 +1,6 @@
 <template>
-  <div class="w-full pb-2">
+  <!-- invoice view -->
+  <div v-show="show.invoice_view" class="w-full pb-2">
     <h1 class="text-center text-3xl font-medium h-10 flex justify-center items-center">Daftar Invoice</h1>
 
     <div class="keranjang-container flex flex-col justify-start items-start px-3 py-2 gap-3">
@@ -93,6 +94,16 @@
     </div>
       
   </div>
+  <!-- invoice view -->
+
+  <!-- loading view -->
+  <div v-show="show.loading" class="w-full text-xl h-full flex justify-center items-center">
+    <span>
+      <i class="fas fa-spinner fa-pulse text-4xl"></i>
+    </span>
+  </div>
+  <!-- loading view -->
+
 </template>
 
 <script>
@@ -112,10 +123,18 @@ export default {
 
       invoices: [],
       filter: '',
+
+      show: {
+        invoice_view: false,
+        loading: false,
+      }
     }
   },
 
   mounted() {
+    this.show.invoice_view = false;
+    this.show.loading = true;
+
     this.getInvoice();
   },
 
@@ -135,6 +154,9 @@ export default {
         filter: filter
       })
       .then(response => {
+        this.show.invoice_view = true;
+        this.show.loading = false;
+
         this.invoices = response.data.invoices;
 
         if(this.invoices.length == 0) {
@@ -149,6 +171,9 @@ export default {
       })
       .catch(error => {
         // console.error(error);
+      
+        this.show.invoice_view = true;
+        this.show.loading = false;
       })
     }
   }

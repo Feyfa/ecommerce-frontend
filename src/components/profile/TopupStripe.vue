@@ -218,9 +218,9 @@ export default {
         }
       })
       .catch(error => {
-        console.error(error);
+        // console.error(error);
 
-        ElNotification({ type: 'error', title: 'Error', message: error.response.data.message });
+        // ElNotification({ type: 'error', title: 'Error', message: error.response.data.message });
       })
     },
 
@@ -267,7 +267,7 @@ export default {
         }
       })
       .catch(error => {
-        console.error(error);
+        // console.error(error);
 
         this.clearFormTopup();
 
@@ -308,9 +308,9 @@ export default {
         }
       })
       .catch(error => {
-        console.error(error);
+        // console.error(error);
 
-        ElNotification({ type: 'error', title: 'Error', message: error.response.data.message })
+        // ElNotification({ type: 'error', title: 'Error', message: error.response.data.message })
       })
     },
 

@@ -1,5 +1,6 @@
 <template>
-  <div class="w-full pb-2">
+  <!-- keranjang view -->
+  <div v-show="show.keranjang_view" class="w-full pb-2">
     <h1 class="text-center text-3xl font-medium h-10 flex justify-center items-center">Daftar Keranjang</h1>
 
     <div class="keranjang-container flex justify-start items-start px-3 py-2 gap-5">
@@ -101,6 +102,15 @@
     </div>
       
   </div>
+  <!-- keranjang view -->
+
+  <!-- loading view -->
+  <div v-show="show.loading" class="w-full text-xl h-full flex justify-center items-center">
+    <span>
+      <i class="fas fa-spinner fa-pulse text-4xl"></i>
+    </span>
+  </div>
+  <!-- loading view -->
 </template>
 
 <script>
@@ -119,11 +129,19 @@ export default {
       
       disabled: {
         buttonBayar: false
+      },
+
+      show: {
+        keranjang_view: false,
+        loading: false,
       }
     }
   },
 
   mounted() {
+    this.show.keranjang_view = false;
+    this.show.loading = true;
+
     this.getKeranjang();
   },
 
@@ -356,6 +374,9 @@ export default {
       .then(response => {
         // console.log(response);
 
+        this.show.keranjang_view = true;
+        this.show.loading = false;
+
         this.keranjangs = response.data.keranjangs;
         this.totalPrice = response.data.totalPrice;
 
@@ -370,6 +391,9 @@ export default {
       })
       .catch(error => {
         // console.error(error);
+        
+        this.show.keranjang_view = true;
+        this.show.loading = false;
       })
     },
 

@@ -1,10 +1,11 @@
 <template>
-  <div class="w-full text-xl">
+  <!-- Product View -->
+  <div v-show="show.product_view" class="w-full text-xl">
     <h1 class="text-center text-3xl font-medium">Product Saya</h1>
 
     <h1 ref="empty" class="text-center mt-5 text-base font-medium hidden">Produt Anda Kosong</h1>
     
-    <div class="w-full p-4 grid grid-cols-1 sm400:grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 2xl:grid-cols-6 gap-x-3 gap-y-5">   
+    <div class="w-full p-2 sm:p-4 grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 2xl:grid-cols-6 gap-x-3 gap-y-5">   
       <div v-for="product in products" class="row flex flex-col justify-between gap-2 border border-neutral-400 bg-white rounded shadow-md h-72">
         <div class="h-44 w-full bg-cover bg-no-repeat bg-center" :style="{ backgroundImage: `url(${APP_BACKEND_BASE_URL}/${SYMLINK_FOLDER}/${product.img})` }"></div>
         
@@ -50,9 +51,43 @@
       </svg>
     </router-link>
   </div>
+  <!-- Product View -->
+
+  <!-- loading view -->
+  <div v-show="show.loading" class="w-full text-xl h-full flex justify-center items-center">
+    <span>
+      <i class="fas fa-spinner fa-pulse text-4xl"></i>
+    </span>
+  </div>
+  <!-- loading view -->
+
+  <!-- not connected account -->
+  <div v-show="show.not_connected_account && !this.$global.isConnectedAccountComplete" class="w-full text-xl">
+    <div class="py-4 px-6 gap-x-10 gap-y-5 flex flex-col items-center sm:flex-row sm:items-start">
+      <div class="w-[40%] sm400:w-[30%] sm500:w-[25%] sm:w-[20%] md:w-[15%] xl:w-[10%] 2xl:w-[5%]">
+        <img
+          class="w-64"
+          :src="IntegrationImage" 
+          alt="IntegrationImage">
+      </div>
+      <div class="w-full sm:w-[80%] md:w-[85%] xl:w-[90%] 2xl:w-[95%]">
+        <p class="text-lg lg:text-xl leading-7">Jika Anda ingin bergabung sebagai penjual untuk memasarkan produk Anda melalui platform kami, kami mengundang Anda untuk membuat akun Connected di Stripe. Silakan ikuti langkah-langkah pendaftaran akun Connected di Stripe agar Anda dapat segera memulai penjualan dan meningkatkan bisnis Anda bersama kami!
+          <router-link 
+            to="/user#connected-account"
+            class="underline text-blue-800">
+            klik disini
+          </router-link>
+        </p>
+      </div>
+    </div>
+  </div>
+  <!-- not connected account -->
+
+
 </template>
 
 <script>
+import IntegrationImage from "@/assets/img/integration.png";
 import ProductImage from "@/assets/img/product.png";
 import { ElNotification } from "element-plus";
 import Swal from "sweetalert2";
@@ -64,11 +99,22 @@ export default {
       APP_BACKEND_BASE_URL: import.meta.env.VITE_APP_BACKEND_BASE_URL,
       SYMLINK_FOLDER: import.meta.env.VITE_SYMLINK_FOLDER,
       ProductImage: ProductImage,
+      IntegrationImage: IntegrationImage,
       products: [],
+
+      show: {
+        product_view: false,
+        loading: false,
+        not_connected_account: false,
+      }
     }
   },
 
   mounted() {
+    this.show.loading = true;
+    this.show.product_view = false;
+    this.show.not_connected_account = false;
+
     this.getProducts();
   },
 
@@ -117,6 +163,10 @@ export default {
       })
       .then(response => {
         // console.log(response);
+
+        this.show.loading = false;
+        this.show.product_view = true;
+        this.$global.isConnectedAccountComplete = true;
         
         this.products = response.data.products;
 
@@ -127,6 +177,13 @@ export default {
       })
       .catch(error => {
         // console.error(error);
+
+        this.show.loading = false;
+        this.show.not_connected_account = true;
+
+        if(error.response.data.status == 402) {
+          this.$global.isConnectedAccountComplete = false;
+        }
       })
     }
   }

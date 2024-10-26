@@ -1,10 +1,11 @@
 <template>
-  <div class="w-full text-xl">
+  <!-- belanja view -->
+  <div v-show="show.belanja_view" class="w-full text-xl">
     <h1 class="text-center text-3xl font-medium">Barang Belanja</h1>
 
     <h1 ref="empty" class="text-center mt-5 text-base font-medium hidden">Barang Belanja Kosong</h1>
     
-    <div class="w-full p-4 grid grid-cols-1 sm400:grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 2xl:grid-cols-6 gap-x-3 gap-y-5">   
+    <div class="w-full p-2 sm:p-4 grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 2xl:grid-cols-6 gap-x-3 gap-y-5">   
       <div v-for="product in products" class="row flex flex-col justify-between gap-2 border border-neutral-400 bg-white rounded shadow-md h-72">
         <div class="h-44 border w-full bg-cover bg-no-repeat bg-center" :style="{ backgroundImage: `url(${APP_BACKEND_BASE_URL}/${SYMLINK_FOLDER}/${product.p_img})` }"></div>
 
@@ -34,6 +35,15 @@
       </div>
     </div>
   </div>
+  <!-- belanja view -->
+
+  <!-- loading view -->
+  <div v-show="show.loading" class="w-full text-xl h-full flex justify-center items-center">
+    <span>
+      <i class="fas fa-spinner fa-pulse text-4xl"></i>
+    </span>
+  </div>
+  <!-- loading view -->
 </template>
 
 <script>
@@ -45,11 +55,19 @@ export default {
     return {
       APP_BACKEND_BASE_URL: import.meta.env.VITE_APP_BACKEND_BASE_URL,
       SYMLINK_FOLDER: import.meta.env.VITE_SYMLINK_FOLDER,
-      products: []
+      products: [],
+
+      show: {
+        belanja_view: false,
+        loading: false
+      }
     }
   },
 
   mounted() {
+    this.show.belanja_view = false;
+    this.show.loading = true;
+
     this.getBelanja();
   },
 
@@ -98,6 +116,8 @@ export default {
       })
       .then(response => {
         // console.log(response);
+        this.show.belanja_view = true;
+        this.show.loading = false;
 
         this.products = response.data.products;
 
@@ -108,6 +128,10 @@ export default {
       })
       .catch(error => {
         console.error(error);
+      
+        this.show.belanja_view = true;
+        this.show.loading = false;
+      
       })
     }
   }
