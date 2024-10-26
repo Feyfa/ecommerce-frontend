@@ -70,7 +70,7 @@ export default createStore({
         axios.get('/topup/get-topup-balance', {
           params: {
             user_id_seller: data.user_id_seller,
-            page: data.page,
+            offset: data.offset,
           }
         })
         .then(response => {

@@ -113,7 +113,7 @@
     <!-- TOPUP HISTORY -->
     <div class="mt-5">
       <h3 class="text-[1rem]">Topup History ({{ totalTopupHistory }})</h3>
-      <div class="mt-2 flex flex-col gap-2 border border-neutral-400 bg-whie rounded shadow p-2 w-full max-h-[26rem] overflow-auto" ref="topupContainer" @scroll="scrollTopup">
+      <div class="mt-2 flex flex-col gap-2 border border-neutral-400 bg-whie rounded shadow p-2 w-full max-h-[26.2rem] overflow-auto" ref="topupContainer" @scroll="scrollTopup">
         <h3 v-if="topupHistory.length == 0" class="text-center">Topup Kosong</h3>
 
         <div v-for="item in topupHistory" class="border w-full border-neutral-300 rounded px-2 h-[8rem] flex items-center">
@@ -167,7 +167,7 @@ export default {
       paymentList: [],
       topupHistory: [],
 
-      pageTopupHistory: 0,
+      offsetTopupHistory: 0,
       totalTopupHistory: 0,
       completeTopupHistory: false,
 
@@ -210,8 +210,17 @@ export default {
     scrollTopup() {
       const scrollTopupContainer = this.$refs.topupContainer;
 
+      console.log({
+        'scrollTopupContainer.scrollTop': scrollTopupContainer.scrollTop,
+        'scrollTopupContainer.clientHeight': scrollTopupContainer.clientHeight,
+        'scrollTopupContainer.scrollHeight': scrollTopupContainer.scrollHeight,
+        'total': Math.round(scrollTopupContainer.scrollTop + scrollTopupContainer.clientHeight),
+        'this.loading.scroll_topup_fetch': this.loading.scroll_topup_fetch,
+        'this.completeTopupHistory': this.completeTopupHistory
+      });
+
       if ((Math.round(scrollTopupContainer.scrollTop + scrollTopupContainer.clientHeight) >= scrollTopupContainer.scrollHeight) && (!this.loading.scroll_topup_fetch) && (!this.completeTopupHistory)) {
-        this.pageTopupHistory++;
+        this.offsetTopupHistory = this.topupHistory.length;
 
         this.loading.scroll_topup_fetch = true;
 
@@ -226,7 +235,7 @@ export default {
     getTopupBalance() {
       this.$store.dispatch('getTopupBalance', {
         user_id_seller: this.$store.getters.user.id,
-        page: this.pageTopupHistory
+        offset: this.offsetTopupHistory
       })
       .then(response => {
         // console.log(response);
@@ -291,12 +300,14 @@ export default {
 
         console.log(response.data.result);
 
+        this.completeTopupHistory = false;
         this.loading.button_topup = false;
 
         if(response.data.result == 'success') {
           this.clearFormTopup();
 
-          this.topupHistory = response.data.topup_history;
+          this.topupHistory = [ response.data.topup_history, ...this.topupHistory ];
+          this.totalTopupHistory = response.data.total_topup_history;
 
           ElNotification({ type: 'success', title: 'Success', message: response.data.message });
         }
@@ -306,10 +317,12 @@ export default {
 
         this.clearFormTopup();
 
+        this.completeTopupHistory = false;
         this.loading.button_topup = false;
 
         if(typeof error.response.data.topup_history == 'object') {
-          this.topupHistory = error.response.data.topup_history;
+          this.topupHistory = [ error.response.data.topup_history, ...this.topupHistory ];
+          this.totalTopupHistory = response.data.total_topup_history;
         }
 
         ElNotification({ type: 'error', title: 'Error', message: error.response.data.message });
