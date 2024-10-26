@@ -69,7 +69,8 @@ export default createStore({
       return new Promise((resolve, reject) => {
         axios.get('/topup/get-topup-balance', {
           params: {
-            user_id_seller: data.user_id_seller
+            user_id_seller: data.user_id_seller,
+            page: data.page,
           }
         })
         .then(response => {

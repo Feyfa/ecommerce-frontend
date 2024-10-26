@@ -112,8 +112,8 @@
 
     <!-- TOPUP HISTORY -->
     <div class="mt-5">
-      <h3 class="text-[1rem]">Topup History</h3>
-      <div class="mt-2 flex flex-col gap-2 border border-neutral-400 bg-whie rounded shadow p-2 w-full max-h-[26rem] overflow-auto">
+      <h3 class="text-[1rem]">Topup History ({{ totalTopupHistory }})</h3>
+      <div class="mt-2 flex flex-col gap-2 border border-neutral-400 bg-whie rounded shadow p-2 w-full max-h-[26rem] overflow-auto" ref="topupContainer" @scroll="scrollTopup">
         <h3 v-if="topupHistory.length == 0" class="text-center">Topup Kosong</h3>
 
         <div v-for="item in topupHistory" class="border w-full border-neutral-300 rounded px-2 h-[8rem] flex items-center">
@@ -140,6 +140,12 @@
             </div>
           </div>
         </div>
+
+        <div v-show="loading.scroll_topup_fetch" class="w-full px-2 h-[8rem] flex justify-center">
+          <span>
+            <i class="fas fa-spinner fa-pulse text-2xl"></i>
+          </span>
+        </div>
       </div>
     </div>
     <!-- TOPUP HISTORY -->
@@ -160,6 +166,10 @@ export default {
     return {
       paymentList: [],
       topupHistory: [],
+
+      pageTopupHistory: 0,
+      totalTopupHistory: 0,
+      completeTopupHistory: false,
 
       balance_available: '',
       balance_pending: '',
@@ -185,7 +195,8 @@ export default {
       },
 
       loading: {
-        button_topup: false
+        button_topup: false,
+        scroll_topup_fetch: false
       }
     }
   },
@@ -196,16 +207,40 @@ export default {
   },
 
   methods: {
+    scrollTopup() {
+      const scrollTopupContainer = this.$refs.topupContainer;
+
+      if ((Math.round(scrollTopupContainer.scrollTop + scrollTopupContainer.clientHeight) >= scrollTopupContainer.scrollHeight) && (!this.loading.scroll_topup_fetch) && (!this.completeTopupHistory)) {
+        this.pageTopupHistory++;
+
+        this.loading.scroll_topup_fetch = true;
+
+        this.$nextTick(() => {
+          scrollTopupContainer.scrollTop = scrollTopupContainer.scrollHeight;
+          
+          this.getTopupBalance();
+        });
+      }
+    },
+
     getTopupBalance() {
       this.$store.dispatch('getTopupBalance', {
-        user_id_seller: this.$store.getters.user.id
+        user_id_seller: this.$store.getters.user.id,
+        page: this.pageTopupHistory
       })
       .then(response => {
         // console.log(response);
 
+        this.loading.scroll_topup_fetch = false;
+
         if(response.data.result == 'success') {
+          if(response.data.topup_history.length == 0) {
+            this.completeTopupHistory = true;
+          }
+
           /* TOPUP */
-          this.topupHistory = response.data.topup_history;
+          this.topupHistory = [ ...this.topupHistory, ...response.data.topup_history ];
+          this.totalTopupHistory = response.data.total_topup_history;
           /* TOPUP */
 
           /* BALANCE */
