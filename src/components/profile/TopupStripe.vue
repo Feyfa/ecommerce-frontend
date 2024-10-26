@@ -113,7 +113,7 @@
     <!-- TOPUP HISTORY -->
     <div class="mt-5">
       <h3 class="text-[1rem]">Topup History ({{ totalTopupHistory }})</h3>
-      <div class="mt-2 flex flex-col gap-2 border border-neutral-400 bg-whie rounded shadow p-2 w-full max-h-[26.2rem] overflow-auto" ref="topupContainer" @scroll="scrollTopup">
+      <div class="mt-2 flex flex-col gap-2 border border-neutral-400 bg-whie rounded shadow p-2 w-full max-h-[26rem] overflow-auto" ref="topupContainer" @scroll="scrollTopup">
         <h3 v-if="topupHistory.length == 0" class="text-center">Topup Kosong</h3>
 
         <div v-for="item in topupHistory" class="border w-full border-neutral-300 rounded px-2 h-[8rem] flex items-center">
@@ -210,14 +210,14 @@ export default {
     scrollTopup() {
       const scrollTopupContainer = this.$refs.topupContainer;
 
-      console.log({
-        'scrollTopupContainer.scrollTop': scrollTopupContainer.scrollTop,
-        'scrollTopupContainer.clientHeight': scrollTopupContainer.clientHeight,
-        'scrollTopupContainer.scrollHeight': scrollTopupContainer.scrollHeight,
-        'total': Math.round(scrollTopupContainer.scrollTop + scrollTopupContainer.clientHeight),
-        'this.loading.scroll_topup_fetch': this.loading.scroll_topup_fetch,
-        'this.completeTopupHistory': this.completeTopupHistory
-      });
+      // console.log({
+      //   'scrollTopupContainer.scrollTop': scrollTopupContainer.scrollTop,
+      //   'scrollTopupContainer.clientHeight': scrollTopupContainer.clientHeight,
+      //   'scrollTopupContainer.scrollHeight': scrollTopupContainer.scrollHeight,
+      //   'total': Math.round(scrollTopupContainer.scrollTop + scrollTopupContainer.clientHeight),
+      //   'this.loading.scroll_topup_fetch': this.loading.scroll_topup_fetch,
+      //   'this.completeTopupHistory': this.completeTopupHistory
+      // });
 
       if ((Math.round(scrollTopupContainer.scrollTop + scrollTopupContainer.clientHeight) >= scrollTopupContainer.scrollHeight) && (!this.loading.scroll_topup_fetch) && (!this.completeTopupHistory)) {
         this.offsetTopupHistory = this.topupHistory.length;
