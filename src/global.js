@@ -11,6 +11,10 @@ const global = reactive({
   isFilterOpen: false,
   isAuth: false,
   isConnectedAccountComplete: false,
+  modals: {
+    addProduct: false,
+    editProduct: false
+  }
 });
 
 export default global;

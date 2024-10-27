@@ -42,16 +42,22 @@
         </div>
       </div>
     </div>
-
-    <router-link 
-      to="/product/add"
-      class="fixed bottom-7 right-5 w-max border border-slate-500 p-2 rounded-md bg-blue-500 hover:bg-[#428bff] cursor-pointer">
+    
+    <div class="fixed bottom-7 right-5 w-max border border-slate-500 p-2 rounded-md bg-blue-500 hover:bg-[#428bff] cursor-pointer" @click.stop="showAddProduct">
       <svg xmlns="http://www.w3.org/2000/svg" width="30" height="30" fill="currentColor" class="bi bi-plus-lg" viewBox="0 0 16 16">
         <path fill-rule="evenodd" d="M8 2a.5.5 0 0 1 .5.5v5h5a.5.5 0 0 1 0 1h-5v5a.5.5 0 0 1-1 0v-5h-5a.5.5 0 0 1 0-1h5v-5A.5.5 0 0 1 8 2"/>
       </svg>
-    </router-link>
+    </div>
   </div>
   <!-- Product View -->
+
+  <!-- Product Add View -->
+  <AddProduct :show="this.$global.modals.addProduct" @onAfterAddProduct="onAfterAddProduct" />
+  <!-- Product Add View -->
+  
+  <!-- Product Add View -->
+  <EditProduct :show="this.$global.modals.editProduct" :product-id="editProductId" @onAfterEditProduct="onAfterEditProduct" />
+  <!-- Product Add View -->
 
   <!-- loading view -->
   <div v-show="show.loading" class="w-full text-xl h-full flex justify-center items-center">
@@ -92,8 +98,15 @@ import ProductImage from "@/assets/img/product.png";
 import { ElNotification } from "element-plus";
 import Swal from "sweetalert2";
 import { RouterLink } from "vue-router";
+import AddProduct from "@/components/product/add.vue";
+import EditProduct from "@/components/product/edit.vue"
 
 export default {
+  components: {
+    AddProduct,
+    EditProduct
+  },
+
   data() {
     return {
       APP_BACKEND_BASE_URL: import.meta.env.VITE_APP_BACKEND_BASE_URL,
@@ -101,6 +114,8 @@ export default {
       ProductImage: ProductImage,
       IntegrationImage: IntegrationImage,
       products: [],
+
+      editProductId: '',
 
       show: {
         product_view: false,
@@ -119,8 +134,26 @@ export default {
   },
 
   methods: {
+    onAfterAddProduct(data) {
+      this.products = [ data, ...this.products ];
+    },
+    
+    onAfterEditProduct(data) {
+      const index = this.products.findIndex(item => item.id === data.id );
+
+      if(index !== -1) {
+        this.products[index] = { ...this.products[index], ...data };
+      }
+
+    },
+
+    showAddProduct() {
+      this.$global.modals.addProduct = true;
+    },
+
     editProductView(id) {
-      this.$router.push(`/product/edit?id=${id}`);
+      this.editProductId = id;
+      this.$global.modals.editProduct = true
     },
 
     deleteProduct(id) {
@@ -138,10 +171,11 @@ export default {
             id_product: id
           })
           .then(response => {
-            console.log(response);
+            // console.log(response);
 
             if(response.data.status === 200) {
-              this.products = response.data.products;
+              const index = this.products.findIndex(item => item.id === id );
+              this.products.splice(index, 1);
 
               ElNotification({
                 type: 'success',

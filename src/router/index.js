@@ -51,18 +51,6 @@ const router = createRouter({
       meta: {public: false}
     },
     {
-      path: '/product/add',
-      name: 'product add',
-      component: () => import('../views/auth/ProductAddView.vue'),
-      meta: {public: false}
-    },
-    {
-      path: '/product/edit',
-      name: 'product edit',
-      component: () => import('../views/auth/ProductEditView.vue'),
-      meta: {public: false}
-    },
-    {
       path: '/belanja',
       name: 'belanja',
       component: () => import('../views/auth/BelanjaView.vue'),
