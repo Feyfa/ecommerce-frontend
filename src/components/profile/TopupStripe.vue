@@ -209,17 +209,19 @@ export default {
   methods: {
     scrollTopup() {
       const scrollTopupContainer = this.$refs.topupContainer;
+      const tolerant = 2;
 
-      // console.log({
-      //   'scrollTopupContainer.scrollTop': scrollTopupContainer.scrollTop,
-      //   'scrollTopupContainer.clientHeight': scrollTopupContainer.clientHeight,
-      //   'scrollTopupContainer.scrollHeight': scrollTopupContainer.scrollHeight,
-      //   'total': Math.round(scrollTopupContainer.scrollTop + scrollTopupContainer.clientHeight),
-      //   'this.loading.scroll_topup_fetch': this.loading.scroll_topup_fetch,
-      //   'this.completeTopupHistory': this.completeTopupHistory
-      // });
+      console.log({
+        'scrollTopupContainer.scrollTop': scrollTopupContainer.scrollTop,
+        'scrollTopupContainer.clientHeight': scrollTopupContainer.clientHeight,
+        'scrollTopupContainer.scrollHeight': scrollTopupContainer.scrollHeight,
+        'total_ceil': Math.ceil(scrollTopupContainer.scrollTop + scrollTopupContainer.clientHeight),
+        'tolerant': tolerant,
+        'this.loading.scroll_topup_fetch': this.loading.scroll_topup_fetch,
+        'this.completeTopupHistory': this.completeTopupHistory
+      });
 
-      if ((Math.round(scrollTopupContainer.scrollTop + scrollTopupContainer.clientHeight) >= scrollTopupContainer.scrollHeight) && (!this.loading.scroll_topup_fetch) && (!this.completeTopupHistory)) {
+      if ((Math.ceil(scrollTopupContainer.scrollTop + scrollTopupContainer.clientHeight) >= scrollTopupContainer.scrollHeight - tolerant) && (!this.loading.scroll_topup_fetch) && (!this.completeTopupHistory)) {
         this.offsetTopupHistory = this.topupHistory.length;
 
         this.loading.scroll_topup_fetch = true;
