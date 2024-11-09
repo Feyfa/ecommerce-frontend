@@ -853,6 +853,10 @@ export default {
       .then(response => {
         // console.log(response);
 
+        /* DETECTS THAT THIS VIEW HAS FINISHED RENDERING */
+        this.$global.showProfileView.showPaymentStripe = true;
+        /* DETECTS THAT THIS VIEW HAS FINISHED RENDERING */
+
         if(response.data.result == 'success') {
 
           /* GET INFO CC */
@@ -904,6 +908,10 @@ export default {
       })
       .catch(error => {
         console.error(error);
+
+        /* DETECTS THAT THIS VIEW HAS FINISHED RENDERING */
+        this.$global.showProfileView.showPaymentStripe = true;
+        /* DETECTS THAT THIS VIEW HAS FINISHED RENDERING */
 
         this.replace.creditCard = false;
         ElNotification({ type: 'error', title: 'Error', message: error.response.data.message });

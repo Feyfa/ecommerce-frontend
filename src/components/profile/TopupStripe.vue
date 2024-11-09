@@ -242,6 +242,10 @@ export default {
       .then(response => {
         // console.log(response);
 
+        /* DETECTS THAT THIS VIEW HAS FINISHED RENDERING */
+        this.$global.showProfileView.showTopupStripe = true;
+        /* DETECTS THAT THIS VIEW HAS FINISHED RENDERING */
+
         this.loading.scroll_topup_fetch = false;
 
         if(response.data.result == 'success') {
@@ -265,6 +269,10 @@ export default {
       })
       .catch(error => {
         // console.error(error);
+
+        /* DETECTS THAT THIS VIEW HAS FINISHED RENDERING */
+        this.$global.showProfileView.showTopupStripe = true;
+        /* DETECTS THAT THIS VIEW HAS FINISHED RENDERING */
 
         // ElNotification({ type: 'error', title: 'Error', message: error.response.data.message });
       })

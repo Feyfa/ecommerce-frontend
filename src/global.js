@@ -14,6 +14,12 @@ const global = reactive({
   modals: {
     addProduct: false,
     editProduct: false
+  },
+  showProfileView: {
+    allComponent: false,
+    showConnectedAccount: false,
+    showPaymentStripe: false,
+    showTopupStripe: false,
   }
 });
 

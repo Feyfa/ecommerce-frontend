@@ -85,6 +85,10 @@ export default {
       .then(response => {
         // console.log(response);
 
+        /* DETECTS THAT THIS VIEW HAS FINISHED RENDERING */
+        this.$global.showProfileView.showConnectedAccount = true;
+        /* DETECTS THAT THIS VIEW HAS FINISHED RENDERING */
+
         if(response.data.result == 'success' && response.data.account != '') {
           this.topup_enabled = response.data.account.charges_enabled;
           this.payout_enabled = response.data.account.payouts_enabled;
@@ -106,6 +110,11 @@ export default {
       })
       .catch(error => {
         // console.error(error);
+
+        /* DETECTS THAT THIS VIEW HAS FINISHED RENDERING */
+        this.$global.showProfileView.showConnectedAccount = true;
+        /* DETECTS THAT THIS VIEW HAS FINISHED RENDERING */
+
         this.disable.button_connect_account = true;
 
         if(error.response.data.result == 'warning') {
