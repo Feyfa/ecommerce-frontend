@@ -139,10 +139,16 @@ export default {
     },
     
     onAfterEditProduct(data) {
-      const index = this.products.findIndex(item => item.id === data.id );
+      const lengthProducts = this.products.length;
 
-      if(index !== -1) {
-        this.products[index] = { ...this.products[index], ...data };
+      /* DELETE PREV ITEM */
+      this.products = this.products.filter(item => item.id !== data.id);
+      /* DELETE PREV ITEM */
+
+      if(this.products.length == lengthProducts - 1) {
+        /* ADD NEW ITEM */
+        this.products = [ data, ...this.products ];
+        /* ADD NEW ITEM */
       }
 
     },
