@@ -14,15 +14,25 @@
         :class="{
           'w-full overflow-y-auto pt-[4.5rem]': showNavbarSidebar(), 
           'w-full': !showNavbarSidebar(),
-        }">
+        }"
+        ref="globalContainer"
+        @scroll="scrollGlobal">
         
         <RouterView />
+        
+        <div v-show="this.$global.globalContainer.loading" class="w-full pt-4 h-[5rem] flex justify-center">
+          <span>
+            <i class="fas fa-spinner fa-pulse text-2xl"></i>
+          </span>
+        </div>
       </div>
+
     </div>
   </div>
 </template>
 
 <script>
+import eventBus from "@/eventBus";
 import NavbarComponent from "./components/app/NavbarComponent.vue";
 import SidebarComponent from "./components/app/SidebarComponent.vue";
 
@@ -39,6 +49,9 @@ export default {
   },
 
   mounted() {
+    // reset loading global container
+    this.$global.globalContainer.loading = false;
+
     // URL script Midtrans dan client key dari environment variable
     const snapScript = "https://app.sandbox.midtrans.com/snap/snap.js";
     const clientKey = import.meta.env.VITE_MIDTRANS_CLIENT_KEY;
@@ -59,6 +72,11 @@ export default {
   },
 
   methods: {
+    scrollGlobal() {
+      this.$global.globalContainer.ref = this.$refs.globalContainer;
+      eventBus.emit('scrollGlobal');
+    },
+
     globalCLick() {
       this.closeDropdown();
       this.closeSidebar();

@@ -42,7 +42,7 @@
         </div>
       </div>
     </div>
-    
+
     <div class="fixed bottom-7 right-5 w-max border border-slate-500 p-2 rounded-md bg-blue-500 hover:bg-[#428bff] cursor-pointer" @click.stop="showAddProduct">
       <svg xmlns="http://www.w3.org/2000/svg" width="30" height="30" fill="currentColor" class="bi bi-plus-lg" viewBox="0 0 16 16">
         <path fill-rule="evenodd" d="M8 2a.5.5 0 0 1 .5.5v5h5a.5.5 0 0 1 0 1h-5v5a.5.5 0 0 1-1 0v-5h-5a.5.5 0 0 1 0-1h5v-5A.5.5 0 0 1 8 2"/>
@@ -93,6 +93,7 @@
 </template>
 
 <script>
+import eventBus from "@/eventBus";
 import IntegrationImage from "@/assets/img/integration.png";
 import ProductImage from "@/assets/img/product.png";
 import { ElNotification } from "element-plus";
@@ -116,6 +117,8 @@ export default {
       products: [],
 
       editProductId: '',
+      
+      completeProduct: false,
 
       show: {
         product_view: false,
@@ -126,11 +129,42 @@ export default {
   },
 
   mounted() {
+    /* EVENT BUS FOR SCROLL GLOBAL */
+    eventBus.on('scrollGlobal', () => {
+      const globalContainer = this.$global.globalContainer.ref;
+      const tolerant = 2;
+
+      // console.log({
+      //   'scrollTop': globalContainer.scrollTop,
+      //   'clientHeight': globalContainer.clientHeight,
+      //   'scrollHeight': globalContainer.scrollHeight,
+      //   'total_ceil': Math.ceil(globalContainer.scrollTop + globalContainer.clientHeight),
+      //   'tolerant': tolerant,
+      //   'this.$global.globalContainer.loading': this.$global.globalContainer.loading,
+      //   'this.completeProduct': this.completeProduct
+      // });
+
+      if ((Math.ceil(globalContainer.scrollTop + globalContainer.clientHeight) >= globalContainer.scrollHeight - tolerant) && (!this.$global.globalContainer.loading) && (!this.completeProduct)) {
+        this.$global.globalContainer.loading = true;
+
+        this.$nextTick(() => {
+          globalContainer.scrollTop = globalContainer.scrollHeight;
+          
+          this.getProducts();
+        });
+      }
+    });
+    /* EVENT BUS FOR SCROLL GLOBAL */
+
     this.show.loading = true;
     this.show.product_view = false;
     this.show.not_connected_account = false;
 
     this.getProducts();
+  },
+
+  beforeUnmount() {
+    eventBus.off('scrollGlobal');
   },
 
   methods: {
@@ -198,8 +232,14 @@ export default {
     },
 
     getProducts() {
+      /* GET ALL ID */
+      let products_current_id = this.products.map(product => product.id);
+      products_current_id = JSON.stringify(products_current_id);
+      /* GET ALL ID */
+
       this.$store.dispatch('getProducts', {
-        user_id_seller: this.$store.getters.user.id
+        user_id_seller: this.$store.getters.user.id,
+        products_current_id: products_current_id
       })
       .then(response => {
         // console.log(response);
@@ -207,8 +247,17 @@ export default {
         this.show.loading = false;
         this.show.product_view = true;
         this.$global.isConnectedAccountComplete = true;
+
+        this.$global.globalContainer.loading = false;
+        if(response.data.products.length == 0) {
+          this.completeProduct = true;
+        }
         
-        this.products = response.data.products;
+        this.products = [ ...this.products, ...response.data.products ];
+
+        // console.log({
+        //   'length_products': this.products.length
+        // });
 
         if(this.products.length == 0) {
           this.$refs.empty.classList.remove('hidden');
@@ -220,6 +269,8 @@ export default {
 
         this.show.loading = false;
         this.show.not_connected_account = true;
+
+        this.$global.globalContainer.loading = false;
 
         if(error.response.data.status == 402) {
           this.$global.isConnectedAccountComplete = false;

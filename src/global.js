@@ -20,7 +20,11 @@ const global = reactive({
     showConnectedAccount: false,
     showPaymentStripe: false,
     showTopupStripe: false,
-  }
+  },
+  globalContainer: {
+    ref: '',
+    loading: false,
+  },
 });
 
 export default global;

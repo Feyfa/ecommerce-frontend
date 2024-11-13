@@ -486,13 +486,17 @@ export default createStore({
 
     getProducts(context, data) {
       return new Promise((resolve, reject) => {
-        axios.get(`/product/${data.user_id_seller}`)
-             .then(response => {
-              resolve(response);
-             })
-             .catch(error => {
-              reject(error);
-             })
+        axios.get(`/product/${data.user_id_seller}`, {
+          params: {
+            products_current_id: data.products_current_id
+          }
+        })
+        .then(response => {
+          resolve(response);
+        })
+        .catch(error => {
+          reject(error);
+        })
       });
     },
 
