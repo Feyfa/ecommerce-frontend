@@ -144,7 +144,7 @@ export default {
       //   'this.completeProduct': this.completeProduct
       // });
 
-      if ((Math.ceil(globalContainer.scrollTop + globalContainer.clientHeight) >= globalContainer.scrollHeight - tolerant) && (!this.$global.globalContainer.loading) && (!this.completeProduct)) {
+      if ((Math.ceil(globalContainer.scrollTop + globalContainer.clientHeight) >= globalContainer.scrollHeight - tolerant) && (!this.$global.globalContainer.loading) && (!this.completeProduct) && (this.products.length > 0)) {
         this.$global.globalContainer.loading = true;
 
         this.$nextTick(() => {
