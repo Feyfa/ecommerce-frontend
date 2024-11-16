@@ -488,7 +488,8 @@ export default createStore({
       return new Promise((resolve, reject) => {
         axios.get(`/product/${data.user_id_seller}`, {
           params: {
-            products_current_id: data.products_current_id
+            products_current_id: data.products_current_id,
+            search_product: data.search_product,
           }
         })
         .then(response => {

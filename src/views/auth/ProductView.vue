@@ -1,42 +1,64 @@
 <template>
   <!-- Product View -->
   <div v-show="show.product_view" class="w-full text-xl">
-    <h1 class="text-center text-3xl font-medium">Product Saya</h1>
+
+    <div class="grid grid-rows-2 grid-cols-none sm:grid-rows-none sm:grid-cols-2 sm:items-center w-full px-2 sm:px-4 mb-2 sm:mb-0 lg:grid-cols-3">
+      <div class="lg:col-start-2">
+        <h1 class="text-start lg:text-center text-3xl font-medium">Product Saya</h1>
+      </div>
+      <div class="lg:col-start-3 text-end">
+        <input
+          placeholder="Search" 
+          id="search-product" 
+          type="text" 
+          class="border w-full sm:w-[80%] md:w-[70%] lg:w-[90%] xl:w-[80%] 2xl:w-[70%] border-neutral-500 rounded outline-none h-12 px-2.5 shadow"
+          v-model="searchProduct"
+          @keyup.enter="enterSearchProduct">
+      </div>
+    </div>
 
     <h1 ref="empty" class="text-center mt-5 text-base font-medium hidden">Produt Anda Kosong</h1>
     
-    <div class="w-full p-2 sm:p-4 grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 2xl:grid-cols-6 gap-x-3 gap-y-5">   
-      <div v-for="product in products" class="row flex flex-col justify-between gap-2 border border-neutral-400 bg-white rounded shadow-md h-72">
-        <div class="h-44 w-full bg-cover bg-no-repeat bg-center" :style="{ backgroundImage: `url(${APP_BACKEND_BASE_URL}/${SYMLINK_FOLDER}/${product.img})` }"></div>
-        
-        <div class="mb-1">
-          <div class="px-1.5 flex flex-col">
-            <h4 class="text-[.9rem] leading-6 whitespace-nowrap overflow-hidden text-ellipsis">{{ product.name }}</h4>
-            <h4 class="font-semibold text-[.9rem]">Rp {{ product.price.toLocaleString('id-ID') }}</h4>
-          </div>
-  
-          <div class="flex justify-between px-1.5">
-            <div>
-              <h6 class="text-[.8rem]">stock : {{ product.stock }}</h6>
+    <div class="w-full">
+      <div v-show="show.loading_search_product" class="w-full text-center mt-5">
+        <span>
+          <i class="fas fa-spinner fa-pulse text-xl"></i>
+        </span>
+      </div>
+
+      <div class="w-full p-2 sm:p-4 grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 2xl:grid-cols-6 gap-x-3 gap-y-5">   
+        <div v-for="product in products" class="row flex flex-col justify-between gap-2 border border-neutral-400 bg-white rounded shadow-md h-72">
+          <div class="h-44 w-full bg-cover bg-no-repeat bg-center" :style="{ backgroundImage: `url(${APP_BACKEND_BASE_URL}/${SYMLINK_FOLDER}/${product.img})` }"></div>
+          
+          <div class="mb-1">
+            <div class="px-1.5 flex flex-col">
+              <h4 class="text-[.9rem] leading-6 whitespace-nowrap overflow-hidden text-ellipsis">{{ product.name }}</h4>
+              <h4 class="font-semibold text-[.9rem]">Rp {{ product.price.toLocaleString('id-ID') }}</h4>
             </div>
-  
-            <div class="flex gap-x-5">
-              <svg 
-                class="w-5 cursor-pointer"
-                xmlns="http://www.w3.org/2000/svg" 
-                viewBox="0 0 1024 1024" 
-                @click="deleteProduct(product.id)">
-                <path fill="currentColor" d="M160 256H96a32 32 0 0 1 0-64h256V95.936a32 32 0 0 1 32-32h256a32 32 0 0 1 32 32V192h256a32 32 0 1 1 0 64h-64v672a32 32 0 0 1-32 32H192a32 32 0 0 1-32-32zm448-64v-64H416v64zM224 896h576V256H224zm192-128a32 32 0 0 1-32-32V416a32 32 0 0 1 64 0v320a32 32 0 0 1-32 32m192 0a32 32 0 0 1-32-32V416a32 32 0 0 1 64 0v320a32 32 0 0 1-32 32"></path>
-              </svg>
     
-              <svg 
-                class="w-5 cursor-pointer"
-                xmlns="http://www.w3.org/2000/svg" 
-                viewBox="0 0 1024 1024" 
-                @click="editProductView(product.id)">
-                <path fill="currentColor" d="M832 512a32 32 0 1 1 64 0v352a32 32 0 0 1-32 32H160a32 32 0 0 1-32-32V160a32 32 0 0 1 32-32h352a32 32 0 0 1 0 64H192v640h640z"></path>
-                <path fill="currentColor" d="m469.952 554.24 52.8-7.552L847.104 222.4a32 32 0 1 0-45.248-45.248L477.44 501.44l-7.552 52.8zm422.4-422.4a96 96 0 0 1 0 135.808l-331.84 331.84a32 32 0 0 1-18.112 9.088L436.8 623.68a32 32 0 0 1-36.224-36.224l15.104-105.6a32 32 0 0 1 9.024-18.112l331.904-331.84a96 96 0 0 1 135.744 0z"></path>
-              </svg>
+            <div class="flex justify-between px-1.5">
+              <div>
+                <h6 class="text-[.8rem]">stock : {{ product.stock }}</h6>
+              </div>
+    
+              <div class="flex gap-x-5">
+                <svg 
+                  class="w-5 cursor-pointer"
+                  xmlns="http://www.w3.org/2000/svg" 
+                  viewBox="0 0 1024 1024" 
+                  @click="deleteProduct(product.id)">
+                  <path fill="currentColor" d="M160 256H96a32 32 0 0 1 0-64h256V95.936a32 32 0 0 1 32-32h256a32 32 0 0 1 32 32V192h256a32 32 0 1 1 0 64h-64v672a32 32 0 0 1-32 32H192a32 32 0 0 1-32-32zm448-64v-64H416v64zM224 896h576V256H224zm192-128a32 32 0 0 1-32-32V416a32 32 0 0 1 64 0v320a32 32 0 0 1-32 32m192 0a32 32 0 0 1-32-32V416a32 32 0 0 1 64 0v320a32 32 0 0 1-32 32"></path>
+                </svg>
+      
+                <svg 
+                  class="w-5 cursor-pointer"
+                  xmlns="http://www.w3.org/2000/svg" 
+                  viewBox="0 0 1024 1024" 
+                  @click="editProductView(product.id)">
+                  <path fill="currentColor" d="M832 512a32 32 0 1 1 64 0v352a32 32 0 0 1-32 32H160a32 32 0 0 1-32-32V160a32 32 0 0 1 32-32h352a32 32 0 0 1 0 64H192v640h640z"></path>
+                  <path fill="currentColor" d="m469.952 554.24 52.8-7.552L847.104 222.4a32 32 0 1 0-45.248-45.248L477.44 501.44l-7.552 52.8zm422.4-422.4a96 96 0 0 1 0 135.808l-331.84 331.84a32 32 0 0 1-18.112 9.088L436.8 623.68a32 32 0 0 1-36.224-36.224l15.104-105.6a32 32 0 0 1 9.024-18.112l331.904-331.84a96 96 0 0 1 135.744 0z"></path>
+                </svg>
+              </div>
             </div>
           </div>
         </div>
@@ -117,12 +139,14 @@ export default {
       products: [],
 
       editProductId: '',
+      searchProduct: '',
       
       completeProduct: false,
 
       show: {
         product_view: false,
         loading: false,
+        loading_search_product: false,
         not_connected_account: false,
       }
     }
@@ -168,6 +192,17 @@ export default {
   },
 
   methods: {
+    enterSearchProduct() {
+      this.$refs.empty.classList.remove('visible');
+      this.$refs.empty.classList.add('hidden');
+
+      this.show.loading_search_product = true;
+      this.completeProduct = false;
+      this.products = [];
+
+      this.getProducts();
+    },
+
     onAfterAddProduct(data) {
       this.products = [ data, ...this.products ];
     },
@@ -239,11 +274,13 @@ export default {
 
       this.$store.dispatch('getProducts', {
         user_id_seller: this.$store.getters.user.id,
-        products_current_id: products_current_id
+        products_current_id: products_current_id,
+        search_product: this.searchProduct
       })
       .then(response => {
         // console.log(response);
 
+        this.show.loading_search_product = false;
         this.show.loading = false;
         this.show.product_view = true;
         this.$global.isConnectedAccountComplete = true;
@@ -262,6 +299,9 @@ export default {
         if(this.products.length == 0) {
           this.$refs.empty.classList.remove('hidden');
           this.$refs.empty.classList.add('visible');
+        } else {
+          this.$refs.empty.classList.remove('visible');
+          this.$refs.empty.classList.add('hidden');
         }
       })
       .catch(error => {
