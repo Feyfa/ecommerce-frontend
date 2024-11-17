@@ -2,8 +2,8 @@
   <!-- Product View -->
   <div v-show="show.product_view" class="w-full text-xl">
 
-    <div class="grid grid-rows-2 grid-cols-none sm:grid-rows-none sm:grid-cols-2 sm:items-center w-full px-2 sm:px-4 mb-2 sm:mb-0 lg:grid-cols-3">
-      <div class="lg:col-start-2">
+    <div class="grid grid-rows-2 grid-cols-none sm:grid-rows-none sm:grid-cols-2 sm:items-center px-2 sm:px-4 mb-2 sm:mb-0 lg:grid-cols-3 fixed right-0 left-0 lg:left-[20.5%] xl:left-[17.1%] 2xl:left-[16.9%] top-14 bg-white sm:h-14">
+      <div class="lg:col-start-2 mt-1 sm:mt-0">
         <h1 class="text-start lg:text-center text-3xl font-medium">Product Saya</h1>
       </div>
       <div class="lg:col-start-3 text-end">
@@ -17,16 +17,16 @@
       </div>
     </div>
 
-    <h1 ref="empty" class="text-center mt-5 text-base font-medium hidden">Produt Anda Kosong</h1>
+    <h1 ref="empty" class="text-center mt-[7rem] sm:mt-16 text-base font-medium hidden">Produt Anda Kosong</h1>
     
-    <div class="w-full">
-      <div v-show="show.loading_search_product" class="w-full text-center mt-5">
+    <div class="w-full mt-[5.5rem] sm:mt-8">
+      <div v-show="show.loading_search_product" class="w-full text-center mt-28 sm:mt-16">
         <span>
           <i class="fas fa-spinner fa-pulse text-xl"></i>
         </span>
       </div>
 
-      <div class="w-full p-2 sm:p-4 grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 2xl:grid-cols-6 gap-x-3 gap-y-5">   
+      <div class="w-full p-2 sm:p-4 grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 2xl:grid-cols-6 3xl:grid-cols-7 4xl:grid-cols-8 gap-x-3 gap-y-5">   
         <div v-for="product in products" class="row flex flex-col justify-between gap-2 border border-neutral-400 bg-white rounded shadow-md h-72">
           <div class="h-44 w-full bg-cover bg-no-repeat bg-center" :style="{ backgroundImage: `url(${APP_BACKEND_BASE_URL}/${SYMLINK_FOLDER}/${product.img})` }"></div>
           
