@@ -204,10 +204,18 @@ export default {
     },
 
     onAfterAddProduct(data) {
+      /* CHANGE PRICE STRING TO NUMBER */
+      data.price = Number(data.price);
+      /* CHANGE PRICE STRING TO NUMBER */
+      
       this.products = [ data, ...this.products ];
     },
     
     onAfterEditProduct(data) {
+      /* CHANGE PRICE STRING TO NUMBER */
+      data.price = Number(data.price);
+      /* CHANGE PRICE STRING TO NUMBER */
+      
       const lengthProducts = this.products.length;
 
       /* DELETE PREV ITEM */
