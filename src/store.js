@@ -437,13 +437,18 @@ export default createStore({
 
     getBelanja(context, data) {
       return new Promise((resolve, reject) => {
-        axios.get(`/belanja/${data.user_id_seller}`)
-             .then(response => {
-              resolve(response);
-             })
-             .catch(error => {
-              reject(error);
-             })
+        axios.get(`/belanja/${data.user_id_seller}`, {
+          params: {
+            products_current_id: data.products_current_id,
+            search_product: data.search_product
+          }
+        })
+        .then(response => {
+          resolve(response);
+        })
+        .catch(error => {
+          reject(error);
+        })
       });
     },
 
