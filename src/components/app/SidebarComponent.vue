@@ -1,5 +1,9 @@
 <template>
-  <ul @click.stop>
+  <ul
+    class="sidebar h-screen overflow-y-auto absolute lg:static lg:w-[25%] xl:w-[20%] 2xl:[w-15%] lg:px-4 lg:border-r-2 lg:border-r-neutral-300 lg:bg-white lg:pt-[4.5rem] lg:shadow-neutral-500 lg:shadow-lg transition-all ease-in-out duration-300  flex flex-col gap-5 text-lg z-40 lg:z-0"
+    :class="{'w-0 overflow-hidden p-0 pt-[4.5rem] border-none shadow-none': !this.$global.isSidebarOpen, 'w-[50%] sm500:w-[40%] sm:w-[30%] md:w-[25%] px-2 border-r-2 border-r-neutral-300 bg-white pt-[4.5rem] shadow-neutral-500 shadow-lg': this.$global.isSidebarOpen}"
+    @click="sidebarComponentClick"
+    @click.stop >
     <li class="flex items-center gap-4">
         <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" fill="currentColor" class="bi bi-house" viewBox="0 0 16 16">
             <path d="M8.707 1.5a1 1 0 0 0-1.414 0L.646 8.146a.5.5 0 0 0 .708.708L2 8.207V13.5A1.5 1.5 0 0 0 3.5 15h9a1.5 1.5 0 0 0 1.5-1.5V8.207l.646.647a.5.5 0 0 0 .708-.708L13 5.793V2.5a.5.5 0 0 0-.5-.5h-1a.5.5 0 0 0-.5.5v1.293zM13 7.207V13.5a.5.5 0 0 1-.5.5h-9a.5.5 0 0 1-.5-.5V7.207l5-5z"/>
@@ -11,17 +15,6 @@
             Home
         </router-link>
     </li>
-    <li class="flex items-center gap-4">
-        <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" fill="currentColor" class="bi bi-person" viewBox="0 0 16 16">
-            <path d="M8 8a3 3 0 1 0 0-6 3 3 0 0 0 0 6m2-3a2 2 0 1 1-4 0 2 2 0 0 1 4 0m4 8c0 1-1 1-1 1H3s-1 0-1-1 1-4 6-4 6 3 6 4m-1-.004c-.001-.246-.154-.986-.832-1.664C11.516 10.68 10.289 10 8 10s-3.516.68-4.168 1.332c-.678.678-.83 1.418-.832 1.664z"/>
-        </svg>
-        <router-link 
-            to="/user" 
-            class="link-sidebar transition-all duration-300 hover:underline"
-            :class="{'underline': (this.$route.path.startsWith('/user'))}">
-            User
-        </router-link>
-    </li>   
     <li class="flex items-center gap-4">
         <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" fill="currentColor" class="bi bi-boxes" viewBox="0 0 16 16">
             <path d="M7.752.066a.5.5 0 0 1 .496 0l3.75 2.143a.5.5 0 0 1 .252.434v3.995l3.498 2A.5.5 0 0 1 16 9.07v4.286a.5.5 0 0 1-.252.434l-3.75 2.143a.5.5 0 0 1-.496 0l-3.502-2-3.502 2.001a.5.5 0 0 1-.496 0l-3.75-2.143A.5.5 0 0 1 0 13.357V9.071a.5.5 0 0 1 .252-.434L3.75 6.638V2.643a.5.5 0 0 1 .252-.434zM4.25 7.504 1.508 9.071l2.742 1.567 2.742-1.567zM7.5 9.933l-2.75 1.571v3.134l2.75-1.571zm1 3.134 2.75 1.571v-3.134L8.5 9.933zm.508-3.996 2.742 1.567 2.742-1.567-2.742-1.567zm2.242-2.433V3.504L8.5 5.076V8.21zM7.5 8.21V5.076L4.75 3.504v3.134zM5.258 2.643 8 4.21l2.742-1.567L8 1.076zM15 9.933l-2.75 1.571v3.134L15 13.067zM3.75 14.638v-3.134L1 9.933v3.134z"/>
@@ -68,41 +61,28 @@
             invoice
         </router-link>
     </li>
-    <li class="flex items-center gap-4">
-        <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" fill="currentColor" class="bi bi-box-arrow-left" viewBox="0 0 16 16">
-            <path fill-rule="evenodd" d="M6 12.5a.5.5 0 0 0 .5.5h8a.5.5 0 0 0 .5-.5v-9a.5.5 0 0 0-.5-.5h-8a.5.5 0 0 0-.5.5v2a.5.5 0 0 1-1 0v-2A1.5 1.5 0 0 1 6.5 2h8A1.5 1.5 0 0 1 16 3.5v9a1.5 1.5 0 0 1-1.5 1.5h-8A1.5 1.5 0 0 1 5 12.5v-2a.5.5 0 0 1 1 0z"/>
-            <path fill-rule="evenodd" d="M.146 8.354a.5.5 0 0 1 0-.708l3-3a.5.5 0 1 1 .708.708L1.707 7.5H10.5a.5.5 0 0 1 0 1H1.707l2.147 2.146a.5.5 0 0 1-.708.708z"/>
-        </svg>
-        <h3
-          @click="logoutSubmit"
-          class="link-sidebar transition-all duration-300 cursor-pointer hover:underline">
-          Logout
-        </h3>
+    <li class="h-full relative">
+        <SettingPreview />
     </li>
   </ul> 
 </template>
 
 <script>
 import { RouterLink } from 'vue-router';
+import SettingPreview from '../sidebar/SettingPreview.vue';
+import ChangePassword from '../modals/ChangePassword.vue';
 
 export default {
+    components: {
+        ChangePassword,
+        SettingPreview
+    },
+
     methods: {
-        logoutSubmit() {
-            this.$store.dispatch('logoutSubmit')
-                       .then(response => {
-                          // console.log(response);
-
-                          if(response.data.status == 200) {
-                            localStorage.removeItem('token');
-                            localStorage.removeItem('user');
-
-                            this.$router.push('/login');
-                          }
-                        })
-                        .catch(error => {
-                          console.error(error);
-                        });
-        }
+        sidebarComponentClick() {
+            if(this.$global.isCLickDropdown.userSetting) 
+                this.$global.isCLickDropdown.userSetting = false;
+        },
     }
 }
 </script>

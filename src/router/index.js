@@ -2,6 +2,7 @@ import { createRouter, createWebHistory } from 'vue-router'
 import axios from '@/axios';
 import store from '@/store';
 import global from '@/global';
+import PersonImage from "@/assets/img/person.png";
 
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
@@ -100,16 +101,25 @@ router.beforeEach((to, from, next) => {
            // jika token valid, maka paksa di ke wilayah yang udah di autentikasi
            .then(response => {
             // console.log(response)
-            if(response.status === 200 && response.data.message === 'token valid')
+            if(response.status === 200 && response.data.message === 'token valid') {
+              // get image
+              const user = JSON.parse(localStorage.getItem('user'));
+              if(user) {
+                global.personImage = user.img ? `${import.meta.env.VITE_APP_BACKEND_BASE_URL}/${import.meta.env.VITE_SYMLINK_FOLDER}/${user.img}` : PersonImage;
+              }
+              // get image
+              
               global.isAuth = true;
               next({name: 'home'})
+            }
            })
            // jika token tidak valid, maka yaudah biarkan saja ke halaman register atau login 
            .catch(error => {
             // console.error(error);
-            if(error.response.status === 401 && error.response.data.message === 'Unauthenticated.') 
+            if(error.response.status === 401 && error.response.data.message === 'Unauthenticated.') {
               global.isAuth = false;
               next();
+            }
            }); 
     }
     // kondisi ketika belum ada token, mau ke url register atau login
@@ -125,16 +135,25 @@ router.beforeEach((to, from, next) => {
          // jika token valid, maka yaudah biarkan saja ke halaman yang dia ingin tuju
          .then(response => {
           // console.log(response)
-          if(response.status === 200 && response.data.message === 'token valid')
+          if(response.status === 200 && response.data.message === 'token valid'){
+            // get image
+            const user = JSON.parse(localStorage.getItem('user'));
+            if(user) {
+              global.personImage = user.img ? `${import.meta.env.VITE_APP_BACKEND_BASE_URL}/${import.meta.env.VITE_SYMLINK_FOLDER}/${user.img}` : PersonImage;
+            }
+            // get image
+
             global.isAuth = true;
             next();
+          }
          })
          // jika token tidak valid, maka paksa di ke wilayah yang belm di autentikasi
          .catch(error => {
           // console.error(error);
-          if(error.response.status === 401 && error.response.data.message === 'Unauthenticated.') 
+          if(error.response.status === 401 && error.response.data.message === 'Unauthenticated.') {
             global.isAuth = false;
             next({name: 'login'});
+          }
          });  
   }
 });

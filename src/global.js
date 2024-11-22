@@ -5,7 +5,8 @@ const global = reactive({
   personImage: PersonImage,
   isCLickDropdown: {
     profile: false,
-    product: false
+    product: false,
+    userSetting: false,
   },
   isSidebarOpen: false,
   isFilterOpen: false,
@@ -25,6 +26,9 @@ const global = reactive({
     ref: '',
     loading: false,
   },
+  modals: {
+    changePassword: false,
+  }
 });
 
 export default global;

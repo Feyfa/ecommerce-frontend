@@ -21,6 +21,22 @@ export default createStore({
       this.state.user = JSON.parse(localStorage.getItem('user'));
     },
 
+    changePassword(context, data) {
+      return new Promise((resolve, reject) => {
+        axios.put('/user/change/password', {
+          id: data.id,
+          oldPassword: data.oldPassword,
+          newPassword: data.newPassword,
+        })
+        .then(response => {
+          resolve(response);
+        })
+        .catch(error => {
+          reject(error);
+        })
+      });
+    },
+
     getCountries(context, data) {
       return new Promise((resolve, reject) => {
         axios.get('/countries')

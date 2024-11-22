@@ -47,7 +47,6 @@
 <script>
 import ImagePreview from "@/components/profile/ImagePreview.vue";
 import UserSetting from "@/components/profile/UserSetting.vue";
-import PersonImage from "@/assets/img/person.png";
 import ConnectedAccount from "@/components/profile/ConnectedAccount.vue";
 import PaymentStripe from "@/components/profile/PaymentStripe.vue";
 import TopupStripe from "@/components/profile/TopupStripe.vue";
@@ -68,8 +67,6 @@ export default {
     this.$global.showProfileView.showTopupStripe = false;
     this.$global.showProfileView.allComponent = false;
     /* RESET SHOW FOR COMPONENT PROFILEVIEW */
-
-    this.$global.personImage = this.$store.getters.user.img ? `${import.meta.env.VITE_APP_BACKEND_BASE_URL}/${import.meta.env.VITE_SYMLINK_FOLDER}/${this.$store.getters.user.img}` : PersonImage;
   
     this.scrollBehavior('smooth');
   },
