@@ -423,6 +423,22 @@ export default createStore({
       });
     },
 
+    checkedKeranjangGroup(context, data) {
+      return new Promise((resolve, reject) => {
+        axios.post('/keranjang/checked/group', {
+          user_id_buyer: data.user_id_buyer,
+          checked: data.checked,
+          user_id_seller: data.user_id_seller,
+        })
+        .then(response => {
+          resolve(response);
+        })
+        .catch(error => {
+          reject(error);
+        });
+      });
+    },
+
     getKeranjang(context, data) {
       return new Promise((resolve, reject) => {
         axios.get(`/keranjang/${data.user_id_buyer}`)
