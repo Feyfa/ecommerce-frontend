@@ -209,6 +209,11 @@ export default {
       /* CHANGE PRICE STRING TO NUMBER */
       
       this.products = [ data, ...this.products ];
+
+      if(this.products.length > 0 && this.$refs.empty.classList.contains('visible')) {
+        this.$refs.empty.classList.remove('visible');
+        this.$refs.empty.classList.add('hidden');
+      }
     },
     
     onAfterEditProduct(data) {
@@ -259,6 +264,11 @@ export default {
             if(response.data.status === 200) {
               const index = this.products.findIndex(item => item.id === id );
               this.products.splice(index, 1);
+
+              if(this.products.length == 0) {
+                this.$refs.empty.classList.add('visible');
+                this.$refs.empty.classList.remove('hidden');
+              }
 
               ElNotification({
                 type: 'success',
