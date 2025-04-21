@@ -70,8 +70,8 @@
                 </div>
             </div>
       
-            <div class="grid items-start grid-cols-1 sm500:grid-cols-2 sm:grid-cols-1 w-full gap-y-3 sm500:gap-y-1 gap-x-5 text-xl">
-              <div class="input-container flex flex-col w-full">
+            <div class="grid items-start grid-cols-1 sm500:grid-cols-2 sm:grid-cols-1 w-full gap-y-3 gap-x-5 text-xl">
+              <div class="input-container flex flex-col w-full gap-y-0.5">
                 <label 
                   for="name">
                   name
@@ -91,7 +91,7 @@
                 </small>
               </div>
               
-              <div class="input-container flex flex-col w-full">
+              <div class="input-container flex flex-col w-full gap-y-0.5">
                 <label 
                   for="price">
                   price
@@ -112,7 +112,7 @@
                 </small>
               </div>
               
-              <div class="input-container flex flex-col w-full">
+              <div class="input-container flex flex-col w-full gap-y-0.5">
                 <label 
                   for="stock">
                   stock
@@ -133,7 +133,7 @@
                 </small>
               </div>
       
-              <div class="input-container flex flex-col w-full -mt-3 sm500:mt-0 sm:-mt-3">
+              <div class="input-container flex flex-col w-full gap-y-0.5 -mt-3 sm500:mt-0 sm:-mt-3">
                 <!-- bantuan -->
                 <label 
                   style="visibility: hidden;">
