@@ -1,6 +1,6 @@
 <template>
-    <div id="add-product-container" class="fixed inset-0 bg-[rgba(100,100,100,.5)] z-998" v-show="show" @click="closeAddProduct">
-        <div class="w-full sm:w-[55%] md:w-[45%] lg:w-[40%] xl:w-[35%] 2xl:w-[30%] px-4 pb-2 flex flex-col justify-start items-center gap-4 fixed top-0 bottom-0 right-0 z-999 bg-[rgba(255,255,255,1)] shadow overflow-auto min-h-screen" v-show="show" @click.stop>
+    <div id="add-product-container" class="fixed inset-0 bg-[rgba(100,100,100,.5)] z-[3]" v-show="show" @click="closeAddProduct">
+        <div class="    w-full sm:w-[55%] md:w-[45%] lg:w-[40%] xl:w-[35%] 2xl:w-[30%] px-4 pb-2 flex flex-col justify-start items-center gap-4 fixed top-0 bottom-0 right-0 bg-[rgba(255,255,255,1)] shadow overflow-auto min-h-screen" v-show="show" @click.stop>
       
           <div class="w-full mt-[4.5rem] relative">            
             <h1 class="text-center text-2xl sm:text-3xl tracking-wide">Tambah Product</h1>
@@ -33,7 +33,7 @@
         
                     <ul 
                     class="absolute bg-white z-50 top-[90%] left-[45%] rounded transition-all duration-75 ease-in-out overflow-hidden"
-                    :class="this.$global.isCLickDropdown.product ? 'border border-neutral-500 h-[4.5rem] shadow-lg p-2' : 'h-0'">
+                    :class="this.$global.isClickDropdown.product ? 'border border-neutral-500 h-[4.5rem] shadow-lg p-2' : 'h-0'">
                     <li>
                         <span 
                         class="inline-block px-1 rounded h-7 w-36 leading-7 hover:bg-violet-500 cursor-pointer"
@@ -164,7 +164,6 @@
 </template>
 
 <script>
-import ProductImage from "@/assets/img/product.png"
 import { ElNotification } from "element-plus";
 import { RouterLink } from "vue-router";
 
@@ -178,7 +177,7 @@ export default {
 
     data() {
         return {
-            ProductImage: ProductImage,
+            ProductImage: '/img/product.png',
 
             name: '',
             price: '',
@@ -206,12 +205,12 @@ export default {
                 this.name = '';
                 this.price = '';
                 this.stock = '';
-                this.ProductImage = ProductImage;
+                this.ProductImage = '/img/product.png';
             }
         },
 
         togglePreview() {
-            this.$global.isCLickDropdown.product = !this.$global.isCLickDropdown.product; 
+            this.$global.isClickDropdown.product = !this.$global.isClickDropdown.product; 
         },
 
         zoomUserImage(type) {
@@ -219,7 +218,7 @@ export default {
         },
 
         imageFileChange(event) {
-            this.$global.isCLickDropdown.product = false;
+            this.$global.isClickDropdown.product = false;
             
             const file = event.target.files[0];
             // cek apakah file tipe nya image
@@ -288,7 +287,7 @@ export default {
         },
 
         addProduct() {
-            if(!this.$refs.imageFile.files[0] || !this.name || !this.price || !this.stock)
+            if(!this.$refs.imageFile.files[0] || !this.name || !this.price || (this.stock === ''))
             {
                 if(!this.$refs.imageFile.files[0])
                     this.errors.img = 'The Field File Is Required';
@@ -296,7 +295,7 @@ export default {
                     this.errors.name = 'The Field Name Is Required';
                 if(!this.price)
                     this.errors.price = 'The Field Price Is Required';
-                if(!this.stock)
+                if(this.stock === '')
                     this.errors.stock = 'The Field Stock Is Required';
             }
             else
@@ -327,7 +326,7 @@ export default {
                                     this.name = '';
                                     this.price = '';
                                     this.stock = '';
-                                    this.ProductImage = ProductImage;
+                                    this.ProductImage = '/img/product.png';
                                     this.$global.modals.addProduct = false;
 
                                     this.$emit('onAfterAddProduct', response.data.product);

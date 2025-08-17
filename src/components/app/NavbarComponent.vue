@@ -1,6 +1,9 @@
 <template>
   <header class="navbar bg-violet-500 flex justify-between items-center h-14 px-3 fixed top-0 left-0 right-0 z-50 shadow-lg">
-    <h1 class="text-2xl text-white">My Ecommerce</h1>
+    <div class="text-white flex items-center gap-2">
+      <h1 class="text-2xl">Ecommerce</h1>
+      <h5 class="text-[0.8rem] font-bold mt-1 italic tracking-widest capitalize">({{ this.$store.getters.user.account_type }})</h5>
+    </div>
     <svg 
       v-if="!this.$global.isSidebarOpen"
       @click="toggleSidebarOpen"

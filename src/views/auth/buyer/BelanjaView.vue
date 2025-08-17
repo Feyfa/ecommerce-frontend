@@ -1,9 +1,9 @@
 <template>
   <!-- belanja view -->
   <div v-show="show.belanja_view" class="w-full text-xl">
-    <div class="grid grid-rows-2 grid-cols-none sm:grid-rows-none sm:grid-cols-2 sm:items-center px-2 sm:px-4 mb-2 sm:mb-0 lg:grid-cols-3 fixed right-0 left-0 lg:left-[20.5%] xl:left-[17.1%] 2xl:left-[16.9%] top-14 bg-white sm:h-14">
+    <div class="z-[2] grid grid-rows-2 grid-cols-none sm:grid-rows-none sm:grid-cols-2 sm:items-center px-2 sm:px-4 mb-2 sm:mb-0 lg:grid-cols-3 fixed right-0 left-0 lg:left-[20.5%] xl:left-[17.1%] 2xl:left-[16.9%] top-14 bg-white sm:h-14">
       <div class="lg:col-start-2 mt-1 sm:mt-0">
-        <h1 class="text-start lg:text-center text-3xl font-medium">Barang Belanja</h1>
+        <h1 class="text-center sm:text-start lg:text-center text-3xl font-medium">Barang Belanja</h1>
       </div>
       <div class="lg:col-start-3 text-end">
         <input
@@ -26,7 +26,18 @@
       </div>
 
       <div class="w-full p-2 sm:p-4 grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 2xl:grid-cols-6 3xl:grid-cols-7 4xl:grid-cols-8 gap-x-3 gap-y-5">   
-        <div v-for="product in products" class="row flex flex-col justify-between gap-2 border border-neutral-400 bg-white rounded shadow-md h-72">
+        <div v-for="product in products" class="row flex flex-col justify-between gap-2 border border-neutral-400 bg-white rounded shadow-md h-72 relative">
+          <!-- WHEN STOCK 0 -->
+          <div
+            class="absolute inset-0 bg-[rgba(0,0,0,.3)] z-[1] flex justify-center items-start"
+            v-if="product.p_stock < 1">
+            <img
+              class="w-40 mt-10"
+              :src="SoldOutImage" 
+              alt="SoldOutImage">
+          </div>
+          <!-- WHEN STOCK 0 -->
+
           <div class="h-44 border w-full bg-cover bg-no-repeat bg-center" :style="{ backgroundImage: `url(${APP_BACKEND_BASE_URL}/${SYMLINK_FOLDER}/${product.p_img})` }"></div>
   
           <div class="mb-1">
@@ -41,7 +52,7 @@
                 <h6 class="text-[.8rem]">stock : {{ product.p_stock }}</h6>
               </div>
     
-              <div class="flex gap-x-5">
+              <div class="flex gap-x-5" v-if="product.p_stock > 0">
                 <svg 
                   class="w-5 cursor-pointer"
                   xmlns="http://www.w3.org/2000/svg" 
@@ -77,6 +88,9 @@ export default {
     return {
       APP_BACKEND_BASE_URL: import.meta.env.VITE_APP_BACKEND_BASE_URL,
       SYMLINK_FOLDER: import.meta.env.VITE_SYMLINK_FOLDER,
+      
+      SoldOutImage: '/img/sold-out.png',
+
       products: [],
 
       searchProduct: '',
@@ -202,6 +216,10 @@ export default {
         }
 
         this.products = [ ...this.products, ...response.data.products ];
+
+        // console.log({
+        //   'this.products': this.products
+        // });
 
         if(this.products.length == 0) {
           this.$refs.empty.classList.remove('hidden');

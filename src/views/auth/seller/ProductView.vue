@@ -2,9 +2,9 @@
   <!-- Product View -->
   <div v-show="show.product_view" class="w-full text-xl">
 
-    <div class="grid grid-rows-2 grid-cols-none sm:grid-rows-none sm:grid-cols-2 sm:items-center px-2 sm:px-4 mb-2 sm:mb-0 lg:grid-cols-3 fixed right-0 left-0 lg:left-[20.5%] xl:left-[17.1%] 2xl:left-[16.9%] top-14 bg-white sm:h-14">
+    <div class="z-[2] grid grid-rows-2 grid-cols-none sm:grid-rows-none sm:grid-cols-2 sm:items-center px-2 sm:px-4 mb-2 sm:mb-0 lg:grid-cols-3 fixed right-0 left-0 lg:left-[20.5%] xl:left-[17.1%] 2xl:left-[16.9%] top-14 bg-white sm:h-14">
       <div class="lg:col-start-2 mt-1 sm:mt-0">
-        <h1 class="text-start lg:text-center text-3xl font-medium">Product Saya</h1>
+        <h1 class="text-center sm:text-start lg:text-center text-3xl font-medium">Product Saya</h1>
       </div>
       <div class="lg:col-start-3 text-end">
         <input
@@ -28,7 +28,19 @@
 
       <div class="w-full p-2 sm:p-4 grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 2xl:grid-cols-6 3xl:grid-cols-7 4xl:grid-cols-8 gap-x-3 gap-y-5">   
         <div v-for="product in products" class="row flex flex-col justify-between gap-2 border border-neutral-400 bg-white rounded shadow-md h-72">
-          <div class="h-44 w-full bg-cover bg-no-repeat bg-center" :style="{ backgroundImage: `url(${APP_BACKEND_BASE_URL}/${SYMLINK_FOLDER}/${product.img})` }"></div>
+          <div class="relative h-44 w-full bg-cover bg-no-repeat bg-center" :style="{ backgroundImage: `url(${APP_BACKEND_BASE_URL}/${SYMLINK_FOLDER}/${product.img})` }">
+            <!-- WHEN STOCK 0 -->
+            <div
+              class="absolute inset-0 bg-[rgba(0,0,0,.3)] z-[1] flex justify-center items-start"
+              v-if="product.stock < 1">
+              <img
+                class="w-40 mt-10"
+                :src="SoldOutImage" 
+                alt="SoldOutImage">
+            </div>
+            <!-- WHEN STOCK 0 -->
+          </div>
+
           
           <div class="mb-1">
             <div class="px-1.5 flex flex-col">
@@ -88,39 +100,12 @@
     </span>
   </div>
   <!-- loading view -->
-
-  <!-- not connected account -->
-  <div v-show="show.not_connected_account && !this.$global.isConnectedAccountComplete" class="w-full text-xl">
-    <div class="py-4 px-6 gap-x-10 gap-y-5 flex flex-col items-center sm:flex-row sm:items-start">
-      <div class="w-[40%] sm400:w-[30%] sm500:w-[25%] sm:w-[20%] md:w-[15%] xl:w-[10%] 2xl:w-[5%]">
-        <img
-          class="w-64"
-          :src="IntegrationImage" 
-          alt="IntegrationImage">
-      </div>
-      <div class="w-full sm:w-[80%] md:w-[85%] xl:w-[90%] 2xl:w-[95%]">
-        <p class="text-lg lg:text-xl leading-7">Jika Anda ingin bergabung sebagai penjual untuk memasarkan produk Anda melalui platform kami, kami mengundang Anda untuk membuat akun Connected di Stripe. Silakan ikuti langkah-langkah pendaftaran akun Connected di Stripe agar Anda dapat segera memulai penjualan dan meningkatkan bisnis Anda bersama kami!
-          <router-link 
-            to="/user#connected-account"
-            class="underline text-blue-800">
-            klik disini
-          </router-link>
-        </p>
-      </div>
-    </div>
-  </div>
-  <!-- not connected account -->
-
-
 </template>
 
 <script>
 import eventBus from "@/eventBus";
-import IntegrationImage from "@/assets/img/integration.png";
-import ProductImage from "@/assets/img/product.png";
 import { ElNotification } from "element-plus";
 import Swal from "sweetalert2";
-import { RouterLink } from "vue-router";
 import AddProduct from "@/components/product/add.vue";
 import EditProduct from "@/components/product/edit.vue"
 
@@ -134,8 +119,7 @@ export default {
     return {
       APP_BACKEND_BASE_URL: import.meta.env.VITE_APP_BACKEND_BASE_URL,
       SYMLINK_FOLDER: import.meta.env.VITE_SYMLINK_FOLDER,
-      ProductImage: ProductImage,
-      IntegrationImage: IntegrationImage,
+      SoldOutImage: '/img/sold-out.png',
       products: [],
 
       editProductId: '',
@@ -301,7 +285,6 @@ export default {
         this.show.loading_search_product = false;
         this.show.loading = false;
         this.show.product_view = true;
-        this.$global.isConnectedAccountComplete = true;
 
         this.$global.globalContainer.loading = false;
         if(response.data.products.length == 0) {
@@ -327,12 +310,7 @@ export default {
 
         this.show.loading = false;
         this.show.not_connected_account = true;
-
         this.$global.globalContainer.loading = false;
-
-        if(error.response.data.status == 402) {
-          this.$global.isConnectedAccountComplete = false;
-        }
       })
     }
   }

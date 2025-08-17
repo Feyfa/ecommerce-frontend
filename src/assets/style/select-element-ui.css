@@ -28,3 +28,18 @@
 }
 /* OPTION */
 
+/* INPUT */
+.el-input__wrapper {
+    @apply border w-full border-neutral-500 rounded outline-none h-12 px-2.5 shadow text-base text-black;
+}
+.el-input__wrapper.is-focus {
+    @apply shadow-none;
+}
+.el-input {
+    --el-input-hover-border-color: transparent;
+}
+.el-input-group__append {
+    @apply m-0 p-0;
+}
+/* INPUT */
+

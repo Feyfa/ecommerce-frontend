@@ -1,14 +1,16 @@
 <template>
   <!-- keranjang view -->
   <div v-show="show.keranjang_view" class="w-full pb-2">
-    <h1 class="text-center text-3xl font-medium h-10 flex justify-center items-center">Daftar Keranjang</h1>
+    <h1 class="text-center text-3xl font-medium flex justify-center items-center">Daftar Keranjang</h1>
 
-    <div class="keranjang-container flex justify-start items-start px-3 py-2 gap-5">
+    <div class="keranjang-container mt-2 flex justify-start items-start px-3 py-2 gap-5">
 
-      <div class="w-full lg:w-[65%] xl:w-[70%] 2xl:w-[75%] h-screen-minus-banyak overflow-auto flex flex-col gap-5 pb-[7.5rem] lg:pb-0">         
+      <div 
+        class="w-full h-screen-minus-banyak overflow-auto flex flex-col gap-5 pb-[7.5rem] lg:pb-0"
+        :class="{'lg:w-[65%] xl:w-[70%] 2xl:w-[75%]': Object.keys(keranjangs).length > 0}">         
         <h3
           ref="empty" 
-          class="w-full text-center text-base font-medium hidden">
+          class="w-full text-center text-lg mt-5 font-medium hidden">
           Daftar Keranjang Kamu Masih Kosong Nih
         </h3>
 
@@ -28,10 +30,27 @@
           </div>
 
           <div
-            class="row flex items-start border border-neutral-400 bg-white rounded shadow p-2 gap-2"
+            class="row relative flex items-start border border-neutral-400 rounded shadow p-2 gap-2"
             v-for="(item, index2) in keranjang">
-            <div class="w-5 h-5 border">
+            <!-- WHEN STOCK 0 -->
+            <div
+              class="absolute inset-0 bg-[rgba(0,0,0,.3)] z-[1] flex justify-start items-center"
+              v-if="item.p_stock < 1">
+              <img
+                class="ml-2.5 w-28"
+                :src="SoldOutImage" 
+                alt="SoldOutImage">
+              <span class="absolute top-2 right-2">
+                <i 
+                  @click="deleteKeranjang(item.p_id)"
+                  class="fa-regular fa-trash-can cursor-pointer text-black text-[1.2rem]">
+                </i>
+              </span>
+            </div>
+            <!-- WHEN STOCK 0 -->
+            <div class="w-5 h-5 " :class="{'border': item.p_stock > 0}">
               <input
+                v-if="item.p_stock > 0"
                 @change="checkedKeranjang($event, item.p_id)" 
                 :checked="item.k_checked != 0 ? true : false"
                 type="checkbox"
@@ -57,7 +76,7 @@
                     <span class="mr-2">:</span>
                     <span>{{ item.p_stock }}</span>
                   </div>
-                  <div class="flex justify-end w-full">
+                  <div class="flex justify-end w-full" v-if="item.p_stock > 0">
                     <div class="total-keranjang-container flex border border-zinc-400 lg:absolute lg:bottom-2 lg:right-2 py-0.5 px-1 rounded sm:absolute sm:bottom-0">
                       <span>
                         <i 
@@ -92,8 +111,10 @@
           </div>
         </div>
       </div>
-
-      <div class="lg:w-[35%] xl:w-[30%] 2xl:w-[25%] bottom-0 left-3 right-3 border border-neutral-300 bg-white rounded shadow-md px-2 fixed lg:static">
+      
+      <div
+        v-if="Object.keys(keranjangs).length > 0" 
+        class="lg:w-[35%] xl:w-[30%] 2xl:w-[25%] bottom-0 left-3 right-3 border border-neutral-300 bg-white rounded shadow-md px-2 fixed lg:static">
         <div class="border-b border-b-neutral-300 py-2">
           <h2 class="text-base font-semibold">Ringkasan Belanja</h2>
           <div class="mt-1 flex items-center justify-between text-sm">
@@ -105,10 +126,10 @@
           <button 
             @click="checkout" 
             class="w-full border border-neutral-300 rounded-md bg-blue-500 py-1.5 text-white font-medium"
-            :class="{'button-disabled': !disabled.buttonBayar || isProcessBayar}"
-            :disabled="!disabled.buttonBayar || isProcessBayar">
-            Bayar
-            <i v-if="isProcessBayar" class="ml-1 fas fa-spinner fa-pulse"></i>
+            :class="{'button-disabled': !disabled.buttonCheckout || isProcessCheckout || isProcessChecked}"
+            :disabled="!disabled.buttonCheckout || isProcessCheckout || isProcessChecked">
+            Checkout
+            <i v-if="isProcessCheckout || isProcessChecked" class="ml-1 fas fa-spinner fa-pulse"></i>
           </button>
         </div>
       </div>
@@ -136,13 +157,16 @@ export default {
       APP_BACKEND_BASE_URL: import.meta.env.VITE_APP_BACKEND_BASE_URL,
       SYMLINK_FOLDER: import.meta.env.VITE_SYMLINK_FOLDER,
 
+      SoldOutImage: '/img/sold-out.png',
+
       keranjangs: [],
       totalPrice: '',
 
-      isProcessBayar: false,
+      isProcessCheckout: false,
+      isProcessChecked: false,
       
       disabled: {
-        buttonBayar: false
+        buttonCheckout: false
       },
 
       show: {
@@ -166,89 +190,49 @@ export default {
         group.some(item => item.k_checked === 1)
       );
 
+      // ambil id product dalam bentuk array
+      const productIds = Object.values(this.keranjangs)
+                               .flat()
+                               .filter(item => item.k_checked === 1)
+                               .map(item => item.p_id);
+
       if(keranjangAlReadyChecked) {
-        this.isProcessBayar = true;
-        
-        this.$store.dispatch('createTokenMidtrans', {
+        this.isProcessCheckout = true;
+
+        this.$store.dispatch('validateCheckout', {
+          product_ids: productIds,
           user_id_buyer: this.$store.getters.user.id,
-          user_name_buyer: this.$store.getters.user.name
         })
         .then(response => {
           // console.log(response);
-          window.snap.pay(response.data.token, {
-            onPending: (result) => {
-              /* CHECK ORDER ID SEKALIGUS GET KERANJANGS */
-              this.$store.dispatch('checkOrderId', {
-                'order_id': response.data.order_id,
-                'user_id_buyer': response.data.user_id_buyer,
-              })
-              .then(response => {
-                console.log(response);
-                this.keranjangs = response.data.keranjangs;
-                this.totalPrice = response.data.totalPrice;
 
-                if(this.keranjangs.length == 0) {
-                  this.$refs.empty.classList.remove('hidden');
-                  this.$refs.empty.classList.add('visible');
-                }
-
-                // cek apakah ada 1 saja keranjang yang checked
-                const keranjangAlReadyChecked = this.keranjangs.some(item => item.k_checked === 1);
-                this.disabled.buttonBayar = keranjangAlReadyChecked;
-
-                ElNotification({ type: 'success', title: 'Success', message: response.data.message });
-              })
-              .catch(error => {
-                // console.error(error);
-                ElNotification({ type: 'error', title: 'Error', message: response.data.message });
-              });
-              /* CHECK ORDER ID SEKALIGUS GET KERANJANGS */
-            },
-
-            // ketika snap di close, dan belum milih pembayaran
-            onClose: () => {
-              console.log('onClose');
-              this.$store.dispatch('deleteTransaction', {
-                'user_id_buyer': response.data.user_id_buyer,
-                'order_id': response.data.order_id,
-              })
-              .then(response => {
-                console.log(response);
-
-                if(response.data.status == 200) {
-                  ElNotification({ type: 'info', title: 'Info', message: response.data.message });
-                }
-              })
-              .catch(error => {
-                // console.error(error);
-                ElNotification({ type: 'error', title: 'Error', message: response.data.message });
-              });
-            },
-
-            onError: () => {
-              console.log('onError');
-              this.$store.dispatch('deleteTransaction', {
-                'user_id_buyer': response.data.user_id_buyer,
-                'order_id': response.data.order_id,
-              })
-              .then(response => {
-                console.log(response);
-
-                if(response.data.status == 200) {
-                  ElNotification({ type: 'info', title: 'Info', message: response.data.message });
-                }
-              })
-              .catch(error => {
-                // console.error(error);
-                ElNotification({ type: 'error', title: 'Error', message: response.data.message });
-              });
-            },
-          });
-          this.isProcessBayar = false;
+          this.$router.push({name: 'buyer_checkout'});
         })
         .catch(error => {
-          // console.error(error);
-        })
+          console.error(error);
+
+          this.isProcessCheckout = false;
+          this.keranjangs = error.response.data.keranjangs;
+          this.totalPrice = error.response.data.totalPrice;
+
+          if(error.response.status == 422) {
+            const message = error.response.data.message;
+            
+            Object.keys(message).forEach(key => {
+              switch(key) {
+                case 'product_ids' : 
+                  ElNotification({ type: 'error', title: 'error', message: message[key][0] });
+                  break;
+              }
+            })
+          } else {
+            ElNotification({
+              type: 'error',
+              title: 'error',
+              message: error.response.data.message
+            });
+          }
+        });
       }
     },
 
@@ -275,6 +259,8 @@ export default {
     },
 
     changeTotalKeranjang(product_id, index1, index2) {
+      this.isProcessChecked = true;
+
       if(this.keranjangs[index1][index2].k_total === '') {
         this.keranjangs[index1][index2].k_total = 1;
       }
@@ -289,12 +275,16 @@ export default {
 
         this.keranjangs = response.data.keranjangs;
         this.totalPrice = response.data.totalPrice;
+
+        this.isProcessChecked = false;
       })
       .catch(error => {
         // console.error(error);
 
         this.keranjangs = error.response.data.keranjangs;
         this.totalPrice = error.response.data.totalPrice;
+
+        this.isProcessChecked = false;
 
         if(error.response.data.status == 422) {
           const message = error.response.data.message;
@@ -315,6 +305,8 @@ export default {
     },
 
     minusTotalKeranjang(product_id) {
+      this.isProcessChecked = true;
+
       this.$store.dispatch('minusTotalKeranjang', {
         user_id_buyer: this.$store.getters.user.id,
         product_id
@@ -324,13 +316,18 @@ export default {
 
         this.keranjangs = response.data.keranjangs;
         this.totalPrice = response.data.totalPrice;
+
+        this.isProcessChecked = false;
       })
       .catch(error => {
         // console.error(error);
+        this.isProcessChecked = false;
       });
     },
 
     plusTotalKeranjang(product_id) {
+      this.isProcessChecked = true;
+
       this.$store.dispatch('plusTotalKeranjang', {
         user_id_buyer: this.$store.getters.user.id,
         product_id
@@ -340,9 +337,12 @@ export default {
 
         this.keranjangs = response.data.keranjangs;
         this.totalPrice = response.data.totalPrice;
+        
+        this.isProcessChecked = false;
       })
       .catch(error => {
         // console.error(error);
+        this.isProcessChecked = false;
 
         if(error.response.data.status == 422) {
           const message = error.response.data.message;
@@ -363,6 +363,8 @@ export default {
     },
 
     deleteKeranjang(product_id) {
+      this.isProcessChecked = true;
+
       this.$store.dispatch('deleteKeranjang', {
         user_id_buyer: this.$store.getters.user.id,
         product_id
@@ -377,13 +379,17 @@ export default {
           this.$refs.empty.classList.remove('hidden');
           this.$refs.empty.classList.add('visible');
         }
+
+        this.isProcessChecked = false;
       })
       .catch(error => {
         // console.error(error);
+        this.isProcessChecked = false;
       })
     },
 
     getKeranjang() {
+      this.isProcessChecked = true;
       this.$store.dispatch('getKeranjang', {
         user_id_buyer: this.$store.getters.user.id
       })
@@ -393,7 +399,7 @@ export default {
         this.show.keranjang_view = true;
         this.show.loading = false;
 
-        this.keranjangs = response.data.keranjangs;
+        this.keranjangs = response.data.keranjangs; 
         this.totalPrice = response.data.totalPrice;
 
         if(this.keranjangs.length == 0) {
@@ -405,17 +411,22 @@ export default {
         const keranjangAlReadyChecked = Object.values(this.keranjangs).some(group => 
           group.some(item => item.k_checked === 1)
         );
-        this.disabled.buttonBayar = keranjangAlReadyChecked;
+        this.disabled.buttonCheckout = keranjangAlReadyChecked;
+
+        this.isProcessChecked = false;
       })
       .catch(error => {
         // console.error(error);
         
         this.show.keranjang_view = true;
         this.show.loading = false;
+        this.isProcessChecked = false;
       })
     },
 
     checkedKeranjang(event, product_id) {
+      this.isProcessChecked = true;
+
       this.$store.dispatch('checkedKeranjang', {
         user_id_buyer: this.$store.getters.user.id,
         checked: event.target.checked,
@@ -431,14 +442,19 @@ export default {
         const keranjangAlReadyChecked = Object.values(this.keranjangs).some(group => 
           group.some(item => item.k_checked === 1)
         );
-        this.disabled.buttonBayar = keranjangAlReadyChecked;
+        this.disabled.buttonCheckout = keranjangAlReadyChecked;
+
+        this.isProcessChecked = false;
       })
       .catch(error => {
         // console.error(error);
+        this.isProcessChecked = false;
       })
     },
 
     checkedKeranjangGroup(event, user_id_seller) {
+      this.isProcessChecked = true;
+
       this.$store.dispatch('checkedKeranjangGroup', {
         user_id_buyer: this.$store.getters.user.id,
         checked: event.target.checked,
@@ -454,15 +470,19 @@ export default {
         const keranjangAlReadyChecked = Object.values(this.keranjangs).some(group => 
           group.some(item => item.k_checked === 1)
         );
-        this.disabled.buttonBayar = keranjangAlReadyChecked;
+        this.disabled.buttonCheckout = keranjangAlReadyChecked;
+
+        this.isProcessChecked = false;
       })
       .catch(error => {
         // console.error(error);
+        this.isProcessChecked = false;
       });
     },
 
     isCheckedKeranjangGroup(keranjang) {
-      return keranjang.every(item => item.k_checked === 1);
+      return keranjang.filter(item => item.p_stock > 0)
+                      .every(item => item.k_checked === 1);
     }
   }
 }

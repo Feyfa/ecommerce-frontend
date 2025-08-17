@@ -7,7 +7,7 @@ export default {
   theme: {
     extend: {
       backgroundImage: {
-        'utama': 'url("@/assets/img/bg-utama.jpg")'
+        'utama': 'url("/img/bg-utama.jpg")'
       },
       screens: {
         'sm400': '400px',

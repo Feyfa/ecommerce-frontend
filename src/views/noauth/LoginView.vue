@@ -180,13 +180,15 @@ export default {
           else if(response.data.status == 200) {
             localStorage.setItem('token', response.data.token);
             localStorage.setItem('user', JSON.stringify(response.data.user));
+            localStorage.setItem('company', JSON.stringify(response.data.company));
 
             /* UPDATE PENGAMBILAN DARI LOCALSTORAGE */
             this.$store.dispatch('fetchTokenFromLocalStorage');
             this.$store.dispatch('fetchUserFromLocalStorage');
+            this.$store.dispatch('fetchCompanyFromLocalStorage');
             /* UPDATE PENGAMBILAN DARI LOCALSTORAGE */
 
-            this.$router.push('/');
+            this.$router.push({name: 'buyer_home'});
           }
           /* IF USER NOT USE TWO FACTORY AUTHENTICATION */
 
@@ -218,7 +220,7 @@ export default {
               }
             })
           }
-          else if(error.response.data.status == 401) {
+          else {
             ElNotification({
               type: 'error',
               title: 'error',

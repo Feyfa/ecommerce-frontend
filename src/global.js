@@ -1,26 +1,30 @@
 import { reactive } from 'vue';
-import PersonImage from '@/assets/img/person.png';
 
 const global = reactive({
-  personImage: PersonImage,
-  isCLickDropdown: {
+  isClickDropdown: {
     profile: false,
+    company: false,
     product: false,
     userSetting: false,
   },
   isSidebarOpen: false,
   isFilterOpen: false,
   isAuth: false,
-  isConnectedAccountComplete: false,
   modals: {
     addProduct: false,
     editProduct: false
   },
-  showProfileView: {
+  showUserProfileView: {
     allComponent: false,
-    showConnectedAccount: false,
-    showPaymentStripe: false,
-    showTopupStripe: false,
+    userSetting: false,
+    alamat: false,
+  },
+  showCompanyProfileView: {
+    allComponent: false,
+    companySetting: false,
+  },
+  globalTemplate: {
+    loading: false,
   },
   globalContainer: {
     ref: '',
@@ -28,6 +32,8 @@ const global = reactive({
   },
   modals: {
     changePassword: false,
+    addProduct: false,
+    editProduct: false,
   }
 });
 

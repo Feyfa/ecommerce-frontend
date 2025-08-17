@@ -90,6 +90,7 @@
             Phone
           </label>
           <input 
+            placeholder="phone" 
             type="text" 
             id="phone"
             class="border w-full border-neutral-500 rounded outline-none h-12 px-2.5 shadow"
@@ -123,7 +124,7 @@
         </div>
       </div>
   
-      <div class="input-container flex flex-col w-full mt-4">
+      <!-- <div class="input-container flex flex-col w-full mt-4">
         <label 
           for="alamat">
           Alamat
@@ -131,11 +132,12 @@
         <textarea 
           id="alamat"
           :rows="rows"
+          placeholder="Alamat"
           class="border w-full border-neutral-500 rounded outline-none py-1 px-2.5 shadow"
           v-model="alamat"
           :disabled="!isEdit"
           :class="{'input-disabled': !isEdit}"></textarea>
-      </div>
+      </div> -->
     </div>
     <!-- input -->
 
@@ -154,7 +156,7 @@
       <svg 
         v-if="isEdit"
         class="w-5 cursor-pointer" 
-        :class="{'opacity-50': isProcessUpdate || errors.name || errors.email}"
+        :class="{'opacity-50': isProcessUpdate || errors.name || errors.email || errors.phone}"
         xmlns="http://www.w3.org/2000/svg" 
         viewBox="0 0 1024 1024" 
         @click="updateInput">
@@ -190,7 +192,7 @@ export default {
       tanggal_lahir: '',
       phone: '081388992799',
       tfa: '',
-      alamat: '',
+      // alamat: '',
 
       isEdit: false,
       isProcessUpdate: false,
@@ -201,18 +203,18 @@ export default {
         phone: ''
       },
 
-      rows: 4,
+      // rows: 4,
     }
   },
 
   mounted() {
     this.getUser();
-    this.setRowsTextAreaBasedOnScreenSize();
-    window.addEventListener('resize', this.setRowsTextAreaBasedOnScreenSize);
+    // this.setRowsTextAreaBasedOnScreenSize();
+    // window.addEventListener('resize', this.setRowsTextAreaBasedOnScreenSize);
   },
 
   beforeUnmount() {
-    window.removeEventListener('resize', this.setRowsTextAreaBasedOnScreenSize);
+    // window.removeEventListener('resize', this.setRowsTextAreaBasedOnScreenSize);
   },
 
   methods: {
@@ -223,23 +225,38 @@ export default {
       }
     },
     
-    setRowsTextAreaBasedOnScreenSize() {
-      if(window.innerWidth < 500) 
-        this.rows = 4;
-      else if(window.innerWidth < 600)
-        this.rows = 3;
-      else
-        this.rows = 2;
-    },
+    // setRowsTextAreaBasedOnScreenSize() {
+    //   if(window.innerWidth < 500) 
+    //     this.rows = 4;
+    //   else if(window.innerWidth < 600)
+    //     this.rows = 3;
+    //   else
+    //     this.rows = 2;
+    // },
 
     getUser() {
-      this.name = this.$store.getters.user.name;
-      this.email = this.$store.getters.user.email;
-      this.jenis_kelamin = this.$store.getters.user.jenis_kelamin;
-      this.tanggal_lahir = this.$store.getters.user.tanggal_lahir;
-      this.phone = this.$store.getters.user.phone;
-      this.alamat = this.$store.getters.user.alamat;
-      this.tfa = this.$store.getters.user.tfa;
+      this.$global.showUserProfileView.userSetting = false;
+      this.$store
+          .dispatch('getUser')
+          .then(response => {
+            localStorage.setItem('user', JSON.stringify(response.data.user));
+            
+            this.name = response.data.user.name;
+            this.email = response.data.user.email;
+            this.jenis_kelamin = response.data.user.jenis_kelamin;
+            this.tanggal_lahir = response.data.user.tanggal_lahir;
+            this.phone = response.data.user.phone;
+            // this.alamat = response.data.user.alamat;
+            this.tfa = response.data.user.tfa;
+            
+            this.$global.showUserProfileView.userSetting = true;
+          })
+          .catch(error => {
+            localStorage.clear('token');
+            localStorage.clear('user');
+            localStorage.clear('company');
+            this.$router.push('/login');
+          });
     },
 
     clearErrors() {
@@ -273,7 +290,7 @@ export default {
           tanggal_lahir: this.tanggal_lahir,
           phone: this.phone,
           tfa: this.tfa,
-          alamat: this.alamat,
+          // alamat: this.alamat,
         })
         .then(response => {
           // console.log(response);
@@ -294,6 +311,7 @@ export default {
             /* UPDATE PENGAMBILAN DARI LOCALSTORAGE */
             this.$store.dispatch('fetchTokenFromLocalStorage');
             this.$store.dispatch('fetchUserFromLocalStorage');
+            this.$store.dispatch('fetchCompanyFromLocalStorage');
             /* UPDATE PENGAMBILAN DARI LOCALSTORAGE */
           }
   

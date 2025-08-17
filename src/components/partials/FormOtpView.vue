@@ -6,7 +6,7 @@
       </span>
       
       <div class="flex justify-center">
-        <img :src="verifiedImage">
+        <img src="/img/verified.png">
       </div>
 
       <div class="text-center mt-8">
@@ -65,8 +65,6 @@
 </template>
 
 <script>
-import VerifiedImage from "@/assets/img/verified.png";
-import { isReferencedIdentifier } from "@vue/compiler-core";
 import { ElNotification } from "element-plus";
 
 export default {
@@ -93,7 +91,6 @@ export default {
     return {
       valueOtp: '',
       inputOtp: Array(6).fill(""),
-      verifiedImage: VerifiedImage,
       isProcessVerifyOtp: false,
       isResend: false,
 
@@ -212,13 +209,15 @@ export default {
         else if(response.data.status == 200) {
           localStorage.setItem('token', response.data.token);
           localStorage.setItem('user', JSON.stringify(response.data.user));
+          localStorage.setItem('company', JSON.stringify(response.data.company));
 
           /* UPDATE PENGAMBILAN DARI LOCALSTORAGE */
           this.$store.dispatch('fetchTokenFromLocalStorage');
           this.$store.dispatch('fetchUserFromLocalStorage');
+          this.$store.dispatch('fetchCompanyFromLocalStorage');
           /* UPDATE PENGAMBILAN DARI LOCALSTORAGE */
 
-          this.$router.push('/');
+          this.$router.push({name: 'buyer_home'});
         }
         /* IF USER NOT USE TWO FACTORY AUTHENTICATION */
       })
@@ -328,13 +327,15 @@ export default {
           if(response.data.status == 200) {
             localStorage.setItem('token', response.data.token);
             localStorage.setItem('user', JSON.stringify(response.data.user));
+            localStorage.setItem('company', JSON.stringify(response.data.company));
 
             /* UPDATE PENGAMBILAN DARI LOCALSTORAGE */
             this.$store.dispatch('fetchTokenFromLocalStorage');
             this.$store.dispatch('fetchUserFromLocalStorage');
+            this.$store.dispatch('fetchCompanyFromLocalStorage');
             /* UPDATE PENGAMBILAN DARI LOCALSTORAGE */
 
-            this.$router.push('/');
+            this.$router.push({name: 'buyer_home'});
           }
           else {
             this.isProcessLogin = false;

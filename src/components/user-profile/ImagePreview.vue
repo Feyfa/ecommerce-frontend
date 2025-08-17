@@ -7,7 +7,7 @@
       class="z-[999] fixed inset-0 bg-[rgba(0,0,0,.7)] flex justify-center items-center cursor-zoom-out"
       @click="zoomUserImage('out')">
       <div 
-        class="h-80 w-80 bg-cover bg-no-repeat bg-center border border-neutral-400 rounded-md shadow-xl cursor-default" :style="{ backgroundImage: `url(${src})` }"
+        class="w-[21rem] h-[21rem] sm500:h-[27rem] sm500:w-[27rem] lg:h-[35rem] lg:w-[35rem] bg-cover bg-no-repeat bg-center border border-neutral-400 rounded-md shadow-xl cursor-default" :style="{ backgroundImage: `url(${src})` }"
         @click.stop>
       </div> 
     </div>
@@ -26,7 +26,7 @@
     
     <ul 
       class="absolute bg-white z-50 top-24 left-16 sm:left-24 rounded transition-all duration-75 ease-in-out overflow-hidden"
-      :class="this.$global.isCLickDropdown.profile ? 'border border-neutral-500 h-[6.25rem] shadow-lg p-2' : 'h-0'">
+      :class="this.$global.isClickDropdown.profile ? 'border border-neutral-500 h-[6.25rem] shadow-lg p-2' : 'h-0'">
       <li>
         <span 
           class="inline-block px-1 rounded h-7 w-32 sm:w-36 leading-7 hover:bg-violet-500 cursor-pointer"
@@ -54,7 +54,7 @@
         <span 
           class="inline-block px-1 rounded h-7 w-32 sm:w-36 leading-7"
           :class="disable.deleteImage ? 'cursor-no-drop bg-[rgba(0,0,0,.1)]' : 'hover:bg-violet-500 cursor-pointer'"
-          @click="deleteImage">
+          @click="deleteImageUser">
           Delete Image
         </span>
       </li>
@@ -64,9 +64,7 @@
 
 <script>
 import { ElNotification } from 'element-plus';
-import PersonImage from "@/assets/img/person.png";
 import Swal from 'sweetalert2';
-import { mapGetters } from 'vuex';
 
 export default {
   name: 'ProfileImagePriview',
@@ -84,8 +82,6 @@ export default {
 
   data() {
     return {
-      PersonImage: PersonImage,
-
       isZoomUserImage: false,
       isProcessImageUser: false,
 
@@ -103,7 +99,7 @@ export default {
 
   methods: {
     togglePreview() {
-      this.$global.isCLickDropdown.profile = !this.$global.isCLickDropdown.profile; 
+      this.$global.isClickDropdown.profile = !this.$global.isClickDropdown.profile; 
     },
 
     zoomUserImage(type) {
@@ -150,7 +146,7 @@ export default {
         
         this.$store.dispatch('uploadImageUser', data)
                    .then(response => {
-                    console.log(response);
+                    // console.log(response);
 
                     $('#image-file').val('');
 
@@ -166,6 +162,7 @@ export default {
                       /* UPDATE PENGAMBILAN DARI LOCALSTORAGE */
                       this.$store.dispatch('fetchTokenFromLocalStorage');
                       this.$store.dispatch('fetchUserFromLocalStorage');
+                      this.$store.dispatch('fetchCompanyFromLocalStorage');
                       /* UPDATE PENGAMBILAN DARI LOCALSTORAGE */
                       
                       this.$global.personImage = `${import.meta.env.VITE_APP_BACKEND_BASE_URL}/${import.meta.env.VITE_SYMLINK_FOLDER}/${response.data.user.img}`;
@@ -180,7 +177,7 @@ export default {
                     console.error(error);
 
                     $('#image-file').val('');
-                    this.isProcessImageUser = true;
+                    this.isProcessImageUser = false;
 
                     const message = error.response.data.message;
             
@@ -198,7 +195,7 @@ export default {
       }
     },
 
-    deleteImage() {
+    deleteImageUser() {
       if(this.$store.getters.user.img != null) {
 
         Swal.fire({
@@ -212,11 +209,11 @@ export default {
           if(result.isConfirmed) {
             this.isProcessImageUser = true;
 
-            this.$store.dispatch('deleteImage', {
+            this.$store.dispatch('deleteImageUser', {
               img: this.$store.getters.user.img
             })
             .then(response => {
-              console.log(response);
+              // console.log(response);
 
               this.isProcessImageUser = false;
 
@@ -232,9 +229,10 @@ export default {
                 /* UPDATE PENGAMBILAN DARI LOCALSTORAGE */
                 this.$store.dispatch('fetchTokenFromLocalStorage');
                 this.$store.dispatch('fetchUserFromLocalStorage');
+                this.$store.dispatch('fetchCompanyFromLocalStorage');
                 /* UPDATE PENGAMBILAN DARI LOCALSTORAGE */
                 
-                this.$global.personImage = PersonImage;
+                this.$global.personImage = '/img/person.png';
                 this.disable.deleteImage = true;
               }
             })
