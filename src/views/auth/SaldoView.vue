@@ -211,7 +211,7 @@
                             :class="{'border-b border-b-neutral-500': index != saldoHistory.length - 1}">
                             <h3 class="text-[0.9rem] font-semibold">
                                 {{ item.title }}
-                                {{ item.id }}
+                                <!-- {{ item.id }} -->
                             </h3>
                             <p class="text-neutral-700 text-[0.7rem] tracking-wide">{{ item.date }}</p>
                             <p class="font-semibold" :class="getColorMoney(item.type)">+ Rp{{ item.price.toLocaleString('id-ID') }}</p>
