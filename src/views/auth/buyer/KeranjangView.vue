@@ -187,13 +187,13 @@ export default {
     checkout() {
       // cek apakah ada 1 saja keranjang yang checked
       const keranjangAlReadyChecked = Object.values(this.keranjangs).some(group => 
-        group.some(item => item.k_checked === 1)
+        group.some(item => item.k_checked === 1 || item.k_checked === true)
       );
 
       // ambil id product dalam bentuk array
       const productIds = Object.values(this.keranjangs)
                                .flat()
-                               .filter(item => item.k_checked === 1)
+                               .filter(item => item.k_checked === 1 || item.k_checked === true)
                                .map(item => item.p_id);
 
       if(keranjangAlReadyChecked) {
@@ -212,13 +212,16 @@ export default {
           console.error(error);
 
           this.isProcessCheckout = false;
-          this.keranjangs = error.response.data.keranjangs;
-          this.totalPrice = error.response.data.totalPrice;
+          if(error.response.data.keranjangs) {
+            this.keranjangs = error.response.data.keranjangs;
+          }
+          if(error.response.data.totalPrice !== undefined) {
+            this.totalPrice = error.response.data.totalPrice;
+          }
+          const message = error.response.data.message;
 
           if(error.response.status == 422) {
-            const message = error.response.data.message;
-            
-            Object.keys(message).forEach(key => {
+            Object.keys(message || {}).forEach(key => {
               switch(key) {
                 case 'product_ids' : 
                   ElNotification({ type: 'error', title: 'error', message: message[key][0] });
@@ -229,7 +232,9 @@ export default {
             ElNotification({
               type: 'error',
               title: 'error',
-              message: error.response.data.message
+              message: typeof message === 'string' && message.trim() !== ''
+                ? message
+                : 'Something went wrong'
             });
           }
         });
@@ -409,7 +414,7 @@ export default {
 
         // cek apakah ada 1 saja keranjang yang checked
         const keranjangAlReadyChecked = Object.values(this.keranjangs).some(group => 
-          group.some(item => item.k_checked === 1)
+          group.some(item => item.k_checked === 1 || item.k_checked === true)
         );
         this.disabled.buttonCheckout = keranjangAlReadyChecked;
 
@@ -440,7 +445,7 @@ export default {
 
         // cek apakah ada 1 saja keranjang yang checked
         const keranjangAlReadyChecked = Object.values(this.keranjangs).some(group => 
-          group.some(item => item.k_checked === 1)
+          group.some(item => item.k_checked === 1 || item.k_checked === true)
         );
         this.disabled.buttonCheckout = keranjangAlReadyChecked;
 
@@ -468,7 +473,7 @@ export default {
 
         // cek apakah ada 1 saja keranjang yang checked
         const keranjangAlReadyChecked = Object.values(this.keranjangs).some(group => 
-          group.some(item => item.k_checked === 1)
+          group.some(item => item.k_checked === 1 || item.k_checked === true)
         );
         this.disabled.buttonCheckout = keranjangAlReadyChecked;
 
@@ -482,7 +487,7 @@ export default {
 
     isCheckedKeranjangGroup(keranjang) {
       return keranjang.filter(item => item.p_stock > 0)
-                      .every(item => item.k_checked === 1);
+                      .every(item => item.k_checked === 1 || item.k_checked === true);
     }
   }
 }
