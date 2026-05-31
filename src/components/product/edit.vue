@@ -209,7 +209,7 @@ export default {
 
     watch: {
         show(newValue) {
-            if(newValue && !isNaN(this.productId)) {
+            if(newValue && this.productId) {
                 this.getProduct();
             }
         },
