@@ -1,171 +1,179 @@
 <template>
-    <div id="edit-product-container" class="fixed inset-0 bg-[rgba(100,100,100,.5)] z-[9]" v-show="show && !isProcessGetProduct" @click="closeEditProduct">
-        <div class="w-full sm:w-[55%] md:w-[45%] lg:w-[40%] xl:w-[35%] 2xl:w-[30%] px-4 pb-2 flex flex-col justify-start items-center gap-4 fixed top-0 bottom-0 right-0 bg-[rgba(255,255,255,1)] shadow overflow-auto min-h-screen" v-show="show && !isProcessGetProduct" @click.stop>
-      
-          <div class="w-full mt-[4.5rem] relative">            
-            <h1 class="text-center text-2xl sm:text-3xl tracking-wide">Edit Product</h1>
+    <div id="edit-product-container" class="fixed inset-0 z-[9] bg-slate-950/50" v-show="show" @click="closeEditProduct">
+        <div class="fixed bottom-0 right-0 top-14 flex w-full flex-col bg-white shadow-2xl sm:w-[55%] md:w-[45%] lg:w-[40%] xl:w-[35%] 2xl:w-[30%]" v-show="show" @click.stop>
+            <div class="border-b border-slate-200 px-5 py-4">
+                <div class="flex items-start justify-between gap-4">
+                    <div>
+                        <h1 class="text-xl font-semibold text-slate-900 sm:text-2xl">Edit Produk</h1>
+                        <p class="mt-1 text-sm text-slate-500">Update foto dan informasi produk.</p>
+                    </div>
 
-            <span class="inline-block sm:hidden absolute top-0 bottom-0 right-0 -mt-0.5 cursor-pointer" @click="closeEditProduct">
-                <i class="fa-solid fa-xmark text-3xl"></i>
-            </span>
-          </div>
-      
-          <!-- zoom img -->
-          <div 
-            v-if="isZoomUserImage"
-            class="z-[999] fixed top-0 left-0 bottom-0 right-0 bg-[rgba(0,0,0,.7)] flex justify-center items-center cursor-zoom-out"
-            @click="zoomUserImage('out')">
-            <img 
-              :src="ProductImage"
-              alt="product"
-              class="w-[95%] h-[40%] sm400:h-[45%] sm500:h-[50%] md:w-[70%] md:h-[70%] lg:w-[50%] border border-neutral-400 rounded-md shadow-xl cursor-default"
-              @click.stop/>  
-          </div>
-          <!-- zoom img -->
-      
-          <div class="w-full flex flex-col items-center gap-y-3 md:gap-x-5">
-            <div class="w-full">
-                <div
-                    class="product relative w-full h-[20rem] mx-auto border border-neutral-500 rounded shadow-md bg-cover bg-no-repeat bg-center"
-                    :style="{ backgroundImage: `url(${ProductImage})` }"
-                    @click="togglePreview"
-                    @click.stop>
-        
-                    <ul 
-                    class="absolute bg-white z-50 top-[90%] left-[45%] rounded transition-all duration-75 ease-in-out overflow-hidden"
-                    :class="this.$global.isClickDropdown.product ? 'border border-neutral-500 h-[4.5rem] shadow-lg p-2' : 'h-0'">
-                    <li>
-                        <span 
-                        class="inline-block px-1 rounded h-7 w-36 leading-7 hover:bg-violet-500 cursor-pointer"
-                        @click="zoomUserImage('in')">
-                        Zoom Image
-                        </span>
-                    </li>
-                    <li>
-                        <div>
-                        <input
-                            class="top-0 left-0 right-0 bottom-0 hidden"
-                            type="file"
-                            id="image-file"
-                            ref="imageFile"
-                            name="file"
-                            @change="imageFileChange"/>
-                        <span 
-                            class="inline-block px-1 rounded h-7 w-36 leading-7 hover:bg-violet-500 cursor-pointer"
-                            @click="this.$refs.imageFile.click()">
-                            Upload Image
-                        </span>
+                    <button
+                        type="button"
+                        class="flex h-9 w-9 shrink-0 items-center justify-center rounded-md border border-slate-200 text-slate-500 hover:bg-slate-100 hover:text-slate-900"
+                        aria-label="Tutup edit produk"
+                        @click="closeEditProduct">
+                        <i class="fa-solid fa-xmark"></i>
+                    </button>
+                </div>
+            </div>
+
+            <!-- zoom img -->
+            <el-image-viewer
+                v-if="isZoomUserImage"
+                :url-list="[ProductImage]"
+                :initial-index="0"
+                :min-scale="0.2"
+                :max-scale="7"
+                :zoom-rate="1.2"
+                :z-index="9999"
+                teleported
+                @close="zoomUserImage('out')" />
+            <!-- zoom img -->
+
+            <div class="flex-1 overflow-y-auto px-5 py-5">
+                <div v-if="isProcessGetProduct" class="flex min-h-[24rem] flex-col items-center justify-center gap-3 text-slate-500">
+                    <i class="fas fa-spinner fa-pulse text-2xl text-violet-500"></i>
+                    <span class="text-sm font-medium">Memuat data produk...</span>
+                </div>
+
+                <div v-else class="space-y-5">
+                    <div>
+                        <div
+                            class="relative aspect-[4/3] w-full overflow-hidden rounded-md border border-slate-200 bg-slate-100 bg-cover bg-center shadow-sm"
+                            :style="{ backgroundImage: `url(${ProductImage})` }">
+                            <div class="absolute inset-x-0 bottom-0 flex flex-wrap items-center justify-between gap-2 bg-gradient-to-t from-slate-950/80 to-transparent p-3">
+                                <input
+                                    class="hidden"
+                                    type="file"
+                                    id="edit-product-image-file"
+                                    ref="imageFile"
+                                    name="file"
+                                    accept="image/*"
+                                    @change="imageFileChange"/>
+
+                                <button
+                                    type="button"
+                                    class="inline-flex h-9 items-center gap-2 rounded-md bg-white px-3 text-sm font-medium text-slate-700 shadow-sm hover:bg-slate-100"
+                                    @click="this.$refs.imageFile.click()">
+                                    <i class="fa-solid fa-upload text-xs"></i>
+                                    Upload
+                                </button>
+
+                                <button
+                                    type="button"
+                                    class="inline-flex h-9 items-center gap-2 rounded-md bg-white/90 px-3 text-sm font-medium text-slate-700 shadow-sm hover:bg-white"
+                                    @click="zoomUserImage('in')">
+                                    <i class="fa-solid fa-magnifying-glass-plus text-xs"></i>
+                                    Zoom
+                                </button>
+                            </div>
                         </div>
-                    </li>
-                    </ul>
-        
-                </div>
-        
-                <div class="text-center">
-                    <small 
-                    v-if="errors.img"
-                    class="text-red-500 text-[.8rem]">
-                    {{ errors.img }}
-                </small>
+
+                        <small
+                            v-if="errors.img"
+                            class="mt-2 block text-sm text-red-500">
+                            {{ errors.img }}
+                        </small>
+                    </div>
+
+                    <div class="space-y-4">
+                        <div class="input-container flex flex-col gap-y-1.5">
+                            <label
+                                for="edit-product-name"
+                                class="text-sm font-medium text-slate-700">
+                                Nama Produk
+                            </label>
+                            <input
+                                placeholder="Contoh: Baju Hitam"
+                                id="edit-product-name"
+                                type="text"
+                                class="h-11 w-full rounded-md border border-slate-300 px-3 text-base text-slate-900 outline-none shadow-sm placeholder:text-slate-400 focus:border-violet-500 focus:ring-2 focus:ring-violet-100"
+                                :class="{'border-red-500 focus:border-red-500 focus:ring-red-100': errors.name}"
+                                v-model="name"
+                                @input="watchInputName">
+                            <small
+                                v-if="errors.name"
+                                class="text-sm text-red-500">
+                                {{ errors.name }}
+                            </small>
+                        </div>
+
+                        <div class="grid grid-cols-1 gap-4 sm500:grid-cols-2 sm:grid-cols-1">
+                            <div class="input-container flex flex-col gap-y-1.5">
+                                <label
+                                    for="edit-product-price"
+                                    class="text-sm font-medium text-slate-700">
+                                    Harga
+                                </label>
+                                <input
+                                    placeholder="50000"
+                                    id="edit-product-price"
+                                    type="number"
+                                    min="1"
+                                    class="h-11 w-full rounded-md border border-slate-300 px-3 text-base text-slate-900 outline-none shadow-sm placeholder:text-slate-400 focus:border-violet-500 focus:ring-2 focus:ring-violet-100"
+                                    :class="{'border-red-500 focus:border-red-500 focus:ring-red-100': errors.price}"
+                                    v-model="price"
+                                    @input="watchInputPrice">
+                                <small
+                                    v-if="errors.price"
+                                    class="text-sm text-red-500">
+                                    {{ errors.price }}
+                                </small>
+                            </div>
+
+                            <div class="input-container flex flex-col gap-y-1.5">
+                                <label
+                                    for="edit-product-stock"
+                                    class="text-sm font-medium text-slate-700">
+                                    Stok
+                                </label>
+                                <input
+                                    placeholder="8"
+                                    id="edit-product-stock"
+                                    type="number"
+                                    min="0"
+                                    class="h-11 w-full rounded-md border border-slate-300 px-3 text-base text-slate-900 outline-none shadow-sm placeholder:text-slate-400 focus:border-violet-500 focus:ring-2 focus:ring-violet-100"
+                                    :class="{'border-red-500 focus:border-red-500 focus:ring-red-100': errors.stock}"
+                                    v-model="stock"
+                                    @input="watchInputStock">
+                                <small
+                                    v-if="errors.stock"
+                                    class="text-sm text-red-500">
+                                    {{ errors.stock }}
+                                </small>
+                            </div>
+                        </div>
+                    </div>
                 </div>
             </div>
-      
-            <div class="grid items-start grid-cols-1 sm500:grid-cols-2 sm:grid-cols-1 w-full gap-y-3 gap-x-5 text-xl">
-              <div class="input-container flex flex-col w-full gap-y-0.5">
-                <label 
-                  for="name">
-                  name
-                </label>
-                <input
-                  placeholder="name" 
-                  id="name" 
-                  type="text" 
-                  class="border w-full border-neutral-500 rounded outline-none h-12 px-2.5 shadow" 
-                  :class="{'border border-red-500': errors.name}"
-                  v-model="name"
-                  @input="watchInputName">
-                <small 
-                  v-if="errors.name"
-                  class="text-red-500 text-[.8rem]">
-                  {{ errors.name }}
-                </small>
-              </div>
-              
-              <div class="input-container flex flex-col w-full gap-y-0.5">
-                <label 
-                  for="price">
-                  price
-                </label>
-                <input
-                  placeholder="price" 
-                  id="price" 
-                  type="number"
-                  min="1" 
-                  class="border w-full border-neutral-500 rounded outline-none h-12 px-2.5 shadow" 
-                  :class="{'border border-red-500': errors.price}"
-                  v-model="price"
-                  @input="watchInputPrice">
-                <small 
-                  v-if="errors.price"
-                  class="text-red-500 text-[.8rem]">
-                  {{ errors.price }}
-                </small>
-              </div>
-              
-              <div class="input-container flex flex-col w-full gap-y-0.5">
-                <label 
-                  for="stock">
-                  stock
-                </label>
-                <input
-                  placeholder="stock" 
-                  id="stock"
-                  type="number"
-                  min="1" 
-                  class="border w-full border-neutral-500 rounded outline-none h-12 px-2.5 shadow" 
-                  :class="{'border border-red-500': errors.stock}"
-                  v-model="stock"
-                  @input="watchInputStock">
-                <small 
-                  v-if="errors.stock"
-                  class="text-red-500 text-[.8rem]">
-                  {{ errors.stock }}
-                </small>
-              </div>
-      
-              <div class="input-container flex flex-col w-full gap-y-0.5 -mt-3 sm500:mt-0 sm:-mt-3">
-                <!-- bantuan -->
-                <label 
-                  style="visibility: hidden;">
-                  bantuan
-                </label>
-                <!-- bantuan -->
-                <button 
-                    class="h-12 px-2.5 border border-neutral-500 rounded shadow-lg bg-blue-500 hover:bg-[#428bff]"
-                    :class="isProcessEditProduct ? 'opacity-85' : 'hover:bg-[#428bff]'"
-                    :disabled="isProcessEditProduct"
-                    @click="editProduct">
-                    Edit
-                    <i v-if="isProcessEditProduct" class="ml-1 fas fa-spinner fa-pulse"></i>
-                </button>
-                <!-- bantuan -->
-                <small 
-                  class="text-red-500 text-[.8rem]"
-                  style="visibility: hidden;">
-                  {{ errors.price }}
-                </small>
-                <!-- bantuan -->
-              </div>
+
+            <div class="border-t border-slate-200 bg-white px-5 py-4">
+                <div class="grid grid-cols-2 gap-3">
+                    <button
+                        type="button"
+                        class="h-11 rounded-md border border-slate-300 bg-white px-3 text-sm font-medium text-slate-700 hover:bg-slate-100"
+                        :disabled="isProcessEditProduct"
+                        @click="closeEditProduct">
+                        Batal
+                    </button>
+                    <button
+                        type="button"
+                        class="h-11 rounded-md border border-violet-500 bg-violet-500 px-3 text-sm font-semibold text-white shadow-sm"
+                        :class="(isProcessGetProduct || isProcessEditProduct) ? 'cursor-not-allowed opacity-70' : 'hover:bg-violet-600'"
+                        :disabled="isProcessGetProduct || isProcessEditProduct"
+                        @click="editProduct">
+                        Simpan
+                        <i v-if="isProcessEditProduct" class="ml-1 fas fa-spinner fa-pulse"></i>
+                    </button>
+                </div>
             </div>
-          </div>
-      
         </div>
     </div>
 </template>
 
 <script>
 import { ElNotification } from "element-plus";
-import { RouterLink } from "vue-router";
 
 export default {
     props: {
@@ -193,7 +201,7 @@ export default {
             isProcessEditProduct: false,
 
             errors: {
-                file: '',
+                img: '',
                 name: '',
                 price: '',
                 stock: '',
@@ -219,17 +227,8 @@ export default {
         closeEditProduct() {
             if(this.$global.modals.editProduct) {
                 this.$global.modals.editProduct = false;
-                
-                $('#image-file').val('');
-                this.name = '';
-                this.price = '';
-                this.stock = '';
-                this.ProductImage = '';
+                this.resetForm();
             }
-        },
-
-        togglePreview() {
-            this.$global.isClickDropdown.product = !this.$global.isClickDropdown.product; 
         },
 
         zoomUserImage(type) {
@@ -237,8 +236,6 @@ export default {
         },
 
         imageFileChange(event) {
-            this.$global.isClickDropdown.product = false;
-            
             const file = event.target.files[0];
             // cek apakah file tipe nya image
             const extensionValid = file ? file.type.startsWith('image/') : false;
@@ -248,7 +245,7 @@ export default {
             // jika file bukan image
             if(!extensionValid)
             {
-                $('#image-file').val('');
+                this.clearImageFile();
                 
                 ElNotification({
                     type: 'error',
@@ -259,7 +256,7 @@ export default {
             // jika file di atas 1mb
             else if(!sizeValid)
             {
-                $('#image-file').val('');
+                this.clearImageFile();
                 
                 ElNotification({
                     type: 'error',
@@ -277,8 +274,33 @@ export default {
                     this.ProductImage = OFREvent.target.result;
                 }
 
-                this.errors.file = '';
+                this.errors.img = '';
             }
+        },
+
+        clearImageFile() {
+            if(this.$refs.imageFile) {
+                this.$refs.imageFile.value = '';
+            }
+        },
+
+        resetErrors() {
+            this.errors.img = '';
+            this.errors.name = '';
+            this.errors.price = '';
+            this.errors.stock = '';
+        },
+
+        resetForm() {
+            this.clearImageFile();
+            this.id = '';
+            this.name = '';
+            this.price = '';
+            this.stock = '';
+            this.oldProductImage = '';
+            this.ProductImage = '';
+            this.isZoomUserImage = false;
+            this.resetErrors();
         },
 
         watchInputName() {
@@ -307,6 +329,8 @@ export default {
 
         getProduct() {
             this.isProcessGetProduct = true;
+            this.resetErrors();
+            this.clearImageFile();
 
             this.$store.dispatch('getProduct', {
                 user_id_seller: this.$store.getters.user.id,
@@ -356,7 +380,9 @@ export default {
                 const form = new FormData();
                 form.append('id', this.id);
                 form.append('oldImg', this.oldProductImage);
-                form.append('img', this.$refs.imageFile.files[0]);
+                if(this.$refs.imageFile.files[0]) {
+                    form.append('img', this.$refs.imageFile.files[0]);
+                }
                 form.append('name', this.name);        
                 form.append('price', this.price);        
                 form.append('stock', this.stock);   
@@ -375,13 +401,7 @@ export default {
                                         message: response.data.message
                                     });
 
-                                    $('#image-file').val('');
-                                    this.name = '' ?? response.data.product.name;
-                                    this.price = '' ?? response.data.product.price;
-                                    this.stock = '' ?? response.data.product.stock;
-                                    this.oldProductImage = '' ?? response.data.product.img;
-                                    this.ProductImage = '' ?? `${import.meta.env.VITE_APP_BACKEND_BASE_URL}/${import.meta.env.VITE_SYMLINK_FOLDER}/${response.data.product.img}`;
-
+                                    this.resetForm();
                                     this.$global.modals.editProduct = false;
                                     this.$emit('onAfterEditProduct', response.data.product);
                                 }
@@ -396,6 +416,9 @@ export default {
                         
                                     Object.keys(message).forEach(key => {
                                         switch(key) {
+                                            case 'img' :
+                                                this.errors.img = message[key][0];
+                                                break;
                                             case 'name' : 
                                                 this.errors.name = message[key][0];
                                                 break;
