@@ -12,6 +12,9 @@ Frontend-specific documentation should live here. Backend API behavior, database
 - [Seller Product](features/seller/01-product.md)
   Documents the seller product UI, state, flows, API usage, and UI decisions.
 
+- [Buyer Belanja](features/buyer/01-belanja.md)
+  Documents the buyer shopping UI, state, search flow, add-to-cart flow, API usage, and UI decisions.
+
 ## Documentation Rules
 
 Use English for every Markdown document in this folder.
@@ -42,7 +45,7 @@ docs/
       01-product.md
       02-transaction.md
     buyer/
-      01-product-browsing.md
+      01-belanja.md
       02-cart.md
       03-checkout.md
 ```

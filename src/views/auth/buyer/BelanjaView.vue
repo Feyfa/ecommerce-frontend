@@ -1,35 +1,61 @@
 <template>
   <!-- belanja view -->
-  <div v-show="show.belanja_view" class="w-full text-xl">
-    <div class="z-[2] grid grid-rows-2 grid-cols-none sm:grid-rows-none sm:grid-cols-2 sm:items-center px-2 sm:px-4 mb-2 sm:mb-0 lg:grid-cols-3 fixed right-0 left-0 lg:left-[20.5%] xl:left-[17.1%] 2xl:left-[16.9%] top-14 bg-white sm:h-14">
-      <div class="lg:col-start-2 mt-1 sm:mt-0">
-        <h1 class="text-center sm:text-start lg:text-center text-3xl font-medium">Barang Belanja</h1>
+  <div v-show="show.belanja_view" class="min-h-full w-full bg-slate-50 text-xl">
+    <div class="fixed right-0 left-0 top-14 z-[2] border-b border-slate-200 bg-white px-2 py-3 shadow-sm sm:px-4 lg:left-[20.5%] xl:left-[17.1%] 2xl:left-[16.9%]">
+      <div class="flex items-center justify-between gap-3">
+        <h1 class="text-3xl font-medium text-slate-950">Barang Belanja</h1>
       </div>
-      <div class="lg:col-start-3 text-end">
+
+      <div class="mt-3 flex flex-col gap-3 sm:flex-row sm:items-center">
         <input
-          placeholder="Search" 
-          id="search-product" 
-          type="text" 
-          class="border w-full sm:w-[80%] md:w-[70%] lg:w-[90%] xl:w-[80%] 2xl:w-[70%] border-neutral-500 rounded outline-none h-12 px-2.5 shadow"
+          placeholder="Search produk"
+          id="search-product"
+          type="text"
+          class="h-11 w-full rounded-md border border-slate-300 px-3 text-base text-slate-900 outline-none shadow-sm placeholder:text-slate-400 focus:border-violet-500 focus:ring-2 focus:ring-violet-100 sm:max-w-md"
           v-model="searchProduct"
+          @input="onSearchProductInput"
           @keyup.enter="enterSearchProduct">
       </div>
     </div>
-
-    <h1 ref="empty" class="text-center mt-[7rem] sm:mt-16 text-base font-medium hidden">Product Kosong</h1>
     
-    <div class="w-full mt-[5.5rem] sm:mt-8">
+    <div class="w-full bg-slate-50 pt-[8rem] lg:pt-[7rem]">
       <div v-show="show.loading_search_product" class="w-full text-center mt-28 sm:mt-16">
         <span>
           <i class="fas fa-spinner fa-pulse text-xl"></i>
         </span>
       </div>
 
-      <div class="w-full p-2 sm:p-4 grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 2xl:grid-cols-6 3xl:grid-cols-7 4xl:grid-cols-8 gap-x-3 gap-y-5">   
-        <div v-for="product in products" class="row flex flex-col justify-between gap-2 border border-neutral-400 bg-white rounded shadow-md h-72 relative">
+      <div
+        v-if="!show.loading_search_product && products.length === 0"
+        class="px-3 py-6 sm:p-6">
+        <div class="mx-auto flex min-h-[18rem] max-w-xl flex-col items-center justify-center rounded-md border border-dashed border-slate-300 bg-white px-6 py-10 text-center shadow-sm">
+          <div class="flex h-14 w-14 items-center justify-center rounded-full bg-violet-50 text-violet-600">
+            <i
+              class="text-xl"
+              :class="activeSearchProduct.length > 0 ? 'fa-solid fa-magnifying-glass' : 'fa-solid fa-box-open'"></i>
+          </div>
+
+          <h2 class="mt-4 text-lg font-semibold text-slate-950">
+            {{ activeSearchProduct.length > 0 ? 'Produk tidak ditemukan' : 'Produk belum tersedia' }}
+          </h2>
+
+          <p class="mt-2 max-w-sm text-sm leading-6 text-slate-500">
+            {{ activeSearchProduct.length > 0 ? 'Coba gunakan kata kunci lain atau hapus pencarian.' : 'Belum ada produk yang bisa ditampilkan untuk pembeli.' }}
+          </p>
+        </div>
+      </div>
+
+      <div class="grid w-full grid-cols-2 gap-x-4 gap-y-5 p-3 sm:grid-cols-3 sm:p-5 lg:grid-cols-4 lg:gap-x-5 lg:gap-y-6 lg:p-6 xl:grid-cols-5 2xl:grid-cols-6 3xl:grid-cols-7 4xl:grid-cols-8">
+        <div v-for="product in products" :key="product.p_id" class="row group flex h-[18.5rem] flex-col overflow-hidden rounded-md border border-slate-200 bg-white shadow-[0_1px_3px_rgba(15,23,42,0.08)] transition-shadow hover:shadow-[0_8px_24px_rgba(15,23,42,0.12)]">
+          <div class="relative flex h-40 w-full items-center justify-center bg-white px-3 py-2">
+            <img
+              class="h-full w-full object-contain"
+              :src="`${APP_BACKEND_BASE_URL}/${SYMLINK_FOLDER}/${product.p_img}`"
+              :alt="product.p_name">
+
           <!-- WHEN STOCK 0 -->
           <div
-            class="absolute inset-0 bg-[rgba(0,0,0,.3)] z-[1] flex justify-center items-start"
+            class="absolute inset-0 bg-slate-950/35 z-[1] flex justify-center items-start"
             v-if="product.p_stock < 1">
             <img
               class="w-40 mt-10"
@@ -37,30 +63,36 @@
               alt="SoldOutImage">
           </div>
           <!-- WHEN STOCK 0 -->
-
-          <div class="h-44 border w-full bg-cover bg-no-repeat bg-center" :style="{ backgroundImage: `url(${APP_BACKEND_BASE_URL}/${SYMLINK_FOLDER}/${product.p_img})` }"></div>
+          </div>
   
-          <div class="mb-1">
-            <div class="px-1.5 flex flex-col">
-              <h4 class="font-semibold text-[.8rem]">{{ product.u_name }}</h4>
-              <h4 class="text-[.9rem] leading-6 whitespace-nowrap overflow-hidden text-ellipsis">{{ product.p_name }}</h4>
-              <h4 class="font-semibold text-[.9rem]">Rp {{ product.p_price.toLocaleString('id-ID') }}</h4>
+          <div class="flex flex-1 flex-col justify-between p-3">
+            <div class="flex flex-col">
+              <span class="mb-1 truncate text-[.72rem] font-medium leading-4 text-slate-500">{{ product.u_name }}</span>
+              <h4 class="mt-0.5 truncate text-sm font-medium leading-5 text-slate-900">{{ product.p_name }}</h4>
+              <h4 class="mt-1 text-sm font-semibold leading-5 text-slate-950">{{ formatRupiah(product.p_price) }}</h4>
             </div>
     
-            <div class="flex justify-between px-1.5">
-              <div>
-                <h6 class="text-[.8rem]">stock : {{ product.p_stock }}</h6>
-              </div>
+            <div class="mt-3 flex items-center justify-between gap-2">
+              <span
+                class="inline-flex h-7 max-w-[6rem] items-center rounded-full px-2.5 text-xs font-medium"
+                :class="product.p_stock < 1 ? 'bg-red-50 text-red-600' : 'bg-slate-100 text-slate-600'">
+                Stok: {{ product.p_stock }}
+              </span>
     
-              <div class="flex gap-x-5" v-if="product.p_stock > 0">
-                <svg 
-                  class="w-5 cursor-pointer"
+              <button
+                v-if="product.p_stock > 0"
+                type="button"
+                class="flex h-8 w-8 shrink-0 items-center justify-center rounded-md text-slate-500 transition hover:bg-violet-50 hover:text-violet-600"
+                aria-label="Tambah ke keranjang"
+                title="Tambah ke keranjang"
+                @click="addKeranjang(product.p_id, product.u_id)">
+                <svg
+                  class="w-4"
                   xmlns="http://www.w3.org/2000/svg" 
-                  viewBox="0 0 1024 1024"
-                  @click="addKeranjang(product.p_id, product.u_id)" >
+                  viewBox="0 0 1024 1024">
                   <path fill="currentColor" d="M432 928a48 48 0 1 1 0-96 48 48 0 0 1 0 96m320 0a48 48 0 1 1 0-96 48 48 0 0 1 0 96M96 128a32 32 0 0 1 0-64h160a32 32 0 0 1 31.36 25.728L320.64 256H928a32 32 0 0 1 31.296 38.72l-96 448A32 32 0 0 1 832 768H384a32 32 0 0 1-31.36-25.728L229.76 128zm314.24 576h395.904l82.304-384H333.44l76.8 384z"></path>
                 </svg>
-              </div>
+              </button>
             </div>
           </div>
         </div>
@@ -94,6 +126,8 @@ export default {
       products: [],
 
       searchProduct: '',
+      activeSearchProduct: '',
+      productRequestVersion: 0,
       completeProduct: false,
 
       show: {
@@ -144,9 +178,20 @@ export default {
 
   methods: {
     enterSearchProduct() {
-      this.$refs.empty.classList.remove('visible');
-      this.$refs.empty.classList.add('hidden');
+      this.activeSearchProduct = this.searchProduct.trim();
+      this.show.loading_search_product = true;
+      this.completeProduct = false;
+      this.products = [];
 
+      this.getBelanja();
+    },
+
+    onSearchProductInput() {
+      if(this.searchProduct.trim().length > 0 || this.activeSearchProduct.length === 0) {
+        return;
+      }
+
+      this.activeSearchProduct = '';
       this.show.loading_search_product = true;
       this.completeProduct = false;
       this.products = [];
@@ -174,8 +219,10 @@ export default {
       .catch(error => {
         console.error(error);
 
-        if(error.response.data.status == 422) {
-          const message = error.response.data.message;
+        const responseData = error.response?.data;
+
+        if(responseData?.status == 422) {
+          const message = responseData.message ?? {};
           
           Object.keys(message).forEach(key => {
             switch(key) {
@@ -192,7 +239,20 @@ export default {
       })
     },
 
+    formatRupiah(value) {
+      const price = Number(value);
+
+      if(!Number.isFinite(price)) {
+        return 'Rp 0';
+      }
+
+      return `Rp ${price.toLocaleString('id-ID')}`;
+    },
+
     getBelanja() {
+      const requestVersion = ++this.productRequestVersion;
+      const requestSearchProduct = this.activeSearchProduct;
+
       /* GET ALL ID */
       let products_current_id = this.products.map(product => product.p_id);
       products_current_id = JSON.stringify(products_current_id);
@@ -201,10 +261,14 @@ export default {
       this.$store.dispatch('getBelanja', {
         user_id_seller: this.$store.getters.user.id,
         products_current_id: products_current_id,
-        search_product: this.searchProduct
+        search_product: requestSearchProduct
       })
       .then(response => {
         // console.log(response);
+
+        if(requestVersion !== this.productRequestVersion) {
+          return;
+        }
 
         this.show.loading_search_product = false
         this.show.belanja_view = true;
@@ -220,20 +284,17 @@ export default {
         // console.log({
         //   'this.products': this.products
         // });
-
-        if(this.products.length == 0) {
-          this.$refs.empty.classList.remove('hidden');
-          this.$refs.empty.classList.add('visible');
-        } else {
-          this.$refs.empty.classList.remove('visible');
-          this.$refs.empty.classList.add('hidden');
-        }
       })
       .catch(error => {
         console.error(error);
+
+        if(requestVersion !== this.productRequestVersion) {
+          return;
+        }
       
         this.show.belanja_view = true;
         this.show.loading = false;
+        this.$global.globalContainer.loading = false;
       
       })
     }
