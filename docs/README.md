@@ -15,6 +15,9 @@ Frontend-specific documentation should live here. Backend API behavior, database
 - [Buyer Belanja](features/buyer/01-belanja.md)
   Documents the buyer shopping UI, state, search flow, add-to-cart flow, API usage, and UI decisions.
 
+- [Buyer Cart](features/buyer/02-cart.md)
+  Documents the buyer cart UI, state, quantity controls, checked-state flows, API usage, and error sync behavior.
+
 ## Documentation Rules
 
 Use English for every Markdown document in this folder.

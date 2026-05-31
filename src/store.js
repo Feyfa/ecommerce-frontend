@@ -474,6 +474,21 @@ export default createStore({
             });
         },
 
+        checkedKeranjangAll(context, data) {
+            return new Promise((resolve, reject) => {
+                axios.post('/keranjang/checked/all', {
+                    user_id_buyer: data.user_id_buyer,
+                    checked: data.checked,
+                })
+                .then(response => {
+                    resolve(response);
+                })
+                .catch(error => {
+                    reject(error);
+                });
+            });
+        },
+
         getKeranjang(context, data) {
             return new Promise((resolve, reject) => {
                 axios.get(`/keranjang/${data.user_id_buyer}`)
