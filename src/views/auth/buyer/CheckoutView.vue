@@ -428,14 +428,10 @@ export default {
       this
       .$store
       .dispatch('processCheckout', {
-        checkouts: this.checkouts,
-        kurirs: this.kurirs,
+        shippingOptions: this.buildShippingOptions(),
         noteds: this.noteds,
-        alamat: this.alamat,
-        paymentName: this.paymentName,
         paymentSlug: this.paymentSlug,
-        paymentMethod: this.paymentMethod,
-        price: this.totalPriceAll,
+        clientSnapshot: this.buildClientSnapshot(),
       })
       .then(response => {
         // console.log(response);
@@ -451,8 +447,25 @@ export default {
 
         this.isProcessCheckout = false;
 
-        if(error.response.status == 422) {
-          const message = error.response.data.message;
+        const responseData = error.response?.data;
+        const responseStatus = error.response?.status;
+
+        if(responseStatus == 409 && responseData?.code == 'CHECKOUT_CHANGED' && responseData?.checkout) {
+          this.applyCheckoutSnapshot(responseData.checkout);
+          ElNotification({ type: 'warning', title: 'Checkout Berubah', message: responseData.message });
+          return;
+        }
+
+        if(responseStatus == 409 && responseData?.code == 'CHECKOUT_INVALID') {
+          ElNotification({ type: 'error', title: 'Error', message: responseData.message });
+          setTimeout(() => {
+            this.$router.push({ name: 'buyer_keranjang' });
+          }, 500);
+          return;
+        }
+
+        if(responseStatus == 422) {
+          const message = responseData.message;
           
           Object.keys(message).forEach(key => {
             setTimeout(() => {
@@ -460,9 +473,61 @@ export default {
             }, 10);
           })
         } else {
-          ElNotification({type: 'error', title: 'Error', message: error.response.data.message});
+          ElNotification({type: 'error', title: 'Error', message: responseData?.message || 'Checkout gagal diproses'});
         }
       });
+    },
+
+    buildShippingOptions() {
+      return this.kurirs.map(item => ({
+        user_id_seller: item.user_id_seller,
+        kurir_name: item.name,
+      }));
+    },
+
+    buildClientSnapshot() {
+      const cartItemIds = [];
+
+      this.checkouts.forEach(checkout => {
+        (checkout.keranjangs || []).forEach(item => {
+          cartItemIds.push(item.k_id);
+        });
+      });
+
+      cartItemIds.sort();
+
+      return {
+        cart_item_ids: cartItemIds,
+        total_product: Number(this.totalPriceKeranjangs || 0),
+        total_shipping: Number(this.totalPriceKurirs || 0),
+        total_all: Number(this.totalPriceAll || 0),
+      };
+    },
+
+    applyCheckoutSnapshot(checkout) {
+      if(checkout.alamat?.alamat) {
+        this.alamat = checkout.alamat.alamat;
+      }
+
+      if(checkout.checkouts) {
+        this.checkouts = checkout.checkouts;
+      }
+
+      if(checkout.kurirs) {
+        this.kurirs = checkout.kurirs;
+      } else {
+        this.generateFormatKurirs();
+      }
+
+      if(checkout.noteds) {
+        this.noteds = checkout.noteds;
+      } else {
+        this.generateFormatNoteds();
+      }
+
+      this.totalPriceKeranjangs = Number(checkout.totalPrice || 0);
+      this.totalPriceKurirs = Number(checkout.totalShipping || 0);
+      this.totalPriceAll = Number(checkout.totalAll || (this.totalPriceKeranjangs + this.totalPriceKurirs));
     },
 
     changePayment(name) {

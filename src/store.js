@@ -194,14 +194,10 @@ export default createStore({
         processCheckout(context, data) {
             return new Promise((resolve, reject) => {
                 axios.post(`/checkout/process`, {
-                    checkouts: data.checkouts,
-                    kurirs: data.kurirs,
+                    shipping_options: data.shippingOptions,
                     noteds: data.noteds,
-                    alamat: data.alamat,
-                    payment_method: data.paymentMethod,
                     payment_slug: data.paymentSlug,
-                    payment_name: data.paymentName,
-                    price: data.price,
+                    client_snapshot: data.clientSnapshot,
                 })
                 .then(response => {
                     resolve(response.data)
