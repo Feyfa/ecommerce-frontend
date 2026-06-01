@@ -1,57 +1,64 @@
 <template>
   <!-- Checkout View -->
-  <div v-if="show.checkout_view" class="w-full h-max flex justify-center items-start px-3 pb-5">
+  <div v-if="show.checkout_view" class="-mt-4 min-h-[calc(100%+1rem)] w-full bg-slate-50 px-3 pb-28 pt-4 text-slate-950 sm:px-5 lg:px-6 lg:pb-6">
     <div class="checkout-container w-full">
-      <div>
-        <h1 class="text-3xl text-center font-medium">Checkout</h1>  
+      <div class="mb-4 flex flex-col gap-1">
+        <h1 class="text-3xl font-medium text-slate-950">Checkout</h1>
+        <p class="text-sm font-medium text-slate-500">Review pesanan, pengiriman, dan pembayaran sebelum lanjut.</p>
       </div>
 
-      <div class="mt-5 flex flex-col justify-center items-center lg:flex-row lg:items-start gap-0.5 lg:gap-5">
-        <div class="w-full lg:w-[60%] xl:w-[65%] 2xl:w-[70%] flex flex-col justify-center items-center gap-0.5 lg:gap-5">
+      <div class="flex flex-col items-start gap-5 lg:flex-row">
+        <div class="flex w-full flex-col gap-4 lg:w-[65%] xl:w-[70%]">
           <!-- ALAMAT -->
-          <div class="w-full border border-neutral-400 shadow-md p-3 rounded flex flex-col gap-y-5">
-            <div class="flex justify-between items-center">
-              <h3 class="text-[1rem] font-semibold">ALAMAT PENGIRIMAN</h3>
-              <span 
+          <div class="w-full rounded-md border border-slate-200 bg-white px-4 py-4 shadow-sm">
+            <div class="flex items-start justify-between gap-4">
+              <div class="flex min-w-0 gap-3">
+                <div class="flex h-10 w-10 shrink-0 items-center justify-center rounded-md bg-violet-50 text-violet-500">
+                  <i class="fa-solid fa-location-dot text-base"></i>
+                </div>
+                <div class="min-w-0">
+                  <h2 class="text-base font-semibold text-slate-950">Alamat Pengiriman</h2>
+                  <p class="mt-1 text-sm leading-6 text-slate-600">{{ alamat || 'Alamat belum dipilih' }}</p>
+                </div>
+              </div>
+
+              <button
+                type="button"
                 @click="getAlamatBuyer"
-                class="text-neutral-600 inline-block text-[0.8rem] w-20 p-0.5 rounded-full text-center bg-neutral-50 border border-neutral-400 shadow"
-                :class="{'hover:bg-neutral-100 cursor-pointer': !isProcessGetAlamatBuyer, 'hover:bg-neutral-50 cursor-default': isProcessGetAlamatBuyer}">
+                class="inline-flex h-9 shrink-0 items-center justify-center rounded-md border border-slate-200 bg-white px-4 text-sm font-semibold text-slate-600 shadow-sm transition hover:border-violet-200 hover:bg-violet-50 hover:text-violet-600 disabled:cursor-not-allowed disabled:opacity-60"
+                :disabled="isProcessGetAlamatBuyer">
                 Ganti
-                <i v-if="isProcessGetAlamatBuyer" class="ml-1 fas fa-spinner fa-pulse"></i>
-                </span>
-            </div>
-            <div>
-              <p class="text-[0.9rem]">{{ alamat }}</p>
+                <i v-if="isProcessGetAlamatBuyer" class="ml-2 fas fa-spinner fa-pulse"></i>
+              </button>
             </div>
           </div>
 
           <Modal v-model:show="modal.alamats" class="">
             <div class="py-5">
-              <h3 class="text-2xl font-medium text-center mb-5">Alamat User</h3>
+              <h3 class="mb-5 text-center text-2xl font-medium text-slate-950">Pilih Alamat</h3>
   
               <div 
                 v-if="this.alamats.length > 0" 
-                class="flex flex-col gap-5 max-h-[710px] overflow-auto px-5">
-                <div v-for="(alamat, index) in alamats">
+                class="flex max-h-[710px] flex-col gap-4 overflow-auto px-5">
+                <div v-for="(alamat, index) in alamats" :key="alamat.id">
                   <div 
-                    class="w-full rounded-md py-3 px-3 gap-5 flex flex-row justify-between items-center"
-                    :class="{'border-2 border-violet-500 bg-violet-100': alamat.enable, 'border border-neutral-500': !alamat.enable}">
-                    <div class="flex flex-col gap-1 w-[80%] xl:w-[85%]">
-                      <h4 class="font-semibold text-[.9rem]">{{ alamat.place }}</h4>
-                      <h3 class="font-semibold text-[1.1rem]">{{ alamat.name }}</h3>
-                      <p class="text-[.9rem]">{{ alamat.phone }}</p>
-                      <p class="text-[.8rem]">{{ alamat.alamat }}</p>
+                    class="flex w-full flex-row items-center justify-between gap-5 rounded-md px-4 py-3"
+                    :class="{'border-2 border-violet-500 bg-violet-50': alamat.enable, 'border border-slate-200 bg-white': !alamat.enable}">
+                    <div class="flex w-[80%] flex-col gap-1 xl:w-[85%]">
+                      <h4 class="text-sm font-semibold text-slate-500">{{ alamat.place }}</h4>
+                      <h3 class="text-base font-semibold text-slate-950">{{ alamat.name }}</h3>
+                      <p class="text-sm text-slate-600">{{ alamat.phone }}</p>
+                      <p class="text-sm leading-5 text-slate-500">{{ alamat.alamat }}</p>
                     </div>
                     <div class="w-[20%] xl:w-[15%]">
-                      <div v-if="alamat.enable" class="flex justify-center items-center">
+                      <div v-if="alamat.enable" class="flex items-center justify-center">
                         <i class="fas fa-check text-violet-500 text-2xl"></i>
                       </div>
                       <div v-else class="flex justify-end">
-                        <button 
-                          class="text-[.7rem] border border-neutral-500 bg-violet-500 py-1.5 w-[100%] sm500:text-[.8rem] sm:text-[.9rem] rounded" 
+                        <button
+                          class="inline-flex h-9 w-full items-center justify-center rounded-md border border-violet-500 bg-violet-500 text-sm font-semibold text-white transition hover:bg-violet-600 disabled:cursor-not-allowed disabled:opacity-60"
                           @click="setEnableAlamatBuyer(alamat.id, index)"
-                          :disabled="isProcessEnableAlamatBuyer[index]"
-                          :class="{'opacity-50': isProcessEnableAlamatBuyer[index]}">
+                          :disabled="isProcessEnableAlamatBuyer[index]">
                           Pilih
                           <i v-if="isProcessEnableAlamatBuyer[index]" class="fa-solid fa-spinner fa-spin-pulse ml-1"></i>
                         </button>
@@ -61,38 +68,54 @@
                 </div>
               </div>
               <div v-else >
-                <h3 class="text-[1.1rem] text-center mt-7">Alamat Kosong</h3>
+                <h3 class="mt-7 text-center text-base font-medium text-slate-500">Alamat Kosong</h3>
               </div>
             </div>
           </Modal>
           <!-- ALAMAT -->
-
-          <!-- DIVIDER -->
-          <div class="w-full block border border-neutral-300 my-5 lg:hidden"></div>
-          <!-- DIVIDER -->
           
           <!-- KERANJANG -->
-          <div class="w-full rounded flex flex-col gap-5">
+          <div class="flex w-full flex-col gap-4">
             <div 
-              class="border border-neutral-400 flex flex-col gap-3 rounded-md shadow-lg p-3"
-              v-for="(checkout, index1) in checkouts">
+              class="overflow-hidden rounded-md border border-slate-200 bg-white shadow-sm"
+              v-for="(checkout, index1) in checkouts"
+              :key="checkout.user_id_seller">
               <!-- nama penjual -->
-              <div>
-                <span class="text-[1rem] font-semibold">{{ checkout.user_name_seller }}</span>
+              <div class="flex items-center justify-between gap-3 border-b border-slate-100 px-4 py-3">
+                <div class="flex min-w-0 items-center gap-3">
+                  <div class="flex h-9 w-9 shrink-0 items-center justify-center rounded-md bg-slate-100 text-slate-500">
+                    <i class="fa-solid fa-store text-sm"></i>
+                  </div>
+                  <div class="min-w-0">
+                    <h2 class="truncate text-sm font-semibold text-slate-950">Paket dari {{ checkout.user_name_seller }}</h2>
+                    <p class="text-xs font-medium text-slate-500">{{ checkout.keranjangs.length }} produk</p>
+                  </div>
+                </div>
               </div>
               <!-- nama penjual -->
 
               <!-- keranjang -->
-              <div
-                class="border border-neutral-400 rounded shadow p-2"
-                v-for="(item, index2) in checkout.keranjangs">
-                <div class="flex flex-col justify-start items-start gap-1">
-                  <div class="flex gap-3 sm500:gap-5 w-full">
-                    <div class="w-24 h-24 bg-cover bg-no-repeat bg-center rounded" :style="{ backgroundImage: `url(${APP_BACKEND_BASE_URL}/${SYMLINK_FOLDER}/${item.p_img})` }"></div>
-      
-                    <div class="flex flex-col gap-1 w-full">
-                      <span class="text-[.8rem]">{{ item.p_name }}</span>
-                      <span class="font-semibold text-[.8rem] ">{{ item.k_total }} x {{ item.p_price.toLocaleString('id-ID') }}</span>
+              <div class="divide-y divide-slate-100">
+                <div
+                  class="flex gap-3 px-4 py-4"
+                  v-for="item in checkout.keranjangs"
+                  :key="item.k_id">
+                  <div class="h-20 w-20 shrink-0 overflow-hidden rounded-md border border-slate-100 bg-white sm:h-24 sm:w-24">
+                    <img
+                      class="h-full w-full object-contain"
+                      :src="`${APP_BACKEND_BASE_URL}/${SYMLINK_FOLDER}/${item.p_img}`"
+                      :alt="item.p_name">
+                  </div>
+
+                  <div class="flex min-w-0 flex-1 flex-col justify-between gap-3 sm:flex-row sm:items-start">
+                    <div class="min-w-0">
+                      <h3 class="line-clamp-2 text-sm font-medium leading-5 text-slate-900">{{ item.p_name }}</h3>
+                      <p class="mt-1 text-sm font-semibold text-slate-950">{{ item.k_total }} x {{ formatRupiah(item.p_price) }}</p>
+                    </div>
+
+                    <div class="shrink-0 text-left sm:text-right">
+                      <p class="text-xs font-medium text-slate-500">Subtotal</p>
+                      <p class="text-sm font-semibold text-slate-950">{{ formatRupiah(getCheckoutProductTotal(item)) }}</p>
                     </div>
                   </div>
                 </div>
@@ -101,74 +124,82 @@
 
               <!-- kuris -->
               <div 
-                class="flex flex-col gap-3 text-[.8rem]">
-                <div 
-                  class="border border-neutral-500 rounded outline-none shadow overflow-hidden">
-                  <select 
-                    id="kurir" 
-                    class="w-full px-1.5 pt-1.5 pb-1 outline-none"
-                    v-model="kurirs[index1].name"
-                    @change="changeKurir(index1)">
-                    <option v-for="(item, index2) in checkout.kurirs" :value="item.name">
-                      {{ item.name }} 
-                      (Rp {{ item.price.toLocaleString('id-ID') }})
-                    </option>
-                  </select>
-                  <p class="px-2.5 pt-1 pb-1.5">{{ kurirs[index1].estimation }}</p>
+                class="flex flex-col gap-3 border-t border-slate-100 bg-slate-50/70 px-4 py-4 text-sm">
+                <div class="grid gap-3 sm:grid-cols-[minmax(0,1fr)_minmax(0,1fr)]">
+                  <label class="flex flex-col gap-2">
+                    <span class="text-xs font-semibold uppercase text-slate-500">Kurir</span>
+                    <select
+                      :id="`kurir-${index1}`"
+                      class="h-11 w-full rounded-md border border-slate-300 bg-white px-3 text-sm font-medium text-slate-900 outline-none transition focus:border-violet-400 focus:ring-2 focus:ring-violet-100"
+                      v-model="kurirs[index1].name"
+                      @change="changeKurir(index1)">
+                      <option v-for="item in checkout.kurirs" :key="`${checkout.user_id_seller}-${item.name}`" :value="item.name">
+                        {{ item.name }} ({{ formatRupiah(item.price) }})
+                      </option>
+                    </select>
+                  </label>
+
+                  <div class="flex flex-col gap-2">
+                    <span class="text-xs font-semibold uppercase text-slate-500">Estimasi Sampai</span>
+                    <div class="flex h-11 items-center rounded-md border border-slate-200 bg-white px-3 text-sm font-medium text-slate-700">
+                      {{ kurirs[index1].estimation }}
+                    </div>
+                  </div>
                 </div>
-                <input
-                  placeholder="Kasih Catatan" 
-                  id="noteds" 
-                  type="text" 
-                  class="border w-full border-neutral-500 rounded outline-none h-10 px-2.5 shadow"
-                  v-model="noteds[index1].noted">
+
+                <label class="flex flex-col gap-2">
+                  <span class="text-xs font-semibold uppercase text-slate-500">Catatan untuk penjual</span>
+                  <input
+                    placeholder="Kasih catatan"
+                    :id="`noteds-${index1}`"
+                    type="text"
+                    class="h-11 w-full rounded-md border border-slate-300 bg-white px-3 text-sm text-slate-900 outline-none transition placeholder:text-slate-400 focus:border-violet-400 focus:ring-2 focus:ring-violet-100"
+                    v-model="noteds[index1].noted">
+                </label>
               </div>
               <!-- kuris -->
             </div>
           </div>
           <!-- KERANJANG -->
         </div>
-
-        <!-- DIVIDER -->
-        <div class="w-full block border border-neutral-300 my-5 lg:hidden"></div>
-        <!-- DIVIDER -->
         
         <!-- CHECKOUT -->
-        <div class="w-full lg:w-[40%] xl:w-[35%] 2xl:w-[30%] border border-neutral-400 rounded">
+        <div class="w-full rounded-md border border-slate-200 bg-white shadow-sm lg:sticky lg:top-6 lg:w-[35%] xl:w-[30%]">
           <!-- list payment -->
-          <div class="w-full pt-3 pb-3 px-3">
+          <div class="w-full px-4 py-4">
+            <h2 class="text-base font-semibold text-slate-950">Metode Pembayaran</h2>
+            <div class="mt-3 flex flex-col overflow-hidden rounded-md border border-slate-200">
             <div 
-              v-for="(item, index) in payments" 
-              class="w-full h-[3.8rem] border-t border-t-neutral-300 flex items-center cursor-pointer hover:bg-neutral-50"
+              v-for="item in payments"
+              :key="item.slug"
+              class="flex min-h-[4rem] w-full cursor-pointer items-center gap-3 border-b border-slate-100 px-3 py-2 transition last:border-b-0 hover:bg-slate-50"
+              :class="{'bg-violet-50': paymentName == item.name}"
               @click="changePayment(item.name)">
-              <span class="flex justify-center flex-[1.3]">
-                <img :src="getImage(item.slug)" class="w-12">
+              <span class="flex h-10 w-16 shrink-0 items-center justify-center rounded-md bg-white">
+                <img :src="getImage(item.slug)" class="max-h-7 max-w-12" :alt="item.name">
               </span>
-              <span class="h-10 flex items-center p-2 flex-[5]">
+              <span class="flex min-w-0 flex-1 items-center text-sm font-semibold text-slate-900">
                 {{ item.name }}
               </span>
-              <span class="h-10 flex justify-center flex-[0.7]">
-                <input class="cursor-pointer" type="radio" name="paymentName" :id="item.name" :value="item.name" v-model="paymentName">
+              <span class="flex shrink-0 justify-center">
+                <input class="h-4 w-4 cursor-pointer accent-violet-500" type="radio" name="paymentName" :id="item.name" :value="item.name" v-model="paymentName">
               </span>
             </div>
-
-            <div class="w-full border-t border-neutral-300"></div> 
+            </div>
           </div>
           <!-- list payment -->
 
-          <div class="border-t border-neutral-300"></div>
-
           <!-- ringkasan transaksi -->
-          <div class="w-full pt-3 pb-3 px-3">
-            <h3 class="text-[1rem] font-semibold">Cek Ringkasan Checkout</h3>
-            <div class="mt-2 text-[.9rem] flex flex-col gap-1">
-              <div class="flex justify-between items-center">
-                <span>Total Harga Barang</span>
-                <span>Rp {{ totalPriceKeranjangs.toLocaleString('id-ID') }}</span>
+          <div class="w-full border-t border-slate-100 px-4 py-4">
+            <h2 class="text-base font-semibold text-slate-950">Ringkasan Checkout</h2>
+            <div class="mt-3 flex flex-col gap-2 text-sm">
+              <div class="flex items-center justify-between gap-4">
+                <span class="text-slate-500">Total Harga Barang</span>
+                <span class="font-semibold text-slate-900">{{ formatRupiah(totalPriceKeranjangs) }}</span>
               </div>
-              <div class="flex justify-between items-center">
-                <span>Total Ongkos Kirim</span>
-                <span>Rp {{ totalPriceKurirs.toLocaleString('id-ID') }}</span>
+              <div class="flex items-center justify-between gap-4">
+                <span class="text-slate-500">Total Ongkos Kirim</span>
+                <span class="font-semibold text-slate-900">{{ formatRupiah(totalPriceKurirs) }}</span>
               </div>
               <div class="hidden justify-between items-center">
                 <span>Total Discount</span>
@@ -178,26 +209,40 @@
           </div>
           <!-- ringkasan transaksi -->
 
-          <div class="border-t border-neutral-300"></div>
-
           <!-- pembayaran -->
-          <div class="w-full pt-3 pb-3 px-3 flex flex-col gap-2">
-            <div class="flex justify-between items-center">
-              <span>Total Harga</span>
-              <span>Rp {{ totalPriceAll.toLocaleString('id-ID') }}</span>
+          <div class="hidden w-full flex-col gap-3 border-t border-slate-100 px-4 py-4 lg:flex">
+            <div class="flex items-center justify-between gap-4">
+              <span class="text-sm font-medium text-slate-500">Total Bayar</span>
+              <span class="text-lg font-semibold text-slate-950">{{ formatRupiah(totalPriceAll) }}</span>
             </div>
             <button 
               @click="processCheckout"
-              class="w-full border border-neutral-300 rounded-md bg-blue-500 py-1.5 text-white font-medium"
-              :class="{'button-disabled': isProcessCheckout}"
+              class="inline-flex h-11 w-full items-center justify-center rounded-md border border-violet-500 bg-violet-500 px-4 text-sm font-semibold text-white shadow-sm transition hover:bg-violet-600 active:scale-95"
+              :class="{'button-disabled cursor-not-allowed opacity-60': isProcessCheckout}"
               :disabled="isProcessCheckout">
               Bayar Sekarang
-              <i v-if="isProcessCheckout" class="ml-1 fas fa-spinner fa-pulse"></i>
+              <i v-if="isProcessCheckout" class="ml-2 fas fa-spinner fa-pulse"></i>
           </button>
           </div>
           <!-- pembayaran -->
         </div>
         <!-- CHECKOUT -->
+      </div>
+
+      <div class="fixed bottom-0 left-0 right-0 z-[2] flex items-center gap-3 border border-slate-200 bg-white px-4 py-3 shadow-[0_-8px_24px_rgba(15,23,42,0.12)] lg:hidden">
+        <div class="min-w-0 flex-1">
+          <p class="text-xs font-medium text-slate-500">Total Bayar</p>
+          <p class="truncate text-base font-semibold text-slate-950">{{ formatRupiah(totalPriceAll) }}</p>
+        </div>
+
+        <button
+          @click="processCheckout"
+          class="inline-flex h-11 w-40 shrink-0 items-center justify-center rounded-md border border-violet-500 bg-violet-500 px-4 text-sm font-semibold text-white shadow-sm transition hover:bg-violet-600 active:scale-95"
+          :class="{'button-disabled cursor-not-allowed opacity-60': isProcessCheckout}"
+          :disabled="isProcessCheckout">
+          Bayar
+          <i v-if="isProcessCheckout" class="ml-2 fas fa-spinner fa-pulse"></i>
+        </button>
       </div>
     </div>
   </div>
@@ -364,6 +409,14 @@ export default {
   },
 
   methods: {
+    formatRupiah(value) {
+      return `Rp ${Number(value || 0).toLocaleString('id-ID')}`;
+    },
+
+    getCheckoutProductTotal(item) {
+      return Number(item.k_total_price || (Number(item.k_total || 0) * Number(item.p_price || 0)));
+    },
+
     setEnableAlamatBuyer(id, index) {
       if(id == '') {
         return false;

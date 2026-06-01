@@ -18,6 +18,9 @@ Frontend-specific documentation should live here. Backend API behavior, database
 - [Buyer Cart](features/buyer/02-cart.md)
   Documents the buyer cart UI, state, quantity controls, checked-state flows, API usage, and error sync behavior.
 
+- [Buyer Checkout](features/buyer/03-checkout.md)
+  Documents the buyer checkout UI, state, seller-package layout, courier/payment choices, API usage, and stale-checkout recovery behavior.
+
 ## Documentation Rules
 
 Use English for every Markdown document in this folder.
