@@ -106,7 +106,14 @@ export default createStore({
             return new Promise((resolve, reject) => {
                 axios.get(`/transaction`, {
                     params: {
-                        user_type: data.user_type
+                        user_type: data.user_type,
+                        status_filter: data.status_filter,
+                        search: data.search,
+                        sort: data.sort,
+                        page: data.page,
+                        per_page: data.per_page,
+                        date_from: data.date_from,
+                        date_to: data.date_to
                     }
                 })
                 .then(response => {

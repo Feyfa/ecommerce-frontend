@@ -21,6 +21,9 @@ Frontend-specific documentation should live here. Backend API behavior, database
 - [Buyer Checkout](features/buyer/03-checkout.md)
   Documents the buyer checkout UI, state, seller-package layout, courier/payment choices, API usage, and stale-checkout recovery behavior.
 
+- [Transaction](features/transaction.md)
+  Documents the shared buyer and seller transaction UI, filters, cards, detail modal, pagination, and role-based display rules.
+
 ## Documentation Rules
 
 Use English for every Markdown document in this folder.
@@ -47,9 +50,9 @@ docs/
     local-https-development.md
 
   features/
+    transaction.md
     seller/
       01-product.md
-      02-transaction.md
     buyer/
       01-belanja.md
       02-cart.md

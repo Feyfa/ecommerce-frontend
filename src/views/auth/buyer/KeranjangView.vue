@@ -233,8 +233,7 @@
 </template>
 
 <script>
-import { ElNotification } from 'element-plus';
-import Swal from 'sweetalert2';
+import { ElMessageBox, ElNotification } from 'element-plus';
 
 export default {
   data() {
@@ -595,20 +594,20 @@ export default {
     },
 
     deleteKeranjang(product_id) {
-      Swal.fire({
-        title: 'Hapus produk?',
-        text: 'Produk ini akan dihapus dari keranjang.',
-        icon: 'question',
-        showCancelButton: true,
-        confirmButtonText: 'Hapus',
-        cancelButtonText: 'Batalkan',
-        confirmButtonColor: '#dc3545'
-      })
-      .then(result => {
-        if(result.isConfirmed) {
-          this.processDeleteKeranjang(product_id);
+      ElMessageBox.confirm(
+        'Produk ini akan dihapus dari keranjang.',
+        'Hapus produk?',
+        {
+          confirmButtonText: 'Hapus',
+          cancelButtonText: 'Batalkan',
+          type: 'warning',
+          confirmButtonClass: 'el-button--danger',
         }
-      });
+      )
+      .then(() => {
+        this.processDeleteKeranjang(product_id);
+      })
+      .catch(() => {});
     },
 
     processDeleteKeranjang(product_id) {

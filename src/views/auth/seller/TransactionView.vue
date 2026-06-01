@@ -1,104 +1,84 @@
 <template>
     <!-- transaction view -->
-    <div v-show="!show.loading">
-        <h1 class="text-3xl text-center font-medium">Daftar Transaksi</h1>
+    <div v-show="!show.loading" class="w-full">
+        <div class="px-4 pt-4 lg:px-6">
+            <h1 class="text-3xl font-medium">Transaksi</h1>
 
-        <!-- list -->
-        <div class="flex flex-col justify-center items-center w-full p-4 lg:px-6 gap-5">
-            <h3 v-if="transactions.length == 0" class="w-full text-center text-lg mt-5 font-medium">Daftar Transaksi Kamu Masih Kosong Nih</h3>
-            
-            <div v-for="(item, index) in transactions" class="flex flex-col p-3 gap-3 border border-neutral-500 w-full rounded shadow">
-                <!-- approved seller or buyer -->
-                <div v-if="item.invoice_status == 'pending' || item.transaction_status == 'approved_seller'" class="mb-2 flex items-center gap-3 text-[1rem] font-semibold">
-                    <h4 v-if="item.invoice_status == 'pending'">Menunggu Pembeli Menyelesaikan Pembayaran</h4>
-                    <h4 v-else>Menunggu Persetujuan Penjual</h4>
-                    <i class="fas fa-clock text-yellow-500 text-[.9rem]"></i>
-                </div>
-                <!-- approved seller or buyer -->
-
-                <!-- title -->
-                <div class="flex justify-between items-center">
-                    <span class="text-[.9rem] font-semibold">{{ item.buyer_name }}</span>
-                    <BadgeView v-if="item.invoice_status == 'done' && item.transaction_status == 'done'" color="green" text="selesai" />
-                </div>
-                <!-- title -->
-
-                <!-- list product -->
-                <div v-for="(item2, index2) in item.products" class="flex gap-3 w-full border border-neutral-400 p-2 rounded">
-                    <div class="w-24 h-24 bg-cover bg-no-repeat bg-center rounded" :style="{ backgroundImage: `url(${APP_BACKEND_BASE_URL}/${SYMLINK_FOLDER}/${item2.img})` }"></div>
-    
-                    <div class="sm:relative flex flex-col gap-1 w-full">
-                        <div class="text-[.8rem]">
-                            <span class="w-[3.3rem] inline-block">Name</span>
-                            <span class="mr-2">:</span>
-                            <span>{{ item2.name }}</span>
-                        </div>
-                        <div class="text-[.8rem]">
-                            <span class="w-[3.3rem] inline-block">Price</span>
-                            <span class="mr-2">:</span>
-                            <span class="font-semibold">Rp {{ item2.price.toLocaleString('id-ID') }}</span>
-                        </div>
-                        <div class="text-[.8rem]">
-                            <span class="w-[3.3rem] inline-block">Total</span>
-                            <span class="mr-2">:</span>
-                            <span>{{ item2.total }}</span>
-                        </div>
-                    </div>
-                </div>
-                <!-- list product -->
-
-                <!-- list invoice -->
-                <div class="flex flex-col gap-1">
-                    <div class="flex items-center justify-between text-[.75rem]">
-                        <h3>Invoice Number</h3>
-                        <h3 class="font-semibold">{{ item.transaction_number }}</h3>
-                    </div>
-                    <div class="flex items-center justify-between text-[.75rem]">
-                        <h3>Catatan</h3>
-                        <h3 class="font-semibold">{{ item.noted }}</h3>
-                    </div>
-                    <div class="flex items-center justify-between text-[.75rem]">
-                        <h3>Tanggal Transaksi</h3>
-                        <h3 class="font-semibold">{{ item.transaction_date }}</h3>
-                    </div>
-                    <div class="flex items-center justify-between text-[.75rem]">
-                        <h3>Pengiriman</h3>
-                        <h3 class="font-semibold">{{ item.kurir_type }}</h3>
-                    </div>
-                    <div class="flex items-center justify-between text-[.75rem]">
-                        <h3>Estimasi Pengiriman</h3>
-                        <h3 class="font-semibold">{{ item.kurir_estimate }}</h3>
-                    </div>
-                    <div class="flex items-center justify-between text-[.75rem]">
-                        <h3>Harga Pengiriman</h3>
-                        <h3 class="font-semibold">Rp {{ item.kurir_price.toLocaleString('id-ID') }}</h3>
-                    </div>
-                    <div class="flex items-center justify-between text-[.75rem]">
-                        <h3>Harga Barang</h3>
-                        <h3 class="font-semibold">Rp {{ item.product_price.toLocaleString('id-ID') }}</h3>
-                    </div>
-                    <div class="flex items-center justify-between text-[.75rem]">
-                        <h3>Total Pendapatan</h3>
-                        <h3 class="font-semibold">Rp {{ item.product_price.toLocaleString('id-ID') }}</h3>
-                    </div>
-                </div>
-                <!-- list invoice -->
-
-                <!-- button persetujuan -->
-                <div v-if="item.invoice_status == 'done' && item.transaction_status == 'approved_seller'" class="w-full flex justify-end">
-                    <button 
-                        class=" text-[.7rem] border border-neutral-500 bg-violet-500 py-1.5 px-10 sm500:text-[.8rem] sm:text-[.9rem] rounded" 
-                        @click="approvedTransaction(index, item.id)"
-                        :disabled="isSellerApprovedTransaction[index]"
-                        :class="{'opacity-50': isSellerApprovedTransaction[index]}">
-                        Setuju
-                        <i v-if="isSellerApprovedTransaction[index]" class="fa-solid fa-spinner fa-spin-pulse ml-1"></i>
+            <div class="mt-5 flex flex-col gap-3 xl:flex-row xl:items-center xl:justify-between">
+                <div class="flex flex-wrap items-center gap-2">
+                    <button
+                        v-for="filter in transactionFilters"
+                        :key="filter.value"
+                        class="rounded-md border px-4 py-2 text-sm font-semibold transition"
+                        :class="selectedFilter == filter.value ? 'border-violet-600 bg-violet-600 text-white' : 'border-neutral-200 bg-white text-neutral-600 hover:border-violet-300 hover:text-violet-700'"
+                        @click="changeFilter(filter.value)">
+                        {{ filter.label }}
+                        <span class="ml-1 text-xs opacity-80">{{ filter.count }}</span>
                     </button>
                 </div>
-                <!-- button persetujuan -->
+
+                <div class="flex flex-col gap-2 sm:flex-row">
+                    <input
+                        v-model="searchKeyword"
+                        type="text"
+                        class="w-full rounded-md border border-neutral-200 px-3 py-2 text-sm outline-none transition focus:border-violet-400 sm:w-72"
+                        placeholder="Cari pembeli / produk / invoice"
+                        @input="searchTransactions" />
+                    <el-date-picker
+                        v-model="dateRange"
+                        class="transaction-date-filter !w-full sm:!w-[290px]"
+                        type="daterange"
+                        range-separator="-"
+                        start-placeholder="Start Date"
+                        end-placeholder="End Date"
+                        value-format="YYYY-MM-DD"
+                        format="DD MMM YYYY"
+                        @change="changeDateRange" />
+                    <el-select v-model="sortOrder" class="transaction-sort-filter !w-full sm:!w-28" popper-class="transaction-sort-popper" @change="changeSort">
+                        <el-option label="Terbaru" value="newest" />
+                        <el-option label="Terlama" value="oldest" />
+                    </el-select>
+                </div>
+            </div>
+        </div>
+
+        <!-- list -->
+        <div class="flex w-full flex-col items-center p-4 lg:px-6">
+            <div v-if="counts.all == 0 && selectedFilter == 'all' && !searchKeyword.trim()" class="w-full rounded-lg border border-dashed border-neutral-300 bg-white p-8 text-center">
+                <h3 class="text-lg font-semibold text-neutral-900">Daftar Transaksi Kamu Masih Kosong Nih</h3>
+                <p class="mt-1 text-sm text-neutral-500">Transaksi dari pembeli akan tampil di halaman ini.</p>
+            </div>
+
+            <div v-else-if="transactions.length == 0" class="w-full rounded-lg border border-dashed border-neutral-300 bg-white p-8 text-center">
+                <h3 class="text-lg font-semibold text-neutral-900">Transaksi Tidak Ditemukan</h3>
+                <p class="mt-1 text-sm text-neutral-500">Belum ada transaksi pada filter ini.</p>
+            </div>
+
+            <div v-else class="flex w-full flex-col gap-4">
+                <TransactionCard
+                    v-for="item in transactions"
+                    :key="item.id"
+                    role="seller"
+                    :item="item"
+                    :backend-base-url="APP_BACKEND_BASE_URL"
+                    :symlink-folder="SYMLINK_FOLDER"
+                    @view-detail="openDetail" />
+
+                <PaginationView :pagination="pagination" @change-page="changePage" />
             </div>
         </div>
         <!-- list -->
+
+        <TransactionDetailModal
+            v-if="selectedTransaction"
+            role="seller"
+            :item="selectedTransaction"
+            :approving="!!isSellerApprovedTransaction[selectedTransaction.id]"
+            :backend-base-url="APP_BACKEND_BASE_URL"
+            :symlink-folder="SYMLINK_FOLDER"
+            @close="selectedTransaction = null"
+            @copy-invoice="copyText($event, 'Invoice ID Berhasil Disalin')"
+            @approve="approvedTransaction" />
     </div>
     <!-- transaction view -->
 
@@ -110,12 +90,16 @@
 </template>
 
 <script>
-import BadgeView from '@/components/partials/BadgeView.vue';
 import { ElMessageBox, ElNotification } from 'element-plus';
+import PaginationView from '@/components/PaginationView.vue';
+import TransactionCard from '@/components/transaction/TransactionCard.vue';
+import TransactionDetailModal from '@/components/transaction/TransactionDetailModal.vue';
 
 export default {
     components: {
-        BadgeView,
+        PaginationView,
+        TransactionCard,
+        TransactionDetailModal,
     },
 
     data() {
@@ -127,9 +111,42 @@ export default {
                 loading: false,
             },
 
-            isSellerApprovedTransaction: [],
+            selectedFilter: 'all',
+            searchKeyword: '',
+            sortOrder: 'newest',
+            dateRange: [],
+            searchTimeout: null,
+            page: 1,
+            perPage: 5,
+            counts: {
+                all: 0,
+                pending_payment: 0,
+                waiting_seller: 0,
+                done: 0
+            },
+            pagination: {
+                current_page: 1,
+                last_page: 1,
+                per_page: 5,
+                total: 0,
+                from: 0,
+                to: 0
+            },
+            selectedTransaction: null,
+            isSellerApprovedTransaction: {},
 
             transactions: []
+        }
+    },
+
+    computed: {
+        transactionFilters() {
+            return [
+                { value: 'all', label: 'Semua', count: this.counts.all },
+                { value: 'pending_payment', label: 'Belum Dibayar', count: this.counts.pending_payment },
+                { value: 'waiting_seller', label: 'Perlu Persetujuan', count: this.counts.waiting_seller },
+                { value: 'done', label: 'Selesai', count: this.counts.done },
+            ];
         }
     },
 
@@ -143,12 +160,18 @@ export default {
             this
             .$store
             .dispatch('getTransactions', {
-                user_type: 'seller'
+                user_type: 'seller',
+                status_filter: this.selectedFilter,
+                search: this.searchKeyword,
+                sort: this.sortOrder,
+                page: this.page,
+                per_page: this.perPage,
+                date_from: this.dateRange?.[0] ?? '',
+                date_to: this.dateRange?.[1] ?? ''
             })
             .then(response => {
-                // console.log(response);
-                this.transactions = response.transactions;
-                this.isSellerApprovedTransaction = Array(this.transactions.length).fill(false);
+                this.setTransactionResponse(response);
+                this.isSellerApprovedTransaction = {};
                 this.show.loading = false;
             })
             .catch(error => {
@@ -157,13 +180,95 @@ export default {
             })
         },
 
-        approvedTransaction(index, transaction_user_id) {
+        setTransactionResponse(response) {
+            this.transactions = response.transactions ?? [];
+            this.counts = response.counts ?? this.counts;
+            this.pagination = response.pagination ?? this.pagination;
+        },
+
+        openDetail(transaction) {
+            this.selectedTransaction = transaction;
+        },
+
+        changeFilter(filter) {
+            this.selectedFilter = filter;
+            this.page = 1;
+            this.getTransactions();
+        },
+
+        changeSort() {
+            this.page = 1;
+            this.getTransactions();
+        },
+
+        changeDateRange() {
+            if(!this.dateRange)
+                this.dateRange = [];
+
+            this.page = 1;
+            this.getTransactions();
+        },
+
+        changePage(page) {
+            if(page < 1 || page > this.pagination.last_page)
+                return;
+
+            this.page = page;
+            this.getTransactions();
+        },
+
+        searchTransactions() {
+            clearTimeout(this.searchTimeout);
+            this.searchTimeout = setTimeout(() => {
+                this.page = 1;
+                this.getTransactions();
+            }, 400);
+        },
+
+        async copyText(text, message) {
+            const value = String(text ?? '');
+            if(!value)
+                return ElNotification({ type: 'error', title: 'Error', message: 'Data Gagal Disalin' });
+
+            try {
+                if(this.copyTextFallback(value)) {
+                    ElNotification({ type: 'success', title: 'Success', message: message });
+                    return;
+                }
+
+                if(navigator.clipboard)
+                    await navigator.clipboard.writeText(value);
+                else
+                    throw new Error('Copy failed');
+
+                ElNotification({ type: 'success', title: 'Success', message: message });
+            } catch (error) {
+                ElNotification({ type: 'error', title: 'Error', message: 'Data Gagal Disalin' });
+            }
+        },
+
+        copyTextFallback(text) {
+            const textarea = document.createElement('textarea');
+            textarea.value = text;
+            textarea.setAttribute('readonly', '');
+            textarea.style.position = 'fixed';
+            textarea.style.left = '-9999px';
+            document.body.appendChild(textarea);
+            textarea.focus();
+            textarea.select();
+            textarea.setSelectionRange(0, textarea.value.length);
+            const copied = document.execCommand('copy');
+            document.body.removeChild(textarea);
+            return copied;
+        },
+
+        approvedTransaction(transaction_user_id) {
             ElMessageBox.confirm('Yakin Ingin Menyetujui Transaksi Ini ?', 'Persetujuan', {
                 confirmButtonText: 'Setuju',
                 cancelButtonText: 'Cancel',
                 callback: (action) => {
                     if(action == 'confirm') {
-                        this.isSellerApprovedTransaction[index] = true;
+                        this.isSellerApprovedTransaction[transaction_user_id] = true;
                         this
                         .$store
                         .dispatch('approvedTransaction', {
@@ -172,13 +277,14 @@ export default {
                         })
                         .then(response => {
                             // console.log(response);
-                            this.isSellerApprovedTransaction[index] = false;
-                            this.transactions = response.transactions;
+                            this.isSellerApprovedTransaction[transaction_user_id] = false;
+                            this.selectedTransaction = null;
+                            this.getTransactions();
                             ElNotification({ type: 'success', title: 'Success', message: 'Persetujuan Transaksi Berhasil, Uang Sudah Masuk Ke Saldo Anda' });
                         })
                         .catch(error => {
                             console.error(error);
-                            this.isSellerApprovedTransaction[index] = false;
+                            this.isSellerApprovedTransaction[transaction_user_id] = false;
                             const message = typeof(error.response.data.message) ? error.response.data.message : 'Ups Sepertinya Ada Yang Salah';
                             ElNotification({ type: 'error', title: 'Error', message: message });
                         });

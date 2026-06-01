@@ -8,3 +8,30 @@
 .button-disabled {
   @apply opacity-50
 }
+
+.transaction-date-filter.el-date-editor.el-input__wrapper {
+  @apply h-10 min-h-10 rounded-md border border-neutral-200 px-3 shadow-none;
+}
+
+.transaction-date-filter.el-date-editor.el-input__wrapper.is-active,
+.transaction-date-filter.el-date-editor.el-input__wrapper:hover {
+  @apply border-violet-400 shadow-none;
+}
+
+.transaction-date-filter .el-range-input,
+.transaction-date-filter .el-range-separator {
+  @apply text-sm text-neutral-700;
+}
+
+.transaction-date-filter .el-range-input {
+  @apply flex-none text-left;
+  width: 96px;
+}
+
+.transaction-date-filter .el-range-separator {
+  @apply inline-flex flex-none w-3 items-center justify-center px-0 text-center;
+}
+
+.transaction-date-filter .el-range__icon {
+  @apply mr-3 text-neutral-400;
+}
