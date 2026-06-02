@@ -4,7 +4,7 @@ import store from '@/store';
 import global from '@/global';
 
 const routerAccountType = {
-    all: ['rekening','saldo'],
+    all: ['rekening','saldo','account'],
     buyer: ['buyer_user','buyer_home','buyer_belanja', 'buyer_keranjang','buyer_transaction','buyer_checkout','buyer_bayar'],
     seller: ['seller_company','seller_dashboard','seller_product','seller_transaction']
 };
@@ -104,6 +104,12 @@ const routes = [
         component: () => import('../views/auth/SaldoView.vue'),
         meta: {public: false}
     },
+    {
+        path: '/account',
+        name: 'account',
+        component: () => import('../views/auth/AccountView.vue'),
+        meta: {public: false}
+    },
     /* AUTH */
 
     /* NOT FOUND */
@@ -111,10 +117,12 @@ const routes = [
         path: '/:pathMatch(.*)*',
         name: 'NotFound',
         beforeEnter(to, from, next) {
-            if(store.getters.user.account_type == 'buyer') {
+            if(store.getters.user?.account_type == 'buyer') {
                 next({name: 'buyer_home'})
-            } else {
+            } else if(store.getters.user?.account_type == 'seller') {
                 next({name: 'seller_dashboard'})
+            } else {
+                next({name: 'login'})
             }
         }
     }
@@ -145,6 +153,23 @@ const validationToken = (to, from, next) => {
             // get image
             const user = JSON.parse(localStorage.getItem('user'));
             const company = JSON.parse(localStorage.getItem('company'));
+
+            if(!user?.account_type) {
+                localStorage.removeItem('token');
+                localStorage.removeItem('user');
+                localStorage.removeItem('company');
+
+                store.dispatch('fetchTokenFromLocalStorage');
+                store.dispatch('fetchUserFromLocalStorage');
+                store.dispatch('fetchCompanyFromLocalStorage');
+
+                global.isAuth = false;
+                global.personImage = '/img/person.png';
+                global.companyImage = '/img/company.png';
+                next({name: 'login'});
+                return;
+            }
+
             if(user) {
                 global.personImage = user.img ? `${import.meta.env.VITE_APP_BACKEND_BASE_URL}/${import.meta.env.VITE_SYMLINK_FOLDER}/${user.img}` : '/img/person.png';
             }

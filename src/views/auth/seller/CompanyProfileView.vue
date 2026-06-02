@@ -1,5 +1,8 @@
 <template>
-    <div class="px-5 lg:px-10 w-full flex flex-col justify-center mb-8" v-show="this.$global.showCompanyProfileView.allComponent">
+    <div
+        class="w-full flex flex-col justify-center mb-8"
+        :class="embedded ? 'px-0' : 'px-5 lg:px-10'"
+        v-show="this.$global.showCompanyProfileView.allComponent">
         <!-- image setting -->
         <div class="row w-full flex justify-center">
             <ImagePreview
@@ -32,6 +35,13 @@ export default {
     components: {
         ImagePreview,
         CompanySetting
+    },
+
+    props: {
+        embedded: {
+            type: Boolean,
+            default: false
+        }
     },
 
     mounted() {

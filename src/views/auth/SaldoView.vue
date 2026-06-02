@@ -1,13 +1,16 @@
 <template>
     <!-- saldo view -->
-    <div v-if="show.saldo_view" class="px-4 xl:px-6 w-full flex flex-col justify-center mb-8">
+    <div
+        v-if="show.saldo_view"
+        class="w-full flex flex-col justify-center mb-8"
+        :class="embedded ? 'px-0' : 'px-4 xl:px-6'">
         <!-- title -->
-        <h1 class="text-center text-3xl font-medium flex justify-center items-center">Detail Saldo</h1>
+        <h1 v-if="!embedded" class="text-center text-3xl font-medium flex justify-center items-center">Detail Saldo</h1>
         <!-- title -->
 
         <!-- main -->
-        <div class="flex flex-col md:flex-row mt-5 gap-5">
-            <div class="border border-neutral-500 flex flex-col justify-center rounded shadow lg:shadow-md w-full md:w-[45%] xl:w-[40%] h-max">
+        <div class="flex flex-col md:flex-row gap-5" :class="embedded ? 'mt-0' : 'mt-5'">
+            <div class="saldo-summary-card flex flex-col justify-center w-full md:w-[45%] xl:w-[40%] h-max">
                 <!-- block saldo -->
                 <div class="flex flex-col sm:flex-row justify-between w-full gap-3 p-3">
                     <div class="flex gap-3">
@@ -27,7 +30,7 @@
                     </div>
                     <div class="flex justify-center items-center">
                         <button 
-                            class="border border-neutral-500 bg-violet-500 w-full px-5 h-10 rounded"
+                            class="saldo-primary-button w-full px-5 h-10"
                             @click="openModalRekening"
                             :disabled="isProcessGetPayment || saldoTotal <= 0"
                             :class="{'opacity-50': isProcessGetPayment || saldoTotal <= 0}">
@@ -38,7 +41,7 @@
                 </div>
                 <!-- block saldo -->
 
-                <div class="border-t border-t-neutral-300 mx-2"></div>
+                <div class="border-t border-t-slate-200 mx-2"></div>
 
                 <!-- block asal saldo -->
                 <div class="flex flex-col w-full p-3 gap-1">
@@ -61,8 +64,8 @@
 
                 <!-- list rekening -->
                 <Modal v-model:show="modal.rekening">
-                    <div class="p-5">
-                        <h3 class="text-2xl font-medium text-center mb-4">Rekening</h3>
+                    <div class="withdraw-modal">
+                        <h3 class="withdraw-modal-title">Tarik Saldo</h3>
 
                         <!-- input -->
                         <div class="input-container flex flex-col w-full mb-5">
@@ -73,14 +76,14 @@
                             </label>
                             <el-input
                                 v-model="wihtdrawPriceString"
-                                class="custom-input-price tracking-widest"
+                                class="custom-input-price withdraw-price-input tracking-widest"
                                 placeholder="Nominal"
                                 size="large"
                                 :clearable="false"
                                 @keydown="restrictInput($event,'integer')"
                                 @keyup="validationMaximumWithdraw">
                                 <template #prepend>
-                                    <div class="border-l border-t border-b border-l-[rgb(115,115,115)] border-t-[rgb(115,115,115)] border-b-[rgb(115,115,115)] rounded-tl rounded-bl h-full px-5 flex justify-center items-center text-neutral-500">
+                                    <div class="withdraw-currency-prefix">
                                         Rp
                                     </div>
                                 </template>
@@ -106,10 +109,10 @@
                                 <!-- kontent -->
                                 <div 
                                     v-for="(item, index) in payments"
-                                    class="cursor-pointer w-full rounded py-3 px-3 flex flex-row justify-between items-center text-[0.8rem]"
+                                    class="withdraw-payment-item cursor-pointer w-full rounded py-3 px-3 flex flex-row justify-between items-center text-[0.8rem]"
                                     :class="{
-                                        'border-2 border-violet-500 bg-violet-100 ': item.account == paymentAccount,
-                                        'border border-neutral-400 hover:bg-neutral-50': item.account != paymentAccount
+                                        'is-selected': item.account == paymentAccount,
+                                        'hover:bg-slate-50': item.account != paymentAccount
                                     }"
                                     @click="changePayment(item.account)">
                                     <div class="flex items-center gap-4 w-[80%] xl:w-[85%]">
@@ -140,14 +143,14 @@
                         <!-- list rekening -->
 
                         <!-- button -->
-                        <div class="flex flex-col gap-2 mt-3 sms:mt-5 md:flex-row md:gap-20 lg:gap-40">
+                        <div class="withdraw-actions flex flex-col gap-2 mt-3 sms:mt-5 md:flex-row md:gap-4">
                             <button 
-                                class="w-full border border-neutral-500 bg-red-600 py-2 px-8 rounded mt-1.5"
+                                class="account-danger-button w-full py-2 px-8 mt-1.5"
                                 @click="closeModalRekening">
                                 Cancel
                             </button>
                             <button 
-                                class="w-full border border-neutral-500 bg-violet-500 py-2 px-8 rounded mt-1.5"
+                                class="account-primary-button w-full py-2 px-8 mt-1.5"
                                 :class="{'opacity-50': error.withdraw || wihtdrawPrice <= 0 || !paymentAccount || isProcessWithdraw}"
                                 :disabled="error.withdraw || wihtdrawPrice <= 0 || !paymentAccount || isProcessWithdraw"
                                 @click="withdrawSaldo">
@@ -160,37 +163,30 @@
                 </Modal>
                 <!-- list rekening -->
             </div>
-            <div class="border border-neutral-500 rounded shadow lg:shadow-md w-full md:w-[55%] xl:w-[60%]">
+            <div class="saldo-history-card w-full md:w-[55%] xl:w-[60%]">
                 <!-- riwayat saldo -->
-                <div class="flex flex-col justify-between items-start sm:flex-row sm:items-end md:flex-col md:items-start xl:flex-row xl:items-end gap-2 px-3 pt-3 pb-6 shadow-md">
-                    <h2 class="w-full sm:mt-3.5 md:mt-0 text-[1.1rem] font-semibold">History</h2>
-                    <div class="w-full flex justify-start items-center gap-1 sm:gap-2">
+                <div class="saldo-history-header">
+                    <h2 class="text-[1.1rem] font-semibold">History</h2>
+                    <div class="date-range-control">
                         <el-date-picker
-                            class="date-saldo-history"
-                            v-model="startDate"
-                            type="date"
-                            placeholder="Start"
-                            :clearable="false"
+                            v-model="dateRange"
+                            class="transaction-date-filter saldo-date-range"
+                            type="daterange"
+                            placement="bottom-end"
+                            :fallback-placements="['bottom-end']"
+                            popper-class="saldo-date-range-popper"
+                            range-separator="-"
+                            start-placeholder="Start Date"
+                            end-placeholder="End Date"
                             value-format="YYYY-MM-DD"
-                            format="DD MMMM YYYY"
-                            @change="allowOnlyDateCharsChange('start', $event)"
-                            @keydown="allowOnlyDateCharsKeydown"/>
-                        <span class="mt-3">-</span>
-                        <el-date-picker
-                            class="date-saldo-history"
-                            v-model="endDate"
-                            type="date"
-                            placeholder="End"
                             :clearable="false"
-                            value-format="YYYY-MM-DD"
-                            format="DD MMMM YYYY"
-                            @change="allowOnlyDateCharsChange('end', $event)"
-                            @keydown="allowOnlyDateCharsKeydown"/>
+                            format="DD MMM YYYY"
+                            @change="changeDateRange" />
                     </div>
                 </div>
                 <!-- riwayat saldo -->
 
-                <div class="w-full border-t border-t-neutral-500"></div>
+                <div class="w-full border-t border-t-slate-200"></div>
 
                 <!-- list riwayat saldo  -->
                 <div 
@@ -207,8 +203,8 @@
                         <div 
                             v-else 
                             v-for="(item, index) in saldoHistory" 
-                            class="py-2 px-3 text-[0.8rem] flex flex-col justify-center items-start gap-2"
-                            :class="{'border-b border-b-neutral-500': index != saldoHistory.length - 1}">
+                            class="saldo-history-item py-3 px-4 text-[0.8rem] flex flex-col justify-center items-start gap-2"
+                            :class="{'border-b border-b-slate-200': index != saldoHistory.length - 1}">
                             <h3 class="text-[0.9rem] font-semibold">
                                 {{ item.title }}
                                 <!-- {{ item.id }} -->
@@ -250,13 +246,24 @@ export default {
         Modal
     },
 
+    props: {
+        embedded: {
+            type: Boolean,
+            default: false
+        }
+    },
+
     data() {
         const today = moment();
         const start = today.clone().subtract(3, 'days');
 
+        const startDate = start.format('YYYY-MM-DD');
+        const endDate = today.format('YYYY-MM-DD');
+
         return {
-            startDate: start.format('YYYY-MM-DD'),
-            endDate: today.format('YYYY-MM-DD'),
+            startDate,
+            endDate,
+            dateRange: [startDate, endDate],
 
             saldoHistoryContainerLoading: false,
             completeSaldoHistory: false,
@@ -273,8 +280,6 @@ export default {
             error: {
                 withdraw: false
             },
-
-            payments: Array(2).fill(''),
 
             saldoTotal: 0,
             saldoIncome: 0,
@@ -341,13 +346,14 @@ export default {
                 // console.log(response);
 
                 this.isProcessWithdraw = false;
+                const withdrawPriceString = this.wihtdrawPriceString;
                 if(response.saldoHistory) {
                     this.saldoHistory = [ response.saldoHistory, ...this.saldoHistory ];
                 }
 
                 this.getSaldo();
                 this.closeModalRekening();
-                ElNotification({ type: 'success', title: 'Success', message: `Penarikan Sebesar Rp${this.wihtdrawPriceString} Berhasil` });
+                ElNotification({ type: 'success', title: 'Success', message: `Penarikan Sebesar Rp${withdrawPriceString} Berhasil` });
             })
             .catch(error => {
                 console.log(error);
@@ -408,7 +414,7 @@ export default {
             this.wihtdrawPrice = 1;
             this.wihtdrawPriceString = '1',
             this.modal.rekening = false;
-            this.account = '';
+            this.paymentAccount = '';
             this.payments = [];
         },
 
@@ -466,22 +472,17 @@ export default {
             }
         },
 
-        allowOnlyDateCharsChange(type, event) {
-            if (!event) {
-                if(type == 'start') {
-                    this.startDate = moment().format('YYYY-MM-DD');
-                } else {
-                    this.endDate = moment().format('YYYY-MM-DD');
-                }
+        changeDateRange() {
+            if(!this.dateRange || this.dateRange.length != 2) {
+                this.dateRange = [this.startDate, this.endDate];
+                return;
             }
 
+            this.startDate = this.dateRange[0];
+            this.endDate = this.dateRange[1];
             this.isFetchSaldoHistory = true;
             this.saldoHistory = [];
             this.getSaldoHistory();
-        },
-
-        allowOnlyDateCharsKeydown(event) {
-            event.preventDefault();
         },
 
         getColorMoney(type = '') {
@@ -505,8 +506,8 @@ export default {
             })
             .catch(error => {
                 this.isFetchSaldo = false;
-                const messaga = error?.response?.data?.message ?? "Something Wrong";
-                ElNotification({ type: 'error', title: 'Error', message: messaga });
+                const message = error?.response?.data?.message ?? "Something Wrong";
+                ElNotification({ type: 'error', title: 'Error', message: message });
             });
         },
 
@@ -538,7 +539,7 @@ export default {
                 this.show.saldo_view = true;
                 this.isFetchSaldoHistory = false;
                 this.saldoHistoryContainerLoading = false;
-                const message = error?.response?.data?.messaga ?? 'Something Wrong';
+                const message = error?.response?.data?.message ?? 'Something Wrong';
                 ElNotification({ type: 'error', title: 'Error', message: message });
             });
         }
@@ -547,18 +548,168 @@ export default {
 </script>
 
 <style>
-.date-saldo-history .el-date-editor.el-input, .el-date-editor.el-input__wrapper {
-    width: 100% !important;
-}
-.date-saldo-history .el-input__wrapper {
-    height: 2.5rem !important;
-}
-.date-saldo-history .el-input__inner {
-    font-size: 13px !important;
+.saldo-summary-card,
+.saldo-history-card {
+    border: 1px solid #e5e7eb;
+    border-radius: 8px;
+    background: #ffffff;
+    box-shadow: 0 10px 25px rgba(15, 23, 42, 0.06);
 }
 
-.custom-input-price .el-input-group__append, .el-input-group__prepend {
+.saldo-primary-button,
+.account-primary-button,
+.account-danger-button {
+    border-radius: 7px;
+    border: 1px solid transparent;
+    color: #ffffff;
+    font-weight: 600;
+    transition: 150ms ease-in-out;
+}
+
+.saldo-primary-button,
+.account-primary-button {
+    border-color: #7c3aed;
+    background: #8b5cf6;
+}
+
+.saldo-primary-button:not(:disabled):hover,
+.account-primary-button:not(:disabled):hover {
+    background: #7c3aed;
+}
+
+.account-danger-button {
+    border-color: #dc2626;
+    background: #ef4444;
+}
+
+.account-danger-button:not(:disabled):hover {
+    background: #dc2626;
+}
+
+.saldo-history-item {
+    transition: background 150ms ease-in-out;
+}
+
+.saldo-history-item:hover {
+    background: #fafafa;
+}
+
+.saldo-history-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 16px;
+    padding: 16px 18px 18px;
+}
+
+.saldo-history-header h2 {
+    line-height: 44px;
+}
+
+.withdraw-modal {
+    padding: 22px;
+}
+
+.withdraw-modal-title {
+    margin-bottom: 18px;
+    color: #111827;
+    text-align: center;
+    font-size: 24px;
+    font-weight: 700;
+}
+
+.withdraw-currency-prefix {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    height: 100%;
+    min-width: 54px;
+    border-right: 1px solid #eef2f7;
+    color: #64748b;
+    font-weight: 700;
+}
+
+.withdraw-payment-item {
+    border: 1px solid #e5e7eb;
+    border-radius: 8px;
+    background: #ffffff;
+    transition: 150ms ease-in-out;
+}
+
+.withdraw-payment-item.is-selected {
+    border: 2px solid #8b5cf6;
+    background: #f5f3ff;
+}
+
+.withdraw-actions {
+    justify-content: space-between;
+}
+
+.date-range-control {
+    width: 100%;
+    max-width: 370px;
+    flex: 0 1 370px;
+}
+
+.saldo-date-range.el-date-editor.el-input__wrapper {
+    width: 100% !important;
+    height: 44px;
+    min-height: 44px;
+}
+
+@media (max-width: 640px) {
+    .saldo-history-header {
+        flex-direction: column;
+        align-items: stretch;
+    }
+
+    .saldo-history-header h2 {
+        line-height: 1.4;
+    }
+
+    .date-range-control {
+        max-width: none;
+        flex-basis: auto;
+    }
+}
+
+.custom-input-price .el-input-group__append,
+.custom-input-price .el-input-group__prepend {
     padding: 0 !important;
+}
+
+.withdraw-price-input.el-input-group {
+    border-radius: 6px;
+}
+
+.withdraw-price-input .el-input-group__prepend {
+    overflow: hidden;
+    border: 1px solid #cbd5e1 !important;
+    border-right: 0 !important;
+    border-radius: 6px 0 0 6px !important;
+    background: #f8fafc !important;
+    box-shadow: 0 1px 2px rgba(15, 23, 42, 0.05) !important;
+}
+
+.withdraw-price-input .el-input__wrapper {
+    height: 44px;
+    min-height: 44px;
+    border: 1px solid #cbd5e1 !important;
+    border-left: 0 !important;
+    border-radius: 0 6px 6px 0 !important;
+    background: #ffffff;
+    box-shadow: 0 1px 2px rgba(15, 23, 42, 0.05) !important;
+}
+
+.withdraw-price-input .el-input-group__prepend:has(+ .el-input__wrapper:hover),
+.withdraw-price-input .el-input-group__prepend:has(+ .el-input__wrapper:focus-within) {
+    border-color: #8b5cf6 !important;
+}
+
+.withdraw-price-input .el-input__wrapper:hover,
+.withdraw-price-input .el-input__wrapper:focus-within {
+    border-color: #8b5cf6 !important;
+    box-shadow: 0 0 0 2px #ede9fe, 0 1px 2px rgba(15, 23, 42, 0.05) !important;
 }
 
 input::-webkit-outer-spin-button,

@@ -10,10 +10,6 @@ const global = reactive({
   isSidebarOpen: false,
   isFilterOpen: false,
   isAuth: false,
-  modals: {
-    addProduct: false,
-    editProduct: false
-  },
   showUserProfileView: {
     allComponent: false,
     userSetting: false,
@@ -31,7 +27,6 @@ const global = reactive({
     loading: false,
   },
   modals: {
-    changePassword: false,
     addProduct: false,
     editProduct: false,
   }

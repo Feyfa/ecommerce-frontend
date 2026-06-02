@@ -1,23 +1,26 @@
 <template>
-    <div class="w-full border bg-neutral-50 border-neutral-400 shadow-md p-5 rounded">
+    <div :class="flat ? 'w-full' : 'w-full border bg-neutral-50 border-neutral-400 shadow-md p-5 rounded'">
         <!-- form add alamat -->
         <Modal v-model:show="modal.addAlamatBuyer">
-            <div class="flex flex-col gap-3 p-5">
-                <h1 class="text-[24px] text-center font-medium">Tambah Alamat</h1>
+            <div class="alamat-modal flex flex-col gap-3 p-5">
+                <h1 class="alamat-modal-title text-center">Tambah Alamat</h1>
                 <div class="input-container flex flex-col w-full">
                     <label
                         for="place">
                         Place
+                        <span class="required-mark" aria-hidden="true">*</span>
                     </label>
                     <input
-                        placeholder="place" 
-                        id="place" 
-                        type="text" 
+                        placeholder="place"
+                        id="place"
+                        type="text"
                         v-model="place"
                         class="border w-full border-neutral-500 rounded outline-none h-12 px-2.5 shadow"
-                        :class="{'border-red-500': errors.place}"
+                        required
+                        aria-required="true"
+                        :class="{'is-error-field border-red-500': errors.place}"
                         @input="watchInput('place')">
-                    <small 
+                    <small
                         v-if="errors.place"
                         class="text-red-500">
                         {{ errors.place }}
@@ -27,16 +30,19 @@
                     <label
                         for="nama">
                         nama
+                        <span class="required-mark" aria-hidden="true">*</span>
                     </label>
                     <input
-                        placeholder="name" 
-                        id="name" 
-                        type="text" 
+                        placeholder="name"
+                        id="name"
+                        type="text"
                         v-model="name"
                         class="border w-full border-neutral-500 rounded outline-none h-12 px-2.5 shadow"
-                        :class="{'border-red-500': errors.name}"
+                        required
+                        aria-required="true"
+                        :class="{'is-error-field border-red-500': errors.name}"
                         @input="watchInput('name')">
-                    <small 
+                    <small
                         v-if="errors.name"
                         class="text-red-500">
                         {{ errors.name }}
@@ -46,67 +52,73 @@
                     <label
                         for="phone">
                         Phone
+                        <span class="required-mark" aria-hidden="true">*</span>
                     </label>
                     <input
-                        placeholder="phone" 
-                        id="phone" 
-                        type="text" 
+                        placeholder="phone"
+                        id="phone"
+                        type="text"
                         v-model="phone"
                         class="border w-full border-neutral-500 rounded outline-none h-12 px-2.5 shadow"
-                        :class="{'border-red-500': errors.phone}"
+                        required
+                        aria-required="true"
+                        :class="{'is-error-field border-red-500': errors.phone}"
                         @input="watchInput('phone')">
-                    <small 
+                    <small
                         v-if="errors.phone"
                         class="text-red-500">
                         {{ errors.phone }}
                     </small>
                 </div>
                 <div class="input-container flex flex-col w-full">
-                    <label 
+                    <label
                         for="alamat">
                         Alamat
+                        <span class="required-mark" aria-hidden="true">*</span>
                     </label>
-                    <textarea 
+                    <textarea
                         id="alamat"
                         :rows="rows"
                         placeholder="Alamat"
                         v-model="alamat"
                         class="border w-full border-neutral-500 rounded outline-none py-1 px-2.5 shadow"
-                        :class="{'border-red-500': errors.alamat}"
+                        required
+                        aria-required="true"
+                        :class="{'is-error-field border-red-500': errors.alamat}"
                         @input="watchInput('alamat')">
                     </textarea>
-                    <small 
+                    <small
                         v-if="errors.alamat"
                         class="text-red-500">
                         {{ errors.alamat }}
                     </small>
                 </div>
                 <div class="mt-2">
-                    <div class="cursor-pointer relative">
-                        <input 
-                            type="checkbox" 
-                            id="enable-add-alamat" 
-                            name="enable-add-alamat" 
-                            class="cursor-pointer w-3.5 h-3.5 accent-violet-500" 
+                    <div class="alamat-checkbox-row">
+                        <input
+                            type="checkbox"
+                            id="enable-add-alamat"
+                            name="enable-add-alamat"
+                            class="alamat-checkbox-input"
                             v-model="enable">
-                        <label 
-                            for="enable-add-alamat" 
-                            class="absolute -top-[1px] cursor-pointer inline-block ml-1.5"
+                        <label
+                            for="enable-add-alamat"
+                            class="alamat-checkbox-label"
                             :class="{'text-violet-500': enable}">
                             Tetapkan Sebagai Pilihan
                         </label>
                     </div>
                     <div class="flex flex-col gap-2 mt-1 md:flex-row md:gap-20 lg:gap-40">
-                        <button 
-                            class="w-full border border-neutral-500 bg-violet-500 py-2 px-8 rounded mt-1.5"
+                        <button
+                            class="alamat-primary-button w-full border py-2 px-8 mt-1.5"
                             @click="addAlamatBuyer"
                             :disabled="isProcessAddAlamatBuyer"
                             :class="{'opacity-50': isProcessAddAlamatBuyer}">
                             Tambah Alamat
                             <i v-if="isProcessAddAlamatBuyer" class="fa-solid fa-spinner fa-spin-pulse ml-1"></i>
                         </button>
-                        <button 
-                            class="w-full border border-neutral-500 bg-red-600 py-2 px-8 rounded mt-1.5"
+                        <button
+                            class="alamat-danger-button w-full border py-2 px-8 mt-1.5"
                             @click="closeFormAddAlamat"
                             :disabled="isProcessAddAlamatBuyer"
                             :class="{'opacity-50': isProcessAddAlamatBuyer}">
@@ -120,22 +132,25 @@
 
         <!-- form edit alamat -->
         <Modal v-model:show="modal.editAlamatBuyer">
-            <div class="flex flex-col gap-3 p-5">
-                <h1 class="text-[24px] text-center font-medium">Ubah Alamat</h1>
+            <div class="alamat-modal flex flex-col gap-3 p-5">
+                <h1 class="alamat-modal-title text-center">Ubah Alamat</h1>
                 <div class="input-container flex flex-col w-full">
                     <label
                         for="place">
                         Place
+                        <span class="required-mark" aria-hidden="true">*</span>
                     </label>
                     <input
-                        placeholder="place" 
-                        id="place" 
-                        type="text" 
+                        placeholder="place"
+                        id="place"
+                        type="text"
                         v-model="placeEdit"
                         class="border w-full border-neutral-500 rounded outline-none h-12 px-2.5 shadow"
-                        :class="{'border-red-500': errorsEdit.place}"
+                        required
+                        aria-required="true"
+                        :class="{'is-error-field border-red-500': errorsEdit.place}"
                         @input="watchInputEdit('place')">
-                    <small 
+                    <small
                         v-if="errorsEdit.place"
                         class="text-red-500">
                         {{ errorsEdit.place }}
@@ -145,16 +160,19 @@
                     <label
                         for="nama">
                         nama
+                        <span class="required-mark" aria-hidden="true">*</span>
                     </label>
                     <input
-                        placeholder="name" 
-                        id="name" 
-                        type="text" 
+                        placeholder="name"
+                        id="name"
+                        type="text"
                         v-model="nameEdit"
                         class="border w-full border-neutral-500 rounded outline-none h-12 px-2.5 shadow"
-                        :class="{'border-red-500': errorsEdit.name}"
+                        required
+                        aria-required="true"
+                        :class="{'is-error-field border-red-500': errorsEdit.name}"
                         @input="watchInputEdit('name')">
-                    <small 
+                    <small
                         v-if="errorsEdit.name"
                         class="text-red-500">
                         {{ errorsEdit.name }}
@@ -164,53 +182,59 @@
                     <label
                         for="phone">
                         Phone
+                        <span class="required-mark" aria-hidden="true">*</span>
                     </label>
                     <input
-                        placeholder="phone" 
-                        id="phone" 
-                        type="text" 
+                        placeholder="phone"
+                        id="phone"
+                        type="text"
                         v-model="phoneEdit"
                         class="border w-full border-neutral-500 rounded outline-none h-12 px-2.5 shadow"
-                        :class="{'border-red-500': errorsEdit.phone}"
+                        required
+                        aria-required="true"
+                        :class="{'is-error-field border-red-500': errorsEdit.phone}"
                         @input="watchInputEdit('phone')">
-                    <small 
+                    <small
                         v-if="errorsEdit.phone"
                         class="text-red-500">
                         {{ errorsEdit.phone }}
                     </small>
                 </div>
                 <div class="input-container flex flex-col w-full">
-                    <label 
+                    <label
                         for="alamat">
                         Alamat
+                        <span class="required-mark" aria-hidden="true">*</span>
                     </label>
-                    <textarea 
+                    <textarea
                         id="alamat"
                         :rows="rows"
                         placeholder="Alamat"
                         v-model="alamatEdit"
                         class="border w-full border-neutral-500 rounded outline-none py-1 px-2.5 shadow"
-                        :class="{'border-red-500': errorsEdit.alamat}"
+                        required
+                        aria-required="true"
+                        :class="{'is-error-field border-red-500': errorsEdit.alamat}"
                         @input="watchInputEdit('alamat')">
                     </textarea>
-                    <small 
+                    <small
                         v-if="errorsEdit.alamat"
                         class="text-red-500">
                         {{ errorsEdit.alamat }}
                     </small>
                 </div>
                 <div class="flex flex-col gap-2 mt-1 md:flex-row md:gap-20 lg:gap-40">
-                    <button 
+                    <button
                         @click="editAlamatBuyer"
-                        class="w-full border border-neutral-500 bg-violet-500 py-2 px-8 rounded mt-1.5"
+                        class="alamat-primary-button w-full border py-2 px-8 mt-1.5"
                         :disabled="isProcessEditAlamatBuyer"
                         :class="{'opacity-50': isProcessEditAlamatBuyer}">
                         Ubah Alamat
                         <i v-if="isProcessEditAlamatBuyer" class="fa-solid fa-spinner fa-spin-pulse ml-2"></i>
                     </button>
-                    <button 
+                    <button
                         @click="closeFormEditAlamat"
-                        class="w-full border border-neutral-500 bg-red-600 py-2 px-8 rounded mt-1.5"
+                        class="alamat-danger-button w-full border py-2 px-8 mt-1.5"
                         :disabled="isProcessEditAlamatBuyer"
                         :class="{'opacity-50': isProcessEditAlamatBuyer}">
                         Cancel
@@ -219,7 +243,7 @@
             </div>
         </Modal>
         <!-- form edit alamat -->
-        
+
         <!-- title -->
         <div class="relative">
             <h3 class="text-xl text-center">Alamat User</h3>
@@ -230,16 +254,16 @@
         <div class="mt-5 mb-7 flex flex-col md:flex-row md:justify-between md:items-center gap-3">
             <div class="w-full md:w-[40%] lg:w-[35%]">
                 <input
-                    placeholder="Cari Nama Alamat" 
-                    id="search-alamat" 
-                    type="text" 
-                    class="border w-full border-neutral-500 rounded outline-none h-12 px-2.5 shadow"
+                    placeholder="Cari Nama Alamat"
+                    id="search-alamat"
+                    type="text"
+                    class="alamat-search-input border w-full outline-none h-12 px-3"
                     v-model="searchAlamat"
-                    @keyup.enter="enterSearchAlamat">   
+                    @keyup.enter="enterSearchAlamat">
             </div>
             <div class="md:w-[25%] lg:w-[22%]">
                 <button
-                    class="border border-neutral-500 bg-violet-500 w-[100%] h-12 rounded"
+                    class="alamat-primary-button border w-[100%] h-12"
                     @click="openFormAddAlamat"
                     :disabled="isProcessAddAlamatBuyer"
                     :class="{'opacity-50': isProcessAddAlamatBuyer}">
@@ -257,20 +281,20 @@
                 </span>
             </div>
             <div v-else>
-                <div 
-                    v-if="this.alamats.length > 0" 
+                <div
+                    v-if="this.alamats.length > 0"
                     class="flex flex-col gap-5">
                     <!-- kontent -->
-                    <div 
+                    <div
                         v-for="(alamat, index) in alamats"
-                        class="w-full rounded-md py-3 px-3 gap-5 flex flex-row justify-between items-center"
-                        :class="{'border-2 border-violet-500 bg-violet-100': alamat.enable, 'border border-neutral-500': !alamat.enable}">
+                        class="alamat-card w-full py-3 px-3 gap-5 flex flex-row justify-between items-center"
+                        :class="{'is-selected': alamat.enable}">
                         <div class="flex flex-col gap-1 w-[80%] xl:w-[85%]">
                             <h4 class="font-semibold text-[.9rem]">{{ alamat.place }}</h4>
                             <h3 class="font-semibold text-[1.1rem]">{{ alamat.name }}</h3>
                             <p class="text-[.9rem]">{{ alamat.phone }}</p>
                             <p class="text-[.8rem]">{{ alamat.alamat }}</p>
-    
+
                             <div class="mt-2 text-[.8rem] text-violet-500">
                                 <span
                                     @click="openFormEditAlamat(index)"
@@ -278,7 +302,7 @@
                                     Ubah
                                 </span>
                                 <span
-                                    @click="deleteAlamatBuyer(alamat.id)" 
+                                    @click="deleteAlamatBuyer(alamat.id)"
                                     class="pl-3 cursor-pointer">
                                     Hapus
                                 </span>
@@ -289,8 +313,8 @@
                                 <i class="fas fa-check text-violet-500 text-2xl"></i>
                             </div>
                             <div v-else class="flex justify-end">
-                                <button 
-                                    class=" text-[.7rem] border border-neutral-500 bg-violet-500 py-1.5 w-[100%] sm500:text-[.8rem] sm:text-[.9rem] rounded" 
+                                <button
+                                    class="alamat-primary-button text-[.7rem] border py-1.5 w-[100%] sm500:text-[.8rem] sm:text-[.9rem]"
                                     @click="setEnableAlamatBuyer(alamat.id, index)"
                                     :disabled="isProcessEnableAlamatBuyer[index]"
                                     :class="{'opacity-50': isProcessEnableAlamatBuyer[index]}">
@@ -302,8 +326,8 @@
                     </div>
                     <!-- kontent -->
                 </div>
-                <div 
-                    v-else 
+                <div
+                    v-else
                     class="text-center mt-10">
                     <h5 class="text-[.9rem]">Alamat Not Found</h5>
                 </div>
@@ -320,6 +344,13 @@ import { ElNotification, ElMessageBox } from 'element-plus';
 export default {
     components: {
         Modal
+    },
+
+    props: {
+        flat: {
+            type: Boolean,
+            default: false
+        }
     },
 
     data() {
@@ -377,13 +408,13 @@ export default {
                 case 'place':
                     this.errorsEdit.place = this.placeEdit.trim() == '' ? `${type} required` : '';
                     break;
-                case 'name': 
+                case 'name':
                     this.errorsEdit.name = this.nameEdit.trim() == '' ? `${type} required` : '';
                     break;
-                case 'phone': 
+                case 'phone':
                     this.errorsEdit.phone = this.phoneEdit.trim() == '' ? `${type} required` : '';
                     break;
-                case 'alamat': 
+                case 'alamat':
                     this.errorsEdit.alamat = this.alamatEdit.trim() == '' ? `${type} required` : '';
                     break;
             }
@@ -446,21 +477,21 @@ export default {
                     const message = error.response.data.message;
                     Object.keys(message).forEach(key => {
                         switch(key) {
-                            case 'place' : 
-                                this.errors.place = message[key][0];
+                            case 'place' :
+                                this.errorsEdit.place = message[key][0];
                                 break;
-                            case 'name' : 
-                                this.errors.name = message[key][0];
+                            case 'name' :
+                                this.errorsEdit.name = message[key][0];
                                 break;
-                            case 'phone' : 
-                                this.errors.phone = message[key][0];
+                            case 'phone' :
+                                this.errorsEdit.phone = message[key][0];
                                 break;
-                            case 'alamat' : 
-                                this.errors.alamat = message[key][0];
+                            case 'alamat' :
+                                this.errorsEdit.alamat = message[key][0];
                                 break;
                         }
                         setTimeout(() => {
-                            ElNotification({ type: 'error', title: 'Error', message: message[key][0] });    
+                            ElNotification({ type: 'error', title: 'Error', message: message[key][0] });
                         }, 100);
                     })
                 } else {
@@ -488,7 +519,7 @@ export default {
 
         enterSearchAlamat() {
             this.getAlamatBuyer();
-        },  
+        },
 
         watchInput(type) {
             if (!Object.prototype.hasOwnProperty.call(this, type)) return;
@@ -538,7 +569,7 @@ export default {
         openFormAddAlamat() {
             this.modal.addAlamatBuyer = true;
         },
-        
+
         closeFormAddAlamat() {
             this.modal.addAlamatBuyer = false;
         },
@@ -565,7 +596,7 @@ export default {
             this.isProcessAddAlamatBuyer = true;
 
             this
-            .$store 
+            .$store
             .dispatch('addAlamatBuyer', {
                 place: this.place,
                 name: this.name,
@@ -588,21 +619,21 @@ export default {
                     const message = error.response.data.message;
                     Object.keys(message).forEach(key => {
                         switch(key) {
-                            case 'place' : 
+                            case 'place' :
                                 this.errors.place = message[key][0];
                                 break;
-                            case 'name' : 
+                            case 'name' :
                                 this.errors.name = message[key][0];
                                 break;
-                            case 'phone' : 
+                            case 'phone' :
                                 this.errors.phone = message[key][0];
                                 break;
-                            case 'alamat' : 
+                            case 'alamat' :
                                 this.errors.alamat = message[key][0];
                                 break;
                         }
                         setTimeout(() => {
-                            ElNotification({ type: 'error', title: 'Error', message: message[key][0] });    
+                            ElNotification({ type: 'error', title: 'Error', message: message[key][0] });
                         }, 100);
                     })
                 } else {
@@ -645,6 +676,7 @@ export default {
                     ElNotification({ type: 'error', title: 'Error', message: error.message });
                 })
             })
+            .catch(() => {});
 
         },
 
@@ -694,3 +726,121 @@ export default {
     }
 }
 </script>
+
+<style scoped>
+.alamat-modal {
+    padding: 22px;
+}
+
+.alamat-modal-title {
+    color: #111827;
+    font-size: 24px;
+    font-weight: 700;
+}
+
+.alamat-modal input:not([type="checkbox"]),
+.alamat-modal textarea {
+    border: 1px solid #cbd5e1 !important;
+    border-radius: 6px;
+    box-shadow: 0 1px 2px rgba(15, 23, 42, 0.05) !important;
+}
+
+.alamat-modal input:not([type="checkbox"]):focus,
+.alamat-modal textarea:focus {
+    border-color: #8b5cf6 !important;
+    box-shadow: 0 0 0 2px #ede9fe, 0 1px 2px rgba(15, 23, 42, 0.05) !important;
+}
+
+.alamat-modal input.is-error-field,
+.alamat-modal textarea.is-error-field,
+.alamat-modal input.is-error-field:focus,
+.alamat-modal textarea.is-error-field:focus {
+    border-color: #ef4444 !important;
+    box-shadow: 0 0 0 2px #fee2e2, 0 1px 2px rgba(15, 23, 42, 0.05) !important;
+}
+
+.required-mark {
+    color: #ef4444;
+    font-weight: 700;
+}
+
+.alamat-checkbox-row {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    min-height: 24px;
+}
+
+.alamat-checkbox-input {
+    width: 15px;
+    height: 15px;
+    min-height: 15px !important;
+    flex: 0 0 auto;
+    cursor: pointer;
+    accent-color: #8b5cf6;
+}
+
+.alamat-checkbox-label {
+    cursor: pointer;
+    color: #111827;
+    line-height: 1;
+}
+
+.alamat-search-input {
+    border: 1px solid #e5e7eb;
+    border-radius: 6px;
+    background: #ffffff;
+    box-shadow: 0 1px 2px rgba(15, 23, 42, 0.05);
+}
+
+.alamat-search-input:focus {
+    border-color: #8b5cf6 !important;
+    box-shadow: 0 0 0 2px #ede9fe, 0 1px 2px rgba(15, 23, 42, 0.05);
+}
+
+.alamat-card {
+    border: 1px solid #e5e7eb;
+    border-radius: 8px;
+    background: #ffffff;
+    box-shadow: 0 10px 25px rgba(15, 23, 42, 0.04);
+}
+
+.alamat-card {
+    transition: 150ms ease-in-out;
+}
+
+.alamat-card:hover {
+    border-color: #c4b5fd;
+}
+
+.alamat-card.is-selected {
+    border: 2px solid #8b5cf6;
+    background: #f5f3ff;
+}
+
+.alamat-primary-button,
+.alamat-danger-button {
+    border-radius: 7px;
+    color: #ffffff;
+    font-weight: 700;
+    transition: 150ms ease-in-out;
+}
+
+.alamat-primary-button {
+    border-color: #7c3aed;
+    background: #8b5cf6;
+}
+
+.alamat-primary-button:not(:disabled):hover {
+    background: #7c3aed;
+}
+
+.alamat-danger-button {
+    border-color: #dc2626;
+    background: #ef4444;
+}
+
+.alamat-danger-button:not(:disabled):hover {
+    background: #dc2626;
+}
+</style>

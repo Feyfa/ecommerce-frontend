@@ -32,9 +32,6 @@
         </div>
         <!-- SIDEBAR AND MAIN COMPONENT -->
 
-        <!-- FIXED COMPONENTS -->
-        <ModalCollection />
-        <!-- FIXED COMPONENTS -->
     </div>
 </template>
 
@@ -42,13 +39,11 @@
 import eventBus from "@/eventBus";
 import NavbarComponent from "./components/app/NavbarComponent.vue";
 import SidebarComponent from "./components/app/SidebarComponent.vue";
-import ModalCollection from "./components/modals/ModalCollection.vue";
 
 export default {
     components: {
         NavbarComponent,
         SidebarComponent,
-        ModalCollection,
     },
 
     mounted() {
@@ -98,4 +93,3 @@ export default {
 
 }
 </script>
-

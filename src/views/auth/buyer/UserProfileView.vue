@@ -1,5 +1,8 @@
 <template>
-  <div class="px-5 lg:px-10 w-full flex flex-col justify-center mb-8" v-show="this.$global.showUserProfileView.allComponent">
+  <div
+    class="w-full flex flex-col justify-center mb-8"
+    :class="embedded ? 'px-0' : 'px-5 lg:px-10'"
+    v-show="this.$global.showUserProfileView.allComponent">
     
     <!-- image setting -->
     <div class="row w-full flex justify-center">
@@ -11,12 +14,12 @@
 
     <!-- user setting -->
     <div id="user-setting" class="mt-10">
-      <UserSetting />
+      <UserSetting :show-tfa="showTfa" />
     </div>
     <!-- user setting -->
 
     <!-- alamat -->
-    <div id="alamat" class="mt-10">
+    <div v-if="showAlamat" id="alamat" class="mt-10">
       <Alamat />
     </div>
     <!-- alamat -->
@@ -43,6 +46,21 @@ export default {
     Alamat
   },
 
+  props: {
+    embedded: {
+      type: Boolean,
+      default: false
+    },
+    showAlamat: {
+      type: Boolean,
+      default: true
+    },
+    showTfa: {
+      type: Boolean,
+      default: true
+    }
+  },
+
   mounted() {
     /* RESET SHOW FOR COMPONENT PROFILEVIEW */
     this.$global.showUserProfileView.allComponent = false;
@@ -52,7 +70,9 @@ export default {
   watch: {
     '$global.showUserProfileView': {
       handler(value) {
-        if(value.userSetting && value.alamat) {
+        const alamatReady = !this.showAlamat || value.alamat;
+
+        if(value.userSetting && alamatReady) {
           this.$global.showUserProfileView.allComponent = true;
         }
       },

@@ -1,14 +1,17 @@
 <template>
     <!-- payment view -->
-    <div v-if="show.payment_view" class="px-4 lg:px-6 w-full flex flex-col justify-center mb-8">
+    <div
+        v-if="show.payment_view"
+        class="w-full flex flex-col justify-center mb-8"
+        :class="embedded ? 'px-0' : 'px-4 lg:px-6'">
         <!-- title -->
-        <h1 class="text-center text-3xl font-medium flex justify-center items-center">Rekening Bank</h1>
+        <h1 v-if="!embedded" class="text-center text-3xl font-medium flex justify-center items-center">Rekening Bank</h1>
         <!-- title -->
 
         <!-- form add rekening -->
         <Modal v-model:show="modal.addPayment">
-            <div class="flex flex-col gap-3 p-5">
-                <h1 class="text-[24px] text-center font-medium">Tambah Rekening</h1>
+            <div class="account-form-modal flex flex-col gap-3 p-5">
+                <h1 class="account-modal-title text-center">Tambah Rekening</h1>
                 <div class="input-container flex flex-col w-full">
                     <label
                         for="paymentName">
@@ -27,7 +30,7 @@
                             :value="item.name"/>
                     </el-select>
                 </div>
-                <div 
+                <div
                     class="input-container flex flex-col w-full"
                     v-show="paymentName && paymentName.trim() != ''">
                     <label
@@ -41,10 +44,10 @@
                         size="large"
                         clearable>
                         <template #append>
-                            <div 
-                                class="border-t border-r border-b border-t-[rgb(115,115,115)] border-r-[rgb(115,115,115)] border-b-[rgb(115,115,115)] rounded-tr rounded-br w-full h-full px-2 text-[0.8rem] bg-neutral-100"
-                                :class="{'opacity-50 cursor-default': isProcessValidateAccount, 'hover:bg-[#ededed]': !isProcessValidateAccount}">
-                                <button 
+                            <div
+                                class="check-account-button"
+                                :class="{'opacity-50 cursor-default': isProcessValidateAccount, 'hover:bg-violet-50': !isProcessValidateAccount}">
+                                <button
                                     class="h-full"
                                     :disabled="isProcessValidateAccount"
                                     @click="validatePaymentAccount">Check Nama Pemilik
@@ -53,29 +56,31 @@
                             </div>
                         </template>
                     </el-input>
-                    <small 
+                    <small
                         v-if="errors.paymentAccount"
                         class="text-red-500">
-                        {{ errors.name }}
+                        {{ errors.paymentAccount }}
                     </small>
                 </div>
-                <div 
-                    class="input-container flex flex-col w-full border border-[rgb(115,115,115)] shadow rounded p-2 gap-1 mt-3"
+                <div
+                    class="input-container flex flex-col w-full border border-slate-200 bg-slate-50 rounded-lg p-3 gap-1 mt-3"
                     v-show="isPaymentAccountValid">
                     <p class="text-[0.85rem] -tracking-[0.2px]">Nama Pemilik Rekening</p>
                     <p class="uppercase tracking-[0.2px] font-medium">{{ paymentUsername }}</p>
                 </div>
-                    
-                <div class="mt-3 flex flex-col gap-2 md:flex-row md:gap-20 lg:gap-40">
-                    <button 
-                        class="w-full md:w-96 border border-neutral-500 bg-red-600 py-2 px-5 rounded mt-1.5"
+
+                <div class="mt-3 flex flex-col gap-2 md:flex-row md:gap-4">
+                    <button
+                        type="button"
+                        class="account-modal-action is-cancel w-full mt-1.5"
                         @click="closeFormAddPayment"
                         :disabled="isProcessAddPayment"
                         :class="{'opacity-50': isProcessAddPayment}">
                         Cancel
                     </button>
-                    <button 
-                        class="w-full md:w-96 border border-neutral-500 bg-violet-500 py-2 px-5 rounded mt-1.5"
+                    <button
+                        type="button"
+                        class="account-modal-action is-primary w-full mt-1.5"
                         @click="addPayment"
                         :disabled="isProcessAddPayment || !paymentName || !isPaymentAccountValid"
                         :class="{'opacity-50': isProcessAddPayment || !paymentName || !isPaymentAccountValid}">
@@ -88,22 +93,24 @@
         <!-- form add rekening -->
 
         <!-- search and button add rekening -->
-        <div class="mt-5 flex flex-col md:flex-row md:justify-between md:items-center gap-3">
+        <div class="flex flex-col md:flex-row md:justify-between md:items-center gap-3" :class="embedded ? 'mt-0' : 'mt-5'">
             <div class="w-full md:w-[40%] lg:w-[35%]">
                 <input
-                    placeholder="Cari Rekening Bank" 
-                    id="search-payment" 
-                    type="text" 
-                    class="border w-full border-neutral-500 rounded outline-none h-12 px-2.5 shadow"
+                    placeholder="Cari Rekening Bank"
+                    id="search-payment"
+                    type="text"
+                    class="account-search-input border w-full outline-none h-12 px-3"
                     v-model="searchPayment"
-                    @keyup.enter="enterSearchPayment">   
+                    @keyup.enter="enterSearchPayment">
             </div>
             <div class="md:w-[25%] lg:w-[26%]">
                 <button
-                    class="border border-neutral-500 bg-violet-500 w-[100%] h-12 rounded"
+                    type="button"
+                    class="account-add-button w-full h-12"
                     @click="openFormAddPayment"
                     :disabled="isProcessGetPaymentList"
                     :class="{'opacity-50': isProcessGetPaymentList}">
+                    <i class="fa-solid fa-plus text-xs"></i>
                     Tambah Rekening
                     <i v-if="isProcessGetPaymentList" class="fa-solid fa-spinner fa-spin-pulse ml-1"></i>
                 </button>
@@ -119,41 +126,41 @@
                 </span>
             </div>
             <div v-else>
-                <div 
-                    v-if="this.payments.length > 0" 
+                <div
+                    v-if="this.payments.length > 0"
                     class="flex flex-col gap-5">
                     <!-- kontent -->
-                    <div 
+                    <div
                         v-for="(payment, index) in payments"
-                        class="w-full rounded-md py-3 px-3 flex flex-row justify-between items-center border border-neutral-500">
-                        <div class="flex items-center gap-4 w-[80%] xl:w-[85%]">
-                            <img 
-                                :src="getImagePayment(payment.slug)" 
+                        class="payment-card w-full p-4 flex flex-col gap-4 sm:flex-row sm:justify-between sm:items-center">
+                        <div class="flex items-center gap-4 min-w-0">
+                            <img
+                                :src="getImagePayment(payment.slug)"
                                 alt=""
-                                class="w-20 h-20 rounded-md cursor-default">
-                            <div class="flex flex-col gap-1">
-                                <h3 class="text-neutral-500 font-normal -tracking-normal text-[.9rem]">{{ payment.name }}</h3>
-                                <h3 class="font-semibold text-[.9rem]">{{ payment.account }}</h3>
-                                <h3 class="uppercase text-[.9rem]">{{ payment.username }}</h3>
+                                class="payment-bank-logo cursor-default">
+                            <div class="flex flex-col gap-1 min-w-0">
+                                <h3 class="payment-bank-name">{{ payment.name }}</h3>
+                                <h3 class="payment-account-number">{{ payment.account }}</h3>
+                                <h3 class="payment-account-owner">{{ payment.username }}</h3>
                             </div>
                         </div>
-                        <div class="w-[20%] xl:w-[15%]">
-                            <div class="flex justify-end">
-                                <button 
-                                    class=" text-[.7rem] border border-neutral-400 bg-neutral-200 py-1.5 w-[100%] sm500:text-[.8rem] sm:text-[.9rem] rounded" 
-                                    :disabled="isProcessDeletePayment[index]"
-                                    :class="{'opacity-50': isProcessDeletePayment[index]}"
-                                    @click="deletePayment(payment.id, index)">
-                                    Hapus
-                                    <i v-if="isProcessDeletePayment[index]" class="fa-solid fa-spinner fa-spin-pulse ml-1"></i>
-                                </button>
-                            </div>
+                        <div class="flex justify-end">
+                            <button
+                                type="button"
+                                class="payment-delete-button"
+                                :disabled="isProcessDeletePayment[index]"
+                                :class="{'opacity-50': isProcessDeletePayment[index]}"
+                                @click="deletePayment(payment.id, index)">
+                                <i class="fa-solid fa-trash-can text-xs"></i>
+                                Hapus
+                                <i v-if="isProcessDeletePayment[index]" class="fa-solid fa-spinner fa-spin-pulse ml-1"></i>
+                            </button>
                         </div>
                     </div>
                     <!-- kontent -->
                 </div>
-                <div 
-                    v-else 
+                <div
+                    v-else
                     class="text-center mt-10">
                     <h5 class="text-[.9rem]">Rekening Kosong</h5>
                 </div>
@@ -179,6 +186,13 @@ import Modal from '@/components/partials/ModalView.vue';
 export default {
     components: {
         Modal,
+    },
+
+    props: {
+        embedded: {
+            type: Boolean,
+            default: false
+        }
     },
 
     data() {
@@ -208,7 +222,7 @@ export default {
             paymentAccount: '',
             paymentUsername: '',
             paymentList: [],
-            
+
             searchPayment: '',
             payments: [
                 {
@@ -244,7 +258,7 @@ export default {
             show: {
                 payment_view: false,
             }
-            
+
         }
     },
 
@@ -285,7 +299,8 @@ export default {
                     ElNotification({ type: 'error', title: 'Error', message: error.response.data.message });
                 });
             })
-            
+            .catch(() => {});
+
         },
 
         addPayment() {
@@ -313,14 +328,14 @@ export default {
                     const message = error.response.data.message;
                     Object.keys(message).forEach(key => {
                         setTimeout(() => {
-                            ElNotification({ type: 'error', title: 'Error', message: message[key][0] });    
+                            ElNotification({ type: 'error', title: 'Error', message: message[key][0] });
                         }, 100);
                     })
                 } else {
                     ElNotification({ type: 'error', title: 'Error', message: error.response.data.message });
                 }
             })
-        },  
+        },
 
         validatePaymentAccount() {
             this.isProcessValidateAccount = true;
@@ -389,7 +404,7 @@ export default {
             .then(response => {
                 // console.log(response);
 
-                this.show.payment_view = true;  
+                this.show.payment_view = true;
                 this.isProcessGetPayment = false;
                 this.payments = response.payments;
             })
@@ -407,9 +422,12 @@ export default {
 
         resetFormAddPayment() {
             this.paymentName = '';
+            this.paymentSlug = '';
             this.paymentAccount = '';
             this.paymentUsername = '';
             this.isPaymentAccountValid = false;
+            this.errors.paymentName = '';
+            this.errors.paymentAccount = '';
         }
     },
 
@@ -426,3 +444,169 @@ export default {
     }
 }
 </script>
+
+<style>
+.account-form-modal {
+    padding: 22px;
+}
+
+.account-modal-title {
+    color: #111827;
+    font-size: 24px;
+    font-weight: 700;
+}
+
+.account-search-input {
+    border: 1px solid #e5e7eb;
+    border-radius: 6px;
+    background: #ffffff;
+    box-shadow: 0 1px 2px rgba(15, 23, 42, 0.05);
+}
+
+.account-search-input:focus {
+    border-color: #8b5cf6 !important;
+    box-shadow: 0 0 0 2px #ede9fe, 0 1px 2px rgba(15, 23, 42, 0.05);
+}
+
+.payment-card {
+    border: 1px solid #e5e7eb;
+    border-radius: 8px;
+    background: #ffffff;
+    box-shadow: 0 10px 25px rgba(15, 23, 42, 0.04);
+}
+
+.payment-card {
+    transition: 150ms ease-in-out;
+}
+
+.payment-card:hover {
+    border-color: #c4b5fd;
+    background: #fafafa;
+}
+
+.account-add-button,
+.account-modal-action,
+.account-primary-button,
+.account-danger-button,
+.account-secondary-button,
+.payment-delete-button {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    border-radius: 7px;
+    border: 1px solid transparent;
+    font-weight: 600;
+    transition: 150ms ease-in-out;
+}
+
+.account-add-button,
+.account-modal-action.is-primary,
+.account-primary-button {
+    border-color: #7c3aed;
+    background: #8b5cf6;
+    color: #ffffff;
+}
+
+.account-add-button {
+    box-shadow: 0 10px 20px rgba(124, 58, 237, 0.18);
+}
+
+.account-modal-action {
+    min-height: 44px;
+    padding: 0 16px;
+}
+
+.account-primary-button:not(:disabled):hover {
+    background: #7c3aed;
+}
+
+.account-add-button:not(:disabled):hover,
+.account-modal-action.is-primary:not(:disabled):hover {
+    background: #7c3aed;
+}
+
+.account-danger-button,
+.account-modal-action.is-cancel {
+    border-color: #dc2626;
+    background: #ef4444;
+    color: #ffffff;
+}
+
+.account-danger-button:not(:disabled):hover,
+.account-modal-action.is-cancel:not(:disabled):hover {
+    background: #dc2626;
+}
+
+.account-secondary-button {
+    border-color: #d1d5db;
+    background: #f3f4f6;
+    color: #374151;
+}
+
+.account-secondary-button:not(:disabled):hover {
+    background: #e5e7eb;
+}
+
+.payment-bank-logo {
+    width: 72px;
+    height: 72px;
+    flex: 0 0 auto;
+    border-radius: 8px;
+    border: 1px solid #eef2f7;
+    background: #ffffff;
+    object-fit: contain;
+    padding: 8px;
+}
+
+.payment-bank-name {
+    overflow: hidden;
+    color: #6b7280;
+    font-size: 0.9rem;
+    font-weight: 500;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.payment-account-number {
+    color: #111827;
+    font-size: 0.95rem;
+    font-weight: 700;
+}
+
+.payment-account-owner {
+    color: #111827;
+    font-size: 0.88rem;
+    font-weight: 500;
+    letter-spacing: 0.01em;
+    text-transform: uppercase;
+}
+
+.payment-delete-button {
+    min-height: 38px;
+    min-width: 112px;
+    border-color: #fecaca;
+    background: #fff7f7;
+    color: #dc2626;
+    padding: 0 14px;
+}
+
+.payment-delete-button:not(:disabled):hover {
+    border-color: #fca5a5;
+    background: #fef2f2;
+}
+
+.check-account-button {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 100%;
+    height: 100%;
+    border-left: 1px solid #e5e7eb;
+    background: #f8fafc;
+    color: #6b7280;
+    font-size: 0.8rem;
+    font-weight: 600;
+    padding: 0 12px;
+}
+</style>

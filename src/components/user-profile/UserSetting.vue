@@ -1,11 +1,8 @@
 <template>
-  <div class="w-full border bg-neutral-50 border-neutral-400 shadow-md p-5 rounded">
+  <div class="setting-card w-full border bg-neutral-50 border-neutral-400 shadow-md p-5 rounded">
     <!-- title -->
-    <div class="relative">
+    <div class="setting-card-header relative">
       <h3 class="text-xl text-center">User Setting</h3>
-      <span v-if="isProcessUpdate" class="absolute top-0 bottom-0 end-0 flex justify-center items-center">
-        <i class="fa-solid fa-spinner fa-spin-pulse "></i>
-      </span>
     </div>
     <!-- title -->
 
@@ -16,17 +13,19 @@
           <label
             for="name">
             Name
+            <span class="required-mark" aria-hidden="true">*</span>
           </label>
           <input
-            placeholder="name" 
-            id="name" 
-            type="text" 
-            class="border w-full border-neutral-500 rounded outline-none h-12 px-2.5 shadow" 
+            placeholder="name"
+            id="name"
+            type="text"
+            class="border w-full border-neutral-500 rounded outline-none h-12 px-2.5 shadow"
+            required
+            aria-required="true"
             v-model="name"
-            :disabled="!isEdit"
-            :class="{'input-disabled': !isEdit, 'border border-red-500': errors.name}"
+            :class="{'is-error-field border border-red-500': errors.name}"
             @input="watchInputName">
-          <small 
+          <small
             v-if="errors.name"
             class="text-red-500">
             {{ errors.name }}
@@ -34,148 +33,132 @@
         </div>
 
         <div class="input-container flex flex-col w-full">
-          <label 
+          <label
             for="email">
             email
+            <span class="required-mark" aria-hidden="true">*</span>
           </label>
           <input
-            placeholder="email" 
-            id="email" 
-            type="text" 
-            class="border w-full border-neutral-500 rounded outline-none h-12 px-2.5 shadow" 
+            placeholder="email"
+            id="email"
+            type="text"
+            class="border w-full border-neutral-500 rounded outline-none h-12 px-2.5 shadow"
+            required
+            aria-required="true"
             v-model="email"
-            :disabled="!isEdit"
-            :class="{'input-disabled': !isEdit, 'border border-red-500': errors.email}"
+            :class="{'is-error-field border border-red-500': errors.email}"
             @input="watchInputEmail">
-          <small 
+          <small
             v-if="errors.email"
             class="text-red-500">
             {{ errors.email }}
           </small>
         </div>
-  
-        <div class="input-container flex flex-col w-full">
-          <label 
-            for="jenis-kelamin">
-            Jenis Kelamin
-          </label>
-          <select 
-            id="jenis-kelamin" 
-            class="border w-full border-neutral-500 rounded outline-none h-12 px-2.5 shadow"
-            v-model="jenis_kelamin"
-            :disabled="!isEdit"
-            :class="{'input-disabled': !isEdit}">
-            <option value="Laki-Laki">Laki-Laki</option>
-            <option value="Perempuan">Perempuan</option>
-          </select>
-        </div>
-  
-        <div class="input-container flex flex-col w-full">
-          <label 
-            for="tanggal-lahir">
-            Tanggal Lahir
-          </label>
-          <input 
-            type="date" 
-            id="tanggal-lahir"
-            class="border w-full border-neutral-500 rounded outline-none h-12 px-2.5 shadow"
-            v-model="tanggal_lahir"
-            :disabled="!isEdit"
-            :class="{'input-disabled': !isEdit}">
-        </div>
 
         <div class="input-container flex flex-col w-full">
-          <label 
+          <label
             for="phone">
             Phone
+            <span class="required-mark" aria-hidden="true">*</span>
           </label>
-          <input 
-            placeholder="phone" 
-            type="text" 
+          <input
+            placeholder="phone"
+            type="text"
             id="phone"
             class="border w-full border-neutral-500 rounded outline-none h-12 px-2.5 shadow"
+            required
+            aria-required="true"
             v-model="phone"
             @keypress="validatePhone"
-            :disabled="!isEdit"
-            :class="{'input-disabled': !isEdit, 'border border-red-500': errors.phone}"
+            :class="{'is-error-field border border-red-500': errors.phone}"
             @input="watchInputPhone">
-          <small 
+          <small
           v-if="errors.phone"
           class="text-red-500">
             {{ errors.phone }}
           </small>
         </div>
-        
+
         <div class="input-container flex flex-col w-full">
-          <label 
+          <label
+            for="tanggal-lahir">
+            Tanggal Lahir
+          </label>
+          <el-date-picker
+            id="tanggal-lahir"
+            v-model="tanggal_lahir"
+            class="account-form-control !w-full"
+            type="date"
+            placeholder="dd/mm/tttt"
+            format="DD/MM/YYYY"
+            value-format="YYYY-MM-DD"
+            size="large"
+            :clearable="false"
+            :editable="false" />
+        </div>
+
+        <div class="input-container flex flex-col w-full">
+          <label
+            for="jenis-kelamin">
+            Jenis Kelamin
+          </label>
+          <el-select
+            id="jenis-kelamin"
+            class="account-form-control"
+            v-model="jenis_kelamin"
+            placeholder="Pilih jenis kelamin"
+            size="large">
+            <el-option label="Laki-Laki" value="Laki-Laki" />
+            <el-option label="Perempuan" value="Perempuan" />
+          </el-select>
+        </div>
+
+        <div v-if="showTfa" class="input-container flex flex-col w-full">
+          <label
             for="tfa">
             TFA
           </label>
-          <select 
-            id="tfa" 
-            class="border w-full border-neutral-500 rounded outline-none h-12 px-2.5 shadow"
+          <el-select
+            id="tfa"
+            class="account-form-control"
             v-model="tfa"
-            :disabled="!isEdit"
-            :class="{'input-disabled': !isEdit}">
-            <option value="F">Off</option>
-            <option value="Email">Email</option>
-            <option value="Phone">Phone</option>
-          </select>
+            placeholder="Pilih TFA"
+            size="large">
+            <el-option label="Off" value="F" />
+            <el-option label="Email" value="Email" />
+            <el-option label="Phone" value="Phone" />
+          </el-select>
         </div>
       </div>
-  
+
       <!-- <div class="input-container flex flex-col w-full mt-4">
-        <label 
+        <label
           for="alamat">
           Alamat
         </label>
-        <textarea 
+        <textarea
           id="alamat"
           :rows="rows"
           placeholder="Alamat"
           class="border w-full border-neutral-500 rounded outline-none py-1 px-2.5 shadow"
           v-model="alamat"
-          :disabled="!isEdit"
-          :class="{'input-disabled': !isEdit}"></textarea>
+          ></textarea>
       </div> -->
     </div>
     <!-- input -->
 
-    <!-- icon -->
-    <div class="mt-5 flex justify-end items-center gap-5">
-      <svg 
-        v-if="isEdit"
-        class="w-5 cursor-pointer" 
-        :class="{'opacity-50': isProcessUpdate}"
-        xmlns="http://www.w3.org/2000/svg" 
-        viewBox="0 0 1024 1024" 
-        @click="cancelInput">
-        <path fill="currentColor" d="m466.752 512-90.496-90.496a32 32 0 0 1 45.248-45.248L512 466.752l90.496-90.496a32 32 0 1 1 45.248 45.248L557.248 512l90.496 90.496a32 32 0 1 1-45.248 45.248L512 557.248l-90.496 90.496a32 32 0 0 1-45.248-45.248z"></path><path fill="currentColor" d="M512 896a384 384 0 1 0 0-768 384 384 0 0 0 0 768m0 64a448 448 0 1 1 0-896 448 448 0 0 1 0 896"></path>
-      </svg>
-
-      <svg 
-        v-if="isEdit"
-        class="w-5 cursor-pointer" 
-        :class="{'opacity-50': isProcessUpdate || errors.name || errors.email || errors.phone}"
-        xmlns="http://www.w3.org/2000/svg" 
-        viewBox="0 0 1024 1024" 
+    <!-- action -->
+    <div class="setting-action">
+      <button
+        type="button"
+        class="setting-primary-button"
+        :disabled="isProcessUpdate"
+        :class="{'is-invalid': errors.name || errors.email || errors.phone, 'opacity-50': isProcessUpdate}"
         @click="updateInput">
-        <path fill="currentColor" d="M512 896a384 384 0 1 0 0-768 384 384 0 0 0 0 768m0 64a448 448 0 1 1 0-896 448 448 0 0 1 0 896"></path>
-        <path fill="currentColor" d="M745.344 361.344a32 32 0 0 1 45.312 45.312l-288 288a32 32 0 0 1-45.312 0l-160-160a32 32 0 1 1 45.312-45.312L480 626.752l265.344-265.408z"></path>
-      </svg>
-
-      <svg 
-        v-if="!isEdit"
-        class="w-5 cursor-pointer" 
-        :class="{'opacity-50': isProcessUpdate}"
-        xmlns="http://www.w3.org/2000/svg" 
-        viewBox="0 0 1024 1024" 
-        @click="editInput">
-        <path fill="currentColor" d="M832 512a32 32 0 1 1 64 0v352a32 32 0 0 1-32 32H160a32 32 0 0 1-32-32V160a32 32 0 0 1 32-32h352a32 32 0 0 1 0 64H192v640h640z"></path>
-        <path fill="currentColor" d="m469.952 554.24 52.8-7.552L847.104 222.4a32 32 0 1 0-45.248-45.248L477.44 501.44l-7.552 52.8zm422.4-422.4a96 96 0 0 1 0 135.808l-331.84 331.84a32 32 0 0 1-18.112 9.088L436.8 623.68a32 32 0 0 1-36.224-36.224l15.104-105.6a32 32 0 0 1 9.024-18.112l331.904-331.84a96 96 0 0 1 135.744 0z"></path>
-      </svg>
+        Simpan
+      </button>
     </div>
-    <!-- icon -->
+    <!-- action -->
 
   </div>
 </template>
@@ -184,6 +167,13 @@
 import { ElNotification } from 'element-plus';
 
 export default {
+  props: {
+    showTfa: {
+      type: Boolean,
+      default: true
+    }
+  },
+
   data() {
     return {
       name: '',
@@ -194,7 +184,6 @@ export default {
       tfa: '',
       // alamat: '',
 
-      isEdit: false,
       isProcessUpdate: false,
 
       errors: {
@@ -224,9 +213,9 @@ export default {
         event.preventDefault();
       }
     },
-    
+
     // setRowsTextAreaBasedOnScreenSize() {
-    //   if(window.innerWidth < 500) 
+    //   if(window.innerWidth < 500)
     //     this.rows = 4;
     //   else if(window.innerWidth < 600)
     //     this.rows = 3;
@@ -240,7 +229,7 @@ export default {
           .dispatch('getUser')
           .then(response => {
             localStorage.setItem('user', JSON.stringify(response.data.user));
-            
+
             this.name = response.data.user.name;
             this.email = response.data.user.email;
             this.jenis_kelamin = response.data.user.jenis_kelamin;
@@ -248,40 +237,31 @@ export default {
             this.phone = response.data.user.phone;
             // this.alamat = response.data.user.alamat;
             this.tfa = response.data.user.tfa;
-            
+
             this.$global.showUserProfileView.userSetting = true;
           })
           .catch(error => {
-            localStorage.clear('token');
-            localStorage.clear('user');
-            localStorage.clear('company');
+            localStorage.removeItem('token');
+            localStorage.removeItem('user');
+            localStorage.removeItem('company');
             this.$router.push('/login');
           });
     },
 
-    clearErrors() {
-      this.errors = {
-        name: '',
-        email: '',
-      }
-    },
-
-    editInput() {
-      this.isEdit = true;
-    },
-
-    cancelInput() {
-      if(!this.isProcessUpdate) {
-        this.isEdit = false;
-        this.getUser();
-        this.clearErrors();
-      }
-    },
-
     updateInput() {
-      if(!this.isProcessUpdate && !this.errors.name && !this.errors.email && !this.errors.phone) {
+      /* VALIDATION */
+      this.watchInputName();
+      this.watchInputEmail();
+      this.watchInputPhone();
+
+      if(this.errors.name || this.errors.email || this.errors.phone) {
+        return;
+      }
+      /* VALIDATION */
+
+      if(!this.isProcessUpdate) {
         this.isProcessUpdate = true;
-  
+
         this.$store.dispatch('updateUser', {
           id: this.$store.getters.user.id,
           name: this.name,
@@ -294,57 +274,56 @@ export default {
         })
         .then(response => {
           // console.log(response);
-  
-          this.isEdit = false;
+
           this.isProcessUpdate = false;
-  
+
           if(response.data.status == 200) {
-  
+
             ElNotification({
               type: 'success',
               title: 'Success',
               message: response.data.message
             });
-  
+
             localStorage.setItem('user', JSON.stringify(response.data.user));
-  
+
             /* UPDATE PENGAMBILAN DARI LOCALSTORAGE */
             this.$store.dispatch('fetchTokenFromLocalStorage');
             this.$store.dispatch('fetchUserFromLocalStorage');
             this.$store.dispatch('fetchCompanyFromLocalStorage');
             /* UPDATE PENGAMBILAN DARI LOCALSTORAGE */
           }
-  
+
         })
         .catch(error => {
           // console.error(error);
 
           this.isProcessUpdate = false;
-  
+
           if(error.response.data.status == 422) {
             const message = error.response.data.message;
-            
+
             Object.keys(message).forEach(key => {
               switch(key) {
-                case 'name' : 
+                case 'name' :
                   this.errors.name = message[key][0];
                   break;
-                case 'email' : 
+                case 'email' :
                   this.errors.email = message[key][0];
                   break;
-                case 'phone' : 
+                case 'phone' :
                   this.errors.phone = message[key][0];
                   break;
               }
             });
           }
         })
-  
+
       }
     },
 
     watchInputName() {
-      if(this.name.trim() === '') {
+      if(!this.name || this.name.trim() === '') {
         this.errors.name = 'input name is required';
       } else {
         this.errors.name = '';
@@ -352,7 +331,7 @@ export default {
     },
 
     watchInputEmail() {
-      if(this.email.trim() === '') {
+      if(!this.email || this.email.trim() === '') {
         this.errors.email = 'input email is required';
       } else {
         this.errors.email = '';
@@ -360,7 +339,7 @@ export default {
     },
 
     watchInputPhone() {
-      if(this.phone.trim() === '') {
+      if(!this.phone || this.phone.trim() === '') {
         this.errors.phone = 'input phone is required';
       } else {
         this.errors.phone = '';
@@ -370,3 +349,73 @@ export default {
 
 }
 </script>
+
+<style scoped>
+.setting-card {
+  border-color: #e5e7eb !important;
+  border-radius: 8px;
+  background: #ffffff !important;
+  padding: 20px;
+  box-shadow: 0 10px 25px rgba(15, 23, 42, 0.06);
+}
+
+.setting-card-header {
+  border-bottom: 1px solid #eef2f7;
+  padding-bottom: 14px;
+}
+
+.setting-card-header h3 {
+  color: #111827;
+  font-size: 20px;
+  font-weight: 600;
+  text-align: left;
+}
+
+.account-form-control {
+  width: 100%;
+}
+
+.required-mark {
+  color: #ef4444;
+  font-weight: 700;
+}
+
+.setting-action {
+  display: flex;
+  justify-content: flex-end;
+  gap: 10px;
+  margin-top: 20px;
+}
+
+.setting-primary-button {
+  min-height: 40px;
+  min-width: 116px;
+  border-radius: 7px;
+  border: 1px solid transparent;
+  font-weight: 700;
+  padding: 0 16px;
+  transition: 150ms ease-in-out;
+}
+
+.setting-primary-button {
+  border-color: #7c3aed;
+  background: #8b5cf6;
+  color: #ffffff;
+}
+
+.setting-primary-button:not(:disabled):hover {
+  background: #7c3aed;
+}
+
+.setting-primary-button.is-invalid {
+  cursor: not-allowed;
+  opacity: 0.55;
+}
+
+.input-container input.is-error-field,
+.input-container input.is-error-field:focus {
+  border-color: #ef4444 !important;
+  box-shadow: 0 0 0 2px #fee2e2, 0 1px 2px rgba(15, 23, 42, 0.05) !important;
+}
+
+</style>

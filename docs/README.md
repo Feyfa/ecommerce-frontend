@@ -24,6 +24,9 @@ Frontend-specific documentation should live here. Backend API behavior, database
 - [Transaction](features/transaction.md)
   Documents the shared buyer and seller transaction UI, filters, cards, detail modal, pagination, and role-based display rules.
 
+- [Account](account/README.md)
+  Documents the shared buyer and seller account UI, tab order, profile forms, address management, balance, bank accounts, security, and shared styling rules.
+
 ## Documentation Rules
 
 Use English for every Markdown document in this folder.
@@ -57,6 +60,16 @@ docs/
       01-belanja.md
       02-cart.md
       03-checkout.md
+
+  account/
+    README.md
+    shared-ui.md
+    profile.md
+    company-profile.md
+    address.md
+    balance.md
+    bank-account.md
+    security.md
 ```
 
 This structure does not need to be created all at once. Add new documents only when the project actually needs them.

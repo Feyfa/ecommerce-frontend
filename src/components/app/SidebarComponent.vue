@@ -92,13 +92,10 @@
 </template>
 
 <script>
-import { RouterLink } from 'vue-router';
 import SettingPreview from '../sidebar/SettingPreview.vue';
-import ChangePassword from '../modals/ChangePassword.vue';
 
 export default {
     components: {
-        ChangePassword,
         SettingPreview
     },
 
