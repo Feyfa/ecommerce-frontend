@@ -1,6 +1,6 @@
 <template>
   <!-- keranjang view -->
-  <div v-show="show.keranjang_view" class="-mt-4 min-h-[calc(100%+1rem)] w-full bg-slate-50 text-xl">
+  <div v-show="show.keranjang_view" class="min-h-full w-full bg-slate-50 text-xl">
     <div class="w-full bg-slate-50 px-3 pb-28 pt-4 sm:px-5 lg:px-6 lg:pb-6">
       <div class="mb-4 flex items-center justify-between gap-3">
         <h1 class="text-3xl font-medium text-slate-950">Keranjang</h1>

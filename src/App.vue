@@ -3,7 +3,7 @@
         <!-- SIDEBAR AND MAIN COMPONENT -->
         <NavbarComponent v-if="showNavbarSidebar()" />
         
-        <div v-if="this.$global.globalTemplate.loading" class="w-screen h-screen overflow-hidden flex justify-center items-center relative lg:static">
+        <div v-if="this.$global.globalTemplate.loading" class="w-screen h-screen overflow-hidden flex justify-center items-center bg-slate-50 relative lg:static">
             <span>
                 <i class="fas fa-spinner fa-pulse text-4xl"></i>
             </span>
@@ -11,9 +11,9 @@
         <div v-else class="w-screen h-screen overflow-hidden flex relative lg:static">
             <SidebarComponent v-if="showNavbarSidebar()" />
             <div 
-                class="h-screen bg-[rgba(255,255,255,.5)]"
+                class="h-screen bg-slate-50"
                 :class="{
-                    'w-full overflow-y-auto pt-[4.5rem]': showNavbarSidebar(), 
+                    'w-full overflow-y-auto pt-14': showNavbarSidebar(),
                     'w-full': !showNavbarSidebar(),
                 }"
                 ref="globalContainer"

@@ -2,7 +2,12 @@
   <!-- Product View -->
   <div v-show="show.product_view" class="min-h-full w-full bg-slate-50 text-xl">
 
-    <div class="fixed right-0 left-0 top-14 z-[2] border-b border-slate-200 bg-white px-2 py-3 shadow-sm sm:px-4 lg:left-[20.5%] xl:left-[17.1%] 2xl:left-[16.9%]">
+    <div
+      class="sticky top-0 z-[2] px-4 pt-4 transition-all duration-200 lg:px-6"
+      :class="{
+        'border-b border-slate-200 bg-slate-50/95 pb-3 shadow-sm backdrop-blur': productHeaderStuck,
+        'bg-slate-50': !productHeaderStuck,
+      }">
       <div class="flex items-center justify-between gap-3">
         <h1 class="text-3xl font-medium text-slate-950">Product Saya</h1>
 
@@ -35,7 +40,7 @@
       </div>
     </div>
 
-    <div class="w-full mt-[11rem] sm:mt-[8rem] lg:mt-[7rem] bg-slate-50">
+    <div class="w-full bg-slate-50">
       <div v-show="show.loading_search_product" class="w-full text-center mt-28 sm:mt-16">
         <span>
           <i class="fas fa-spinner fa-pulse text-xl"></i>
@@ -71,7 +76,7 @@
         </div>
       </div>
 
-      <div class="grid w-full grid-cols-2 gap-x-4 gap-y-5 p-3 sm:grid-cols-3 sm:p-5 lg:grid-cols-4 lg:gap-x-5 lg:gap-y-6 lg:p-6 xl:grid-cols-5 2xl:grid-cols-6 3xl:grid-cols-7 4xl:grid-cols-8">
+      <div class="grid w-full grid-cols-2 gap-x-4 gap-y-5 p-4 sm:grid-cols-3 sm:p-5 lg:grid-cols-4 lg:gap-x-5 lg:gap-y-6 lg:p-6 xl:grid-cols-5 2xl:grid-cols-6 3xl:grid-cols-7 4xl:grid-cols-8">
         <div v-for="product in products" :key="product.id" class="row group flex h-72 flex-col overflow-hidden rounded-md border border-slate-200 bg-white shadow-[0_1px_3px_rgba(15,23,42,0.08)] transition-shadow hover:shadow-[0_8px_24px_rgba(15,23,42,0.12)]">
           <div class="relative flex h-44 w-full items-center justify-center bg-white px-3 py-2">
             <img
@@ -184,6 +189,7 @@ export default {
       searchProduct: '',
       activeSearchProduct: '',
       productRequestVersion: 0,
+      productHeaderStuck: false,
       
       completeProduct: false,
 
@@ -201,6 +207,7 @@ export default {
     eventBus.on('scrollGlobal', () => {
       const globalContainer = this.$global.globalContainer.ref;
       const tolerant = 2;
+      this.productHeaderStuck = globalContainer.scrollTop > 8;
 
       // console.log({
       //   'scrollTop': globalContainer.scrollTop,

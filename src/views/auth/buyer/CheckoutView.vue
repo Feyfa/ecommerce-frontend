@@ -1,6 +1,6 @@
 <template>
   <!-- Checkout View -->
-  <div v-if="show.checkout_view" class="-mt-4 min-h-[calc(100%+1rem)] w-full bg-slate-50 px-3 pb-28 pt-4 text-slate-950 sm:px-5 lg:px-6 lg:pb-6">
+  <div v-if="show.checkout_view" class="min-h-full w-full bg-slate-50 px-3 pb-28 pt-4 text-slate-950 sm:px-5 lg:px-6 lg:pb-6">
     <div class="checkout-container w-full">
       <div class="mb-4 flex flex-col gap-1">
         <h1 class="text-3xl font-medium text-slate-950">Checkout</h1>
