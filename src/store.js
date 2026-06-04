@@ -125,6 +125,18 @@ export default createStore({
             });
         },
 
+        getSellerDashboard(context, data) {
+            return new Promise((resolve, reject) => {
+                axios.get('/dashboard')
+                     .then(response => {
+                        resolve(response.data);
+                     })
+                     .catch(error => {
+                        reject(error);
+                     })
+            });
+        },
+
         deletePayment(context, data) {
             return new Promise((resolve, reject) => {
                 axios.delete(`/payment/${data.id}`, {

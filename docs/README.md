@@ -12,6 +12,9 @@ Frontend-specific documentation should live here. Backend API behavior, database
 - [Seller Product](features/seller/01-product.md)
   Documents the seller product UI, state, flows, API usage, and UI decisions.
 
+- [Seller Dashboard](features/seller/02-dashboard.md)
+  Documents the seller dashboard UI, state, API usage, layout order, and UI decisions.
+
 - [Buyer Belanja](features/buyer/01-belanja.md)
   Documents the buyer shopping UI, state, search flow, add-to-cart flow, API usage, and UI decisions.
 
