@@ -83,20 +83,26 @@ Deletion confirmation should use Element Plus confirmation UI instead of SweetAl
 
 ## Auth State During Logout
 
-When logout succeeds, account UI must clear persistent auth data and runtime state together.
+When logout succeeds, or when the API returns an unauthenticated response, account UI must clear persistent auth data and runtime state together.
 
-Use this sequence:
+Use the shared auth session helpers instead of repeating manual `localStorage` cleanup in components:
 
 ```js
-localStorage.removeItem('token');
-localStorage.removeItem('user');
-localStorage.removeItem('company');
+import { clearAuthSession, syncClearedAuthSessionToStore } from '@/authSession';
 
-this.$store.dispatch('fetchTokenFromLocalStorage');
-this.$store.dispatch('fetchUserFromLocalStorage');
-this.$store.dispatch('fetchCompanyFromLocalStorage');
+clearAuthSession();
+syncClearedAuthSessionToStore(this.$store);
 ```
 
-This keeps Vuex synchronized with the empty localStorage state so account components do not keep rendering stale user or company data after logout.
+This keeps Vuex synchronized with the empty storage state so account components do not keep rendering stale user or company data after logout.
+
+If a token expires because the same account logged out from another browser, show the Element Plus session-expired alert before redirecting to login:
+
+```js
+showSessionExpiredWarning()
+  .finally(() => {
+    this.$router.push('/login');
+  });
+```
 
 Account components that read `user`, `company`, or active account mode during route transitions should use safe access such as `user?.img`, `company?.img`, or a validated `activeAccountMode`, because the values can be empty while the page is navigating to login.

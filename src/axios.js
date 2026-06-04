@@ -1,5 +1,5 @@
 import axios from "axios";
-import store from "@/store";
+import { clearAuthSession, isUnauthenticatedResponse, showSessionExpiredWarning } from "@/authSession";
 
 const instance = axios.create({
   baseURL: `${import.meta.env.VITE_APP_BACKEND_BASE_URL}/api`,
@@ -24,5 +24,23 @@ instance.interceptors.request.use(
   }
 );
 /* MELAKUKAN SESUATU SEBELUM REQUEST */
+
+/* MELAKUKAN SESUATU SETELAH RESPONSE */
+instance.interceptors.response.use(
+  response => response,
+  error => {
+    if(isUnauthenticatedResponse(error) && !error?.config?.skipAuthExpiredWarning) {
+      clearAuthSession();
+      showSessionExpiredWarning()
+        .finally(() => {
+          if(window.location.pathname !== '/login')
+            window.location.href = '/login';
+        });
+    }
+
+    return Promise.reject(error);
+  }
+);
+/* MELAKUKAN SESUATU SETELAH RESPONSE */
 
 export default instance;

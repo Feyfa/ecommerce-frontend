@@ -2,6 +2,7 @@ import { createRouter, createWebHistory } from 'vue-router'
 import axios from '@/axios';
 import store from '@/store';
 import global from '@/global';
+import { clearAuthSession, isUnauthenticatedResponse, showSessionExpiredWarning, syncClearedAuthSessionToStore } from '@/authSession';
 
 const routerAccountType = {
     all: ['rekening','saldo','account'],
@@ -22,6 +23,18 @@ const getActiveAccountMode = () => {
 
     store.dispatch('setActiveAccountMode', 'buyer');
     return 'buyer';
+};
+
+/**
+ * Mengarahkan user setelah sesi login lokal dibersihkan.
+ */
+const redirectAfterClearedSession = (to, next) => {
+    if(to.meta.public) {
+        next();
+        return;
+    }
+
+    next({name: 'login'});
 };
 
 const routes = [
@@ -159,7 +172,7 @@ const router = createRouter({
 
 const validationToken = (to, from, next) => {
     axios
-    .get('/tokenvalidation') // cek validasi tokennya
+    .get('/tokenvalidation', {skipAuthExpiredWarning: true}) // cek validasi tokennya
     .then(response => { // jika token valid, maka paksa di ke wilayah yang udah di autentikasi
         // console.log(response)
         if(response.status === 200 && response.data.message === 'token valid') {
@@ -168,20 +181,9 @@ const validationToken = (to, from, next) => {
             const company = JSON.parse(localStorage.getItem('company'));
 
             if(!user?.id) {
-                localStorage.removeItem('token');
-                localStorage.removeItem('user');
-                localStorage.removeItem('company');
-                sessionStorage.removeItem('active_account_mode');
-
-                store.dispatch('fetchTokenFromLocalStorage');
-                store.dispatch('fetchUserFromLocalStorage');
-                store.dispatch('fetchCompanyFromLocalStorage');
-                store.dispatch('clearActiveAccountMode');
-
-                global.isAuth = false;
-                global.personImage = '/img/person.png';
-                global.companyImage = '/img/company.png';
-                next({name: 'login'});
+                clearAuthSession();
+                syncClearedAuthSessionToStore(store);
+                redirectAfterClearedSession(to, next);
                 return;
             }
 
@@ -209,9 +211,22 @@ const validationToken = (to, from, next) => {
     })
     .catch(error => { // jika token tidak valid, maka yaudah biarkan saja ke halaman register atau login 
         console.error(error);
-        if(error.response.status === 401 && error.response.data.message === 'Unauthenticated.') {
+        if(isUnauthenticatedResponse(error)) {
+            clearAuthSession();
+            syncClearedAuthSessionToStore(store);
+            showSessionExpiredWarning()
+                .finally(() => {
+                    redirectAfterClearedSession(to, next);
+                });
+
+            return;
+        }
+
+        if(to.meta.public) {
             global.isAuth = false;
             next();
+        } else {
+            next({name: 'login'});
         }
     }); 
 };

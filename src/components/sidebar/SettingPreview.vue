@@ -93,6 +93,7 @@
 
 <script>
 import { ElNotification } from 'element-plus';
+import { clearAuthSession, syncClearedAuthSessionToStore } from '@/authSession';
 
 
 export default {
@@ -149,20 +150,8 @@ export default {
                 // console.log(response);
 
                 if(response.data.status == 200) {
-                    localStorage.removeItem('token');
-                    localStorage.removeItem('user');
-                    localStorage.removeItem('company');
-                    sessionStorage.removeItem('active_account_mode');
-
-                    this.$store.dispatch('fetchTokenFromLocalStorage');
-                    this.$store.dispatch('fetchUserFromLocalStorage');
-                    this.$store.dispatch('fetchCompanyFromLocalStorage');
-                    this.$store.dispatch('clearActiveAccountMode');
-
-                    this.$global.isAuth = false;
-                    this.$global.personImage = '/img/person.png';
-                    this.$global.companyImage = '/img/company.png';
-                    this.$global.isClickDropdown.userSetting = false;
+                    clearAuthSession();
+                    syncClearedAuthSessionToStore(this.$store);
 
                     this.$router.push('/login');
                 }
