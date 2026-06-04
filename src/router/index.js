@@ -9,6 +9,21 @@ const routerAccountType = {
     seller: ['seller_company','seller_dashboard','seller_product','seller_transaction']
 };
 
+const defaultRouteByAccountMode = {
+    buyer: 'buyer_home',
+    seller: 'seller_dashboard'
+};
+
+const getActiveAccountMode = () => {
+    const activeAccountMode = store.getters.activeAccountMode || sessionStorage.getItem('active_account_mode');
+
+    if(['buyer', 'seller'].includes(activeAccountMode))
+        return activeAccountMode;
+
+    store.dispatch('setActiveAccountMode', 'buyer');
+    return 'buyer';
+};
+
 const routes = [
     /* NO AUTH */
     {
@@ -117,10 +132,8 @@ const routes = [
         path: '/:pathMatch(.*)*',
         name: 'NotFound',
         beforeEnter(to, from, next) {
-            if(store.getters.user?.account_type == 'buyer') {
-                next({name: 'buyer_home'})
-            } else if(store.getters.user?.account_type == 'seller') {
-                next({name: 'seller_dashboard'})
+            if(store.getters.user?.id) {
+                next({name: defaultRouteByAccountMode[getActiveAccountMode()]})
             } else {
                 next({name: 'login'})
             }
@@ -154,14 +167,16 @@ const validationToken = (to, from, next) => {
             const user = JSON.parse(localStorage.getItem('user'));
             const company = JSON.parse(localStorage.getItem('company'));
 
-            if(!user?.account_type) {
+            if(!user?.id) {
                 localStorage.removeItem('token');
                 localStorage.removeItem('user');
                 localStorage.removeItem('company');
+                sessionStorage.removeItem('active_account_mode');
 
                 store.dispatch('fetchTokenFromLocalStorage');
                 store.dispatch('fetchUserFromLocalStorage');
                 store.dispatch('fetchCompanyFromLocalStorage');
+                store.dispatch('clearActiveAccountMode');
 
                 global.isAuth = false;
                 global.personImage = '/img/person.png';
@@ -180,15 +195,16 @@ const validationToken = (to, from, next) => {
             
             global.isAuth = true;
 
-            //validation route by account type 
-            if(user.account_type == 'buyer' && (!routerAccountType.buyer.includes(to.name) && !routerAccountType.all.includes(to.name))) {
+            //validation route by active account mode
+            const activeAccountMode = getActiveAccountMode();
+            if(activeAccountMode == 'buyer' && (!routerAccountType.buyer.includes(to.name) && !routerAccountType.all.includes(to.name))) {
                 next({name: 'buyer_home'});
-            } else if(user.account_type == 'seller' && (!routerAccountType.seller.includes(to.name) && !routerAccountType.all.includes(to.name))) {
+            } else if(activeAccountMode == 'seller' && (!routerAccountType.seller.includes(to.name) && !routerAccountType.all.includes(to.name))) {
                 next({name: 'seller_dashboard'});
             } else {
                 next();
             }
-            //validation route by account type 
+            //validation route by active account mode
         }
     })
     .catch(error => { // jika token tidak valid, maka yaudah biarkan saja ke halaman register atau login 
@@ -209,6 +225,7 @@ router.beforeEach((to, from, next) => {
     store.dispatch('fetchTokenFromLocalStorage');
     store.dispatch('fetchUserFromLocalStorage');
     store.dispatch('fetchCompanyFromLocalStorage');
+    store.dispatch('fetchActiveAccountModeFromSessionStorage');
     /* REFRESH GET ITEM LOCALSTORAGE */
 
     // ambil token

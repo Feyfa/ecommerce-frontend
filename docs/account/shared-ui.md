@@ -99,4 +99,4 @@ this.$store.dispatch('fetchCompanyFromLocalStorage');
 
 This keeps Vuex synchronized with the empty localStorage state so account components do not keep rendering stale user or company data after logout.
 
-Account components that read `user` or `company` during route transitions should use safe access such as `user?.img`, `company?.img`, or `user?.account_type`, because the values can be `null` while the page is navigating to login.
+Account components that read `user`, `company`, or active account mode during route transitions should use safe access such as `user?.img`, `company?.img`, or a validated `activeAccountMode`, because the values can be empty while the page is navigating to login.

@@ -53,7 +53,7 @@
 export default {
   computed: {
     accountType() {
-      return this.$store.getters.user?.account_type;
+      return this.$store.getters.activeAccountMode;
     }
   },
 

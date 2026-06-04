@@ -8,7 +8,7 @@
                 <button
                     type="button"
                     class="group flex h-11 w-full items-center gap-3 rounded-lg px-3 text-left text-sm font-medium text-neutral-700 transition-colors hover:bg-violet-50 hover:text-violet-700"
-                    @click="switchAccountType"
+                    @click="switchActiveAccountMode"
                     @click.stop>
                     <span class="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-neutral-100 text-neutral-600 transition-colors group-hover:bg-white group-hover:text-violet-700">
                         <svg xmlns="http://www.w3.org/2000/svg" width="19" height="19" fill="currentColor" viewBox="0 0 16 16">
@@ -98,7 +98,7 @@ import { ElNotification } from 'element-plus';
 export default {
     computed: {
         accountType() {
-            return this.$store.getters.user?.account_type;
+            return this.$store.getters.activeAccountMode;
         },
 
         userName() {
@@ -111,35 +111,25 @@ export default {
             return ['account', 'saldo', 'rekening', 'buyer_user', 'seller_company'].includes(this.$route.name);
         },
 
-        switchAccountType() {
+        async switchActiveAccountMode() {
             this.closeDropdownSetting();
 
             this.$global.globalTemplate.loading = true;
-            this
-            .$store
-            .dispatch('switchAccountType')
-            .then(async response => {
-                // console.log(response);
+            try {
+                const activeAccountMode = await this.$store.dispatch('switchActiveAccountMode');
 
-                localStorage.setItem('user', JSON.stringify(response.user));
-                localStorage.setItem('company', JSON.stringify(response.company));
-                this.$store.dispatch('fetchUserFromLocalStorage');
-                this.$store.dispatch('fetchCompanyFromLocalStorage');
-
-                if(response.user.account_type == 'buyer') {
+                if(activeAccountMode == 'buyer')
                     await this.$router.push({name: 'buyer_home'});
-                } else {
+                else
                     await this.$router.push({name: 'seller_dashboard'});
-                }
 
                 this.$global.globalTemplate.loading = false;
-                ElNotification({ type: 'success', title: 'Success', message: response.message });
-            })
-            .catch(error => {
-                console.log(error);
+                ElNotification({ type: 'success', title: 'Success', message: 'Switch Account Successfully' });
+            } catch (error) {
+                console.error(error);
                 this.$global.globalTemplate.loading = false;
-                ElNotification({ type: 'error', title: 'Error', message: error?.response?.data?.message ?? "Something Wrong" });
-            });
+                ElNotification({ type: 'error', title: 'Error', message: 'Something Wrong' });
+            }
         },
 
         closeDropdownSetting() {
@@ -162,10 +152,12 @@ export default {
                     localStorage.removeItem('token');
                     localStorage.removeItem('user');
                     localStorage.removeItem('company');
+                    sessionStorage.removeItem('active_account_mode');
 
                     this.$store.dispatch('fetchTokenFromLocalStorage');
                     this.$store.dispatch('fetchUserFromLocalStorage');
                     this.$store.dispatch('fetchCompanyFromLocalStorage');
+                    this.$store.dispatch('clearActiveAccountMode');
 
                     this.$global.isAuth = false;
                     this.$global.personImage = '/img/person.png';

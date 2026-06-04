@@ -33,7 +33,7 @@ The page is available through the existing seller route:
 /seller/dashboard
 ```
 
-The route is guarded by account type, so buyer users are redirected away by the existing router guard.
+The route is guarded by the active account mode stored per browser tab, so tabs in buyer mode are redirected away by the existing router guard.
 
 ## API Usage
 

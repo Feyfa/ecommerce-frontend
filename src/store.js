@@ -6,12 +6,14 @@ export default createStore({
         token: '',
         user: '',
         company: '',
+        activeAccountMode: '',
     },
 
     getters: {
         token: state => state.token,
         user: state => state.user,
         company: state => state.company,
+        activeAccountMode: state => state.activeAccountMode,
     },
 
     actions: {
@@ -25,6 +27,49 @@ export default createStore({
 
         fetchCompanyFromLocalStorage() {
             this.state.company = JSON.parse(localStorage.getItem('company'));
+        },
+
+        /**
+         * Mengambil mode akun aktif per tab dari sessionStorage.
+         */
+        fetchActiveAccountModeFromSessionStorage() {
+            const activeAccountMode = sessionStorage.getItem('active_account_mode');
+            this.state.activeAccountMode = ['buyer', 'seller'].includes(activeAccountMode) ? activeAccountMode : 'buyer';
+            sessionStorage.setItem('active_account_mode', this.state.activeAccountMode);
+        },
+
+        /**
+         * Menyimpan mode akun aktif per tab tanpa mengubah database user.
+         */
+        setActiveAccountMode(context, mode) {
+            const activeAccountMode = ['buyer', 'seller'].includes(mode) ? mode : 'buyer';
+            this.state.activeAccountMode = activeAccountMode;
+            sessionStorage.setItem('active_account_mode', activeAccountMode);
+
+            return activeAccountMode;
+        },
+
+        /**
+         * Mengubah mode akun aktif hanya untuk tab browser saat ini.
+         */
+        switchActiveAccountMode() {
+            const currentMode = ['buyer', 'seller'].includes(this.state.activeAccountMode)
+                                ? this.state.activeAccountMode
+                                : (sessionStorage.getItem('active_account_mode') || 'buyer');
+            const activeAccountMode = currentMode == 'buyer' ? 'seller' : 'buyer';
+
+            this.state.activeAccountMode = activeAccountMode;
+            sessionStorage.setItem('active_account_mode', activeAccountMode);
+
+            return activeAccountMode;
+        },
+
+        /**
+         * Menghapus mode akun aktif saat sesi login berakhir.
+         */
+        clearActiveAccountMode() {
+            this.state.activeAccountMode = '';
+            sessionStorage.removeItem('active_account_mode');
         },
 
         withdrawSaldo(context, data) {
@@ -197,18 +242,6 @@ export default createStore({
                      })
             });
         },  
-
-        switchAccountType(context, data) {
-            return new Promise((resolve, reject) => {
-                axios.put('/user/account/type')
-                     .then(response => {
-                        resolve(response.data)
-                     })
-                     .catch(error => {
-                        reject(error);
-                     })
-            });
-        },
 
         processCheckout(context, data) {
             return new Promise((resolve, reject) => {

@@ -273,7 +273,7 @@ export default {
                         .$store
                         .dispatch('approvedTransaction', {
                             transaction_user_id: transaction_user_id,
-                            user_type: this.$store.getters.user.account_type
+                            user_type: 'seller'
                         })
                         .then(response => {
                             // console.log(response);

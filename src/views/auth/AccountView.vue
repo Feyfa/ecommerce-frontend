@@ -61,7 +61,7 @@ export default {
 
     computed: {
         isBuyer() {
-            return this.$store.getters.user?.account_type == 'buyer';
+            return this.$store.getters.activeAccountMode == 'buyer';
         },
 
         hasAccountUser() {
@@ -99,7 +99,7 @@ export default {
     methods: {
         getAvailableTabs() {
             const tabs = ['profile'];
-            const isBuyer = this.$store.getters.user?.account_type == 'buyer';
+            const isBuyer = this.$store.getters.activeAccountMode == 'buyer';
 
             if(isBuyer) {
                 tabs.push('alamat');

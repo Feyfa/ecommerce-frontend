@@ -163,6 +163,7 @@ export default {
             this.$store.dispatch('fetchTokenFromLocalStorage');
             this.$store.dispatch('fetchUserFromLocalStorage');
             this.$store.dispatch('fetchCompanyFromLocalStorage');
+            this.$store.dispatch('setActiveAccountMode', 'buyer');
             /* UPDATE PENGAMBILAN DARI LOCALSTORAGE */
 
             this.$router.push({name: 'buyer_home'});
