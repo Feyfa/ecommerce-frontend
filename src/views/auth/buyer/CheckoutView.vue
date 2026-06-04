@@ -128,15 +128,21 @@
                 <div class="grid gap-3 sm:grid-cols-[minmax(0,1fr)_minmax(0,1fr)]">
                   <label class="flex flex-col gap-2">
                     <span class="text-xs font-semibold uppercase text-slate-500">Kurir</span>
-                    <select
+                    <el-select
                       :id="`kurir-${index1}`"
-                      class="h-11 w-full rounded-md border border-slate-300 bg-white px-3 text-sm font-medium text-slate-900 outline-none transition focus:border-violet-400 focus:ring-2 focus:ring-violet-100"
+                      class="checkout-courier-select w-full"
                       v-model="kurirs[index1].name"
+                      size="large"
+                      placement="bottom-start"
+                      :fallback-placements="['bottom-start', 'bottom', 'bottom-end']"
+                      popper-class="checkout-courier-popper"
                       @change="changeKurir(index1)">
-                      <option v-for="item in checkout.kurirs" :key="`${checkout.user_id_seller}-${item.name}`" :value="item.name">
-                        {{ item.name }} ({{ formatRupiah(item.price) }})
-                      </option>
-                    </select>
+                      <el-option
+                        v-for="item in checkout.kurirs"
+                        :key="`${checkout.user_id_seller}-${item.name}`"
+                        :label="`${item.name} (${formatRupiah(item.price)})`"
+                        :value="item.name" />
+                    </el-select>
                   </label>
 
                   <div class="flex flex-col gap-2">
@@ -701,3 +707,26 @@ export default {
   },
 }
 </script>
+
+<style scoped>
+.checkout-courier-select :deep(.el-select__wrapper) {
+  min-height: 44px;
+  height: 44px;
+  border-color: #cbd5e1;
+  border-radius: 6px;
+  box-shadow: none;
+  font-size: 14px;
+  font-weight: 500;
+  color: #0f172a;
+}
+
+.checkout-courier-select :deep(.el-select__wrapper.is-hovering),
+.checkout-courier-select :deep(.el-select__wrapper.is-focused) {
+  border-color: #a78bfa;
+  box-shadow: 0 0 0 2px #ede9fe;
+}
+
+.checkout-courier-select :deep(.el-select__placeholder) {
+  color: #0f172a;
+}
+</style>
