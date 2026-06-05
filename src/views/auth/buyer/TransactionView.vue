@@ -4,7 +4,18 @@
         <div class="px-4 pt-4 lg:px-6">
             <h1 class="text-3xl font-medium">Transaksi</h1>
 
-            <div class="mt-5 grid grid-cols-1 gap-2 md:grid-cols-12 xl:grid-cols-[192px_minmax(320px,1fr)_270px_112px]">
+            <div class="mt-5 grid grid-cols-1 gap-2 md:grid-cols-12 xl:grid-cols-[minmax(320px,36rem)_1fr_192px_270px_112px]">
+                <div class="md:col-span-8 xl:col-span-1">
+                    <input
+                        v-model="searchKeyword"
+                        type="text"
+                        class="h-10 w-full rounded-md border border-neutral-200 px-3 text-sm outline-none transition focus:border-violet-400"
+                        placeholder="Cari penjual / produk / invoice"
+                        @input="searchTransactions" />
+                </div>
+
+                <div class="hidden xl:block"></div>
+
                 <div class="md:col-span-4 xl:col-span-1">
                     <el-select v-model="selectedFilter" class="transaction-status-filter !w-full" popper-class="transaction-status-popper" @change="changeFilter">
                         <template #label="{ label }">
@@ -26,15 +37,6 @@
                             </div>
                         </el-option>
                     </el-select>
-                </div>
-
-                <div class="md:col-span-8 xl:col-span-1">
-                    <input
-                        v-model="searchKeyword"
-                        type="text"
-                        class="h-10 w-full rounded-md border border-neutral-200 px-3 text-sm outline-none transition focus:border-violet-400"
-                        placeholder="Cari penjual / produk / invoice"
-                        @input="searchTransactions" />
                 </div>
 
                 <div class="md:col-span-9 xl:col-span-1">

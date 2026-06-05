@@ -20,7 +20,7 @@
         </button>
       </div>
 
-      <div class="mt-3 grid grid-cols-1 gap-3 lg:grid-cols-[minmax(14rem,1fr)_12rem_14rem_10.5rem] lg:items-center">
+      <div class="mt-3 grid grid-cols-1 gap-3 lg:grid-cols-[minmax(14rem,36rem)_1fr_12rem_14rem_10.5rem] lg:items-center">
         <input
           placeholder="Search produk"
           id="search-product"
@@ -29,6 +29,8 @@
           v-model="searchProduct"
           @input="onSearchProductInput"
           @keyup.enter="enterSearchProduct">
+
+        <div class="hidden lg:block"></div>
 
         <el-select
             aria-label="Filter stok produk"

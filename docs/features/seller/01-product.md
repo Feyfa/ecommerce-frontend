@@ -155,7 +155,7 @@ Authenticated requests use the stored bearer token.
 - Product images use `object-contain` so the full product is visible.
 - Prices are formatted with Indonesian thousands separators, for example `Rp 12.000.000`.
 - The product toolbar uses Element Plus selects for stock filter and sorting so it matches other app controls.
-- The desktop toolbar aligns the reset filter button with the add product button edge.
+- The desktop toolbar caps the search width on wide screens and keeps stock filter, sort, and reset controls grouped on the right.
 - The add/edit product UI is a right-side drawer below the top navbar.
 - Image zoom uses Element Plus image viewer.
 - Empty states are different for no search result and truly empty seller products.

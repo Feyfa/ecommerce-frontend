@@ -113,7 +113,7 @@ Authenticated requests use the stored bearer token.
 ## UI Notes
 
 - The page follows the same visual direction as seller product: white toolbar, light page background, white cards, soft border, and soft shadow.
-- The toolbar uses a full-width responsive grid: the search field fills the remaining desktop width, while sort, stock filter, and reset button keep consistent fixed columns with only normal gaps between controls.
+- The toolbar uses a responsive grid: the search field is capped on wide desktop screens, while sort, stock filter, and reset button stay grouped on the right with consistent fixed columns.
 - Active search, sort, and stock filters are shown as violet chips below the toolbar.
 - Buyer cards include seller name, so they use `h-[18.5rem]` instead of the seller product card height.
 - Product images use `object-contain` so the full product is visible.

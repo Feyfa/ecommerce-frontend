@@ -84,6 +84,8 @@ The current UI uses:
 - an Element Plus date range picker with `Start Date` and `End Date` placeholders;
 - an Element Plus select for newest/oldest sorting.
 
+On wide desktop screens, the transaction toolbar keeps the capped search input on the left and groups the status select, date range picker, and sort select on the right.
+
 ## Buyer Transaction Page
 
 The buyer page defaults to paid transaction history.
