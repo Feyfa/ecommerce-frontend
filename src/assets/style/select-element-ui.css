@@ -44,28 +44,40 @@
 /* INPUT */
 
 /* TRANSACTION FILTER */
+.transaction-status-filter .el-select__wrapper,
 .transaction-sort-filter .el-select__wrapper {
     @apply h-10 min-h-10 rounded-md border border-neutral-200 px-3 shadow-none text-sm text-neutral-700;
 }
+.transaction-status-filter .el-select__wrapper.is-hovering,
+.transaction-status-filter .el-select__wrapper.is-focused,
 .transaction-sort-filter .el-select__wrapper.is-hovering,
 .transaction-sort-filter .el-select__wrapper.is-focused {
     @apply border-violet-400 shadow-none;
 }
+.transaction-status-filter .el-select__placeholder,
 .transaction-sort-filter .el-select__placeholder {
     @apply text-sm font-semibold text-neutral-700;
 }
+.transaction-status-filter .el-select__caret,
 .transaction-sort-filter .el-select__caret {
     @apply text-neutral-500;
 }
+.transaction-status-count {
+    @apply inline-flex h-4 min-w-4 items-center justify-center rounded-full bg-violet-600 px-1 text-[10px] font-semibold leading-none text-white;
+}
+.transaction-status-popper .el-select-dropdown__item,
 .transaction-sort-popper .el-select-dropdown__item {
     @apply flex items-center px-3 text-sm font-medium text-neutral-700;
     height: 38px;
     line-height: 1.2;
 }
+.transaction-status-popper .el-select-dropdown__item.is-selected,
+.transaction-status-popper .el-select-dropdown__item.is-hovering,
 .transaction-sort-popper .el-select-dropdown__item.is-selected,
 .transaction-sort-popper .el-select-dropdown__item.is-hovering {
     @apply bg-violet-50 text-violet-700;
 }
+.transaction-status-popper .el-select-dropdown__item.is-selected,
 .transaction-sort-popper .el-select-dropdown__item.is-selected {
     @apply font-semibold;
 }

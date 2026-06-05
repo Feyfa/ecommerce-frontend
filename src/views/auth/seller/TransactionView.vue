@@ -4,29 +4,43 @@
         <div class="px-4 pt-4 lg:px-6">
             <h1 class="text-3xl font-medium">Transaksi</h1>
 
-            <div class="mt-5 flex flex-col gap-3 xl:flex-row xl:items-center xl:justify-between">
-                <div class="flex flex-wrap items-center gap-2">
-                    <button
-                        v-for="filter in transactionFilters"
-                        :key="filter.value"
-                        class="rounded-md border px-4 py-2 text-sm font-semibold transition"
-                        :class="selectedFilter == filter.value ? 'border-violet-600 bg-violet-600 text-white' : 'border-neutral-200 bg-white text-neutral-600 hover:border-violet-300 hover:text-violet-700'"
-                        @click="changeFilter(filter.value)">
-                        {{ filter.label }}
-                        <span class="ml-1 text-xs opacity-80">{{ filter.count }}</span>
-                    </button>
+            <div class="mt-5 grid grid-cols-1 gap-2 md:grid-cols-12 xl:grid-cols-[192px_minmax(320px,1fr)_270px_112px]">
+                <div class="md:col-span-4 xl:col-span-1">
+                    <el-select v-model="selectedFilter" class="transaction-status-filter !w-full" popper-class="transaction-status-popper" @change="changeFilter">
+                        <template #label="{ label }">
+                            <span class="inline-flex items-center gap-2">
+                                <span>{{ label }}</span>
+                                <span class="transaction-status-count">
+                                    {{ selectedFilterCount }}
+                                </span>
+                            </span>
+                        </template>
+                        <el-option
+                            v-for="filter in transactionFilters"
+                            :key="filter.value"
+                            :label="filter.label"
+                            :value="filter.value">
+                            <div class="flex w-full items-center justify-between gap-4">
+                                <span>{{ filter.label }}</span>
+                                <span class="text-xs font-semibold text-neutral-400">{{ filter.count }}</span>
+                            </div>
+                        </el-option>
+                    </el-select>
                 </div>
 
-                <div class="flex flex-col gap-2 sm:flex-row">
+                <div class="md:col-span-8 xl:col-span-1">
                     <input
                         v-model="searchKeyword"
                         type="text"
-                        class="w-full rounded-md border border-neutral-200 px-3 py-2 text-sm outline-none transition focus:border-violet-400 sm:w-72"
+                        class="h-10 w-full rounded-md border border-neutral-200 px-3 text-sm outline-none transition focus:border-violet-400"
                         placeholder="Cari pembeli / produk / invoice"
                         @input="searchTransactions" />
+                </div>
+
+                <div class="md:col-span-9 xl:col-span-1">
                     <el-date-picker
                         v-model="dateRange"
-                        class="transaction-date-filter !w-full sm:!w-[290px]"
+                        class="transaction-date-filter !w-full"
                         type="daterange"
                         range-separator="-"
                         start-placeholder="Start Date"
@@ -34,7 +48,10 @@
                         value-format="YYYY-MM-DD"
                         format="DD MMM YYYY"
                         @change="changeDateRange" />
-                    <el-select v-model="sortOrder" class="transaction-sort-filter !w-full sm:!w-28" popper-class="transaction-sort-popper" @change="changeSort">
+                </div>
+
+                <div class="md:col-span-3 xl:col-span-1">
+                    <el-select v-model="sortOrder" class="transaction-sort-filter !w-full" popper-class="transaction-sort-popper" @change="changeSort">
                         <el-option label="Terbaru" value="newest" />
                         <el-option label="Terlama" value="oldest" />
                     </el-select>
@@ -147,6 +164,10 @@ export default {
                 { value: 'waiting_seller', label: 'Perlu Persetujuan', count: this.counts.waiting_seller },
                 { value: 'done', label: 'Selesai', count: this.counts.done },
             ];
+        },
+
+        selectedFilterCount() {
+            return this.transactionFilters.find(filter => filter.value == this.selectedFilter)?.count ?? 0;
         }
     },
 

@@ -10,7 +10,7 @@ The transaction pages let authenticated users review transaction history and con
 
 Current supported actions:
 
-- Show transaction tabs with backend-provided counts.
+- Show transaction status filters with backend-provided counts.
 - Search transactions by seller, buyer, product, invoice, transaction number, or payment name.
 - Filter transactions by date range.
 - Sort transactions by newest or oldest transaction date.
@@ -49,7 +49,7 @@ Current supported actions:
   Transaction date picker overrides.
 
 - `src/assets/style/select-element-ui.css`
-  Transaction sort select overrides.
+  Transaction status and sort select overrides.
 
 ## Routes
 
@@ -69,7 +69,7 @@ Both buyer and seller transaction pages send filter state to the backend through
 Request parameters:
 
 - `user_type`: `buyer` or `seller`.
-- `status_filter`: selected transaction status tab.
+- `status_filter`: selected transaction status filter.
 - `search`: search keyword.
 - `sort`: `newest` or `oldest`.
 - `page`: current page number.
@@ -79,7 +79,7 @@ Request parameters:
 
 The current UI uses:
 
-- status buttons with rounded-md styling;
+- an Element Plus status select with a compact count badge;
 - a text input for search;
 - an Element Plus date range picker with `Start Date` and `End Date` placeholders;
 - an Element Plus select for newest/oldest sorting.
@@ -88,7 +88,7 @@ The current UI uses:
 
 The buyer page defaults to paid transaction history.
 
-Buyer tabs:
+Buyer status filters:
 
 - `Semua`: paid transaction history only.
 - `Belum Dibayar`: pending invoices.
@@ -106,7 +106,7 @@ Important buyer behavior:
 
 ## Seller Transaction Page
 
-Seller tabs:
+Seller status filters:
 
 - `Semua`: all seller transaction rows.
 - `Belum Dibayar`: buyer has not paid the invoice yet.
@@ -211,7 +211,7 @@ Authenticated requests use the stored bearer token.
 - Transaction details are opened in a modal instead of inline expansion.
 - Pending payment is treated as a separate action queue.
 - Copy actions use the browser clipboard fallback and show Element Plus notifications.
-- Date and sort controls use Element Plus styling so they match the transaction filter bar.
+- Status, date, and sort controls use Element Plus styling so they match the transaction filter bar.
 - The transaction card keeps action buttons aligned with the total block.
 
 ## Known Decisions
