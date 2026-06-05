@@ -20,15 +20,50 @@
         </button>
       </div>
 
-      <div class="mt-3 flex flex-col gap-3 sm:flex-row sm:items-center">
+      <div class="mt-3 grid grid-cols-1 gap-3 lg:grid-cols-[minmax(14rem,1fr)_12rem_14rem_10.5rem] lg:items-center">
         <input
           placeholder="Search produk"
           id="search-product"
           type="text"
-          class="h-11 w-full rounded-md border border-slate-300 px-3 text-base text-slate-900 outline-none shadow-sm placeholder:text-slate-400 focus:border-violet-500 focus:ring-2 focus:ring-violet-100 sm:max-w-md"
+          class="h-11 w-full rounded-md border border-slate-300 px-3 text-base text-slate-900 outline-none shadow-sm placeholder:text-slate-400 focus:border-violet-500 focus:ring-2 focus:ring-violet-100"
           v-model="searchProduct"
           @input="onSearchProductInput"
           @keyup.enter="enterSearchProduct">
+
+        <el-select
+            aria-label="Filter stok produk"
+            v-model="stockFilter"
+            class="product-stock-filter !w-full"
+            popper-class="product-filter-popper"
+            @change="applyProductFilters">
+            <el-option
+              v-for="option in stockFilterOptions"
+              :key="option.value"
+              :label="option.label"
+              :value="option.value" />
+        </el-select>
+
+        <el-select
+            aria-label="Urutkan produk"
+            v-model="sortProduct"
+            class="product-sort-filter !w-full"
+            popper-class="product-filter-popper"
+            @change="applyProductFilters">
+            <el-option
+              v-for="option in sortProductOptions"
+              :key="option.value"
+              :label="option.label"
+              :value="option.value" />
+        </el-select>
+
+        <button
+          type="button"
+          class="inline-flex h-11 w-full items-center justify-center gap-2 rounded-md border border-slate-300 bg-white px-4 text-sm font-semibold text-slate-600 shadow-sm transition hover:border-violet-200 hover:bg-violet-50 hover:text-violet-700 active:scale-95 disabled:cursor-not-allowed disabled:opacity-50"
+          :disabled="!hasActiveProductFilter"
+          @click="resetProductFilters">
+          <i class="fa-solid fa-rotate-left text-xs"></i>
+          Reset Filter
+        </button>
 
         <button
           type="button"
@@ -37,6 +72,17 @@
           <i class="fa-solid fa-plus text-sm"></i>
           Tambah Produk
         </button>
+      </div>
+
+      <div
+        v-if="activeProductFilterChips.length > 0"
+        class="mt-3 flex flex-wrap items-center gap-2">
+        <span
+          v-for="chip in activeProductFilterChips"
+          :key="chip.key"
+          class="inline-flex h-8 items-center rounded-full bg-violet-50 px-3 text-xs font-semibold text-violet-700 ring-1 ring-violet-100">
+          {{ chip.label }}
+        </span>
       </div>
     </div>
 
@@ -54,19 +100,19 @@
           <div class="flex h-14 w-14 items-center justify-center rounded-full bg-violet-50 text-violet-600">
             <i
               class="text-xl"
-              :class="activeSearchProduct.length > 0 ? 'fa-solid fa-magnifying-glass' : 'fa-solid fa-box-open'"></i>
+              :class="hasActiveProductFilter ? 'fa-solid fa-magnifying-glass' : 'fa-solid fa-box-open'"></i>
           </div>
 
           <h2 class="mt-4 text-lg font-semibold text-slate-950">
-            {{ activeSearchProduct.length > 0 ? 'Produk tidak ditemukan' : 'Produk Anda kosong' }}
+            {{ hasActiveProductFilter ? 'Produk tidak ditemukan' : 'Produk Anda kosong' }}
           </h2>
 
           <p class="mt-2 max-w-sm text-sm leading-6 text-slate-500">
-            {{ activeSearchProduct.length > 0 ? 'Coba gunakan kata kunci lain atau hapus pencarian.' : 'Tambahkan produk pertama agar mulai tampil di daftar produk.' }}
+            {{ hasActiveProductFilter ? 'Coba ubah filter, kata kunci, atau reset filter yang sedang aktif.' : 'Tambahkan produk pertama agar mulai tampil di daftar produk.' }}
           </p>
 
           <button
-            v-if="activeSearchProduct.length === 0"
+            v-if="!hasActiveProductFilter"
             type="button"
             class="mt-5 inline-flex h-10 items-center justify-center gap-2 rounded-md border border-violet-500 bg-violet-500 px-4 text-sm font-semibold text-white shadow-sm transition hover:bg-violet-600 active:scale-95"
             @click.stop="showAddProduct">
@@ -104,12 +150,12 @@
     
             <div class="mt-3 flex items-center justify-between gap-2">
               <span
-                class="inline-flex h-7 max-w-[6rem] items-center rounded-full px-2.5 text-xs font-medium"
+                class="inline-flex h-7 shrink-0 items-center whitespace-nowrap rounded-full px-2 text-xs font-medium sm:px-2.5"
                 :class="product.stock < 1 ? 'bg-red-50 text-red-600' : 'bg-slate-100 text-slate-600'">
                 Stok: {{ product.stock }}
               </span>
     
-              <div class="flex shrink-0 items-center gap-1">
+              <div class="flex shrink-0 items-center gap-0.5 sm:gap-1">
                 <button
                   type="button"
                   class="flex h-8 w-8 items-center justify-center rounded-md text-slate-500 transition hover:bg-red-50 hover:text-red-600"
@@ -167,8 +213,7 @@
 
 <script>
 import eventBus from "@/eventBus";
-import { ElNotification } from "element-plus";
-import Swal from "sweetalert2";
+import { ElMessageBox, ElNotification } from "element-plus";
 import AddProduct from "@/components/product/add.vue";
 import EditProduct from "@/components/product/edit.vue"
 
@@ -188,8 +233,26 @@ export default {
       editProductId: '',
       searchProduct: '',
       activeSearchProduct: '',
+      stockFilter: 'all',
+      sortProduct: 'latest',
       productRequestVersion: 0,
       productHeaderStuck: false,
+      stockFilterOptions: [
+        { value: 'all', label: 'Semua Stok' },
+        { value: 'available', label: 'Stok Tersedia' },
+        { value: 'low', label: 'Stok Menipis' },
+        { value: 'empty', label: 'Stok Habis' },
+      ],
+      sortProductOptions: [
+        { value: 'latest', label: 'Terbaru' },
+        { value: 'oldest', label: 'Terlama' },
+        { value: 'price_highest', label: 'Harga Tertinggi' },
+        { value: 'price_lowest', label: 'Harga Terendah' },
+        { value: 'stock_highest', label: 'Stok Terbanyak' },
+        { value: 'stock_lowest', label: 'Stok Tersedikit' },
+        { value: 'name_asc', label: 'Nama A-Z' },
+        { value: 'name_desc', label: 'Nama Z-A' },
+      ],
       
       completeProduct: false,
 
@@ -199,6 +262,38 @@ export default {
         loading_search_product: false,
         not_connected_account: false,
       }
+    }
+  },
+
+  computed: {
+    /**
+     * Mengecek apakah pencarian atau filter produk sedang aktif.
+     */
+    hasActiveProductFilter() {
+      return this.activeSearchProduct.length > 0 || this.stockFilter !== 'all' || this.sortProduct !== 'latest';
+    },
+
+    /**
+     * Membuat daftar chip ringkas untuk filter produk yang sedang aktif.
+     */
+    activeProductFilterChips() {
+      const chips = [];
+      const activeStockFilter = this.stockFilterOptions.find(option => option.value === this.stockFilter);
+      const activeSortProduct = this.sortProductOptions.find(option => option.value === this.sortProduct);
+
+      if(this.activeSearchProduct.length > 0) {
+        chips.push({ key: 'search', label: `Search: ${this.activeSearchProduct}` });
+      }
+
+      if(activeStockFilter && activeStockFilter.value !== 'all') {
+        chips.push({ key: 'stock', label: activeStockFilter.label });
+      }
+
+      if(activeSortProduct && activeSortProduct.value !== 'latest') {
+        chips.push({ key: 'sort', label: `Urutkan: ${activeSortProduct.label}` });
+      }
+
+      return chips;
     }
   },
 
@@ -265,6 +360,36 @@ export default {
       this.getProducts();
     },
 
+    /**
+     * Mengambil ulang produk dari awal ketika filter stok atau urutan berubah.
+     */
+    applyProductFilters() {
+      this.show.loading_search_product = true;
+      this.completeProduct = false;
+      this.products = [];
+
+      this.getProducts();
+    },
+
+    /**
+     * Menghapus semua filter produk dan mengembalikan urutan default.
+     */
+    resetProductFilters() {
+      if(!this.hasActiveProductFilter) {
+        return;
+      }
+
+      this.searchProduct = '';
+      this.activeSearchProduct = '';
+      this.stockFilter = 'all';
+      this.sortProduct = 'latest';
+      this.show.loading_search_product = true;
+      this.completeProduct = false;
+      this.products = [];
+
+      this.getProducts();
+    },
+
     onAfterAddProduct(data) {
       /* CHANGE PRICE STRING TO NUMBER */
       data.price = Number(data.price);
@@ -312,42 +437,48 @@ export default {
     },
 
     deleteProduct(id) {
-      Swal.fire({
-        title: "Delete Product",
-        icon: "question",
-        confirmButtonText: "Yes, delete it!",
-        showCancelButton: true,
-        confirmButtonColor: '#dc3545'
-      })
-      .then(result => {
-        if(result.isConfirmed) {
-          this.$store.dispatch('deleteProduct', {
-            user_id_seller: this.$store.getters.user.id,
-            id_product: id
-          })
-          .then(response => {
-            // console.log(response);
-
-            if(response.data.status === 200) {
-              const index = this.products.findIndex(item => item.id === id );
-              this.products.splice(index, 1);
-
-              if(this.products.length == 0) {
-                this.completeProduct = true;
-              }
-
-              ElNotification({
-                type: 'success',
-                title: 'Success',
-                message: response.data.message
-              });
-            }
-          })
-          .catch(error => {
-            console.error(error);
-          })
+      ElMessageBox.confirm(
+        'Produk yang dihapus tidak akan tampil lagi di daftar produk dan keranjang pembeli.',
+        'Hapus Produk',
+        {
+          type: 'warning',
+          confirmButtonText: 'Hapus Produk',
+          cancelButtonText: 'Batal',
+          confirmButtonClass: 'el-button--danger',
+          distinguishCancelAndClose: true
         }
+      )
+      .then(() => {
+        this.$store.dispatch('deleteProduct', {
+          user_id_seller: this.$store.getters.user.id,
+          id_product: id
+        })
+        .then(response => {
+          // console.log(response);
+
+          if(response.data.status === 200) {
+            const index = this.products.findIndex(item => item.id === id );
+
+            if(index >= 0) {
+              this.products.splice(index, 1);
+            }
+
+            if(this.products.length == 0) {
+              this.completeProduct = true;
+            }
+
+            ElNotification({
+              type: 'success',
+              title: 'Success',
+              message: response.data.message
+            });
+          }
+        })
+        .catch(error => {
+          console.error(error);
+        })
       })
+      .catch(() => {});
     },
 
     getProducts() {
@@ -362,7 +493,9 @@ export default {
       this.$store.dispatch('getProducts', {
         user_id_seller: this.$store.getters.user.id,
         products_current_id: products_current_id,
-        search_product: requestSearchProduct
+        search_product: requestSearchProduct,
+        stock_filter: this.stockFilter,
+        sort_product: this.sortProduct,
       })
       .then(response => {
         // console.log(response);

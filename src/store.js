@@ -625,6 +625,8 @@ export default createStore({
                     params: {
                         products_current_id: data.products_current_id,
                         search_product: data.search_product,
+                        stock_filter: data.stock_filter,
+                        sort_product: data.sort_product,
                     }
                 })
                 .then(response => {

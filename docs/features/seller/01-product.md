@@ -12,6 +12,8 @@ Current supported actions:
 
 - View product list.
 - Search products by name.
+- Filter products by stock condition.
+- Sort products by latest update, price, stock, or name.
 - Add a product with image upload.
 - Edit product data and optionally replace the image.
 - Delete a product after confirmation.
@@ -41,6 +43,10 @@ Current supported actions:
 - `products`: currently loaded seller products.
 - `searchProduct`: current input value in the search field.
 - `activeSearchProduct`: keyword that is actually used by the current product query.
+- `stockFilter`: active stock filter value for the current product query.
+- `sortProduct`: active sort value for the current product query.
+- `stockFilterOptions`: available stock filter choices shown in the product toolbar.
+- `sortProductOptions`: available sort choices shown in the product toolbar.
 - `productRequestVersion`: internal request guard so stale list/search responses do not overwrite newer product state.
 - `completeProduct`: marks that the backend has no more products to return.
 - `editProductId`: selected product id for the edit drawer.
@@ -76,6 +82,33 @@ Infinite scroll is driven by the global scroll event. When the global container 
 5. When the input is cleared after a search, `activeSearchProduct` is reset and all products are fetched again.
 
 `activeSearchProduct` exists so the empty state can distinguish between "search returned no result" and "seller really has no products".
+
+### Filter and Sort Products
+
+1. The seller selects a stock filter or sort option from the product toolbar.
+2. `ProductView.vue` clears the current product list.
+3. The next request sends `stock_filter` and `sort_product` through the `getProducts` Vuex action.
+4. The backend returns a filtered and sorted product batch.
+5. Active filter chips appear when search, stock filter, or non-default sorting is active.
+6. Clicking `Reset Filter` clears the search, restores the default stock filter and sort, then reloads the product list.
+
+Supported stock filter values:
+
+- `all`: all seller products.
+- `available`: products with stock greater than `0`.
+- `low`: products with stock between `1` and `5`.
+- `empty`: products with stock less than or equal to `0`.
+
+Supported sort values:
+
+- `latest`: newest updated products first.
+- `oldest`: oldest updated products first.
+- `price_highest`: highest price first.
+- `price_lowest`: lowest price first.
+- `stock_highest`: highest stock first.
+- `stock_lowest`: lowest stock first.
+- `name_asc`: product name A-Z.
+- `name_desc`: product name Z-A.
 
 ### Add Product
 
@@ -121,6 +154,8 @@ Authenticated requests use the stored bearer token.
 - Product cards use a light page background and white cards so adjacent products do not blend together.
 - Product images use `object-contain` so the full product is visible.
 - Prices are formatted with Indonesian thousands separators, for example `Rp 12.000.000`.
+- The product toolbar uses Element Plus selects for stock filter and sorting so it matches other app controls.
+- The desktop toolbar aligns the reset filter button with the add product button edge.
 - The add/edit product UI is a right-side drawer below the top navbar.
 - Image zoom uses Element Plus image viewer.
 - Empty states are different for no search result and truly empty seller products.
