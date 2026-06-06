@@ -6,8 +6,8 @@ Frontend-specific documentation should live here. Backend API behavior, database
 
 ## Current Documents
 
-- [Local HTTPS Development](setup/local-https-development.md)
-  Explains how to run the frontend and backend through local HTTPS domains.
+- [Local Native Development](setup/local-native-development.md)
+  Explains how to run the frontend and backend locally without Docker by using local HTTPS domains and native app runtimes.
 
 - [Seller Product](features/seller/01-product.md)
   Documents the seller product UI, state, flows, API usage, and UI decisions.
@@ -29,6 +29,9 @@ Frontend-specific documentation should live here. Backend API behavior, database
 
 - [Account](account/README.md)
   Documents the shared buyer and seller account UI, tab order, profile forms, address management, balance, bank accounts, security, and shared styling rules.
+
+- [Branching Strategy](deployment/branching-strategy.md)
+  Documents the shared frontend and backend branch roles, staging integration flow, production flow, and conflict rules.
 
 ## Documentation Rules
 
@@ -53,7 +56,10 @@ docs/
   README.md
 
   setup/
-    local-https-development.md
+    local-native-development.md
+
+  deployment/
+    branching-strategy.md
 
   features/
     transaction.md
