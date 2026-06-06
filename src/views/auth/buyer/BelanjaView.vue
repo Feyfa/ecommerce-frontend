@@ -11,7 +11,7 @@
         <h1 class="text-3xl font-medium text-slate-950">Barang Belanja</h1>
       </div>
 
-      <div class="mt-3 grid grid-cols-1 gap-3 lg:grid-cols-[minmax(14rem,36rem)_1fr_14rem_12rem_10.5rem] lg:items-center">
+      <div class="mt-3 grid grid-cols-1 gap-3 lg:grid-cols-[minmax(14rem,27rem)_1fr_14rem_12rem_10.5rem] lg:items-center">
         <input
           placeholder="Search produk"
           id="search-product"

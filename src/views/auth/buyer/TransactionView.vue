@@ -4,7 +4,7 @@
         <div class="px-4 pt-4 lg:px-6">
             <h1 class="text-3xl font-medium">Transaksi</h1>
 
-            <div class="mt-5 grid grid-cols-1 gap-2 md:grid-cols-12 xl:grid-cols-[minmax(320px,36rem)_1fr_192px_270px_112px]">
+            <div class="mt-5 grid grid-cols-1 gap-2 md:grid-cols-12 xl:grid-cols-[minmax(320px,27rem)_1fr_192px_270px_112px]">
                 <div class="md:col-span-8 xl:col-span-1">
                     <input
                         v-model="searchKeyword"
