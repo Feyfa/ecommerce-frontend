@@ -458,6 +458,15 @@ export default {
 }
 
 @media (max-width: 767px) {
+    .account-security-action {
+        align-items: stretch;
+        flex-direction: column;
+    }
+
+    .account-primary-button {
+        width: 100%;
+    }
+
     .account-tfa-controls {
         align-items: stretch;
         flex-direction: column;
