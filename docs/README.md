@@ -2,7 +2,13 @@
 
 This folder contains technical documentation for the Vue frontend.
 
-Frontend-specific documentation should live here. Backend API behavior, database decisions, Laravel configuration, and backend deployment notes should live in the backend repository docs.
+Frontend-specific documentation should live here. Backend API behavior, database decisions, Laravel configuration, and backend-owned behavior should live in the backend repository docs.
+
+Deployment, branching, staging, production, Docker Compose, and server runbooks are owned by the deploy repository docs:
+
+```text
+../deploy/docs/
+```
 
 ## Current Documents
 
@@ -30,9 +36,6 @@ Frontend-specific documentation should live here. Backend API behavior, database
 - [Account](account/README.md)
   Documents the shared buyer and seller account UI, tab order, profile forms, address management, balance, bank accounts, security, and shared styling rules.
 
-- [Branching Strategy](deployment/branching-strategy.md)
-  Documents the shared frontend and backend branch roles, staging integration flow, production flow, and conflict rules.
-
 ## Documentation Rules
 
 Use English for every Markdown document in this folder.
@@ -57,9 +60,6 @@ docs/
 
   setup/
     local-native-development.md
-
-  deployment/
-    branching-strategy.md
 
   features/
     transaction.md
