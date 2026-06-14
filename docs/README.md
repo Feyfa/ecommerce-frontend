@@ -1,4 +1,4 @@
-# Frontend Documentation
+# Frontend Documentation 
 
 This folder contains technical documentation for the Vue frontend.
 
