@@ -74,11 +74,11 @@
             @click="showDropdownUserSetting"
             @click.stop>
             <span class="flex h-10 w-10 shrink-0 items-center justify-center overflow-hidden rounded-lg bg-white shadow-sm">
-                <span class="h-10 w-10 bg-cover bg-center bg-no-repeat" :style="{ backgroundImage: `url(${this.$global.personImage})` }"></span>
+                <span class="h-10 w-10 bg-cover bg-center bg-no-repeat" :style="{ backgroundImage: `url(${profileImage})` }"></span>
             </span>
 
             <span class="min-w-0 flex-1">
-                <span class="block truncate text-sm font-semibold text-neutral-800">{{ userName }}</span>
+                <span class="block truncate text-sm font-semibold text-neutral-800">{{ displayName }}</span>
                 <span class="block text-xs capitalize text-neutral-500">{{ accountType }}</span>
             </span>
 
@@ -102,8 +102,18 @@ export default {
             return this.$store.getters.activeAccountMode;
         },
 
-        userName() {
+        displayName() {
+            if(this.accountType == 'seller')
+                return this.$store.getters.company?.name || this.$store.getters.user?.name || '';
+
             return this.$store.getters.user?.name || '';
+        },
+
+        profileImage() {
+            if(this.accountType == 'seller')
+                return this.$global.companyImage || '/img/company.png';
+
+            return this.$global.personImage || '/img/person.png';
         }
     },
 
