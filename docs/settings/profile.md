@@ -1,14 +1,14 @@
 # User Profile
 
-This document explains the buyer user profile tab in `Akun Saya`.
+This document explains the user profile settings page in `Pengaturan`.
 
 ## Applies To
 
-Buyer only.
+Authenticated users.
 
 ## Purpose
 
-The buyer profile tab lets a buyer update personal account information and manage their profile image.
+The profile settings page lets a user update personal account information and manage their profile image.
 
 ## Main Files
 

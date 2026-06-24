@@ -1,6 +1,6 @@
 # Balance
 
-This document explains the balance tab in `Akun Saya`.
+This document explains the balance settings page in `Pengaturan`.
 
 ## Applies To
 
@@ -8,15 +8,15 @@ Buyer and seller.
 
 ## Purpose
 
-The balance tab lets a user view active balance, review balance history, filter history by date range, and withdraw available balance to a bank account.
+The balance settings page lets a user view active balance, review balance history, filter history by date range, and withdraw available balance to a bank account.
 
 ## Main Files
 
 - `src/views/auth/SaldoView.vue`
   Owns balance summary, history list, date range filter, withdraw modal, and withdrawal form behavior.
 
-- `src/views/auth/AccountView.vue`
-  Owns the shared account shell and tab placement.
+- `src/views/auth/settings/SettingsView.vue`
+  Owns the shared settings shell and route placement.
 
 ## Balance Summary
 
@@ -77,4 +77,3 @@ Use visual disabled state for unavailable actions.
 Balance and withdrawal actions are handled through Vuex actions in `src/store.js`.
 
 Keep backend field names unchanged when building payloads for balance history and withdrawal.
-

@@ -245,13 +245,13 @@
         <!-- form edit alamat -->
 
         <!-- title -->
-        <div class="relative">
+        <div v-if="showTitle" class="relative">
             <h3 class="text-xl text-center">Alamat User</h3>
         </div>
         <!-- title -->
 
         <!-- search and button add alamat -->
-        <div class="mt-5 mb-7 flex flex-col md:flex-row md:justify-between md:items-center gap-3">
+        <div class="mb-7 flex flex-col md:flex-row md:justify-between md:items-center gap-3">
             <div class="w-full md:w-[40%] lg:w-[35%]">
                 <input
                     placeholder="Cari Nama Alamat"
@@ -329,7 +329,7 @@
                 <div
                     v-else
                     class="text-center mt-10">
-                    <h5 class="text-[.9rem]">Alamat Not Found</h5>
+                    <h5 class="text-[.9rem]">Alamat Kosong</h5>
                 </div>
             </div>
         </div>
@@ -350,6 +350,10 @@ export default {
         flat: {
             type: Boolean,
             default: false
+        },
+        showTitle: {
+            type: Boolean,
+            default: true
         }
     },
 

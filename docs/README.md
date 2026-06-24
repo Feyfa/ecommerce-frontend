@@ -36,8 +36,8 @@ Deployment, branching, staging, production, Docker Compose, and server runbooks 
 - [Transaction](features/transaction.md)
   Documents the shared buyer and seller transaction UI, filters, cards, detail modal, pagination, and role-based display rules.
 
-- [Account](account/README.md)
-  Documents the shared buyer and seller account UI, tab order, profile forms, address management, balance, bank accounts, security, and shared styling rules.
+- [Settings](settings/README.md)
+  Documents the shared buyer and seller settings UI, route structure, profile forms, address management, balance, bank accounts, coming soon settings routes, and shared styling rules.
 
 ## Documentation Rules
 
@@ -76,7 +76,7 @@ docs/
       02-cart.md
       03-checkout.md
 
-  account/
+  settings/
     README.md
     shared-ui.md
     profile.md
