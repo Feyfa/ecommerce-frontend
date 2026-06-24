@@ -472,8 +472,7 @@ export default {
                 ElNotification({ type: 'success', title: 'Success', message: response.message });
             })
             .catch(error => {
-                console.log(error);
-                if(error.response.status == 422) {
+                if(error.response?.status == 422) {
                     const message = error.response.data.message;
                     Object.keys(message).forEach(key => {
                         switch(key) {
@@ -613,9 +612,7 @@ export default {
                 ElNotification({ type: 'success', title: 'Success', message: response.message });
             })
             .catch(error => {
-                console.log(error);
-
-                if(error.response.status == 422) {
+                if(error.response?.status == 422) {
                     const message = error.response.data.message;
                     Object.keys(message).forEach(key => {
                         switch(key) {

@@ -25,11 +25,10 @@
                 <SaldoView v-if="activeTab == 'saldo'" embedded />
                 <PaymentView v-if="activeTab == 'rekening'" embedded />
                 <template v-if="activeTab == 'profile'">
-                    <UserProfileView v-if="isBuyer" embedded :show-alamat="false" :show-tfa="false" />
+                    <UserProfileView v-if="isBuyer" embedded :show-alamat="false" />
                     <CompanyProfileView v-else embedded />
                 </template>
                 <AddressList v-if="activeTab == 'alamat' && isBuyer" flat />
-                <AccountSecurity v-if="activeTab == 'security'" />
             </div>
         </div>
     </div>
@@ -40,7 +39,6 @@ import SaldoView from './SaldoView.vue';
 import PaymentView from './PaymentView.vue';
 import UserProfileView from './buyer/UserProfileView.vue';
 import CompanyProfileView from './seller/CompanyProfileView.vue';
-import AccountSecurity from '@/components/account/AccountSecurity.vue';
 import AddressList from '@/components/user-profile/Alamat.vue';
 
 export default {
@@ -49,7 +47,6 @@ export default {
         PaymentView,
         UserProfileView,
         CompanyProfileView,
-        AccountSecurity,
         AddressList,
     },
 
@@ -90,8 +87,6 @@ export default {
                 { name: 'rekening', label: 'Rekening Bank' },
             );
 
-            tabs.push({ name: 'security', label: 'Keamanan' });
-
             return tabs;
         }
     },
@@ -106,7 +101,6 @@ export default {
             }
 
             tabs.push('saldo', 'rekening');
-            tabs.push('security');
 
             return tabs;
         },

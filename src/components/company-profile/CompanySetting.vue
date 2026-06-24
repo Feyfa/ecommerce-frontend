@@ -207,7 +207,6 @@ export default {
                     this.$global.showCompanyProfileView.companySetting = true;
                 })
                 .catch(error => {
-                    localStorage.removeItem('token');
                     localStorage.removeItem('user');
                     localStorage.removeItem('company');
                     this.$router.push('/login');
@@ -249,7 +248,6 @@ export default {
                         localStorage.setItem('company', JSON.stringify(response.company));
             
                         /* UPDATE PENGAMBILAN DARI LOCALSTORAGE */
-                        this.$store.dispatch('fetchTokenFromLocalStorage');
                         this.$store.dispatch('fetchUserFromLocalStorage');
                         this.$store.dispatch('fetchCompanyFromLocalStorage');
                         /* UPDATE PENGAMBILAN DARI LOCALSTORAGE */

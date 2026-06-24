@@ -1,14 +1,14 @@
 import global from '@/global';
 import { ElMessageBox } from 'element-plus';
+import { waitForClerkLoaded } from '@/clerk';
 
 let sessionExpiredWarningPromise = null;
 
 /**
- * Membersihkan data login lokal ketika token sudah tidak valid.
+ * Membersihkan data login lokal ketika sesi auth utama sudah tidak valid.
  */
 export const clearAuthSession = () => {
     /* step 1: hapus data autentikasi dari browser */
-    localStorage.removeItem('token');
     localStorage.removeItem('user');
     localStorage.removeItem('company');
     sessionStorage.removeItem('active_account_mode');
@@ -23,10 +23,23 @@ export const clearAuthSession = () => {
 };
 
 /**
+ * Menutup sesi Clerk di browser bila memang masih aktif.
+ */
+export const signOutClerkBrowserSession = async () => {
+    const runtimeState = await waitForClerkLoaded({ timeout: 1000, interval: 50 });
+
+    if(!runtimeState.loaded || !runtimeState.isSignedIn || !runtimeState.clerk?.signOut)
+        return false;
+
+    await runtimeState.clerk.signOut();
+
+    return true;
+};
+
+/**
  * Sinkronkan Vuex setelah sesi lokal dibersihkan.
  */
 export const syncClearedAuthSessionToStore = (store) => {
-    store.dispatch('fetchTokenFromLocalStorage');
     store.dispatch('fetchUserFromLocalStorage');
     store.dispatch('fetchCompanyFromLocalStorage');
     store.dispatch('clearActiveAccountMode');
@@ -57,7 +70,7 @@ export const showSessionExpiredWarning = () => {
 };
 
 /**
- * Mengecek response API yang menandakan token sudah tidak berlaku.
+ * Mengecek response API yang menandakan sesi auth sudah tidak berlaku.
  */
 export const isUnauthenticatedResponse = (error) => {
     const status = error?.response?.status;

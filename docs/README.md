@@ -15,6 +15,9 @@ Deployment, branching, staging, production, Docker Compose, and server runbooks 
 - [Local Native Development](setup/local-native-development.md)
   Explains how to run the frontend and backend locally without Docker by using local HTTPS domains and native app runtimes.
 
+- [Clerk Authentication](auth/clerk-auth.md)
+  Documents the frontend Clerk migration direction, custom auth pages, route guard strategy, backend bootstrap flow, and post-migration cleanup rules.
+
 - [Seller Product](features/seller/01-product.md)
   Documents the seller product UI, state, flows, API usage, and UI decisions.
 
@@ -61,6 +64,9 @@ docs/
   setup/
     local-native-development.md
 
+  auth/
+    clerk-auth.md
+
   features/
     transaction.md
     seller/
@@ -78,7 +84,6 @@ docs/
     address.md
     balance.md
     bank-account.md
-    security.md
 ```
 
 This structure does not need to be created all at once. Add new documents only when the project actually needs them.

@@ -356,8 +356,6 @@ export default {
                 ElNotification({ type: 'success', title: 'Success', message: `Penarikan Sebesar Rp${withdrawPriceString} Berhasil` });
             })
             .catch(error => {
-                console.log(error);
-
                 this.isProcessWithdraw = false;
                 ElNotification({ type: 'error', title: 'Error', message: error?.response?.data?.message ?? 'Something Went Wrong' });
             })

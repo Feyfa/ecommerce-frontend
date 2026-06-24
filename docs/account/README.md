@@ -6,7 +6,7 @@ The goal is to keep a lightweight map of `Akun Saya` so future UI, validation, a
 
 ## Purpose
 
-The account feature collects personal, company, financial, address, and security settings into one account page.
+The account feature collects personal, company, financial, and address settings into one account page.
 
 Current supported areas:
 
@@ -15,7 +15,6 @@ Current supported areas:
 - Buyer address management.
 - Balance overview and withdrawal.
 - Bank account management.
-- Password and two-factor authentication settings.
 
 ## Main Files
 
@@ -43,24 +42,21 @@ Current supported areas:
 - `src/components/company-profile/CompanySetting.vue`
   Seller editable company profile form.
 
-- `src/components/account/AccountSecurity.vue`
-  Password and TFA settings.
-
 ## Tab Order
 
 Buyer tabs:
 
 ```text
-User Profile -> Alamat -> Saldo -> Rekening Bank -> Keamanan
+User Profile -> Alamat -> Saldo -> Rekening Bank
 ```
 
 Seller tabs:
 
 ```text
-Company Profile -> Saldo -> Rekening Bank -> Keamanan
+Company Profile -> Saldo -> Rekening Bank
 ```
 
-The account page uses identity-first ordering. Profile/company information appears first, financial settings follow, and security settings stay last.
+The account page uses identity-first ordering. Profile/company information appears first and financial settings follow.
 
 ## Documents
 
@@ -82,9 +78,6 @@ The account page uses identity-first ordering. Profile/company information appea
 - [Bank Account](bank-account.md)
   Bank account list, add account modal, and delete behavior.
 
-- [Security](security.md)
-  Change password and TFA behavior.
-
 ## Role Rules
 
 Shared tabs are documented once and list the roles they apply to.
@@ -94,7 +87,6 @@ Role-specific tabs are kept separate:
 - `profile.md` applies to buyer only.
 - `company-profile.md` applies to seller only.
 - `address.md` applies to buyer only.
-- `balance.md`, `bank-account.md`, and `security.md` apply to buyer and seller.
+- `balance.md` and `bank-account.md` apply to buyer and seller.
 
 Do not duplicate shared feature documentation into separate buyer and seller documents unless the behavior becomes meaningfully different.
-

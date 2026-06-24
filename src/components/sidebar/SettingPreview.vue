@@ -93,7 +93,7 @@
 
 <script>
 import { ElNotification } from 'element-plus';
-import { clearAuthSession, syncClearedAuthSessionToStore } from '@/authSession';
+import { logoutResolvedAuthSession } from '@/authBridge';
 
 
 export default {
@@ -152,23 +152,22 @@ export default {
             this.$global.isClickDropdown.userSetting = !this.$global.isClickDropdown.userSetting;
         },
 
-        logoutSubmit() {
-            this
-            .$store
-            .dispatch('logoutSubmit')
-            .then(response => {
-                // console.log(response);
+        /**
+         * Logout sidebar harus mengikuti provider auth aktif,
+         * supaya sesi auth dan state lokal dibersihkan dengan alur yang sama.
+         */
+        async logoutSubmit() {
+            this.closeDropdownSetting();
+            this.$global.globalTemplate.loading = true;
 
-                if(response.data.status == 200) {
-                    clearAuthSession();
-                    syncClearedAuthSessionToStore(this.$store);
-
-                    this.$router.push('/login');
-                }
-            })
-            .catch(error => {
+            try {
+                await logoutResolvedAuthSession(this.$store, this.$router, '/login');
+            } catch (error) {
                 console.error(error);
-            });
+                ElNotification({ type: 'error', title: 'Error', message: 'Logout gagal diproses' });
+            } finally {
+                this.$global.globalTemplate.loading = false;
+            }
         }
     }
 }

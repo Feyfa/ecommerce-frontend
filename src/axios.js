@@ -1,5 +1,6 @@
 import axios from "axios";
-import { clearAuthSession, isUnauthenticatedResponse, showSessionExpiredWarning } from "@/authSession";
+import { clearAuthSession, isUnauthenticatedResponse, showSessionExpiredWarning, signOutClerkBrowserSession } from "@/authSession";
+import { getClerkSessionToken } from "@/clerk";
 
 const instance = axios.create({
   baseURL: `${import.meta.env.VITE_APP_BACKEND_BASE_URL}/api`,
@@ -9,13 +10,15 @@ const instance = axios.create({
 /* MELAKUKAN SESUATU SEBELUM REQUEST */
 // Buat interceptor untuk menetapkan header Authorization
 instance.interceptors.request.use(
-  config => {
-    // Ambil token dari localStorage atau tempat penyimpanan lainnya
-    const token = localStorage.getItem('token');
+  async config => {
+    /* step 1: gunakan token sesi utama untuk request API protected */
+    const clerkToken = await getClerkSessionToken();
 
-    // Jika token ditemukan, tambahkan ke header Authorization
-    if(token)
-      config.headers.Authorization = `Bearer ${token}`;
+    if(clerkToken) {
+      config.headers.Authorization = `Bearer ${clerkToken}`;
+      return config;
+    }
+    /* step 1 */
 
     return config;
   },
@@ -32,9 +35,11 @@ instance.interceptors.response.use(
     if(isUnauthenticatedResponse(error) && !error?.config?.skipAuthExpiredWarning) {
       clearAuthSession();
       showSessionExpiredWarning()
-        .finally(() => {
-          if(window.location.pathname !== '/login')
+        .finally(async () => {
+          if(window.location.pathname !== '/login') {
+            await signOutClerkBrowserSession();
             window.location.href = '/login';
+          }
         });
     }
 

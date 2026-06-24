@@ -153,7 +153,6 @@ export default {
                         localStorage.setItem('company', JSON.stringify(response.company));
 
                         /* UPDATE PENGAMBILAN DARI LOCALSTORAGE */
-                        this.$store.dispatch('fetchTokenFromLocalStorage');
                         this.$store.dispatch('fetchUserFromLocalStorage');
                         this.$store.dispatch('fetchCompanyFromLocalStorage');
                         /* UPDATE PENGAMBILAN DARI LOCALSTORAGE */
@@ -218,7 +217,6 @@ export default {
                             localStorage.setItem('company', JSON.stringify(response.company));
 
                             /* UPDATE PENGAMBILAN DARI LOCALSTORAGE */
-                            this.$store.dispatch('fetchTokenFromLocalStorage');
                             this.$store.dispatch('fetchUserFromLocalStorage');
                             this.$store.dispatch('fetchCompanyFromLocalStorage');
                             /* UPDATE PENGAMBILAN DARI LOCALSTORAGE */
