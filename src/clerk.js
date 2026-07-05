@@ -12,6 +12,7 @@ const clerkUnknownAccountMessage = 'Akun belum terdaftar. Silakan register terle
 const clerkInvalidIdentifierMessage = 'Email belum valid atau akun belum terdaftar. Periksa kembali email Anda atau register terlebih dahulu.';
 const clerkPasskeyNotRegisteredMessage = 'Passkey belum terdaftar untuk akun ini. Pilih passkey yang sesuai atau login dengan email/password.';
 const clerkInvalidVerificationCodeMessage = 'Kode verifikasi salah atau sudah kedaluwarsa. Periksa kembali kode terbaru lalu coba lagi.';
+const clerkPasswordNotCreatedMessage = 'Akun ini belum memiliki password. Masuk dengan Google atau gunakan Lupa password untuk membuat password baru.';
 const clerkAuthErrorQueryKey = 'auth_error';
 const clerkCancelledOauthErrorPatterns = [
     'oauth_access_denied',
@@ -63,6 +64,12 @@ const clerkInvalidVerificationCodeErrorPatterns = [
     'form_code_invalid',
     'totp code invalid',
     'totp code is invalid',
+];
+const clerkPasswordNotCreatedErrorPatterns = [
+    'strategy_for_user_invalid',
+    'invalid verification strategy',
+    'verification strategy is not valid',
+    'verification strategy is not valid for this account',
 ];
 export const clerkSecondFactorTimeoutMs = 5 * 60 * 1000;
 
@@ -359,6 +366,15 @@ const hasClerkInvalidVerificationCodePayload = (payload = '') => {
 };
 
 /**
+ * Mencocokkan payload error Clerk saat akun OAuth belum memiliki password.
+ */
+const hasClerkPasswordNotCreatedPayload = (payload = '') => {
+    const normalizedPayload = String(payload).toLowerCase();
+
+    return clerkPasswordNotCreatedErrorPatterns.some(pattern => normalizedPayload.includes(pattern));
+};
+
+/**
  * Mencocokkan payload OAuth yang berarti user membatalkan flow provider.
  */
 const hasClerkCancelledOauthPayload = (payload = '') => {
@@ -499,6 +515,9 @@ export const getClerkErrorMessage = (error, fallbackMessage = 'Terjadi kesalahan
 
     if(hasClerkInvalidVerificationCodePayload(errorPayload))
         return clerkInvalidVerificationCodeMessage;
+
+    if(hasClerkPasswordNotCreatedPayload(errorPayload))
+        return clerkPasswordNotCreatedMessage;
 
     return firstError?.longMessage || firstError?.message || error?.message || fallbackMessage;
 };
