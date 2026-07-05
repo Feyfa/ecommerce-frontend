@@ -99,8 +99,8 @@ export default {
                     title: 'Akun',
                     items: [
                         { name: 'settings_profile', label: 'Profil Pengguna' },
+                        { name: 'settings_security', label: 'Keamanan' },
                         { name: 'settings_addresses', label: 'Alamat' },
-                        { name: 'settings_security', label: 'Keamanan', soon: true },
                     ],
                 },
                 {

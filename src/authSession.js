@@ -1,6 +1,6 @@
 import global from '@/global';
 import { ElMessageBox } from 'element-plus';
-import { waitForClerkLoaded } from '@/clerk';
+import { buildClerkAbsoluteUrl, waitForClerkLoaded } from '@/clerk';
 
 let sessionExpiredWarningPromise = null;
 
@@ -25,13 +25,20 @@ export const clearAuthSession = () => {
 /**
  * Menutup sesi Clerk di browser bila memang masih aktif.
  */
-export const signOutClerkBrowserSession = async () => {
+export const signOutClerkBrowserSession = async ({ redirectUrl = '', afterSignOut = null } = {}) => {
     const runtimeState = await waitForClerkLoaded({ timeout: 1000, interval: 50 });
 
     if(!runtimeState.loaded || !runtimeState.isSignedIn || !runtimeState.clerk?.signOut)
         return false;
 
-    await runtimeState.clerk.signOut();
+    const signOutOptions = redirectUrl ? { redirectUrl: buildClerkAbsoluteUrl(redirectUrl) } : undefined;
+
+    if(typeof afterSignOut === 'function') {
+        await runtimeState.clerk.signOut(afterSignOut, signOutOptions);
+        return true;
+    }
+
+    await runtimeState.clerk.signOut(signOutOptions);
 
     return true;
 };

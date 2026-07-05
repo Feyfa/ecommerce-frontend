@@ -15,7 +15,8 @@ Current supported areas:
 - Buyer address management.
 - Balance overview and withdrawal.
 - Bank account management.
-- Coming soon placeholders for security, audit log, notifications, and support report.
+- Clerk-backed security settings.
+- Coming soon placeholders for audit log, notifications, and support report.
 
 ## Main Files
 
@@ -23,7 +24,10 @@ Current supported areas:
   Main settings shell. It owns the settings sidebar, mobile settings dropdown, route content header, shared layout, and shared styling overrides.
 
 - `src/views/auth/settings/ComingSoonView.vue`
-  Reusable coming soon content for settings routes that are visible but not implemented yet.
+  Reusable coming soon content for settings routes that are visible but not implemented yet, such as audit log, notifications, and support report.
+
+- `src/views/auth/settings/SecurityView.vue`
+  Clerk-backed security settings page for sign-in methods, passkeys, TOTP MFA, backup codes, Google linking, and active sessions.
 
 - `src/views/auth/SaldoView.vue`
   Balance settings content, history, date range filter, and withdrawal modal trigger.
@@ -82,8 +86,8 @@ Settings menu sections:
 ```text
 Akun
 - Profil Pengguna
-- Alamat
 - Keamanan
+- Alamat
 
 Bisnis / Toko
 - Profil Toko
@@ -124,6 +128,9 @@ Desktop uses the left settings sidebar. Mobile uses a custom dropdown menu above
 - [Bank Account](bank-account.md)
   Bank account list, add account modal, and delete behavior.
 
+- [Security](security.md)
+  Clerk-backed security settings page, sign-in methods, MFA, passkey management, active sessions, and Clerk-owned behavior.
+
 ## Role Rules
 
 Shared settings pages are documented once and list the roles they apply to.
@@ -134,5 +141,6 @@ Role-specific settings pages are kept separate:
 - `company-profile.md` applies to the store profile settings page.
 - `address.md` applies to the address settings page.
 - `balance.md` and `bank-account.md` apply to buyer and seller.
+- `security.md` applies to buyer and seller as a shared Clerk-backed settings page.
 
 Do not duplicate shared feature documentation into separate buyer and seller documents unless the behavior becomes meaningfully different.

@@ -37,7 +37,7 @@ Deployment, branching, staging, production, Docker Compose, and server runbooks 
   Documents the shared buyer and seller transaction UI, filters, cards, detail modal, pagination, and role-based display rules.
 
 - [Settings](settings/README.md)
-  Documents the shared buyer and seller settings UI, route structure, profile forms, address management, balance, bank accounts, coming soon settings routes, and shared styling rules.
+  Documents the shared buyer and seller settings UI, route structure, profile forms, address management, balance, bank accounts, security settings, remaining coming soon settings routes, and shared styling rules.
 
 ## Documentation Rules
 
@@ -84,6 +84,7 @@ docs/
     address.md
     balance.md
     bank-account.md
+    security.md
 ```
 
 This structure does not need to be created all at once. Add new documents only when the project actually needs them.

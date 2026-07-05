@@ -51,13 +51,16 @@ The current Clerk-related frontend files are:
   Local auth snapshot cleanup helpers and Clerk sign-out browser handling.
 
 - `src/axios.js`
-  Request interceptor that attaches the current Clerk bearer token to protected API requests.
+  Request interceptor that attaches the current Clerk session token to protected API requests.
 
 - `src/router/index.js`
   Route guard logic that distinguishes public routes, protected routes, and business-mode routes.
 
 - `src/views/noauth/LoginView.vue`
-  Custom login page that uses Clerk with the existing application design.
+  Custom login page that uses Clerk with the existing application design, including password login, Google login, passkey login, and second-factor verification.
+
+- `src/views/noauth/ForgotPasswordView.vue`
+  Custom forgot password page that uses Clerk reset password email codes.
 
 - `src/views/noauth/RegisterView.vue`
   Custom register page that uses Clerk with the existing application design.
@@ -75,6 +78,7 @@ The phase-one Clerk routes remain:
 ```text
 /login
 /register
+/forgot-password
 /auth/callback
 ```
 
@@ -87,10 +91,12 @@ Even though the routes are separate, the underlying auth engine is still one sys
 - the same backend bootstrap endpoint;
 - the same buyer or seller route rules after authentication.
 
-The auth pages show both methods on the same screen:
+The auth pages show the available auth actions on the same screen:
 
 - Continue with Google
+- Login dengan Passkey
 - manual email and password form
+- forgot password link from the login form
 
 This keeps the UX consistent and avoids making one route feel social-only and the other route feel manual-only.
 
@@ -180,6 +186,48 @@ After Clerk login succeeds:
 3. The backend resolves the local app user.
 4. The frontend redirects to the default authenticated route.
 
+If Clerk returns `needs_second_factor`, the login form switches to the second-factor step instead of creating the local application session immediately.
+
+Supported second-factor strategies in the custom login UI:
+
+- TOTP authenticator code;
+- backup code;
+- email code when Clerk requires client-trust verification.
+
+The login page stores a short pending second-factor timeout in session storage so refreshing the tab does not silently extend an old verification attempt.
+
+### Passkey Login
+
+The custom login page supports discoverable passkey login through Clerk WebAuthn.
+
+Passkey login follows the same result handling as password login:
+
+1. Clerk runs the passkey authentication ceremony.
+2. If the sign-in is complete, the frontend activates the Clerk session.
+3. If Clerk still requires second-factor verification, the login page shows the second-factor step.
+4. After Clerk is complete, the frontend calls backend `GET /api/auth/me`.
+
+Passkey cancellation should be treated as an informational user cancellation, not as a hard application error.
+
+### Forgot Password
+
+The custom forgot password page lives at:
+
+```text
+/forgot-password
+```
+
+The flow uses Clerk's `reset_password_email_code` strategy:
+
+1. The user enters the account email.
+2. Clerk sends a reset password code to that email.
+3. The user enters the code.
+4. The user sets a new password.
+5. If Clerk completes the sign-in directly, the frontend activates the new Clerk session and bootstraps the app through `GET /api/auth/me`.
+6. If Clerk returns `needs_second_factor`, the frontend sends the user back to login to complete the required additional verification.
+
+The reset password form must keep the backend local password endpoints out of the flow. Clerk remains the source of truth for password reset.
+
 ### Manual Register
 
 The frontend sends manual registration data to Clerk from the custom register form.
@@ -192,6 +240,12 @@ After verification completes:
 2. The frontend requests backend `GET /api/auth/me`.
 3. The backend creates or updates the local app user.
 4. The frontend redirects to the default authenticated route.
+
+### OAuth Callback Errors
+
+Google login and register share the Clerk callback route. Callback cancellation should not create a noisy failure toast.
+
+When Clerk returns a meaningful OAuth error, the callback page redirects back to the intended auth page and attaches a safe auth error message in the query string. The target auth page consumes that message once and then removes the query value so the toast does not repeat after refresh.
 
 ## Logout Behavior
 

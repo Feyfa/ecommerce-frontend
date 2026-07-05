@@ -77,6 +77,12 @@ const routes = [
         meta: {public: true}
     },
     {
+        path: '/forgot-password',
+        name: 'forgot_password',
+        component: () => import('../views/noauth/ForgotPasswordView.vue'),
+        meta: {public: true}
+    },
+    {
         path: '/auth/callback',
         name: 'auth_callback',
         component: () => import('../views/noauth/ClerkCallbackView.vue'),
@@ -234,11 +240,11 @@ const routes = [
             {
                 path: 'security',
                 name: 'settings_security',
-                component: () => import('../views/auth/settings/ComingSoonView.vue'),
+                component: () => import('../views/auth/settings/SecurityView.vue'),
                 meta: {
                     public: false,
                     settingsTitle: 'Keamanan',
-                    settingsDescription: 'Fitur keamanan akun sedang disiapkan untuk mengelola sesi login, autentikasi, dan aktivitas sensitif.'
+                    settingsDescription: 'Kelola cara masuk, perlindungan akun, dan perangkat yang sedang aktif.'
                 }
             },
             {

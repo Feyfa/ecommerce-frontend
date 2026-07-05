@@ -1,7 +1,7 @@
 import axios from '@/axios';
 import global from '@/global';
 import { clearAuthSession, syncClearedAuthSessionToStore, signOutClerkBrowserSession } from '@/authSession';
-import { clearClerkAuthReturnUrl, waitForClerkLoaded } from '@/clerk';
+import { clearClerkAuthReturnUrl, clearGoogleLoginCallback, waitForClerkLoaded } from '@/clerk';
 
 const AUTH_SESSION_TTL_MS = 2 * 60 * 1000;
 let lastResolvedAuthSessionAt = 0;
@@ -103,6 +103,7 @@ export const bootstrapResolvedAuthSession = async (store) => {
 
     syncResolvedAuthSessionToStore(store);
     clearClerkAuthReturnUrl();
+    clearGoogleLoginCallback();
     lastResolvedAuthSessionAt = Date.now();
 
     return response.data;
@@ -126,13 +127,21 @@ export const getBrowserAuthPresence = async () => {
  */
 export const logoutResolvedAuthSession = async (store, router, redirectUrl = '/login') => {
     global.isLoggingOut = true;
+    const finalRedirectUrl = redirectUrl || '/login';
 
     try {
-        await signOutClerkBrowserSession();
         clearResolvedAuthSessionTtl();
         clearAuthSession();
+        clearGoogleLoginCallback();
         syncClearedAuthSessionToStore(store);
-        await router.replace(redirectUrl);
+
+        const hasSignedOutClerk = await signOutClerkBrowserSession({
+            redirectUrl: finalRedirectUrl,
+            afterSignOut: () => router.replace(finalRedirectUrl),
+        });
+
+        if(!hasSignedOutClerk)
+            await router.replace(finalRedirectUrl);
     } finally {
         global.isLoggingOut = false;
     }

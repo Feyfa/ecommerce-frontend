@@ -34,8 +34,18 @@ The history card shows:
 - `History` title;
 - Element Plus date range picker;
 - balance transaction rows;
-- income amount in green;
+- income amount in green with a `+ Rp` prefix;
+- withdrawal amount in red with a `- Rp` prefix;
 - transaction description and related invoice/reference text.
+
+History amounts should use Indonesian thousands separators even when the API sends the price as a string. For example:
+
+```text
++ Rp120.000
+- Rp20.000
+```
+
+Incoming transaction descriptions should show the same invoice id that appears in the transaction detail modal.
 
 The history title and date range control should be vertically aligned.
 

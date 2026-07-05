@@ -13,12 +13,14 @@
         </div>
       </section>
 
-      <section v-else-if="isClerkSignedIn" class="auth-card">
+      <section v-else-if="isClerkSignedIn && shouldShowBridgePanel" class="auth-card">
         <div class="text-center">
           <p class="auth-brand">Ecommerce</p>
-          <h1 class="auth-title">Menyambungkan Akun</h1>
+          <h1 class="auth-title">{{ clerkBootstrapErrorMessage ? 'Sesi Aplikasi Belum Siap' : 'Menyiapkan Akun' }}</h1>
           <p class="auth-subtitle">
-            Registrasi sudah selesai. Kami sedang menyiapkan data aplikasi.
+            {{ clerkBootstrapErrorMessage
+              ? 'Akun sudah aktif, tetapi data aplikasi belum berhasil disiapkan.'
+              : 'Mohon tunggu sebentar, kami sedang menyiapkan akun Anda.' }}
           </p>
         </div>
 
@@ -32,14 +34,13 @@
             <p class="font-semibold">Mohon tunggu sebentar</p>
             <p class="mt-2 flex items-center gap-2">
               <i class="fa-solid fa-spinner fa-spin-pulse"></i>
-              Menyiapkan sesi akun Anda.
+              Menyiapkan akun Anda.
             </p>
           </div>
         </div>
 
-        <div class="space-y-3">
+        <div v-if="clerkBootstrapErrorMessage" class="space-y-3">
           <button
-            v-if="clerkBootstrapErrorMessage"
             type="button"
             class="auth-primary-button"
             :class="{ 'opacity-70': isBootstrappingClerkSession }"
@@ -218,27 +219,43 @@
 </template>
 
 <script>
-import { useSignUp } from '@clerk/vue';
+import { useSignIn, useSignUp } from '@clerk/vue';
 import { ElNotification } from 'element-plus';
 import { ref } from 'vue';
 import googleIcon from '@/assets/icons/google.svg';
 import { bootstrapResolvedAuthSession, logoutResolvedAuthSession, resolveDefaultAuthenticatedRouteName } from '@/authBridge';
-import { clerkUiConfig, getClerkErrorMessage, getClerkOauthRedirectUrls, getClerkRuntimeState, isClerkEnabled, rememberClerkAuthReturnUrl, splitClerkName } from '@/clerk';
+import {
+  clearClerkAuthErrorFromRoute,
+  clerkUiConfig,
+  consumeClerkAuthErrorFromRoute,
+  getClerkErrorMessage,
+  getClerkOauthRedirectUrls,
+  getClerkRuntimeState,
+  isClerkEnabled,
+  rememberClerkAuthReturnUrl,
+  rememberGoogleLoginCallback,
+  splitClerkName
+} from '@/clerk';
 
 export default {
   setup() {
     if(!isClerkEnabled) {
       return {
+        clerkSignInLoaded: ref(false),
+        clerkSignInResource: ref(null),
         clerkSignUpLoaded: ref(false),
         clerkSignUpResource: ref(null),
         clerkSetActive: null,
       };
     }
 
-    const { isLoaded, signUp, setActive } = useSignUp();
+    const { isLoaded: isSignInLoaded, signIn } = useSignIn();
+    const { isLoaded: isSignUpLoaded, signUp, setActive } = useSignUp();
 
     return {
-      clerkSignUpLoaded: isLoaded,
+      clerkSignInLoaded: isSignInLoaded,
+      clerkSignInResource: signIn,
+      clerkSignUpLoaded: isSignUpLoaded,
       clerkSignUpResource: signUp,
       clerkSetActive: setActive,
     };
@@ -258,6 +275,7 @@ export default {
       isProcessingGoogleRegister: false,
       isProcessingClerkSignOut: false,
       isBootstrappingClerkSession: false,
+      isInlineAuthBridge: false,
       clerkBootstrapErrorMessage: '',
 
       clerkUi: clerkUiConfig,
@@ -287,6 +305,10 @@ export default {
 
     registerButtonLabel() {
       return this.isClerkVerificationStep ? 'Verifikasi Email' : 'Register';
+    },
+
+    shouldShowBridgePanel() {
+      return Boolean(this.clerkBootstrapErrorMessage || !this.isInlineAuthBridge);
     }
   },
 
@@ -295,13 +317,35 @@ export default {
       immediate: true,
 
       handler(isSignedIn) {
-        if(isSignedIn)
+        if(isSignedIn && !this.isInlineAuthBridge)
           this.bridgeClerkSessionToBackend();
       }
     }
   },
 
+  mounted() {
+    this.notifyAuthCallbackError();
+  },
+
   methods: {
+    /**
+     * Menampilkan error OAuth setelah callback selesai redirect kembali ke halaman register.
+     */
+    notifyAuthCallbackError() {
+      const message = consumeClerkAuthErrorFromRoute(this.$route);
+
+      if(!message)
+        return;
+
+      ElNotification({
+        type: 'error',
+        title: 'error',
+        message,
+      });
+
+      clearClerkAuthErrorFromRoute(this.$route, this.$router);
+    },
+
     /**
      * Reset semua pesan error lokal sebelum masuk ke langkah register berikutnya.
      */
@@ -347,8 +391,11 @@ export default {
     /**
      * Setelah register selesai, sesi browser perlu dihubungkan ke backend Laravel.
      */
-    async bridgeClerkSessionToBackend() {
-      if(!this.isClerkEnabled || !this.isClerkSignedIn || this.isBootstrappingClerkSession)
+    async bridgeClerkSessionToBackend({ requireSignedIn = true } = {}) {
+      if(!this.isClerkEnabled || this.isBootstrappingClerkSession)
+        return;
+
+      if(requireSignedIn && !this.isClerkSignedIn)
         return;
 
       this.clerkBootstrapErrorMessage = '';
@@ -386,10 +433,10 @@ export default {
     },
 
     /**
-     * Register Google memakai redirect OAuth supaya desain halaman tetap konsisten.
+     * Google register dibuat idempotent lewat flow sign-in supaya akun baru dan akun existing sama-sama bisa masuk.
      */
     async signUpWithGoogle() {
-      if(!this.clerkSignUpLoaded || !this.clerkSignUpResource) {
+      if(!this.clerkSignInLoaded || !this.clerkSignInResource) {
         ElNotification({
           type: 'warning',
           title: 'warning',
@@ -401,10 +448,12 @@ export default {
       this.isProcessingGoogleRegister = true;
 
       try {
-        const { redirectUrl, redirectUrlComplete } = getClerkOauthRedirectUrls(this.clerkUi.signUpUrl);
+        const { redirectUrl, redirectUrlComplete } = getClerkOauthRedirectUrls(this.clerkUi.signInUrl);
+        /* step 1: batal OAuth tetap kembali ke register, sukses OAuth masuk ke login bridge */
         rememberClerkAuthReturnUrl(this.clerkUi.signUpUrl);
+        rememberGoogleLoginCallback();
 
-        await this.clerkSignUpResource.authenticateWithRedirect({
+        await this.clerkSignInResource.authenticateWithRedirect({
           strategy: 'oauth_google',
           redirectUrl,
           redirectUrlComplete,
@@ -413,7 +462,7 @@ export default {
         ElNotification({
           type: 'error',
           title: 'error',
-          message: getClerkErrorMessage(error, 'Register Google gagal dijalankan.'),
+          message: getClerkErrorMessage(error, 'Google gagal dijalankan.'),
         });
       } finally {
         this.isProcessingGoogleRegister = false;
@@ -464,6 +513,7 @@ export default {
       }
 
       this.isProcessRegister = true;
+      this.isInlineAuthBridge = true;
 
       try {
         const { firstName, lastName } = splitClerkName(this.name);
@@ -479,7 +529,7 @@ export default {
           await this.clerkSetActive({
             session: signUpAttempt.createdSessionId,
           });
-          await this.bridgeClerkSessionToBackend();
+          await this.bridgeClerkSessionToBackend({ requireSignedIn: false });
           return;
         }
 
@@ -503,6 +553,7 @@ export default {
         });
       } finally {
         this.isProcessRegister = false;
+        this.isInlineAuthBridge = false;
       }
     },
 
@@ -527,6 +578,7 @@ export default {
       }
 
       this.isProcessRegister = true;
+      this.isInlineAuthBridge = true;
 
       try {
         const verificationAttempt = await this.clerkSignUpResource.attemptEmailAddressVerification({
@@ -537,7 +589,7 @@ export default {
           await this.clerkSetActive({
             session: verificationAttempt.createdSessionId,
           });
-          await this.bridgeClerkSessionToBackend();
+          await this.bridgeClerkSessionToBackend({ requireSignedIn: false });
           return;
         }
 
@@ -554,6 +606,7 @@ export default {
         });
       } finally {
         this.isProcessRegister = false;
+        this.isInlineAuthBridge = false;
       }
     },
 
