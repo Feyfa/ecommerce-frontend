@@ -188,6 +188,9 @@ After Clerk login succeeds:
 
 If Clerk returns `needs_second_factor`, the login form switches to the second-factor step instead of creating the local application session immediately.
 
+If a Google OAuth account does not have a password credential yet and the user tries manual password login, Clerk may return an invalid verification strategy error.
+The frontend maps that response to an Indonesian message that tells the user to sign in with Google or use the forgot password flow to create a new password.
+
 Supported second-factor strategies in the custom login UI:
 
 - TOTP authenticator code;
