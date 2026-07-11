@@ -10,6 +10,13 @@ const global = reactive({
   isSidebarOpen: false,
   isFilterOpen: false,
   isAuth: false,
+  isLoggingOut: false,
+  clerk: {
+    enabled: false,
+    loaded: false,
+    isSignedIn: false,
+    userId: '',
+  },
   showUserProfileView: {
     allComponent: false,
     userSetting: false,
