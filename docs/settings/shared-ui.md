@@ -1,24 +1,27 @@
-# Account Shared UI
+# Settings Shared UI
 
-This document records shared UI rules for `Akun Saya`.
+This document records shared UI rules for the global `Pengaturan` account settings area.
 
-Use this document when changing account layout, inputs, buttons, modals, validation states, or Element Plus overrides.
+Use this document when changing settings layout, inputs, buttons, modals, validation states, or Element Plus overrides.
 
 ## Applies To
 
-Buyer and seller account pages.
+Buyer and seller settings pages.
 
 ## Layout Rules
 
-- `AccountView.vue` is the shared account shell.
-- The page keeps one account title, one role badge, and one tab bar.
+- `SettingsView.vue` is the shared settings shell.
+- The page keeps one global `Pengaturan` title and one per-route content title.
+- Desktop uses a left settings sidebar grouped by section.
+- Mobile uses a custom dropdown menu above the content.
+- Route content is rendered through child routes under `/settings`.
 - Feature content should avoid unnecessary nested cards.
 - Forms use one primary content card when the card helps group related fields.
-- Address content is separated into its own buyer tab instead of being embedded inside profile.
+- Address content is separated into its own settings route instead of being embedded inside profile.
 
 ## Input Styling
 
-Account inputs should visually match the add/edit product form style:
+Settings inputs should visually match the add/edit product form style:
 
 - white background;
 - subtle gray border;
@@ -67,7 +70,7 @@ They should not require an edit mode button before the user can type.
 
 ## Modals
 
-Account modals should use the same visual language as the account page:
+Settings modals should use the same visual language as the settings page:
 
 - clear title at the top;
 - aligned form labels and inputs;
@@ -83,7 +86,8 @@ Deletion confirmation should use Element Plus confirmation UI instead of SweetAl
 
 ## Auth State During Logout
 
-When logout succeeds, or when the API returns an unauthenticated response, account UI must clear persistent auth data and runtime state together.
+When an explicit logout succeeds, account UI must clear persistent auth data
+and runtime state together.
 
 Use the shared auth session helpers instead of repeating manual `localStorage` cleanup in components:
 
@@ -96,13 +100,19 @@ syncClearedAuthSessionToStore(this.$store);
 
 This keeps Vuex synchronized with the empty storage state so account components do not keep rendering stale user or company data after logout.
 
-If a token expires because the same account logged out from another browser, show the Element Plus session-expired alert before redirecting to login:
+Unauthenticated API responses are handled globally by the Axios interceptor.
+The shared handler guarantees that concurrent `401` responses produce only one
+cleanup, warning, Clerk sign-out, and redirect flow:
 
 ```js
-showSessionExpiredWarning()
-  .finally(() => {
-    this.$router.push('/login');
-  });
+import { handleExpiredAuthSession } from '@/authSession';
+
+handleExpiredAuthSession();
 ```
 
-Account components that read `user`, `company`, or active account mode during route transitions should use safe access such as `user?.img`, `company?.img`, or a validated `activeAccountMode`, because the values can be empty while the page is navigating to login.
+Settings components must not repeat this behavior in their request `catch`
+handlers. They should handle only non-authentication failures, such as a server
+error or an unavailable network, and show a relevant retry or connection
+notification without logging out the user.
+
+Settings components that read `user`, `company`, or active account mode during route transitions should use safe access such as `user?.img`, `company?.img`, or a validated `activeAccountMode`, because the values can be empty while the page is navigating to login.

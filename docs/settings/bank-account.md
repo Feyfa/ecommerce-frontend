@@ -1,6 +1,6 @@
 # Bank Account
 
-This document explains the bank account tab in `Akun Saya`.
+This document explains the bank account settings page in `Pengaturan`.
 
 ## Applies To
 
@@ -8,7 +8,7 @@ Buyer and seller.
 
 ## Purpose
 
-The bank account tab lets a user manage bank accounts used for withdrawal.
+The bank account settings page lets a user manage bank accounts used for withdrawal.
 
 ## Main Files
 
@@ -18,8 +18,8 @@ The bank account tab lets a user manage bank accounts used for withdrawal.
 - `src/views/auth/SaldoView.vue`
   Uses bank account data in the withdrawal modal.
 
-- `src/views/auth/AccountView.vue`
-  Owns the shared account shell and tab placement.
+- `src/views/auth/settings/SettingsView.vue`
+  Owns the shared settings shell and route placement.
 
 ## Bank Account List
 
@@ -66,4 +66,3 @@ Keep backend field names unchanged when building payloads:
 - bank identifier/name field used by the existing API;
 - account number field;
 - account owner field.
-

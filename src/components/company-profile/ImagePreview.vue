@@ -31,7 +31,7 @@
                 <span
                 class="profile-image-menu-item"
                 @click="zoomUserImage('in')">
-                    Zoom Image
+                    Perbesar Foto
                 </span>
             </li>
             <li>
@@ -47,7 +47,7 @@
                 <span
                     class="profile-image-menu-item"
                     @click="this.$refs.imageFile.click()">
-                    Upload Image
+                    Unggah Foto
                 </span>
                 </div>
             </li>
@@ -56,7 +56,7 @@
                 class="profile-image-menu-item"
                 :class="disable.deleteImage ? 'is-disabled' : 'cursor-pointer'"
                 @click="deleteImageCompany">
-                    Delete Image
+                    Hapus Foto
                 </span>
             </li>
         </ul>
@@ -110,6 +110,45 @@ export default {
             }
         },
 
+        /**
+         * Mengosongkan input file agar file yang sama bisa dipilih ulang setelah gagal.
+         */
+        resetImageFileInput() {
+            if(this.$refs.imageFile) {
+                this.$refs.imageFile.value = '';
+            }
+        },
+
+        /**
+         * Mengambil pesan error upload dari response API Laravel.
+         */
+        getUploadErrorMessages(error) {
+            const message = error?.response?.data?.message;
+
+            if(Array.isArray(message)) {
+                return message.flat();
+            }
+
+            if(message && typeof message == 'object') {
+                return Object.values(message).flat();
+            }
+
+            if(typeof message == 'string') {
+                return [message];
+            }
+
+            return ['Upload gambar gagal.'];
+        },
+
+        /**
+         * Menampilkan semua pesan error upload agar validasi backend terlihat di UI.
+         */
+        showUploadErrorNotifications(error) {
+            this.getUploadErrorMessages(error).forEach(message => {
+                ElNotification({ type: 'error', title: 'Error', message });
+            });
+        },
+
         imageFileChange(event) {
             const file = event.target.files[0];
             // cek apakah file tipe nya image
@@ -120,16 +159,16 @@ export default {
             // jika file bukan image
             if(!extensionValid)
             {
-                $('#image-file').val('');
+                this.resetImageFileInput();
 
-                ElNotification({ type: 'error', title: 'Error', message: `The foto field must be an image` })
+                ElNotification({ type: 'error', title: 'Error', message: 'File harus berupa gambar.' })
             }
             // jika file di atas 1mb
             else if(!sizeValid)
             {
-                $('#image-file').val('');
+                this.resetImageFileInput();
 
-                ElNotification({ type: 'error', title: 'Error', message: `The foto field must not be greater than 1024 kilobytes` })
+                ElNotification({ type: 'error', title: 'Error', message: 'Ukuran gambar tidak boleh lebih dari 1024 KB.' })
             }
             else
             {
@@ -145,7 +184,7 @@ export default {
                 .then(response => {
                     // console.log(response);
 
-                    $('#image-file').val('');
+                    this.resetImageFileInput();
 
                     if(response.status == 'success') {
                         ElNotification({ type: 'success', title: 'Success', message: response.message })
@@ -153,7 +192,6 @@ export default {
                         localStorage.setItem('company', JSON.stringify(response.company));
 
                         /* UPDATE PENGAMBILAN DARI LOCALSTORAGE */
-                        this.$store.dispatch('fetchTokenFromLocalStorage');
                         this.$store.dispatch('fetchUserFromLocalStorage');
                         this.$store.dispatch('fetchCompanyFromLocalStorage');
                         /* UPDATE PENGAMBILAN DARI LOCALSTORAGE */
@@ -167,23 +205,11 @@ export default {
                 .catch(error => {
                     console.error(error);
 
-                    $('#image-file').val('');
+                    this.resetImageFileInput();
                     this.isProcessImageCompany = false;
-                    this.disable.deleteImage = false;
+                    this.disable.deleteImage = !this.$store.getters.company?.img;
 
-
-                    const message = error.response.data.message;
-
-                    if(error.response.status == 422) {
-                        message.forEach(msg => {
-                            setTimeout(() => {
-                                ElNotification({ type: 'error', title: 'Error', message: msg })
-                            }, 1);
-                        })
-                    } else {
-                        ElNotification({ type: 'error', title: 'Error', message: message })
-                    }
-
+                    this.showUploadErrorNotifications(error);
                 })
             }
         },
@@ -193,8 +219,8 @@ export default {
                 this.$global.isClickDropdown.company = false;
 
                 ElMessageBox.confirm(
-                    'Foto perusahaan akan dihapus dari profile company.',
-                    'Hapus Foto Company',
+                    'Foto toko akan dihapus dari profil toko.',
+                    'Hapus Foto Toko',
                     {
                         type: 'warning',
                         confirmButtonText: 'Hapus Foto',
@@ -218,7 +244,6 @@ export default {
                             localStorage.setItem('company', JSON.stringify(response.company));
 
                             /* UPDATE PENGAMBILAN DARI LOCALSTORAGE */
-                            this.$store.dispatch('fetchTokenFromLocalStorage');
                             this.$store.dispatch('fetchUserFromLocalStorage');
                             this.$store.dispatch('fetchCompanyFromLocalStorage');
                             /* UPDATE PENGAMBILAN DARI LOCALSTORAGE */
