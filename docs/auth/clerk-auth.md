@@ -48,10 +48,12 @@ The current Clerk-related frontend files are:
   The frontend bridge between Clerk browser session state and backend `GET /api/auth/me`.
 
 - `src/authSession.js`
-  Local auth snapshot cleanup helpers and Clerk sign-out browser handling.
+  Local auth snapshot cleanup and the single shared expired-session flow for
+  warning, Clerk sign-out, and login redirection.
 
 - `src/axios.js`
-  Request interceptor that attaches the current Clerk session token to protected API requests.
+  Request interceptor that attaches the current Clerk session token to protected API requests
+  and globally handles backend `401` responses.
 
 - `src/router/index.js`
   Route guard logic that distinguishes public routes, protected routes, and business-mode routes.
@@ -273,6 +275,28 @@ The frontend should treat Clerk as an external dependency and fail safely.
 - The frontend may mark the session as unstable and try to re-bootstrap safely.
 - If the backend can no longer verify protected requests, the frontend must stop protected actions, clear the session, and redirect to login.
 
+### Global `401` handling
+
+All protected API responses with HTTP status `401` are handled centrally by
+the shared Axios response interceptor. Detection uses the HTTP status only and
+does not depend on a particular backend `message` value.
+
+The interceptor calls `handleExpiredAuthSession()`, which provides one shared
+process for all concurrent `401` responses:
+
+1. Mark the application as logging out and clear the local auth snapshot.
+2. Show one `Sesi Berakhir` warning, even when several requests fail together.
+3. Sign out the Clerk browser session once.
+4. Reload the application at `/login`.
+
+The rejected `401` request stops in the interceptor because the application is
+already terminating the invalid session. Component-level `catch` handlers must
+not repeat logout, local storage cleanup, session warnings, or redirects.
+
+Network failures, backend `500` responses, and other non-`401` errors are still
+rejected to the calling component. These failures may show a relevant retry or
+connection notification, but they must not log out an otherwise valid user.
+
 ## Required Frontend Environment Variables
 
 The frontend Clerk variables for the current phase are:
@@ -291,6 +315,10 @@ VITE_SYMLINK_FOLDER=
 ```
 
 The Clerk publishable key must be different per environment where applicable.
+
+These Vite variables are compiled into the frontend bundle. Staging and
+production Docker builds must therefore receive them as build arguments; adding
+them only to the runtime environment of the final Nginx container is not enough.
 
 ## Cleanup Notes
 

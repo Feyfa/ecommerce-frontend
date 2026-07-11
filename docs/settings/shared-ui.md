@@ -86,7 +86,8 @@ Deletion confirmation should use Element Plus confirmation UI instead of SweetAl
 
 ## Auth State During Logout
 
-When logout succeeds, or when the API returns an unauthenticated response, account UI must clear persistent auth data and runtime state together.
+When an explicit logout succeeds, account UI must clear persistent auth data
+and runtime state together.
 
 Use the shared auth session helpers instead of repeating manual `localStorage` cleanup in components:
 
@@ -99,13 +100,19 @@ syncClearedAuthSessionToStore(this.$store);
 
 This keeps Vuex synchronized with the empty storage state so account components do not keep rendering stale user or company data after logout.
 
-If a token expires because the same account logged out from another browser, show the Element Plus session-expired alert before redirecting to login:
+Unauthenticated API responses are handled globally by the Axios interceptor.
+The shared handler guarantees that concurrent `401` responses produce only one
+cleanup, warning, Clerk sign-out, and redirect flow:
 
 ```js
-showSessionExpiredWarning()
-  .finally(() => {
-    this.$router.push('/login');
-  });
+import { handleExpiredAuthSession } from '@/authSession';
+
+handleExpiredAuthSession();
 ```
+
+Settings components must not repeat this behavior in their request `catch`
+handlers. They should handle only non-authentication failures, such as a server
+error or an unavailable network, and show a relevant retry or connection
+notification without logging out the user.
 
 Settings components that read `user`, `company`, or active account mode during route transitions should use safe access such as `user?.img`, `company?.img`, or a validated `activeAccountMode`, because the values can be empty while the page is navigating to login.
