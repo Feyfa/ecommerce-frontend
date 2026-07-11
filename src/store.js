@@ -3,24 +3,18 @@ import axios from "@/axios";
 
 export default createStore({
     state: {
-        token: '',
         user: '',
         company: '',
         activeAccountMode: '',
     },
 
     getters: {
-        token: state => state.token,
         user: state => state.user,
         company: state => state.company,
         activeAccountMode: state => state.activeAccountMode,
     },
 
     actions: {
-        fetchTokenFromLocalStorage() {
-            this.state.token = localStorage.getItem('token');
-        },
-
         fetchUserFromLocalStorage() {
             this.state.user = JSON.parse(localStorage.getItem('user'));
         },
@@ -387,22 +381,6 @@ export default createStore({
             });
         },
 
-        changePassword(context, data) {
-            return new Promise((resolve, reject) => {
-                axios.put('/user/change/password', {
-                    id: data.id,
-                    oldPassword: data.oldPassword,
-                    newPassword: data.newPassword,
-                })
-                .then(response => {
-                    resolve(response);
-                })
-                .catch(error => {
-                    reject(error);
-                })
-            });
-        },
-
         getInvoice(context, data) {
             return new Promise((resolve, reject) => {
                 axios.get('/invoice', {
@@ -679,12 +657,9 @@ export default createStore({
         updateUser(context, data) {
             return new Promise((resolve, reject) => {
                 axios.put(`/user/${data.id}`, {
-                    name: data.name,
-                    email: data.email,
                     jenis_kelamin: data.jenis_kelamin,
                     tanggal_lahir: data.tanggal_lahir,
                     phone: data.phone,
-                    tfa: data.tfa,
                     // alamat: data.alamat,
                 })
                 .then(response => {
@@ -763,54 +738,6 @@ export default createStore({
                      .catch(error => {
                         reject(error);
                      })
-            });
-        },
-
-        logoutSubmit(context, data) {
-            return new Promise((resolve, reject) => {
-                axios.post('/logout')
-                     .then(response => {
-                        resolve(response);
-                     })
-                     .catch(error => {
-                        reject(error);
-                     })
-            });
-        },
-
-        loginSubmit(context, data) {
-            return new Promise((resolve, reject) => {
-                axios.post('/login', {
-                    email: data.email,
-                    password: data.password,
-                    type: data.type,
-                    otpSecretKey: data.otpSecretKey,
-                    otpCode: data.otpCode,
-                    now: data.now,
-                    expired: data.expired,
-                })
-                .then(response => {
-                    resolve(response);
-                })
-                .catch(error => {
-                    reject(error);
-                });
-            });
-        },
-
-        registerSubmit(context, data) {
-            return new Promise((resolve, reject) => {
-                axios.post('/register', {
-                    name: data.name,
-                    email: data.email,
-                    password: data.password,
-                })
-                .then(response => {
-                    resolve(response);
-                })
-                .catch(error => {
-                    reject(error);
-                });
             });
         }
     }

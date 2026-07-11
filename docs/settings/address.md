@@ -1,14 +1,14 @@
 # Address
 
-This document explains the buyer address tab in `Akun Saya`.
+This document explains the address settings page in `Pengaturan`.
 
 ## Applies To
 
-Buyer only.
+Authenticated users with address management access.
 
 ## Purpose
 
-The address tab lets a buyer search, add, edit, delete, and choose a default shipping address.
+The address settings page lets a user search, add, edit, delete, and choose a default shipping address.
 
 The address UI is separated from the user profile tab because addresses can grow independently and are operationally different from personal identity fields.
 
@@ -17,8 +17,8 @@ The address UI is separated from the user profile tab because addresses can grow
 - `src/components/user-profile/Alamat.vue`
   Owns address list, search, add modal, edit modal, validation state, delete action, and selected/default address behavior.
 
-- `src/views/auth/AccountView.vue`
-  Owns the buyer `Alamat` tab entry and shared account styling.
+- `src/views/auth/settings/SettingsView.vue`
+  Owns the `Alamat` settings menu entry, content header, and shared settings styling.
 
 ## Fields
 
@@ -45,8 +45,9 @@ Optional fields:
 
 ## Behavior
 
-- Buyer address is its own account tab.
+- Address is its own settings route at `/settings/addresses`.
 - The list can be searched by address name.
+- Empty address state displays `Alamat Kosong`.
 - Add and edit actions use a modal.
 - Existing address cards show address identity, contact number, address text, edit/delete actions, and selected/default state.
 - The selected/default address indicator stays visible on the address row.
@@ -85,4 +86,3 @@ Keep backend field names unchanged when building payloads:
 - `phone`
 - `alamat`
 - selected/default flag field used by the existing backend contract.
-
