@@ -1,7 +1,7 @@
 import { createRouter, createWebHistory } from 'vue-router'
 import store from '@/store';
 import global from '@/global';
-import { clearAuthSession, isUnauthenticatedResponse, showSessionExpiredWarning, syncClearedAuthSessionToStore } from '@/authSession';
+import { clearAuthSession, handleExpiredAuthSession, isUnauthenticatedResponse, syncClearedAuthSessionToStore } from '@/authSession';
 import {
     bootstrapResolvedAuthSession,
     clearResolvedAuthSessionTtl,
@@ -385,11 +385,9 @@ router.beforeEach(async to => {
     } catch(error) {
         if(isUnauthenticatedResponse(error)) {
             clearResolvedAuthSessionTtl();
-            clearAuthSession();
-            syncClearedAuthSessionToStore(store);
+            await handleExpiredAuthSession();
 
-            if(!to.meta.public)
-                await showSessionExpiredWarning();
+            return false;
         }
 
         global.isAuth = false;

@@ -3,6 +3,7 @@ import { ElMessageBox } from 'element-plus';
 import { buildClerkAbsoluteUrl, waitForClerkLoaded } from '@/clerk';
 
 let sessionExpiredWarningPromise = null;
+let sessionExpirationPromise = null;
 
 /**
  * Membersihkan data login lokal ketika sesi auth utama sudah tidak valid.
@@ -60,7 +61,7 @@ export const showSessionExpiredWarning = () => {
         return sessionExpiredWarningPromise;
 
     sessionExpiredWarningPromise = ElMessageBox.alert(
-        'Sesi login Anda sudah berakhir karena akun ini sudah logout dari browser lain. Silakan login kembali untuk melanjutkan.',
+        'Sesi login Anda sudah tidak berlaku. Hal ini dapat terjadi karena sesi berakhir atau akun logout dari perangkat lain. Silakan login kembali untuk melanjutkan.',
         'Sesi Berakhir',
         {
             type: 'warning',
@@ -77,11 +78,33 @@ export const showSessionExpiredWarning = () => {
 };
 
 /**
+ * Menangani session yang sudah tidak valid melalui satu proses bersama.
+ * Semua response 401 memakai promise yang sama agar modal, Clerk sign out,
+ * dan redirect tidak dijalankan berulang kali.
+ */
+export const handleExpiredAuthSession = () => {
+    if(sessionExpirationPromise)
+        return sessionExpirationPromise;
+
+    sessionExpirationPromise = (async () => {
+        /* step 1: hentikan tampilan data session lama sebelum menunggu konfirmasi user */
+        global.isLoggingOut = true;
+        clearAuthSession();
+
+        /* step 2: tampilkan satu peringatan untuk seluruh request 401 yang berjalan bersamaan */
+        await showSessionExpiredWarning().catch(() => null);
+
+        /* step 3: tutup session Clerk dan selalu muat ulang aplikasi dari halaman login */
+        await signOutClerkBrowserSession().catch(() => false);
+        window.location.replace('/login');
+    })();
+
+    return sessionExpirationPromise;
+};
+
+/**
  * Mengecek response API yang menandakan sesi auth sudah tidak berlaku.
  */
 export const isUnauthenticatedResponse = (error) => {
-    const status = error?.response?.status;
-    const message = error?.response?.data?.message;
-
-    return status === 401 && ['Unauthenticated.', 'Unauthorized'].includes(message);
+    return error?.response?.status === 401;
 };

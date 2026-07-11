@@ -207,9 +207,13 @@ export default {
                     this.$global.showCompanyProfileView.companySetting = true;
                 })
                 .catch(error => {
-                    localStorage.removeItem('user');
-                    localStorage.removeItem('company');
-                    this.$router.push('/login');
+                    ElNotification({
+                        type: 'error',
+                        title: 'Gagal Memuat Data',
+                        message: error?.response
+                            ? 'Data profil toko belum berhasil dimuat. Silakan coba lagi.'
+                            : 'Tidak dapat terhubung ke server. Periksa koneksi internet lalu coba lagi.',
+                    });
                 });
         },
 

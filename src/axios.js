@@ -1,5 +1,5 @@
 import axios from "axios";
-import { clearAuthSession, isUnauthenticatedResponse, showSessionExpiredWarning, signOutClerkBrowserSession } from "@/authSession";
+import { handleExpiredAuthSession, isUnauthenticatedResponse } from "@/authSession";
 import { getClerkSessionToken } from "@/clerk";
 
 const instance = axios.create({
@@ -33,14 +33,14 @@ instance.interceptors.response.use(
   response => response,
   error => {
     if(isUnauthenticatedResponse(error) && !error?.config?.skipAuthExpiredWarning) {
-      clearAuthSession();
-      showSessionExpiredWarning()
-        .finally(async () => {
-          if(window.location.pathname !== '/login') {
-            await signOutClerkBrowserSession();
-            window.location.href = '/login';
-          }
-        });
+      handleExpiredAuthSession();
+
+      /*
+       * Response 401 berhenti di interceptor karena aplikasi akan logout
+       * dan memuat ulang halaman login. Dengan begitu, catch komponen tidak
+       * menampilkan error tambahan untuk session yang sama.
+       */
+      return new Promise(() => {});
     }
 
     return Promise.reject(error);
