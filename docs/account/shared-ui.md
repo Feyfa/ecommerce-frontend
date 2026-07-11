@@ -1,27 +1,24 @@
-# Settings Shared UI
+# Account Shared UI
 
-This document records shared UI rules for the global `Pengaturan` account settings area.
+This document records shared UI rules for `Akun Saya`.
 
-Use this document when changing settings layout, inputs, buttons, modals, validation states, or Element Plus overrides.
+Use this document when changing account layout, inputs, buttons, modals, validation states, or Element Plus overrides.
 
 ## Applies To
 
-Buyer and seller settings pages.
+Buyer and seller account pages.
 
 ## Layout Rules
 
-- `SettingsView.vue` is the shared settings shell.
-- The page keeps one global `Pengaturan` title and one per-route content title.
-- Desktop uses a left settings sidebar grouped by section.
-- Mobile uses a custom dropdown menu above the content.
-- Route content is rendered through child routes under `/settings`.
+- `AccountView.vue` is the shared account shell.
+- The page keeps one account title, one role badge, and one tab bar.
 - Feature content should avoid unnecessary nested cards.
 - Forms use one primary content card when the card helps group related fields.
-- Address content is separated into its own settings route instead of being embedded inside profile.
+- Address content is separated into its own buyer tab instead of being embedded inside profile.
 
 ## Input Styling
 
-Settings inputs should visually match the add/edit product form style:
+Account inputs should visually match the add/edit product form style:
 
 - white background;
 - subtle gray border;
@@ -70,7 +67,7 @@ They should not require an edit mode button before the user can type.
 
 ## Modals
 
-Settings modals should use the same visual language as the settings page:
+Account modals should use the same visual language as the account page:
 
 - clear title at the top;
 - aligned form labels and inputs;
@@ -108,4 +105,4 @@ showSessionExpiredWarning()
   });
 ```
 
-Settings components that read `user`, `company`, or active account mode during route transitions should use safe access such as `user?.img`, `company?.img`, or a validated `activeAccountMode`, because the values can be empty while the page is navigating to login.
+Account components that read `user`, `company`, or active account mode during route transitions should use safe access such as `user?.img`, `company?.img`, or a validated `activeAccountMode`, because the values can be empty while the page is navigating to login.

@@ -1,17 +1,17 @@
 <template>
     <div id="edit-product-container" class="fixed inset-0 z-[9] bg-slate-950/50" v-show="show" @click="closeEditProduct">
-        <div class="product-drawer-panel fixed bottom-0 right-0 top-14 flex w-full flex-col bg-white shadow-2xl sm:w-[55%] md:w-[45%] lg:w-[40%] xl:w-[35%] 2xl:w-[30%]" v-show="show" @click.stop>
+        <div class="fixed bottom-0 right-0 top-14 flex w-full flex-col bg-white shadow-2xl sm:w-[55%] md:w-[45%] lg:w-[40%] xl:w-[35%] 2xl:w-[30%]" v-show="show" @click.stop>
             <div class="border-b border-slate-200 px-5 py-4">
                 <div class="flex items-start justify-between gap-4">
                     <div>
-                        <h1 class="text-xl font-semibold text-slate-900 sm:text-2xl">Ubah Produk</h1>
-                        <p class="mt-1 text-sm text-slate-500">Perbarui foto dan informasi produk.</p>
+                        <h1 class="text-xl font-semibold text-slate-900 sm:text-2xl">Edit Produk</h1>
+                        <p class="mt-1 text-sm text-slate-500">Update foto dan informasi produk.</p>
                     </div>
 
                     <button
                         type="button"
                         class="flex h-9 w-9 shrink-0 items-center justify-center rounded-md border border-slate-200 text-slate-500 hover:bg-slate-100 hover:text-slate-900"
-                        aria-label="Tutup ubah produk"
+                        aria-label="Tutup edit produk"
                         @click="closeEditProduct">
                         <i class="fa-solid fa-xmark"></i>
                     </button>
@@ -106,22 +106,15 @@
                                     class="text-sm font-medium text-slate-700">
                                     Harga
                                 </label>
-                                <div
-                                    class="flex h-11 w-full overflow-hidden rounded-md border border-slate-300 bg-white text-base text-slate-900 shadow-sm focus-within:border-violet-500 focus-within:ring-2 focus-within:ring-violet-100"
-                                    :class="{'border-red-500 focus-within:border-red-500 focus-within:ring-red-100': errors.price}">
-                                    <div class="flex w-12 shrink-0 items-center justify-center border-r border-slate-300 bg-slate-50 text-sm font-semibold text-slate-500">
-                                        Rp
-                                    </div>
-                                    <input
-                                        placeholder="50.000"
-                                        id="edit-product-price"
-                                        type="text"
-                                        inputmode="numeric"
-                                        class="h-full min-w-0 flex-1 px-3 text-base text-slate-900 outline-none placeholder:text-slate-400"
-                                        v-model="priceString"
-                                        @keydown="restrictPriceInput"
-                                        @input="watchInputPrice">
-                                </div>
+                                <input
+                                    placeholder="50000"
+                                    id="edit-product-price"
+                                    type="number"
+                                    min="1"
+                                    class="h-11 w-full rounded-md border border-slate-300 px-3 text-base text-slate-900 outline-none shadow-sm placeholder:text-slate-400 focus:border-violet-500 focus:ring-2 focus:ring-violet-100"
+                                    :class="{'border-red-500 focus:border-red-500 focus:ring-red-100': errors.price}"
+                                    v-model="price"
+                                    @input="watchInputPrice">
                                 <small
                                     v-if="errors.price"
                                     class="text-sm text-red-500">
@@ -202,7 +195,6 @@ export default {
             id: '',
             name: '',
             price: '',
-            priceString: '',
             stock: '',
 
             isProcessGetProduct: true,
@@ -304,7 +296,6 @@ export default {
             this.id = '';
             this.name = '';
             this.price = '';
-            this.priceString = '';
             this.stock = '';
             this.oldProductImage = '';
             this.ProductImage = '';
@@ -321,48 +312,11 @@ export default {
         },
 
         watchInputPrice() {
-            this.syncFormattedPrice();
-
             if(String(this.price).trim() === '') {
                 this.errors.price = 'The Field Price Is Required';
             } else {
                 this.errors.price = '';
             }
-        },
-
-        /**
-         * Tujuan method ini untuk membatasi input harga agar hanya angka
-         * yang masuk sebelum diformat sebagai rupiah.
-         */
-        restrictPriceInput(event) {
-            if(event.metaKey || event.ctrlKey)
-                return;
-
-            if(['Backspace', 'ArrowLeft', 'ArrowRight', 'Tab', 'Delete', 'Home', 'End'].includes(event.key))
-                return;
-
-            if(!/^\d$/.test(event.key))
-                event.preventDefault();
-        },
-
-        /**
-         * Tujuan method ini untuk menjaga tampilan harga memakai format
-         * ribuan Indonesia, tetapi nilai yang dikirim tetap angka bersih.
-         */
-        syncFormattedPrice() {
-            const normalizedPrice = String(this.priceString || '').replace(/\D/g, '');
-
-            this.price = normalizedPrice;
-            this.priceString = normalizedPrice ? Number(normalizedPrice).toLocaleString('id-ID') : '';
-        },
-
-        /**
-         * Tujuan method ini untuk mengisi harga produk dari API ke state
-         * tampilan rupiah dan state angka bersih sekaligus.
-         */
-        setProductPrice(price) {
-            this.price = String(price || '');
-            this.priceString = this.price ? Number(this.price).toLocaleString('id-ID') : '';
         },
 
         watchInputStock() {
@@ -398,7 +352,7 @@ export default {
                     this.oldProductImage = response.data.product.img;
                     this.ProductImage = `${import.meta.env.VITE_APP_BACKEND_BASE_URL}/${import.meta.env.VITE_SYMLINK_FOLDER}/${response.data.product.img}`;
                     this.name = response.data.product.name;
-                    this.setProductPrice(response.data.product.price);
+                    this.price = response.data.product.price;
                     this.stock = response.data.product.stock;
                 }
             })
@@ -483,11 +437,3 @@ export default {
     }
 }
 </script>
-
-<style scoped>
-@media (min-width: 1800px) {
-    .product-drawer-panel {
-        width: min(30vw, 38rem);
-    }
-}
-</style>

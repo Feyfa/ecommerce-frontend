@@ -1,6 +1,6 @@
 <template>
     <div id="add-product-container" class="fixed inset-0 z-[3] bg-slate-950/50" v-show="show" @click="closeAddProduct">
-        <div class="product-drawer-panel fixed bottom-0 right-0 top-14 flex w-full flex-col bg-white shadow-2xl sm:w-[55%] md:w-[45%] lg:w-[40%] xl:w-[35%] 2xl:w-[30%]" v-show="show" @click.stop>
+        <div class="fixed bottom-0 right-0 top-14 flex w-full flex-col bg-white shadow-2xl sm:w-[55%] md:w-[45%] lg:w-[40%] xl:w-[35%] 2xl:w-[30%]" v-show="show" @click.stop>
             <div class="border-b border-slate-200 px-5 py-4">
                 <div class="flex items-start justify-between gap-4">
                     <div>
@@ -101,22 +101,15 @@
                                     class="text-sm font-medium text-slate-700">
                                     Harga
                                 </label>
-                                <div
-                                    class="flex h-11 w-full overflow-hidden rounded-md border border-slate-300 bg-white text-base text-slate-900 shadow-sm focus-within:border-violet-500 focus-within:ring-2 focus-within:ring-violet-100"
-                                    :class="{'border-red-500 focus-within:border-red-500 focus-within:ring-red-100': errors.price}">
-                                    <div class="flex w-12 shrink-0 items-center justify-center border-r border-slate-300 bg-slate-50 text-sm font-semibold text-slate-500">
-                                        Rp
-                                    </div>
-                                    <input
-                                        placeholder="50.000"
-                                        id="add-product-price"
-                                        type="text"
-                                        inputmode="numeric"
-                                        class="h-full min-w-0 flex-1 px-3 text-base text-slate-900 outline-none placeholder:text-slate-400"
-                                        v-model="priceString"
-                                        @keydown="restrictPriceInput"
-                                        @input="watchInputPrice">
-                                </div>
+                                <input
+                                    placeholder="50000"
+                                    id="add-product-price"
+                                    type="number"
+                                    min="1"
+                                    class="h-11 w-full rounded-md border border-slate-300 px-3 text-base text-slate-900 outline-none shadow-sm placeholder:text-slate-400 focus:border-violet-500 focus:ring-2 focus:ring-violet-100"
+                                    :class="{'border-red-500 focus:border-red-500 focus:ring-red-100': errors.price}"
+                                    v-model="price"
+                                    @input="watchInputPrice">
                                 <small
                                     v-if="errors.price"
                                     class="text-sm text-red-500">
@@ -191,7 +184,6 @@ export default {
 
             name: '',
             price: '',
-            priceString: '',
             stock: '',
 
             isProcessAddProduct: false,
@@ -272,7 +264,6 @@ export default {
             this.clearImageFile();
             this.name = '';
             this.price = '';
-            this.priceString = '';
             this.stock = '';
             this.ProductImage = '/img/product.png';
             this.isZoomUserImage = false;
@@ -292,39 +283,11 @@ export default {
         },
 
         watchInputPrice() {
-            this.syncFormattedPrice();
-
             if(String(this.price).trim() === '') {
                 this.errors.price = 'The Field Price Is Required';
             } else {
                 this.errors.price = '';
             }
-        },
-
-        /**
-         * Tujuan method ini untuk membatasi input harga agar hanya angka
-         * yang masuk sebelum diformat sebagai rupiah.
-         */
-        restrictPriceInput(event) {
-            if(event.metaKey || event.ctrlKey)
-                return;
-
-            if(['Backspace', 'ArrowLeft', 'ArrowRight', 'Tab', 'Delete', 'Home', 'End'].includes(event.key))
-                return;
-
-            if(!/^\d$/.test(event.key))
-                event.preventDefault();
-        },
-
-        /**
-         * Tujuan method ini untuk menjaga tampilan harga memakai format
-         * ribuan Indonesia, tetapi nilai yang dikirim tetap angka bersih.
-         */
-        syncFormattedPrice() {
-            const normalizedPrice = String(this.priceString || '').replace(/\D/g, '');
-
-            this.price = normalizedPrice;
-            this.priceString = normalizedPrice ? Number(normalizedPrice).toLocaleString('id-ID') : '';
         },
 
         watchInputStock() {
@@ -408,11 +371,3 @@ export default {
     }
 }
 </script>
-
-<style scoped>
-@media (min-width: 1800px) {
-    .product-drawer-panel {
-        width: min(30vw, 38rem);
-    }
-}
-</style>

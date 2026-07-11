@@ -98,9 +98,9 @@
         </div>
       </div>
 
-      <div class="belanja-list-grid grid w-full grid-cols-2 gap-x-4 gap-y-5 p-4 sm:grid-cols-3 sm:p-5 lg:grid-cols-4 lg:gap-x-5 lg:gap-y-6 lg:p-6 xl:grid-cols-5 2xl:grid-cols-6 3xl:grid-cols-7 4xl:grid-cols-8">
-        <div v-for="product in products" :key="product.p_id" class="belanja-list-card row group flex h-[18.5rem] flex-col overflow-hidden rounded-md border border-slate-200 bg-white shadow-[0_1px_3px_rgba(15,23,42,0.08)] transition-shadow hover:shadow-[0_8px_24px_rgba(15,23,42,0.12)]">
-          <div class="belanja-list-image relative flex h-40 w-full items-center justify-center bg-white px-3 py-2">
+      <div class="grid w-full grid-cols-2 gap-x-4 gap-y-5 p-4 sm:grid-cols-3 sm:p-5 lg:grid-cols-4 lg:gap-x-5 lg:gap-y-6 lg:p-6 xl:grid-cols-5 2xl:grid-cols-6 3xl:grid-cols-7 4xl:grid-cols-8">
+        <div v-for="product in products" :key="product.p_id" class="row group flex h-[18.5rem] flex-col overflow-hidden rounded-md border border-slate-200 bg-white shadow-[0_1px_3px_rgba(15,23,42,0.08)] transition-shadow hover:shadow-[0_8px_24px_rgba(15,23,42,0.12)]">
+          <div class="relative flex h-40 w-full items-center justify-center bg-white px-3 py-2">
             <img
               class="h-full w-full object-contain"
               :src="`${APP_BACKEND_BASE_URL}/${SYMLINK_FOLDER}/${product.p_img}`"
@@ -223,7 +223,7 @@ export default {
       const activeSortProduct = this.sortProductOptions.find(option => option.value === this.sortProduct);
 
       if(this.activeSearchProduct.length > 0) {
-        chips.push({ key: 'search', label: `Pencarian: ${this.activeSearchProduct}` });
+        chips.push({ key: 'search', label: `Search: ${this.activeSearchProduct}` });
       }
 
       if(activeSortProduct && activeSortProduct.value !== 'latest') {
@@ -343,7 +343,7 @@ export default {
           ElNotification({
             type: 'success',
             title: 'Success',
-            message: 'Produk berhasil ditambahkan ke keranjang.'
+            message: response.data.message
           });
         }
       })
@@ -434,12 +434,3 @@ export default {
   }
 }
 </script>
-
-<style scoped>
-@media (min-width: 1920px) {
-  .belanja-list-grid {
-    grid-template-columns: repeat(auto-fill, minmax(15rem, 15rem));
-    align-items: start;
-  }
-}
-</style>

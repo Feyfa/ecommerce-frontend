@@ -7,11 +7,11 @@
                 <div class="input-container flex flex-col w-full">
                     <label
                         for="place">
-                        Label Alamat
+                        Place
                         <span class="required-mark" aria-hidden="true">*</span>
                     </label>
                     <input
-                        placeholder="Contoh: Rumah, Kantor, Kos"
+                        placeholder="place"
                         id="place"
                         type="text"
                         v-model="place"
@@ -29,11 +29,11 @@
                 <div class="input-container flex flex-col w-full">
                     <label
                         for="nama">
-                        Nama Penerima
+                        nama
                         <span class="required-mark" aria-hidden="true">*</span>
                     </label>
                     <input
-                        placeholder="Masukkan nama penerima"
+                        placeholder="name"
                         id="name"
                         type="text"
                         v-model="name"
@@ -51,11 +51,11 @@
                 <div class="input-container flex flex-col w-full">
                     <label
                         for="phone">
-                        Nomor Telepon
+                        Phone
                         <span class="required-mark" aria-hidden="true">*</span>
                     </label>
                     <input
-                        placeholder="Masukkan nomor telepon"
+                        placeholder="phone"
                         id="phone"
                         type="text"
                         v-model="phone"
@@ -122,7 +122,7 @@
                             @click="closeFormAddAlamat"
                             :disabled="isProcessAddAlamatBuyer"
                             :class="{'opacity-50': isProcessAddAlamatBuyer}">
-                            Batal
+                            Cancel
                         </button>
                     </div>
                 </div>
@@ -137,11 +137,11 @@
                 <div class="input-container flex flex-col w-full">
                     <label
                         for="place">
-                        Label Alamat
+                        Place
                         <span class="required-mark" aria-hidden="true">*</span>
                     </label>
                     <input
-                        placeholder="Contoh: Rumah, Kantor, Kos"
+                        placeholder="place"
                         id="place"
                         type="text"
                         v-model="placeEdit"
@@ -159,11 +159,11 @@
                 <div class="input-container flex flex-col w-full">
                     <label
                         for="nama">
-                        Nama Penerima
+                        nama
                         <span class="required-mark" aria-hidden="true">*</span>
                     </label>
                     <input
-                        placeholder="Masukkan nama penerima"
+                        placeholder="name"
                         id="name"
                         type="text"
                         v-model="nameEdit"
@@ -181,11 +181,11 @@
                 <div class="input-container flex flex-col w-full">
                     <label
                         for="phone">
-                        Nomor Telepon
+                        Phone
                         <span class="required-mark" aria-hidden="true">*</span>
                     </label>
                     <input
-                        placeholder="Masukkan nomor telepon"
+                        placeholder="phone"
                         id="phone"
                         type="text"
                         v-model="phoneEdit"
@@ -237,7 +237,7 @@
                         class="alamat-danger-button w-full border py-2 px-8 mt-1.5"
                         :disabled="isProcessEditAlamatBuyer"
                         :class="{'opacity-50': isProcessEditAlamatBuyer}">
-                        Batal
+                        Cancel
                     </button>
                 </div>
             </div>
@@ -245,14 +245,14 @@
         <!-- form edit alamat -->
 
         <!-- title -->
-        <div v-if="showTitle" class="relative">
+        <div class="relative">
             <h3 class="text-xl text-center">Alamat User</h3>
         </div>
         <!-- title -->
 
         <!-- search and button add alamat -->
-        <div class="mb-7 flex flex-col md:flex-row md:justify-between md:items-center gap-3">
-            <div class="alamat-search-control w-full md:w-[40%] lg:w-[35%]">
+        <div class="mt-5 mb-7 flex flex-col md:flex-row md:justify-between md:items-center gap-3">
+            <div class="w-full md:w-[40%] lg:w-[35%]">
                 <input
                     placeholder="Cari Nama Alamat"
                     id="search-alamat"
@@ -261,7 +261,7 @@
                     v-model="searchAlamat"
                     @keyup.enter="enterSearchAlamat">
             </div>
-            <div class="alamat-add-control md:w-[25%] lg:w-[22%]">
+            <div class="md:w-[25%] lg:w-[22%]">
                 <button
                     class="alamat-primary-button border w-[100%] h-12"
                     @click="openFormAddAlamat"
@@ -329,7 +329,7 @@
                 <div
                     v-else
                     class="text-center mt-10">
-                    <h5 class="text-[.9rem]">Alamat Kosong</h5>
+                    <h5 class="text-[.9rem]">Alamat Not Found</h5>
                 </div>
             </div>
         </div>
@@ -350,10 +350,6 @@ export default {
         flat: {
             type: Boolean,
             default: false
-        },
-        showTitle: {
-            type: Boolean,
-            default: true
         }
     },
 
@@ -407,40 +403,19 @@ export default {
     },
 
     methods: {
-        /**
-         * Mengubah nama field teknis menjadi label form yang mudah dibaca user.
-         */
-        getAlamatFieldLabel(type) {
-            const labels = {
-                place: 'Label alamat',
-                name: 'Nama penerima',
-                phone: 'Nomor telepon',
-                alamat: 'Alamat',
-            };
-
-            return labels[type] ?? type;
-        },
-
-        /**
-         * Membuat pesan wajib isi yang konsisten untuk form tambah dan ubah alamat.
-         */
-        getAlamatRequiredMessage(type) {
-            return `${this.getAlamatFieldLabel(type)} wajib diisi.`;
-        },
-
         watchInputEdit(type) {
             switch(type) {
                 case 'place':
-                    this.errorsEdit.place = this.placeEdit.trim() == '' ? this.getAlamatRequiredMessage(type) : '';
+                    this.errorsEdit.place = this.placeEdit.trim() == '' ? `${type} required` : '';
                     break;
                 case 'name':
-                    this.errorsEdit.name = this.nameEdit.trim() == '' ? this.getAlamatRequiredMessage(type) : '';
+                    this.errorsEdit.name = this.nameEdit.trim() == '' ? `${type} required` : '';
                     break;
                 case 'phone':
-                    this.errorsEdit.phone = this.phoneEdit.trim() == '' ? this.getAlamatRequiredMessage(type) : '';
+                    this.errorsEdit.phone = this.phoneEdit.trim() == '' ? `${type} required` : '';
                     break;
                 case 'alamat':
-                    this.errorsEdit.alamat = this.alamatEdit.trim() == '' ? this.getAlamatRequiredMessage(type) : '';
+                    this.errorsEdit.alamat = this.alamatEdit.trim() == '' ? `${type} required` : '';
                     break;
             }
         },
@@ -462,16 +437,16 @@ export default {
             /* VALIDATION */
             if(this.placeEdit == '' || this.nameEdit == '' ||this.phoneEdit == '' || this.alamatEdit == '') {
                 if(this.placeEdit == '') {
-                    this.errorsEdit.place = this.getAlamatRequiredMessage('place');
+                    this.errorsEdit.place = 'place required';
                 }
                 if(this.nameEdit == '') {
-                    this.errorsEdit.name = this.getAlamatRequiredMessage('name');
+                    this.errorsEdit.name = 'name required';
                 }
                 if(this.phoneEdit == '') {
-                    this.errorsEdit.phone = this.getAlamatRequiredMessage('phone');
+                    this.errorsEdit.phone = 'phone required';
                 }
                 if(this.alamatEdit == '') {
-                    this.errorsEdit.alamat = this.getAlamatRequiredMessage('alamat');
+                    this.errorsEdit.alamat = 'alamat required';
                 }
                 return false;
             }
@@ -497,7 +472,8 @@ export default {
                 ElNotification({ type: 'success', title: 'Success', message: response.message });
             })
             .catch(error => {
-                if(error.response?.status == 422) {
+                console.log(error);
+                if(error.response.status == 422) {
                     const message = error.response.data.message;
                     Object.keys(message).forEach(key => {
                         switch(key) {
@@ -548,8 +524,9 @@ export default {
         watchInput(type) {
             if (!Object.prototype.hasOwnProperty.call(this, type)) return;
 
+            const value = this[type];
             if (this[type].trim() == '') {
-                this.errors[type] = this.getAlamatRequiredMessage(type);
+                this.errors[type] = `${type} required`;
             } else {
                 this.errors[type] = '';
             }
@@ -601,16 +578,16 @@ export default {
             /* VALIDATION */
             if(this.place == '' || this.name == '' ||this.phone == '' || this.alamat == '') {
                 if(this.place == '') {
-                    this.errors.place = this.getAlamatRequiredMessage('place');
+                    this.errors.place = 'place required';
                 }
                 if(this.name == '') {
-                    this.errors.name = this.getAlamatRequiredMessage('name');
+                    this.errors.name = 'name required';
                 }
                 if(this.phone == '') {
-                    this.errors.phone = this.getAlamatRequiredMessage('phone');
+                    this.errors.phone = 'phone required';
                 }
                 if(this.alamat == '') {
-                    this.errors.alamat = this.getAlamatRequiredMessage('alamat');
+                    this.errors.alamat = 'alamat required';
                 }
                 return false;
             }
@@ -636,7 +613,9 @@ export default {
                 ElNotification({ type: 'success', title: 'Success', message: response.message });
             })
             .catch(error => {
-                if(error.response?.status == 422) {
+                console.log(error);
+
+                if(error.response.status == 422) {
                     const message = error.response.data.message;
                     Object.keys(message).forEach(key => {
                         switch(key) {
@@ -863,16 +842,5 @@ export default {
 
 .alamat-danger-button:not(:disabled):hover {
     background: #dc2626;
-}
-
-@media (min-width: 1536px) {
-    .alamat-search-control {
-        max-width: 520px;
-    }
-
-    .alamat-add-control {
-        width: 220px;
-        max-width: 220px;
-    }
 }
 </style>

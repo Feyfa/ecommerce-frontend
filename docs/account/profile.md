@@ -1,14 +1,14 @@
 # User Profile
 
-This document explains the user profile settings page in `Pengaturan`.
+This document explains the buyer user profile tab in `Akun Saya`.
 
 ## Applies To
 
-Authenticated users.
+Buyer only.
 
 ## Purpose
 
-The profile settings page lets a user update personal account information and manage their profile image.
+The buyer profile tab lets a buyer update personal account information and manage their profile image.
 
 ## Main Files
 
@@ -16,7 +16,7 @@ The profile settings page lets a user update personal account information and ma
   Owns buyer profile layout and image preview placement.
 
 - `src/components/user-profile/UserSetting.vue`
-  Owns the buyer profile form, validation state, and save behavior.
+  Owns the editable buyer profile form, validation state, and save behavior.
 
 - `src/components/user-profile/ImagePreview.vue`
   Owns profile image preview, upload, zoom, and delete confirmation.
@@ -32,6 +32,8 @@ Tanggal Lahir -> Jenis Kelamin
 
 Required fields:
 
+- `name`
+- `email`
 - `phone`
 
 Optional fields:
@@ -39,16 +41,9 @@ Optional fields:
 - `tanggal_lahir`
 - `jenis_kelamin`
 
-Read-only fields:
-
-- `name`
-- `email`
-
 ## Behavior
 
-- Profile inputs are directly editable except `name` and `email`.
-- Name is displayed from the authenticated account and is not submitted by this form.
-- Email is displayed from the authenticated account and is not submitted by this form.
+- Inputs are directly editable.
 - There is no edit mode toggle.
 - The form uses one `Simpan` button.
 - The save button visually appears disabled when any frontend validation error exists.
@@ -82,6 +77,10 @@ Profile update is handled through Vuex user update actions in `src/store.js`.
 
 Keep backend field names unchanged when building payloads:
 
+- `name`
+- `email`
 - `jenis_kelamin`
 - `tanggal_lahir`
 - `phone`
+- `tfa` when needed by a shared user update payload.
+

@@ -1,15 +1,14 @@
 import global from '@/global';
 import { ElMessageBox } from 'element-plus';
-import { buildClerkAbsoluteUrl, waitForClerkLoaded } from '@/clerk';
 
 let sessionExpiredWarningPromise = null;
-let sessionExpirationPromise = null;
 
 /**
- * Membersihkan data login lokal ketika sesi auth utama sudah tidak valid.
+ * Membersihkan data login lokal ketika token sudah tidak valid.
  */
 export const clearAuthSession = () => {
     /* step 1: hapus data autentikasi dari browser */
+    localStorage.removeItem('token');
     localStorage.removeItem('user');
     localStorage.removeItem('company');
     sessionStorage.removeItem('active_account_mode');
@@ -24,30 +23,10 @@ export const clearAuthSession = () => {
 };
 
 /**
- * Menutup sesi Clerk di browser bila memang masih aktif.
- */
-export const signOutClerkBrowserSession = async ({ redirectUrl = '', afterSignOut = null } = {}) => {
-    const runtimeState = await waitForClerkLoaded({ timeout: 1000, interval: 50 });
-
-    if(!runtimeState.loaded || !runtimeState.isSignedIn || !runtimeState.clerk?.signOut)
-        return false;
-
-    const signOutOptions = redirectUrl ? { redirectUrl: buildClerkAbsoluteUrl(redirectUrl) } : undefined;
-
-    if(typeof afterSignOut === 'function') {
-        await runtimeState.clerk.signOut(afterSignOut, signOutOptions);
-        return true;
-    }
-
-    await runtimeState.clerk.signOut(signOutOptions);
-
-    return true;
-};
-
-/**
  * Sinkronkan Vuex setelah sesi lokal dibersihkan.
  */
 export const syncClearedAuthSessionToStore = (store) => {
+    store.dispatch('fetchTokenFromLocalStorage');
     store.dispatch('fetchUserFromLocalStorage');
     store.dispatch('fetchCompanyFromLocalStorage');
     store.dispatch('clearActiveAccountMode');
@@ -61,7 +40,7 @@ export const showSessionExpiredWarning = () => {
         return sessionExpiredWarningPromise;
 
     sessionExpiredWarningPromise = ElMessageBox.alert(
-        'Sesi login Anda sudah tidak berlaku. Hal ini dapat terjadi karena sesi berakhir atau akun logout dari perangkat lain. Silakan login kembali untuk melanjutkan.',
+        'Sesi login Anda sudah berakhir karena akun ini sudah logout dari browser lain. Silakan login kembali untuk melanjutkan.',
         'Sesi Berakhir',
         {
             type: 'warning',
@@ -78,33 +57,11 @@ export const showSessionExpiredWarning = () => {
 };
 
 /**
- * Menangani session yang sudah tidak valid melalui satu proses bersama.
- * Semua response 401 memakai promise yang sama agar modal, Clerk sign out,
- * dan redirect tidak dijalankan berulang kali.
- */
-export const handleExpiredAuthSession = () => {
-    if(sessionExpirationPromise)
-        return sessionExpirationPromise;
-
-    sessionExpirationPromise = (async () => {
-        /* step 1: hentikan tampilan data session lama sebelum menunggu konfirmasi user */
-        global.isLoggingOut = true;
-        clearAuthSession();
-
-        /* step 2: tampilkan satu peringatan untuk seluruh request 401 yang berjalan bersamaan */
-        await showSessionExpiredWarning().catch(() => null);
-
-        /* step 3: tutup session Clerk dan selalu muat ulang aplikasi dari halaman login */
-        await signOutClerkBrowserSession().catch(() => false);
-        window.location.replace('/login');
-    })();
-
-    return sessionExpirationPromise;
-};
-
-/**
- * Mengecek response API yang menandakan sesi auth sudah tidak berlaku.
+ * Mengecek response API yang menandakan token sudah tidak berlaku.
  */
 export const isUnauthenticatedResponse = (error) => {
-    return error?.response?.status === 401;
+    const status = error?.response?.status;
+    const message = error?.response?.data?.message;
+
+    return status === 401 && ['Unauthenticated.', 'Unauthorized'].includes(message);
 };

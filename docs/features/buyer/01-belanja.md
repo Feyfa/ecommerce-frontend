@@ -101,7 +101,7 @@ The frontend uses these backend API actions through `src/store.js`:
 - `GET /api/belanja/{user_id_seller}`
 - `POST /api/keranjang`
 
-Authenticated requests use the current Clerk session token attached by the shared Axios interceptor.
+Authenticated requests use the stored bearer token.
 
 `GET /api/belanja/{user_id_seller}` sends:
 

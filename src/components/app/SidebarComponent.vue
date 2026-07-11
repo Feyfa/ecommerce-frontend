@@ -1,6 +1,6 @@
 <template>
     <aside
-        class="sidebar sidebar-shell absolute left-0 top-0 z-40 h-screen overflow-hidden bg-white transition-all duration-300 ease-in-out lg:static lg:z-0 lg:w-[20.5%] lg:shrink-0 lg:border-r lg:border-neutral-300 lg:shadow-[6px_0_24px_rgba(15,23,42,0.04)] xl:w-[17.1%] 2xl:w-[16.9%]"
+        class="sidebar absolute left-0 top-0 z-40 h-screen overflow-hidden bg-white transition-all duration-300 ease-in-out lg:static lg:z-0 lg:w-[20.5%] lg:shrink-0 lg:border-r lg:border-neutral-300 lg:shadow-[6px_0_24px_rgba(15,23,42,0.04)] xl:w-[17.1%] 2xl:w-[16.9%]"
         :class="{
             'w-0': !this.$global.isSidebarOpen,
             'w-[82%] border-r border-neutral-300 shadow-2xl sm500:w-[22rem]': this.$global.isSidebarOpen,
@@ -150,11 +150,3 @@ export default {
     }
 }
 </script>
-
-<style scoped>
-@media (min-width: 1920px) {
-    .sidebar-shell {
-        width: 20.25rem;
-    }
-}
-</style>

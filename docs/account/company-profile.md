@@ -1,14 +1,14 @@
 # Company Profile
 
-This document explains the store profile settings page in `Pengaturan`.
+This document explains the seller company profile tab in `Akun Saya`.
 
 ## Applies To
 
-Authenticated users with store/company profile access.
+Seller only.
 
 ## Purpose
 
-The store profile settings page lets a seller update company identity, contact information, address, description, and company image.
+The company profile tab lets a seller update company identity, contact information, address, description, and company image.
 
 ## Main Files
 
@@ -83,3 +83,4 @@ Keep backend field names unchanged when building payloads:
 - `phone`
 - `alamat`
 - `deskripsi`
+

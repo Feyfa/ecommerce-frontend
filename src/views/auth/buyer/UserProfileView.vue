@@ -14,7 +14,7 @@
 
     <!-- user setting -->
     <div id="user-setting" class="mt-10">
-      <UserSetting />
+      <UserSetting :show-tfa="showTfa" />
     </div>
     <!-- user setting -->
 
@@ -52,6 +52,10 @@ export default {
       default: false
     },
     showAlamat: {
+      type: Boolean,
+      default: true
+    },
+    showTfa: {
       type: Boolean,
       default: true
     }
