@@ -81,7 +81,7 @@ The current UI uses:
 
 - an Element Plus status select with a compact count badge;
 - a text input for search;
-- an Element Plus date range picker with Indonesian start and end date placeholders;
+- an Element Plus date range picker with `Start Date` and `End Date` placeholders;
 - an Element Plus select for newest/oldest sorting.
 
 On wide desktop screens, the transaction toolbar keeps the capped search input on the left and groups the status select, date range picker, and sort select on the right.
@@ -204,7 +204,7 @@ GET  /api/transaction
 POST /api/transaction/approved
 ```
 
-Authenticated requests use the current Clerk session token attached by the shared Axios interceptor.
+Authenticated requests use the stored bearer token.
 
 ## UI Notes
 

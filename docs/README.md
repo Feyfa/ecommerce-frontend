@@ -15,9 +15,6 @@ Deployment, branching, staging, production, Docker Compose, and server runbooks 
 - [Local Native Development](setup/local-native-development.md)
   Explains how to run the frontend and backend locally without Docker by using local HTTPS domains and native app runtimes.
 
-- [Clerk Authentication](auth/clerk-auth.md)
-  Documents the frontend Clerk migration direction, custom auth pages, route guard strategy, backend bootstrap flow, and post-migration cleanup rules.
-
 - [Seller Product](features/seller/01-product.md)
   Documents the seller product UI, state, flows, API usage, and UI decisions.
 
@@ -36,8 +33,8 @@ Deployment, branching, staging, production, Docker Compose, and server runbooks 
 - [Transaction](features/transaction.md)
   Documents the shared buyer and seller transaction UI, filters, cards, detail modal, pagination, and role-based display rules.
 
-- [Settings](settings/README.md)
-  Documents the shared buyer and seller settings UI, route structure, profile forms, address management, balance, bank accounts, security settings, remaining coming soon settings routes, and shared styling rules.
+- [Account](account/README.md)
+  Documents the shared buyer and seller account UI, tab order, profile forms, address management, balance, bank accounts, security, and shared styling rules.
 
 ## Documentation Rules
 
@@ -64,9 +61,6 @@ docs/
   setup/
     local-native-development.md
 
-  auth/
-    clerk-auth.md
-
   features/
     transaction.md
     seller/
@@ -76,7 +70,7 @@ docs/
       02-cart.md
       03-checkout.md
 
-  settings/
+  account/
     README.md
     shared-ui.md
     profile.md

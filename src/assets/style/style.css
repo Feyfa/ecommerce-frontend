@@ -55,86 +55,11 @@
   line-height: 1.5;
 }
 
-/* Social auth button styling for Clerk OAuth entry points. */
-.auth-social-panel {
-  display: flex;
-  flex-direction: column;
-  gap: 14px;
-  margin-top: 20px;
-  margin-bottom: 0;
-}
-
-.auth-social-button {
-  display: inline-flex;
-  width: 100%;
-  min-height: 48px;
-  align-items: center;
-  justify-content: center;
-  gap: 12px;
-  border: 1px solid #d8dee8;
-  border-radius: 12px;
-  background: #ffffff;
-  color: #0f172a;
-  font-size: 15px;
-  font-weight: 700;
-  box-shadow: 0 2px 6px rgba(15, 23, 42, 0.06);
-  transition: border-color 150ms ease-in-out, box-shadow 150ms ease-in-out, background-color 150ms ease-in-out;
-}
-
-.auth-social-button:not(:disabled):hover {
-  border-color: #c7d0dd;
-  background: #fcfdff;
-  box-shadow: 0 8px 18px rgba(15, 23, 42, 0.08);
-}
-
-.auth-social-button:disabled {
-  cursor: not-allowed;
-}
-
-.auth-social-button-icon {
-  display: inline-flex;
-  width: 24px;
-  height: 24px;
-  align-items: center;
-  justify-content: center;
-  flex-shrink: 0;
-  line-height: 0;
-}
-
-.auth-social-button-icon-image {
-  display: block;
-  width: 100%;
-  height: 100%;
-  object-fit: contain;
-}
-
-.auth-social-button-text {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  gap: 8px;
-}
-
-.auth-social-divider {
-  display: flex;
-  align-items: center;
-  gap: 12px;
-  color: #94a3b8;
-  font-size: 11px;
-  font-weight: 700;
-  letter-spacing: 0.24em;
-  text-transform: uppercase;
-}
-
 .auth-form {
   display: flex;
   flex-direction: column;
   gap: 16px;
   margin-top: 24px;
-}
-
-.auth-form-after-social {
-  margin-top: 8px;
 }
 
 .auth-field {

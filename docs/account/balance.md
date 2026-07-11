@@ -1,6 +1,6 @@
 # Balance
 
-This document explains the balance settings page in `Pengaturan`.
+This document explains the balance tab in `Akun Saya`.
 
 ## Applies To
 
@@ -8,15 +8,15 @@ Buyer and seller.
 
 ## Purpose
 
-The balance settings page lets a user view active balance, review balance history, filter history by date range, and withdraw available balance to a bank account.
+The balance tab lets a user view active balance, review balance history, filter history by date range, and withdraw available balance to a bank account.
 
 ## Main Files
 
 - `src/views/auth/SaldoView.vue`
   Owns balance summary, history list, date range filter, withdraw modal, and withdrawal form behavior.
 
-- `src/views/auth/settings/SettingsView.vue`
-  Owns the shared settings shell and route placement.
+- `src/views/auth/AccountView.vue`
+  Owns the shared account shell and tab placement.
 
 ## Balance Summary
 
@@ -34,18 +34,8 @@ The history card shows:
 - `History` title;
 - Element Plus date range picker;
 - balance transaction rows;
-- income amount in green with a `+ Rp` prefix;
-- withdrawal amount in red with a `- Rp` prefix;
+- income amount in green;
 - transaction description and related invoice/reference text.
-
-History amounts should use Indonesian thousands separators even when the API sends the price as a string. For example:
-
-```text
-+ Rp120.000
-- Rp20.000
-```
-
-Incoming transaction descriptions should show the same invoice id that appears in the transaction detail modal.
 
 The history title and date range control should be vertically aligned.
 
@@ -87,3 +77,4 @@ Use visual disabled state for unavailable actions.
 Balance and withdrawal actions are handled through Vuex actions in `src/store.js`.
 
 Keep backend field names unchanged when building payloads for balance history and withdrawal.
+

@@ -94,7 +94,7 @@
 
         <!-- search and button add rekening -->
         <div class="flex flex-col md:flex-row md:justify-between md:items-center gap-3" :class="embedded ? 'mt-0' : 'mt-5'">
-            <div class="account-search-control w-full md:w-[40%] lg:w-[35%]">
+            <div class="w-full md:w-[40%] lg:w-[35%]">
                 <input
                     placeholder="Cari Rekening Bank"
                     id="search-payment"
@@ -103,13 +103,14 @@
                     v-model="searchPayment"
                     @keyup.enter="enterSearchPayment">
             </div>
-            <div class="account-add-control md:w-[25%] lg:w-[26%]">
+            <div class="md:w-[25%] lg:w-[26%]">
                 <button
                     type="button"
                     class="account-add-button w-full h-12"
                     @click="openFormAddPayment"
                     :disabled="isProcessGetPaymentList"
                     :class="{'opacity-50': isProcessGetPaymentList}">
+                    <i class="fa-solid fa-plus text-xs"></i>
                     Tambah Rekening
                     <i v-if="isProcessGetPaymentList" class="fa-solid fa-spinner fa-spin-pulse ml-1"></i>
                 </button>
@@ -607,16 +608,5 @@ export default {
     font-size: 0.8rem;
     font-weight: 600;
     padding: 0 12px;
-}
-
-@media (min-width: 1536px) {
-    .account-search-control {
-        max-width: 520px;
-    }
-
-    .account-add-control {
-        width: 220px;
-        max-width: 220px;
-    }
 }
 </style>
