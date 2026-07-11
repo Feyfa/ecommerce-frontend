@@ -13,37 +13,45 @@
           <label
             for="name">
             Name
+            <span class="required-mark" aria-hidden="true">*</span>
           </label>
           <input
             placeholder="name"
             id="name"
             type="text"
-            class="border w-full border-neutral-500 rounded outline-none h-12 px-2.5 shadow bg-neutral-100 text-neutral-600 cursor-not-allowed"
-            readonly
-            aria-readonly="true"
+            class="border w-full border-neutral-500 rounded outline-none h-12 px-2.5 shadow"
+            required
+            aria-required="true"
             v-model="name"
-            tabindex="-1">
-          <small class="text-neutral-500 mt-1">
-            Nama mengikuti akun autentikasi Anda.
+            :class="{'is-error-field border border-red-500': errors.name}"
+            @input="watchInputName">
+          <small
+            v-if="errors.name"
+            class="text-red-500">
+            {{ errors.name }}
           </small>
         </div>
 
         <div class="input-container flex flex-col w-full">
           <label
             for="email">
-            Email
+            email
+            <span class="required-mark" aria-hidden="true">*</span>
           </label>
           <input
             placeholder="email"
             id="email"
-            type="email"
-            class="border w-full border-neutral-500 rounded outline-none h-12 px-2.5 shadow bg-neutral-100 text-neutral-600 cursor-not-allowed"
-            readonly
-            aria-readonly="true"
+            type="text"
+            class="border w-full border-neutral-500 rounded outline-none h-12 px-2.5 shadow"
+            required
+            aria-required="true"
             v-model="email"
-            tabindex="-1">
-          <small class="text-neutral-500 mt-1">
-            Email mengikuti akun autentikasi Anda.
+            :class="{'is-error-field border border-red-500': errors.email}"
+            @input="watchInputEmail">
+          <small
+            v-if="errors.email"
+            class="text-red-500">
+            {{ errors.email }}
           </small>
         </div>
 
@@ -105,6 +113,22 @@
           </el-select>
         </div>
 
+        <div v-if="showTfa" class="input-container flex flex-col w-full">
+          <label
+            for="tfa">
+            TFA
+          </label>
+          <el-select
+            id="tfa"
+            class="account-form-control"
+            v-model="tfa"
+            placeholder="Pilih TFA"
+            size="large">
+            <el-option label="Off" value="F" />
+            <el-option label="Email" value="Email" />
+            <el-option label="Phone" value="Phone" />
+          </el-select>
+        </div>
       </div>
 
       <!-- <div class="input-container flex flex-col w-full mt-4">
@@ -129,7 +153,7 @@
         type="button"
         class="setting-primary-button"
         :disabled="isProcessUpdate"
-        :class="{'is-invalid': errors.phone, 'opacity-50': isProcessUpdate}"
+        :class="{'is-invalid': errors.name || errors.email || errors.phone, 'opacity-50': isProcessUpdate}"
         @click="updateInput">
         Simpan
       </button>
@@ -143,6 +167,13 @@
 import { ElNotification } from 'element-plus';
 
 export default {
+  props: {
+    showTfa: {
+      type: Boolean,
+      default: true
+    }
+  },
+
   data() {
     return {
       name: '',
@@ -150,11 +181,14 @@ export default {
       jenis_kelamin: '',
       tanggal_lahir: '',
       phone: '081388992799',
+      tfa: '',
       // alamat: '',
 
       isProcessUpdate: false,
 
       errors: {
+        name: '',
+        email: '',
         phone: ''
       },
 
@@ -202,25 +236,25 @@ export default {
             this.tanggal_lahir = response.data.user.tanggal_lahir;
             this.phone = response.data.user.phone;
             // this.alamat = response.data.user.alamat;
+            this.tfa = response.data.user.tfa;
 
             this.$global.showUserProfileView.userSetting = true;
           })
           .catch(error => {
-            ElNotification({
-              type: 'error',
-              title: 'Gagal Memuat Data',
-              message: error?.response
-                ? 'Data profil pengguna belum berhasil dimuat. Silakan coba lagi.'
-                : 'Tidak dapat terhubung ke server. Periksa koneksi internet lalu coba lagi.',
-            });
+            localStorage.removeItem('token');
+            localStorage.removeItem('user');
+            localStorage.removeItem('company');
+            this.$router.push('/login');
           });
     },
 
     updateInput() {
       /* VALIDATION */
+      this.watchInputName();
+      this.watchInputEmail();
       this.watchInputPhone();
 
-      if(this.errors.phone) {
+      if(this.errors.name || this.errors.email || this.errors.phone) {
         return;
       }
       /* VALIDATION */
@@ -230,12 +264,17 @@ export default {
 
         this.$store.dispatch('updateUser', {
           id: this.$store.getters.user.id,
+          name: this.name,
+          email: this.email,
           jenis_kelamin: this.jenis_kelamin,
           tanggal_lahir: this.tanggal_lahir,
           phone: this.phone,
+          tfa: this.tfa,
           // alamat: this.alamat,
         })
         .then(response => {
+          // console.log(response);
+
           this.isProcessUpdate = false;
 
           if(response.data.status == 200) {
@@ -249,6 +288,7 @@ export default {
             localStorage.setItem('user', JSON.stringify(response.data.user));
 
             /* UPDATE PENGAMBILAN DARI LOCALSTORAGE */
+            this.$store.dispatch('fetchTokenFromLocalStorage');
             this.$store.dispatch('fetchUserFromLocalStorage');
             this.$store.dispatch('fetchCompanyFromLocalStorage');
             /* UPDATE PENGAMBILAN DARI LOCALSTORAGE */
@@ -256,13 +296,21 @@ export default {
 
         })
         .catch(error => {
+          // console.error(error);
+
           this.isProcessUpdate = false;
 
-          if(error.response?.data?.status == 422) {
+          if(error.response.data.status == 422) {
             const message = error.response.data.message;
 
             Object.keys(message).forEach(key => {
               switch(key) {
+                case 'name' :
+                  this.errors.name = message[key][0];
+                  break;
+                case 'email' :
+                  this.errors.email = message[key][0];
+                  break;
                 case 'phone' :
                   this.errors.phone = message[key][0];
                   break;
@@ -271,6 +319,22 @@ export default {
           }
         })
 
+      }
+    },
+
+    watchInputName() {
+      if(!this.name || this.name.trim() === '') {
+        this.errors.name = 'input name is required';
+      } else {
+        this.errors.name = '';
+      }
+    },
+
+    watchInputEmail() {
+      if(!this.email || this.email.trim() === '') {
+        this.errors.email = 'input email is required';
+      } else {
+        this.errors.email = '';
       }
     },
 

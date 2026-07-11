@@ -124,9 +124,9 @@
         </div>
       </div>
 
-      <div class="product-list-grid grid w-full grid-cols-2 gap-x-4 gap-y-5 p-4 sm:grid-cols-3 sm:p-5 lg:grid-cols-4 lg:gap-x-5 lg:gap-y-6 lg:p-6 xl:grid-cols-5 2xl:grid-cols-6 3xl:grid-cols-7 4xl:grid-cols-8">
-        <div v-for="product in products" :key="product.id" class="product-list-card row group flex h-72 flex-col overflow-hidden rounded-md border border-slate-200 bg-white shadow-[0_1px_3px_rgba(15,23,42,0.08)] transition-shadow hover:shadow-[0_8px_24px_rgba(15,23,42,0.12)]">
-          <div class="product-list-image relative flex h-44 w-full items-center justify-center bg-white px-3 py-2">
+      <div class="grid w-full grid-cols-2 gap-x-4 gap-y-5 p-4 sm:grid-cols-3 sm:p-5 lg:grid-cols-4 lg:gap-x-5 lg:gap-y-6 lg:p-6 xl:grid-cols-5 2xl:grid-cols-6 3xl:grid-cols-7 4xl:grid-cols-8">
+        <div v-for="product in products" :key="product.id" class="row group flex h-72 flex-col overflow-hidden rounded-md border border-slate-200 bg-white shadow-[0_1px_3px_rgba(15,23,42,0.08)] transition-shadow hover:shadow-[0_8px_24px_rgba(15,23,42,0.12)]">
+          <div class="relative flex h-44 w-full items-center justify-center bg-white px-3 py-2">
             <img
               class="h-full w-full object-contain"
               :src="`${APP_BACKEND_BASE_URL}/${SYMLINK_FOLDER}/${product.img}`"
@@ -537,12 +537,3 @@ export default {
   }
 }
 </script>
-
-<style scoped>
-@media (min-width: 1920px) {
-  .product-list-grid {
-    grid-template-columns: repeat(auto-fill, minmax(15rem, 15rem));
-    align-items: start;
-  }
-}
-</style>

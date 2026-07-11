@@ -32,7 +32,7 @@
                 </router-link>
 
                 <router-link
-                    :to="{name: 'settings_profile'}"
+                    to="/account"
                     class="group flex h-11 w-full items-center gap-3 rounded-lg px-3 text-sm font-medium transition-colors"
                     :class="{
                         'bg-violet-50 text-violet-700': isAccountActive(),
@@ -48,7 +48,7 @@
                             <path d="M8 8a3 3 0 1 0 0-6 3 3 0 0 0 0 6m2-3a2 2 0 1 1-4 0 2 2 0 0 1 4 0m4 8c0 1-1 1-1 1H3s-1 0-1-1 1-4 6-4 6 3 6 4m-1-.004c-.001-.246-.154-.986-.832-1.664C11.516 10.68 10.289 10 8 10s-3.516.68-4.168 1.332c-.678.678-.83 1.418-.832 1.664z"/>
                         </svg>
                     </span>
-                    <span class="truncate">Pengaturan</span>
+                    <span class="truncate">Akun Saya</span>
                 </router-link>
             </div>
 
@@ -93,7 +93,7 @@
 
 <script>
 import { ElNotification } from 'element-plus';
-import { logoutResolvedAuthSession } from '@/authBridge';
+import { clearAuthSession, syncClearedAuthSessionToStore } from '@/authSession';
 
 
 export default {
@@ -119,23 +119,7 @@ export default {
 
     methods: {
         isAccountActive() {
-            return [
-                'account',
-                'saldo',
-                'rekening',
-                'buyer_user',
-                'seller_company',
-                'settings',
-                'settings_profile',
-                'settings_addresses',
-                'settings_store',
-                'settings_balance',
-                'settings_bank_accounts',
-                'settings_security',
-                'settings_audit_log',
-                'settings_notifications',
-                'settings_support_report',
-            ].includes(this.$route.name);
+            return ['account', 'saldo', 'rekening', 'buyer_user', 'seller_company'].includes(this.$route.name);
         },
 
         async switchActiveAccountMode() {
@@ -168,22 +152,23 @@ export default {
             this.$global.isClickDropdown.userSetting = !this.$global.isClickDropdown.userSetting;
         },
 
-        /**
-         * Logout sidebar harus mengikuti provider auth aktif,
-         * supaya sesi auth dan state lokal dibersihkan dengan alur yang sama.
-         */
-        async logoutSubmit() {
-            this.closeDropdownSetting();
-            this.$global.globalTemplate.loading = true;
+        logoutSubmit() {
+            this
+            .$store
+            .dispatch('logoutSubmit')
+            .then(response => {
+                // console.log(response);
 
-            try {
-                await logoutResolvedAuthSession(this.$store, this.$router, '/login');
-            } catch (error) {
+                if(response.data.status == 200) {
+                    clearAuthSession();
+                    syncClearedAuthSessionToStore(this.$store);
+
+                    this.$router.push('/login');
+                }
+            })
+            .catch(error => {
                 console.error(error);
-                ElNotification({ type: 'error', title: 'Error', message: 'Logout gagal diproses' });
-            } finally {
-                this.$global.globalTemplate.loading = false;
-            }
+            });
         }
     }
 }

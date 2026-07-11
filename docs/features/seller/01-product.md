@@ -57,7 +57,7 @@ Current supported actions:
 
 - `ProductImage`: preview image URL shown in the image area.
 - `image`: selected image file.
-- `name`, `price`, `priceString`, `stock`: form fields. `price` keeps the raw numeric value for the API payload, while `priceString` keeps the formatted rupiah input display.
+- `name`, `price`, `stock`: form fields.
 - `errors`: validation errors returned by the backend.
 - `isZoomUserImage`: controls the Element Plus image viewer.
 
@@ -118,8 +118,6 @@ Supported sort values:
 4. `add.vue` submits a `FormData` payload through the `addProduct` Vuex action.
 5. On success, `ProductView.vue` prepends the returned product to `products`.
 
-The price input is displayed as a rupiah-style input group with an `Rp` prefix and Indonesian thousands separators. For example, typing `500000` is displayed as `500.000`, but the value submitted through `FormData` remains the clean numeric string `500000`.
-
 ### Edit Product
 
 1. The seller clicks the edit icon on a product card.
@@ -131,8 +129,6 @@ The price input is displayed as a rupiah-style input group with an `Rp` prefix a
 7. On success, `ProductView.vue` replaces the old product in the list with the updated product.
 
 The edit modal guard must accept UUID ids. Do not rely on numeric id checks.
-
-When an existing product is loaded, the API price is copied into both `price` and `priceString` so the form can show the formatted rupiah value while still submitting the raw numeric value.
 
 ### Delete Product
 
@@ -151,14 +147,13 @@ The frontend uses these backend API actions through `src/store.js`:
 - `PUT /api/product/{id}`
 - `DELETE /api/product/{user_id_seller}/{id}`
 
-Authenticated requests use the current Clerk session token attached by the shared Axios interceptor.
+Authenticated requests use the stored bearer token.
 
 ## UI Notes
 
 - Product cards use a light page background and white cards so adjacent products do not blend together.
 - Product images use `object-contain` so the full product is visible.
 - Prices are formatted with Indonesian thousands separators, for example `Rp 12.000.000`.
-- Add and edit price inputs use an `Rp` prefix and Indonesian thousands separators, but submit raw numeric values to the backend.
 - The product toolbar uses Element Plus selects for stock filter and sorting so it matches other app controls.
 - The desktop toolbar caps the search width on wide screens and keeps stock filter, sort, and reset controls grouped on the right.
 - The add/edit product UI is a right-side drawer below the top navbar.
