@@ -164,7 +164,7 @@ DELETE /api/keranjang/{user_id_buyer}/{product_id}
 POST   /api/keranjang/validate/checkout
 ```
 
-Authenticated requests use the stored bearer token.
+Authenticated requests use the current Clerk session token attached by the shared Axios interceptor.
 
 ## Error Sync
 

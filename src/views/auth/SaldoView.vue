@@ -210,7 +210,7 @@
                                 <!-- {{ item.id }} -->
                             </h3>
                             <p class="text-neutral-700 text-[0.7rem] tracking-wide">{{ item.date }}</p>
-                            <p class="font-semibold" :class="getColorMoney(item.type)">+ Rp{{ item.price.toLocaleString('id-ID') }}</p>
+                            <p class="font-semibold" :class="getColorMoney(item.type)">{{ formatSaldoHistoryPrice(item) }}</p>
                             <p class="text-neutral-500">{{ item.description }}</p>
                         </div>
                         <div v-show="this.saldoHistoryContainerLoading" class="w-full h-[4rem] flex justify-center items-center">
@@ -356,8 +356,6 @@ export default {
                 ElNotification({ type: 'success', title: 'Success', message: `Penarikan Sebesar Rp${withdrawPriceString} Berhasil` });
             })
             .catch(error => {
-                console.log(error);
-
                 this.isProcessWithdraw = false;
                 ElNotification({ type: 'error', title: 'Error', message: error?.response?.data?.message ?? 'Something Went Wrong' });
             })
@@ -491,6 +489,17 @@ export default {
             } else {
                 return 'text-green-700';
             }
+        },
+
+        /**
+         * Tujuan method ini untuk menampilkan nominal history saldo
+         * dalam format rupiah walaupun harga dari API masih berupa string.
+         */
+        formatSaldoHistoryPrice(item = {}) {
+            const prefix = item.type == 'withdrawal' ? '-' : '+';
+            const price = Number(item.price || 0);
+
+            return `${prefix} Rp${price.toLocaleString('id-ID')}`;
         },
 
         getSaldo() {
