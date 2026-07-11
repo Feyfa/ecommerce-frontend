@@ -36,7 +36,11 @@
 </template>
 
 <script>
+import { watch } from 'vue';
+import { useAuth } from '@clerk/vue';
+import { getClerkRuntimeState, isClerkEnabled } from '@/clerk';
 import eventBus from "@/eventBus";
+import global from "@/global";
 import NavbarComponent from "./components/app/NavbarComponent.vue";
 import SidebarComponent from "./components/app/SidebarComponent.vue";
 
@@ -44,6 +48,42 @@ export default {
     components: {
         NavbarComponent,
         SidebarComponent,
+    },
+
+    setup() {
+        /* step 1: sinkronkan status session utama ke reactive global app */
+        if(isClerkEnabled) {
+            const { isLoaded, isSignedIn, userId } = useAuth();
+
+            const syncClerkState = () => {
+                const runtimeState = getClerkRuntimeState();
+
+                return {
+                    enabled: runtimeState.enabled,
+                    loaded: Boolean(isLoaded.value),
+                    isSignedIn: Boolean(isSignedIn.value),
+                    userId: userId.value || runtimeState.userId || '',
+                };
+            };
+
+            watch(
+                [isLoaded, isSignedIn, userId],
+                () => {
+                    global.clerk = syncClerkState();
+                },
+                {
+                    immediate: true,
+                }
+            );
+        } else {
+            global.clerk = {
+                enabled: false,
+                loaded: false,
+                isSignedIn: false,
+                userId: '',
+            };
+        }
+        /* step 1 */
     },
 
     mounted() {
@@ -87,7 +127,7 @@ export default {
         },
 
         showNavbarSidebar() {
-            return this.$global.isAuth;
+            return this.$global.isAuth && !this.$global.isLoggingOut;
         }
     }
 

@@ -186,7 +186,7 @@ PUT /api/alamat-enable/buyer/{id}
 
 `/api/keranjang/validate/checkout` is used by the cart page before navigating to checkout.
 
-Authenticated requests use the stored bearer token.
+Authenticated requests use the current Clerk session token attached by the shared Axios interceptor.
 
 ## Error Sync
 

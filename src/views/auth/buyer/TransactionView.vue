@@ -45,8 +45,8 @@
                         class="transaction-date-filter !w-full"
                         type="daterange"
                         range-separator="-"
-                        start-placeholder="Start Date"
-                        end-placeholder="End Date"
+                        start-placeholder="Tanggal Mulai"
+                        end-placeholder="Tanggal Selesai"
                         value-format="YYYY-MM-DD"
                         format="DD MMM YYYY"
                         @change="changeDateRange" />
@@ -63,48 +63,77 @@
 
         <!-- list -->
         <div class="flex w-full flex-col items-center p-4 lg:px-6">
-            <button
-                v-if="showPendingPaymentNotice"
-                class="mb-4 flex w-full items-center justify-between rounded-lg border border-amber-200 bg-amber-50 px-4 py-3 text-left transition hover:border-amber-300 hover:bg-amber-100"
-                @click="changeFilter('pending_payment')">
-                <div class="flex min-w-0 items-center gap-3">
-                    <span class="inline-flex h-9 w-9 shrink-0 items-center justify-center rounded-md bg-white text-amber-700">
-                        <i class="fa-solid fa-clock"></i>
-                    </span>
-                    <div class="min-w-0">
-                        <p class="font-semibold text-neutral-900">Menunggu Pembayaran</p>
-                        <p class="text-sm text-neutral-600">{{ counts.pending_payment }} transaksi belum dibayar. Selesaikan pembayaran supaya transaksi tidak kedaluwarsa.</p>
+            <Transition name="transaction-notice">
+                <button
+                    v-if="showPendingPaymentNotice"
+                    class="mb-4 flex w-full items-center justify-between rounded-lg border border-amber-200 bg-amber-50 px-4 py-3 text-left transition hover:border-amber-300 hover:bg-amber-100 disabled:cursor-wait disabled:opacity-70"
+                    :disabled="show.listLoading"
+                    @click="changeFilter('pending_payment')">
+                    <div class="flex min-w-0 items-center gap-3">
+                        <span class="inline-flex h-9 w-9 shrink-0 items-center justify-center rounded-md bg-white text-amber-700">
+                            <i class="fa-solid fa-clock"></i>
+                        </span>
+                        <div class="min-w-0">
+                            <p class="font-semibold text-neutral-900">Menunggu Pembayaran</p>
+                            <p class="text-sm text-neutral-600">{{ counts.pending_payment }} transaksi belum dibayar. Selesaikan pembayaran supaya transaksi tidak kedaluwarsa.</p>
+                        </div>
                     </div>
-                </div>
-                <div class="flex shrink-0 items-center gap-3 text-amber-700">
-                    <span class="inline-flex h-6 min-w-6 items-center justify-center rounded-full bg-rose-500 px-2 text-xs font-semibold text-white">{{ counts.pending_payment }}</span>
-                    <i class="fa-solid fa-chevron-right"></i>
-                </div>
-            </button>
+                    <div class="flex shrink-0 items-center gap-3 text-amber-700">
+                        <span class="inline-flex h-6 min-w-6 items-center justify-center rounded-full bg-rose-500 px-2 text-xs font-semibold text-white">{{ counts.pending_payment }}</span>
+                        <i class="fa-solid fa-chevron-right"></i>
+                    </div>
+                </button>
+            </Transition>
 
-            <div v-if="counts.all == 0 && selectedFilter == 'paid' && !searchKeyword.trim()" class="w-full rounded-lg border border-dashed border-neutral-300 bg-white p-8 text-center">
-                <h3 class="text-lg font-semibold text-neutral-900">Daftar Transaksi Kamu Masih Kosong Nih</h3>
-                <p class="mt-1 text-sm text-neutral-500">Transaksi yang sudah dibuat akan tampil di halaman ini.</p>
-            </div>
+            <div class="w-full">
+                <Transition name="transaction-list" mode="out-in">
+                    <div v-if="show.listLoading" key="loading" class="w-full rounded-lg border border-neutral-200 bg-white p-4 shadow-sm">
+                        <div class="flex items-center gap-3">
+                            <span class="inline-flex h-9 w-9 shrink-0 items-center justify-center rounded-md bg-violet-50 text-violet-600">
+                                <i class="fa-solid fa-spinner fa-spin-pulse"></i>
+                            </span>
+                            <div>
+                                <p class="text-sm font-semibold text-neutral-900">Memuat transaksi</p>
+                                <p class="text-xs text-neutral-500">Daftar transaksi sedang diperbarui.</p>
+                            </div>
+                        </div>
 
-            <div v-else-if="transactions.length == 0" class="w-full rounded-lg border border-dashed border-neutral-300 bg-white p-8 text-center">
-                <h3 class="text-lg font-semibold text-neutral-900">Transaksi Tidak Ditemukan</h3>
-                <p class="mt-1 text-sm text-neutral-500">Belum ada transaksi pada filter ini.</p>
-            </div>
+                        <div class="mt-4 space-y-3">
+                            <div class="h-4 w-1/3 rounded bg-neutral-100"></div>
+                            <div class="grid gap-3 lg:grid-cols-[1fr_1fr_1fr_180px]">
+                                <div class="h-12 rounded bg-neutral-100"></div>
+                                <div class="h-12 rounded bg-neutral-100"></div>
+                                <div class="h-12 rounded bg-amber-50"></div>
+                                <div class="h-12 rounded bg-neutral-100"></div>
+                            </div>
+                        </div>
+                    </div>
 
-            <div v-else class="flex w-full flex-col gap-4">
-                <TransactionCard
-                    v-for="item in transactions"
-                    :key="item.id"
-                    role="buyer"
-                    :item="item"
-                    :backend-base-url="APP_BACKEND_BASE_URL"
-                    :symlink-folder="SYMLINK_FOLDER"
-                    @view-detail="openDetail"
-                    @copy-payment="copyText($event, 'Nomor Virtual Account Berhasil Disalin')"
-                />
+                    <div v-else-if="counts.all == 0 && selectedFilter == 'paid' && !searchKeyword.trim()" key="empty-all" class="w-full rounded-lg border border-dashed border-neutral-300 bg-white p-8 text-center">
+                        <h3 class="text-lg font-semibold text-neutral-900">Daftar Transaksi Kamu Masih Kosong Nih</h3>
+                        <p class="mt-1 text-sm text-neutral-500">Transaksi yang sudah dibuat akan tampil di halaman ini.</p>
+                    </div>
 
-                <PaginationView v-if="showPagination" :pagination="pagination" @change-page="changePage" />
+                    <div v-else-if="transactions.length == 0" key="empty-filter" class="w-full rounded-lg border border-dashed border-neutral-300 bg-white p-8 text-center">
+                        <h3 class="text-lg font-semibold text-neutral-900">Transaksi Tidak Ditemukan</h3>
+                        <p class="mt-1 text-sm text-neutral-500">Belum ada transaksi pada filter ini.</p>
+                    </div>
+
+                    <div v-else key="transactions" class="flex w-full flex-col gap-4">
+                        <TransactionCard
+                            v-for="item in transactions"
+                            :key="item.id"
+                            role="buyer"
+                            :item="item"
+                            :backend-base-url="APP_BACKEND_BASE_URL"
+                            :symlink-folder="SYMLINK_FOLDER"
+                            @view-detail="openDetail"
+                            @copy-payment="copyText($event, 'Nomor Virtual Account Berhasil Disalin')"
+                        />
+
+                        <PaginationView v-if="showPagination" :pagination="pagination" @change-page="changePage" />
+                    </div>
+                </Transition>
             </div>
         </div>
         <!-- list -->
@@ -148,6 +177,7 @@ export default {
 
             show: {
                 loading: false,
+                listLoading: false,
             },
 
             selectedFilter: 'paid',
@@ -155,6 +185,7 @@ export default {
             sortOrder: 'newest',
             dateRange: [],
             searchTimeout: null,
+            transactionRequestVersion: 0,
             page: 1,
             perPage: 5,
             counts: {
@@ -202,11 +233,18 @@ export default {
 
     mounted() {
         this.show.loading = true;
-        this.getTransactions();
+        this.getTransactions(true);
     },
 
     methods: {
-        getTransactions() {
+        getTransactions(isInitialLoad = false) {
+            const requestVersion = ++this.transactionRequestVersion;
+
+            if(isInitialLoad)
+                this.show.loading = true;
+            else
+                this.show.listLoading = true;
+
             this
             .$store
             .dispatch('getTransactions', {
@@ -220,12 +258,20 @@ export default {
                 date_to: this.dateRange?.[1] ?? ''
             })
             .then(response => {
+                if(requestVersion !== this.transactionRequestVersion)
+                    return;
+
                 this.setTransactionResponse(response);
                 this.show.loading = false;
+                this.show.listLoading = false;
             })
             .catch(error => {
+                if(requestVersion !== this.transactionRequestVersion)
+                    return;
+
                 console.error(error);
-                this.show.loading = false
+                this.show.loading = false;
+                this.show.listLoading = false;
             })
         },
 
@@ -313,3 +359,24 @@ export default {
     }
 }
 </script>
+
+<style scoped>
+.transaction-notice-enter-active,
+.transaction-notice-leave-active,
+.transaction-list-enter-active,
+.transaction-list-leave-active {
+    transition: opacity 180ms ease, transform 180ms ease;
+}
+
+.transaction-notice-enter-from,
+.transaction-notice-leave-to {
+    opacity: 0;
+    transform: translateY(-6px);
+}
+
+.transaction-list-enter-from,
+.transaction-list-leave-to {
+    opacity: 0;
+    transform: translateY(4px);
+}
+</style>
