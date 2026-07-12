@@ -5,7 +5,7 @@
     <div class="w-full max-w-[26rem] space-y-4 relative z-[1]">
       <section v-if="!isClerkEnabled" class="auth-card">
         <div class="text-center">
-          <p class="auth-brand">Ecommerce</p>
+          <p class="auth-brand">TokShop</p>
           <h1 class="auth-title">Reset Password Belum Tersedia</h1>
           <p class="auth-subtitle">
             Konfigurasi reset password belum lengkap. Silakan hubungi admin aplikasi.
@@ -15,7 +15,7 @@
 
       <form v-else class="auth-card" @submit.prevent="submitActiveResetStep">
         <div class="text-center">
-          <p class="auth-brand">Ecommerce</p>
+          <p class="auth-brand">TokShop</p>
           <h1 class="auth-title">{{ resetFormTitle }}</h1>
           <p class="auth-subtitle">{{ resetFormSubtitle }}</p>
         </div>
