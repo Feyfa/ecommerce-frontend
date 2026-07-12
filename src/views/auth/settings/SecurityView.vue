@@ -37,7 +37,8 @@
                         <article
                             v-for="method in signInMethods"
                             :key="method.key"
-                            class="security-row">
+                            class="security-row"
+                            :class="{'is-feature-locked': !isFeatureAvailable(method)}">
                             <div class="security-row-icon" aria-hidden="true">
                                 <i :class="methodIcon(method.key)"></i>
                             </div>
@@ -45,18 +46,23 @@
                             <div class="security-row-main">
                                 <div class="security-row-title">
                                     <h5>{{ method.label }}</h5>
-                                    <span class="security-badge" :class="statusClass(method.status)">
+                                    <span v-if="isFeatureAvailable(method)" class="security-badge" :class="statusClass(method.status)">
                                         {{ method.status_label }}
                                     </span>
+                                    <span v-if="!isFeatureAvailable(method)" class="security-badge is-pro">
+                                        <i class="fa-solid fa-lock" aria-hidden="true"></i>
+                                        Clerk Pro
+                                    </span>
                                 </div>
-                                <p>{{ method.description }}</p>
+                                <p>{{ featureDescription(method) }}</p>
                             </div>
 
                             <button
-                                v-if="method.action_label"
+                                v-if="method.action_label && isFeatureAvailable(method)"
                                 type="button"
                                 class="security-secondary-button"
-                                :disabled="actionMethodKey === method.key"
+                                :disabled="actionMethodKey === method.key || !isFeatureAvailable(method)"
+                                :title="!isFeatureAvailable(method) ? 'Fitur ini memerlukan Clerk Pro dan belum tersedia pada environment ini.' : ''"
                                 @click="handleSignInMethodAction(method)">
                                 <i v-if="actionMethodKey === method.key" class="fa-solid fa-spinner fa-spin-pulse"></i>
                                 {{ method.action_label }}
@@ -76,7 +82,8 @@
                         <article
                             v-for="protection in additionalProtections"
                             :key="protection.key"
-                            class="security-row">
+                            class="security-row"
+                            :class="{'is-feature-locked': !isFeatureAvailable(protection)}">
                             <div class="security-row-icon" aria-hidden="true">
                                 <i :class="protectionIcon(protection.key)"></i>
                             </div>
@@ -84,17 +91,23 @@
                             <div class="security-row-main">
                                 <div class="security-row-title">
                                     <h5>{{ protection.label }}</h5>
-                                    <span class="security-badge" :class="statusClass(protection.status)">
+                                    <span v-if="isFeatureAvailable(protection)" class="security-badge" :class="statusClass(protection.status)">
                                         {{ protection.status_label }}
                                     </span>
+                                    <span v-if="!isFeatureAvailable(protection)" class="security-badge is-pro">
+                                        <i class="fa-solid fa-lock" aria-hidden="true"></i>
+                                        Clerk Pro
+                                    </span>
                                 </div>
-                                <p>{{ protection.description }}</p>
+                                <p>{{ featureDescription(protection) }}</p>
                             </div>
 
                             <button
+                                v-if="isFeatureAvailable(protection)"
                                 type="button"
                                 class="security-secondary-button"
-                                :disabled="actionProtectionKey === protection.key"
+                                :disabled="actionProtectionKey === protection.key || !isFeatureAvailable(protection)"
+                                :title="!isFeatureAvailable(protection) ? 'Fitur ini memerlukan Clerk Pro dan belum tersedia pada environment ini.' : ''"
                                 @click="handleProtectionAction(protection)">
                                 <i v-if="actionProtectionKey === protection.key" class="fa-solid fa-spinner fa-spin-pulse"></i>
                                 {{ protection.action_label }}
@@ -512,6 +525,7 @@ import {
     waitForClerkLoaded,
 } from '@/clerk';
 import { createQrCodeSvgDataUri } from '@/utils/qrCode';
+import { features } from '@/features';
 
 export default {
     components: {
@@ -524,6 +538,7 @@ export default {
                 sign_in_methods: [],
                 additional_protections: [],
             },
+            features,
             sessions: [],
 
             isLoadingSummary: false,
@@ -709,6 +724,7 @@ export default {
                 if(verificationUrl)
                     window.location.href = verificationUrl;
             } catch(error) {
+                consumeGoogleLinkCallback();
                 ElNotification({
                     type: 'error',
                     title: 'error',
@@ -721,12 +737,11 @@ export default {
 
         /**
          * Tujuan method ini untuk memastikan Google yang baru terhubung
-         * emailnya sama dan sudah verified sebelum dianggap aktif.
+         * emailnya sama dan status OAuth-nya verified sebelum dianggap aktif.
          */
         async finalizeGoogleLinkCallback() {
-            const hasStoredGoogleLinkCallback = consumeGoogleLinkCallback();
-            const isGoogleLinkCallback = this.$route.query.google_link === 'callback'
-                || hasStoredGoogleLinkCallback;
+            consumeGoogleLinkCallback();
+            const isGoogleLinkCallback = this.$route.query.google_link === 'callback';
 
             if(!isGoogleLinkCallback)
                 return;
@@ -743,6 +758,7 @@ export default {
                     message: 'Akun Google berhasil dihubungkan.',
                 });
             } catch(error) {
+                consumeGoogleLinkCallback();
                 ElNotification({
                     type: 'error',
                     title: 'error',
@@ -774,6 +790,9 @@ export default {
          * sesuai jenis credential yang dipilih user.
          */
         handleSignInMethodAction(method) {
+            if(!this.isFeatureAvailable(method))
+                return;
+
             if(method.key === 'password') {
                 this.openPasswordModal(method);
                 return;
@@ -806,6 +825,9 @@ export default {
          * yang sudah dikelola langsung melalui Clerk.
          */
         handleProtectionAction(protection) {
+            if(!this.isFeatureAvailable(protection))
+                return;
+
             if(protection.key === 'mfa') {
                 this.openMfaModal(protection);
                 return;
@@ -1503,7 +1525,7 @@ export default {
          */
         getBackupCodesFileContent() {
             return [
-                'Ecommerce Backup Codes',
+                'TokShop Backup Codes',
                 '',
                 `Dibuat pada: ${new Date().toLocaleString('id-ID')}`,
                 '',
@@ -1529,7 +1551,7 @@ export default {
             const dateText = new Date().toISOString().slice(0, 10);
 
             downloadLink.href = downloadUrl;
-            downloadLink.download = `ecommerce-backup-codes-${dateText}.txt`;
+            downloadLink.download = `tokshop-backup-codes-${dateText}.txt`;
             document.body.appendChild(downloadLink);
             downloadLink.click();
             document.body.removeChild(downloadLink);
@@ -1629,6 +1651,23 @@ export default {
                 return 'fa-solid fa-key';
 
             return 'fa-solid fa-lock';
+        },
+
+        isFeatureAvailable(item) {
+            if(item?.key === 'passkey')
+                return this.features.clerkPasskey && item.feature_available !== false;
+
+            if(item?.key === 'mfa')
+                return this.features.clerkTotp && item.feature_available !== false;
+
+            return true;
+        },
+
+        featureDescription(item) {
+            if(this.isFeatureAvailable(item))
+                return item.description;
+
+            return `${item.description} Fitur ini memerlukan Clerk Pro dan belum tersedia.`;
         },
 
         protectionIcon(key) {
@@ -1825,6 +1864,19 @@ export default {
     line-height: 1.5;
 }
 
+.security-row.is-feature-locked {
+    border: 1px dashed #f59e0b;
+    border-radius: 9px;
+    background: #fffbeb;
+    margin: 4px 8px;
+    padding: 12px;
+}
+
+.security-row.is-feature-locked .security-row-icon {
+    background: #fef3c7;
+    color: #b45309;
+}
+
 .security-muted-text {
     color: #94a3b8 !important;
 }
@@ -1853,6 +1905,13 @@ export default {
 .security-badge.is-current {
     background: #ede9fe;
     color: #7c3aed;
+}
+
+.security-badge.is-pro {
+    gap: 5px;
+    background: #fef3c7;
+    color: #92400e;
+    box-shadow: inset 0 0 0 1px #fcd34d;
 }
 
 .security-icon-button,
