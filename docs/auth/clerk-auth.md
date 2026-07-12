@@ -305,6 +305,8 @@ The frontend Clerk variables for the current phase are:
 VITE_CLERK_PUBLISHABLE_KEY=
 VITE_CLERK_SIGN_IN_URL=/login
 VITE_CLERK_SIGN_UP_URL=/register
+VITE_FEATURE_CLERK_PASSKEY=true
+VITE_FEATURE_CLERK_TOTP=true
 ```
 
 Existing backend target variables still remain relevant:
@@ -319,6 +321,45 @@ The Clerk publishable key must be different per environment where applicable.
 These Vite variables are compiled into the frontend bundle. Staging and
 production Docker builds must therefore receive them as build arguments; adding
 them only to the runtime environment of the final Nginx container is not enough.
+
+Passkey and TOTP use separate feature flags. Local development defaults both
+flags to enabled, while staging and production must explicitly keep them false
+until the matching Clerk instances support those paid capabilities. When the
+Passkey flag is false, the login entry is hidden. On the Security page, Passkey
+and TOTP remain visible but disabled with a `Clerk Pro` badge and explanation.
+
+## Stable Auth Processing UI
+
+`src/components/auth/AuthProcessingPanel.vue` is the shared processing panel
+for Login, Register, and the OAuth callback. Auth forms must not render while
+the Clerk browser state is still resolving. Google callbacks also keep this
+panel visible while Clerk completes the redirect and the frontend bootstraps
+the local application session through `GET /api/auth/me`.
+
+The OAuth callback uses neutral copy (`Memeriksa Status Login`) because the
+provider result may still be successful, cancelled, or failed while Clerk is
+resolving it. A cancelled consent flow therefore keeps a stable processing UI
+until Clerk confirms the result, then returns to the originating auth form.
+
+Google account linking from Security follows the same cancellation rule. The
+callback is only finalized when Clerk exposes a verified Google external
+account. Cancelling the provider flow returns to Security without calling the
+backend link validator or showing a false connected state.
+
+The Security page only finalizes a link when the URL explicitly contains
+`google_link=callback`. The session marker is used to recognize the flow on
+the callback page, but it cannot independently trigger a success notification
+during a later normal Google login. The marker is also cleared if creating the
+external account fails before redirecting to Google.
+
+The callback intercepts Clerk's internal completion navigation for account
+linking. It first confirms that the Google external account is verified, then
+navigates explicitly to Security with `google_link=callback`. This guarantees
+that a successful link displays its notification once while a regular Google
+login cannot reuse a stale link marker.
+
+This prevents a slow callback from briefly showing a logged-out form before
+the authenticated session is ready.
 
 ## Cleanup Notes
 

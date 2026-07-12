@@ -5,7 +5,7 @@
     <div class="w-full max-w-[26rem] space-y-4 relative z-[1]">
       <section v-if="!isClerkEnabled" class="auth-card">
         <div class="text-center">
-          <p class="auth-brand">Ecommerce</p>
+          <p class="auth-brand">TokShop</p>
           <h1 class="auth-title">Register Belum Tersedia</h1>
           <p class="auth-subtitle">
             Konfigurasi register belum lengkap. Silakan hubungi admin aplikasi.
@@ -13,59 +13,19 @@
         </div>
       </section>
 
-      <section v-else-if="isClerkSignedIn && shouldShowBridgePanel" class="auth-card">
-        <div class="text-center">
-          <p class="auth-brand">Ecommerce</p>
-          <h1 class="auth-title">{{ clerkBootstrapErrorMessage ? 'Sesi Aplikasi Belum Siap' : 'Menyiapkan Akun' }}</h1>
-          <p class="auth-subtitle">
-            {{ clerkBootstrapErrorMessage
-              ? 'Akun sudah aktif, tetapi data aplikasi belum berhasil disiapkan.'
-              : 'Mohon tunggu sebentar, kami sedang menyiapkan akun Anda.' }}
-          </p>
-        </div>
-
-        <div class="auth-form">
-          <div v-if="clerkBootstrapErrorMessage" class="rounded-2xl border border-amber-200 bg-amber-50 px-4 py-3 text-sm text-amber-700">
-            <p class="font-semibold">Sesi aplikasi belum berhasil</p>
-            <p class="mt-1">{{ clerkBootstrapErrorMessage }}</p>
-          </div>
-
-          <div v-else class="rounded-2xl border border-emerald-200 bg-emerald-50 px-4 py-3 text-sm text-emerald-700">
-            <p class="font-semibold">Mohon tunggu sebentar</p>
-            <p class="mt-2 flex items-center gap-2">
-              <i class="fa-solid fa-spinner fa-spin-pulse"></i>
-              Menyiapkan akun Anda.
-            </p>
-          </div>
-        </div>
-
-        <div v-if="clerkBootstrapErrorMessage" class="space-y-3">
-          <button
-            type="button"
-            class="auth-primary-button"
-            :class="{ 'opacity-70': isBootstrappingClerkSession }"
-            :disabled="isBootstrappingClerkSession"
-            @click="bridgeClerkSessionToBackend">
-            Coba Sambungkan Lagi
-            <i v-if="isBootstrappingClerkSession" class="fa-solid fa-spinner fa-spin-pulse ml-1"></i>
-          </button>
-
-          <button
-            type="button"
-            class="auth-primary-button"
-            :class="{ 'opacity-70': isProcessingClerkSignOut }"
-            :disabled="isProcessingClerkSignOut"
-            @click="signOutClerkSession">
-            Keluar dari Sesi
-            <i v-if="isProcessingClerkSignOut" class="fa-solid fa-spinner fa-spin-pulse ml-1"></i>
-          </button>
-        </div>
-      </section>
+      <AuthProcessingPanel
+        v-else-if="isClerkResolving || (isClerkSignedIn && shouldShowBridgePanel)"
+        :error-message="clerkBootstrapErrorMessage"
+        error-subtitle="Akun sudah aktif, tetapi data aplikasi belum berhasil disiapkan."
+        :retrying="isBootstrappingClerkSession"
+        :signing-out="isProcessingClerkSignOut"
+        @retry="bridgeClerkSessionToBackend"
+        @sign-out="signOutClerkSession" />
 
       <form v-else class="auth-card">
         <div class="text-center">
-          <p class="auth-brand">Ecommerce</p>
-          <h1 class="auth-title">{{ isClerkVerificationStep ? 'Verifikasi Email' : 'Register Ecommerce' }}</h1>
+          <p class="auth-brand">TokShop</p>
+          <h1 class="auth-title">{{ isClerkVerificationStep ? 'Verifikasi Email' : 'Register TokShop' }}</h1>
           <p class="auth-subtitle">
             {{ isClerkVerificationStep
               ? `Masukkan kode verifikasi yang dikirim ke ${clerkPendingEmail || email}.`
@@ -223,6 +183,7 @@ import { useSignIn, useSignUp } from '@clerk/vue';
 import { ElNotification } from 'element-plus';
 import { ref } from 'vue';
 import googleIcon from '@/assets/icons/google.svg';
+import AuthProcessingPanel from '@/components/auth/AuthProcessingPanel.vue';
 import { bootstrapResolvedAuthSession, logoutResolvedAuthSession, resolveDefaultAuthenticatedRouteName } from '@/authBridge';
 import {
   clearClerkAuthErrorFromRoute,
@@ -238,6 +199,7 @@ import {
 } from '@/clerk';
 
 export default {
+  components: { AuthProcessingPanel },
   setup() {
     if(!isClerkEnabled) {
       return {
@@ -297,6 +259,10 @@ export default {
 
     isClerkSignedIn() {
       return Boolean(this.$global.clerk.isSignedIn);
+    },
+
+    isClerkResolving() {
+      return this.isClerkEnabled && !this.$global.clerk.loaded;
     },
 
     isClerkVerificationStep() {

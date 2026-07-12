@@ -6,7 +6,7 @@
       </div>
 
       <div class="min-w-0">
-        <h1 class="truncate text-lg font-semibold leading-5 text-neutral-900">Ecommerce</h1>
+        <h1 class="truncate text-lg font-semibold leading-5 text-neutral-900">TokShop</h1>
         <div class="mt-0.5 inline-flex h-4 items-center rounded-full bg-violet-50 px-2 text-[0.68rem] font-semibold capitalize text-violet-700">
           {{ accountType }} mode
         </div>
