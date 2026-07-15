@@ -167,7 +167,7 @@
                 <!-- riwayat saldo -->
                 <div class="saldo-history-header">
                     <h2 class="text-[1.1rem] font-semibold">History</h2>
-                    <div class="date-range-control">
+                    <div class="date-range-control saldo-desktop-date-range">
                         <el-date-picker
                             v-model="dateRange"
                             class="transaction-date-filter saldo-date-range"
@@ -176,12 +176,40 @@
                             :fallback-placements="['bottom-end']"
                             popper-class="saldo-date-range-popper"
                             range-separator="-"
-                            start-placeholder="Start Date"
-                            end-placeholder="End Date"
+                            start-placeholder="Mulai"
+                            end-placeholder="Selesai"
                             value-format="YYYY-MM-DD"
                             :clearable="false"
                             format="DD MMM YYYY"
                             @change="changeDateRange" />
+                    </div>
+
+                    <div class="saldo-mobile-date-fields">
+                        <div class="saldo-mobile-date-field">
+                            <label for="saldoStartDate">Tanggal mulai</label>
+                            <el-date-picker
+                                id="saldoStartDate"
+                                v-model="mobileSaldoStartDate"
+                                type="date"
+                                placeholder="Pilih tanggal mulai"
+                                value-format="YYYY-MM-DD"
+                                format="DD MMM YYYY"
+                                :clearable="false"
+                                :disabled-date="disableMobileSaldoStartDate" />
+                        </div>
+
+                        <div class="saldo-mobile-date-field">
+                            <label for="saldoEndDate">Tanggal selesai</label>
+                            <el-date-picker
+                                id="saldoEndDate"
+                                v-model="mobileSaldoEndDate"
+                                type="date"
+                                placeholder="Pilih tanggal selesai"
+                                value-format="YYYY-MM-DD"
+                                format="DD MMM YYYY"
+                                :clearable="false"
+                                :disabled-date="disableMobileSaldoEndDate" />
+                        </div>
                     </div>
                 </div>
                 <!-- riwayat saldo -->
@@ -302,6 +330,32 @@ export default {
         this.isFetchSaldoHistory = true;
         this.getSaldo();
         this.getSaldoHistory();
+    },
+
+    computed: {
+        /**
+         * Menyinkronkan tanggal mulai mobile dengan rentang tanggal utama.
+         */
+        mobileSaldoStartDate: {
+            get() {
+                return this.dateRange?.[0] || '';
+            },
+            set(value) {
+                this.updateMobileSaldoDate(0, value);
+            }
+        },
+
+        /**
+         * Menyinkronkan tanggal selesai mobile dengan rentang tanggal utama.
+         */
+        mobileSaldoEndDate: {
+            get() {
+                return this.dateRange?.[1] || '';
+            },
+            set(value) {
+                this.updateMobileSaldoDate(1, value);
+            }
+        }
     },
 
     watch: {
@@ -483,6 +537,53 @@ export default {
             this.getSaldoHistory();
         },
 
+        /**
+         * Menyatukan input tanggal mobile dengan rentang tanggal history saldo.
+         *
+         * @param {number} index Posisi tanggal mulai atau selesai.
+         * @param {string} value Tanggal terpilih dalam format YYYY-MM-DD.
+         */
+        updateMobileSaldoDate(index, value) {
+            // --- step 1 - start - salin rentang agar perubahan computed tetap reaktif
+            const nextRange = Array.isArray(this.dateRange)
+                ? [...this.dateRange]
+                : [];
+            nextRange[index] = value || '';
+            this.dateRange = nextRange;
+            // --- step 1 - end - salin rentang agar perubahan computed tetap reaktif
+
+            // --- step 2 - start - muat history hanya setelah kedua batas tanggal lengkap
+            if(nextRange[0] && nextRange[1])
+                this.changeDateRange();
+            // --- step 2 - end - muat history hanya setelah kedua batas tanggal lengkap
+        },
+
+        /**
+         * Mencegah tanggal mulai melewati tanggal selesai yang sudah dipilih.
+         *
+         * @param {Date} date Kandidat tanggal dari date picker.
+         * @returns {boolean}
+         */
+        disableMobileSaldoStartDate(date) {
+            if(!this.mobileSaldoEndDate)
+                return false;
+
+            return moment(date).format('YYYY-MM-DD') > this.mobileSaldoEndDate;
+        },
+
+        /**
+         * Mencegah tanggal selesai mendahului tanggal mulai yang sudah dipilih.
+         *
+         * @param {Date} date Kandidat tanggal dari date picker.
+         * @returns {boolean}
+         */
+        disableMobileSaldoEndDate(date) {
+            if(!this.mobileSaldoStartDate)
+                return false;
+
+            return moment(date).format('YYYY-MM-DD') < this.mobileSaldoStartDate;
+        },
+
         getColorMoney(type = '') {
             if(type == 'withdrawal') {
                 return 'text-red-700';
@@ -656,8 +757,8 @@ export default {
 
 .date-range-control {
     width: 100%;
-    max-width: 370px;
-    flex: 0 1 370px;
+    max-width: 320px;
+    flex: 0 1 320px;
 }
 
 .saldo-date-range.el-date-editor.el-input__wrapper {
@@ -666,7 +767,11 @@ export default {
     min-height: 44px;
 }
 
-@media (max-width: 640px) {
+.saldo-mobile-date-fields {
+    display: none;
+}
+
+@media (max-width: 768px) {
     .saldo-history-header {
         flex-direction: column;
         align-items: stretch;
@@ -679,6 +784,31 @@ export default {
     .date-range-control {
         max-width: none;
         flex-basis: auto;
+    }
+
+    .saldo-desktop-date-range {
+        display: none;
+    }
+
+    .saldo-mobile-date-fields {
+        display: flex;
+        flex-direction: column;
+        gap: 22px;
+        width: 100%;
+    }
+
+    .saldo-mobile-date-field label {
+        display: block;
+        margin-bottom: 6px;
+        color: #475569;
+        font-size: 12px;
+        font-weight: 700;
+    }
+
+    .saldo-mobile-date-field .el-date-editor {
+        width: 100%;
+        height: 44px;
+        min-height: 44px;
     }
 }
 
