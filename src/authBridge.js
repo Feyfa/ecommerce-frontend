@@ -124,24 +124,50 @@ export const getBrowserAuthPresence = async () => {
 
 /**
  * Logout frontend membersihkan state lokal dan menutup sesi provider auth utama.
+ * Audit backend dicoba terlebih dahulu, tetapi kegagalannya tidak membatalkan logout.
+ *
+ * @param {Object} store Vuex store aplikasi.
+ * @param {Object} router Vue Router instance.
+ * @param {string} redirectUrl Halaman tujuan setelah logout.
  */
 export const logoutResolvedAuthSession = async (store, router, redirectUrl = '/login') => {
     global.isLoggingOut = true;
     const finalRedirectUrl = redirectUrl || '/login';
 
     try {
+        // --- step 1 - start - coba catat audit tanpa menahan sign-out Clerk jika request gagal
+        try {
+            await axios.post('/auth/logout', {}, {
+                timeout: 5000,
+                skipAuthExpiredWarning: true,
+            });
+        } catch {
+            console.warn('Logout audit could not be recorded.');
+        }
+        // --- step 1 - end - coba catat audit tanpa menahan sign-out Clerk jika request gagal
+
+        // --- step 2 - start - setelah audit dicoba bersihkan seluruh session aplikasi
         clearResolvedAuthSessionTtl();
         clearAuthSession();
         clearGoogleLoginCallback();
         syncClearedAuthSessionToStore(store);
+        // --- step 2 - end - setelah audit dicoba bersihkan seluruh session aplikasi
 
-        const hasSignedOutClerk = await signOutClerkBrowserSession({
-            redirectUrl: finalRedirectUrl,
-            afterSignOut: () => router.replace(finalRedirectUrl),
-        });
+        // --- step 3 - start - tutup session provider dan selalu lanjutkan redirect
+        let hasSignedOutClerk = false;
+
+        try {
+            hasSignedOutClerk = await signOutClerkBrowserSession({
+                redirectUrl: finalRedirectUrl,
+                afterSignOut: () => router.replace(finalRedirectUrl),
+            });
+        } catch {
+            console.warn('Clerk sign-out could not be completed.');
+        }
 
         if(!hasSignedOutClerk)
             await router.replace(finalRedirectUrl);
+        // --- step 3 - end - tutup session provider dan selalu lanjutkan redirect
     } finally {
         global.isLoggingOut = false;
     }
