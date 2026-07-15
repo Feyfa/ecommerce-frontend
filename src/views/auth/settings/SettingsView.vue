@@ -119,7 +119,7 @@ export default {
                 {
                     title: 'Aktivitas',
                     items: [
-                        { name: 'settings_audit_log', label: 'Audit Log', soon: true },
+                        { name: 'settings_audit_log', label: 'Audit Log' },
                     ],
                 },
                 {

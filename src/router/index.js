@@ -250,11 +250,11 @@ const routes = [
             {
                 path: 'audit-log',
                 name: 'settings_audit_log',
-                component: () => import('../views/auth/settings/ComingSoonView.vue'),
+                component: () => import('../views/auth/settings/AuditLogView.vue'),
                 meta: {
                     public: false,
                     settingsTitle: 'Audit Log',
-                    settingsDescription: 'Fitur audit log sedang disiapkan untuk menampilkan riwayat aktivitas penting pada akun Anda.'
+                    settingsDescription: 'Pantau aktivitas register, login, dan logout penting pada akun Anda.'
                 }
             },
             {
