@@ -49,19 +49,28 @@ Incoming transaction descriptions should show the same invoice id that appears i
 
 The history title and date range control should be vertically aligned.
 
-The date range control should not be unnecessarily wide. Keep it compact enough to read the selected start and end dates without dominating the card header.
+On desktop, the date range control uses the same compact `320px` proportion as Audit Log. It must remain wide enough to read the selected start and end dates without dominating the card header.
 
 ## Date Range
 
-The balance history date filter uses Element Plus `el-date-picker` with `type="daterange"`.
+The balance history date filter uses responsive Element Plus date pickers that share the same date state and API request behavior:
 
-The picker should visually follow the transaction date filter style:
+- desktop uses one `el-date-picker` with `type="daterange"`;
+- mobile uses separate start and end `el-date-picker` controls with `type="date"` so the calendar stays inside the narrow viewport;
+- the start date cannot be later than the selected end date;
+- the end date cannot be earlier than the selected start date;
+- history reloads after both date boundaries are available.
+
+The desktop picker should visually follow the Audit Log date filter style:
 
 - one combined date range input;
 - calendar icon;
 - start date and end date separated by `-`;
+- compact `Mulai` and `Selesai` placeholders;
 - consistent border and focus state;
 - popper placement that does not cover important content more than necessary.
+
+On mobile, display `Tanggal mulai` and `Tanggal selesai` as full-width stacked fields with the same label, input, and vertical spacing proportions used by Audit Log.
 
 ## Withdraw Modal
 

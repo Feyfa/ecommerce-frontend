@@ -16,7 +16,8 @@ Current supported areas:
 - Balance overview and withdrawal.
 - Bank account management.
 - Clerk-backed security settings.
-- Coming soon placeholders for audit log, notifications, and support report.
+- Authentication Audit Log for successful Register, Login, and Logout activity.
+- Coming soon placeholders for notifications and support report.
 
 ## Main Files
 
@@ -24,10 +25,13 @@ Current supported areas:
   Main settings shell. It owns the settings sidebar, mobile settings dropdown, route content header, shared layout, and shared styling overrides.
 
 - `src/views/auth/settings/ComingSoonView.vue`
-  Reusable coming soon content for settings routes that are visible but not implemented yet, such as audit log, notifications, and support report.
+  Reusable coming soon content for settings routes that are visible but not implemented yet, such as notifications and support report.
 
 - `src/views/auth/settings/SecurityView.vue`
   Clerk-backed security settings page for sign-in methods, passkeys, TOTP MFA, backup codes, Google linking, and active sessions.
+
+- `src/views/auth/settings/AuditLogView.vue`
+  Audit activity filters, cursor pagination, detail modal, and masked/full IP behavior.
 
 - `src/views/auth/SaldoView.vue`
   Balance settings content, history, date range filter, and withdrawal modal trigger.
@@ -131,6 +135,9 @@ Desktop uses the left settings sidebar. Mobile uses a custom dropdown menu above
 - [Security](security.md)
   Clerk-backed security settings page, sign-in methods, MFA, passkey management, active sessions, and Clerk-owned behavior.
 
+- [Audit Log](audit-log.md)
+  Phase 1 activity timeline, filtering, masked IP reveal, detail behavior, and cursor pagination for successful Register, Login, and Logout activity.
+
 ## Role Rules
 
 Shared settings pages are documented once and list the roles they apply to.
@@ -142,5 +149,6 @@ Role-specific settings pages are kept separate:
 - `address.md` applies to the address settings page.
 - `balance.md` and `bank-account.md` apply to buyer and seller.
 - `security.md` applies to buyer and seller as a shared Clerk-backed settings page.
+- `audit-log.md` applies to buyer and seller as a shared account activity page.
 
 Do not duplicate shared feature documentation into separate buyer and seller documents unless the behavior becomes meaningfully different.
