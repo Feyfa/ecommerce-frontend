@@ -16,6 +16,7 @@ const clerkPasskeyNotRegisteredMessage = 'Passkey belum terdaftar untuk akun ini
 const clerkInvalidVerificationCodeMessage = 'Kode verifikasi salah atau sudah kedaluwarsa. Periksa kembali kode terbaru lalu coba lagi.';
 const clerkPasswordNotCreatedMessage = 'Akun ini belum memiliki password. Masuk dengan Google atau gunakan Lupa password untuk membuat password baru.';
 const clerkGoogleLinkAlreadyUsedMessage = 'Akun Google sudah digunakan oleh akun TokShop lain.';
+const clerkGoogleLinkEmailMismatchMessage = 'Email akun Google harus sama dengan email utama akun Anda.';
 const clerkAuthErrorQueryKey = 'auth_error';
 const clerkCancelledOauthErrorPatterns = [
     'oauth_access_denied',
@@ -76,6 +77,11 @@ const clerkPasswordNotCreatedErrorPatterns = [
     'invalid verification strategy',
     'verification strategy is not valid',
     'verification strategy is not valid for this account',
+];
+const clerkGoogleLinkEmailMismatchErrorPatterns = [
+    'oauth_connection_blocked_by_immutable_attribute',
+    'does not match your existing email address',
+    'email address does not match',
 ];
 export const clerkSecondFactorTimeoutMs = 5 * 60 * 1000;
 
@@ -382,6 +388,16 @@ const hasClerkPasswordNotCreatedPayload = (payload = '') => {
 };
 
 /**
+ * Mencocokkan penolakan Clerk ketika email external account berbeda,
+ * sementara perubahan email user sudah dinonaktifkan pada instance Clerk.
+ */
+const hasClerkGoogleLinkEmailMismatchPayload = (payload = '') => {
+    const normalizedPayload = String(payload).toLowerCase();
+
+    return clerkGoogleLinkEmailMismatchErrorPatterns.some(pattern => normalizedPayload.includes(pattern));
+};
+
+/**
  * Mencocokkan payload OAuth yang berarti user membatalkan flow provider.
  */
 const hasClerkCancelledOauthPayload = (payload = '') => {
@@ -502,6 +518,16 @@ export const getClerkGoogleLinkCallbackErrorMessage = (
     params,
     fallbackMessage = 'Akun Google belum berhasil dihubungkan.'
 ) => {
+    const errorPayload = [
+        params?.get?.('error'),
+        params?.get?.('error_description'),
+        params?.get?.('__clerk_status'),
+        params?.get?.('status'),
+    ].filter(Boolean).join(' ').toLowerCase();
+
+    if(hasClerkGoogleLinkEmailMismatchPayload(errorPayload))
+        return clerkGoogleLinkEmailMismatchMessage;
+
     const message = getClerkCallbackErrorMessage(params, fallbackMessage);
 
     return message === clerkAccountAlreadyRegisteredMessage
@@ -557,6 +583,22 @@ export const getClerkGoogleLinkErrorMessage = (
 
     if(isClerkAccountAlreadyRegisteredError(error))
         return clerkGoogleLinkAlreadyUsedMessage;
+
+    const firstError = error?.errors?.[0];
+    const errorPayload = [
+        error?.code,
+        error?.status,
+        error?.message,
+        error?.longMessage,
+        error?.long_message,
+        firstError?.code,
+        firstError?.message,
+        firstError?.longMessage,
+        firstError?.long_message,
+    ].filter(Boolean).join(' ').toLowerCase();
+
+    if(hasClerkGoogleLinkEmailMismatchPayload(errorPayload))
+        return clerkGoogleLinkEmailMismatchMessage;
 
     return getClerkErrorMessage(error, fallbackMessage);
 };
