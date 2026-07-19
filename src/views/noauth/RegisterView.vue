@@ -184,7 +184,12 @@ import { ElNotification } from 'element-plus';
 import { ref } from 'vue';
 import googleIcon from '@/assets/icons/google.svg';
 import AuthProcessingPanel from '@/components/auth/AuthProcessingPanel.vue';
-import { bootstrapResolvedAuthSession, logoutResolvedAuthSession, resolveDefaultAuthenticatedRouteName } from '@/authBridge';
+import {
+  bootstrapResolvedAuthSession,
+  logoutResolvedAuthSession,
+  prepareBrowserForNewAuthentication,
+  resolveDefaultAuthenticatedRouteName
+} from '@/authBridge';
 import {
   clearClerkAuthErrorFromRoute,
   clerkUiConfig,
@@ -414,12 +419,23 @@ export default {
       this.isProcessingGoogleRegister = true;
 
       try {
+        await prepareBrowserForNewAuthentication(this.$store);
+        await this.$nextTick();
+
+        const runtimeState = getClerkRuntimeState();
+        const signInResource = runtimeState.clerk?.client?.signIn
+          || runtimeState.clerk?.client?.sign_in
+          || this.clerkSignInResource;
+
+        if(typeof signInResource?.authenticateWithRedirect !== 'function')
+          throw new Error('Form login Google belum siap. Silakan coba lagi.');
+
         const { redirectUrl, redirectUrlComplete } = getClerkOauthRedirectUrls(this.clerkUi.signInUrl);
         /* step 1: batal OAuth tetap kembali ke register, sukses OAuth masuk ke login bridge */
         rememberClerkAuthReturnUrl(this.clerkUi.signUpUrl);
         rememberGoogleLoginCallback();
 
-        await this.clerkSignInResource.authenticateWithRedirect({
+        await signInResource.authenticateWithRedirect({
           strategy: 'oauth_google',
           redirectUrl,
           redirectUrlComplete,

@@ -90,6 +90,7 @@ Rules:
 - User cancellation returns to Security without a noisy failure notification.
 - Failed, cancelled, and expired link callbacks call backend `POST /api/security/google/link/cleanup` before returning to Security.
 - Callback cleanup removes only unverified temporary Google external accounts; verified provider accounts and email addresses are preserved.
+- A new Google login/register flow also performs this cleanup when it detects a stale signed-in Clerk session on the public auth page, then confirms the browser session is fully signed out before starting OAuth.
 - If callback cleanup fails, the frontend includes that failure in the one-time Security notification instead of silently reporting a clean state.
 - Only a verified Google external account continues to backend `POST /api/security/google/link/validate`.
 - The backend validates that the linked Google email matches the local authenticated user email.

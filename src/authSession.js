@@ -1,6 +1,10 @@
 import global from '@/global';
 import { ElMessageBox } from 'element-plus';
-import { buildClerkAbsoluteUrl, waitForClerkLoaded } from '@/clerk';
+import { getClerkRuntimeState, waitForClerkLoaded } from '@/clerk';
+
+const CLERK_SIGN_OUT_LOAD_TIMEOUT_MS = 5000;
+const CLERK_SIGN_OUT_CONFIRM_TIMEOUT_MS = 5000;
+const CLERK_SIGN_OUT_CONFIRM_INTERVAL_MS = 100;
 
 let sessionExpiredWarningPromise = null;
 let sessionExpirationPromise = null;
@@ -24,22 +28,81 @@ export const clearAuthSession = () => {
 };
 
 /**
- * Menutup sesi Clerk di browser bila memang masih aktif.
+ * Menentukan apakah browser sudah tidak memiliki user atau sesi Clerk aktif.
+ *
+ * @param {Object} runtimeState Snapshot runtime Clerk terbaru.
  */
-export const signOutClerkBrowserSession = async ({ redirectUrl = '', afterSignOut = null } = {}) => {
-    const runtimeState = await waitForClerkLoaded({ timeout: 1000, interval: 50 });
-
-    if(!runtimeState.loaded || !runtimeState.isSignedIn || !runtimeState.clerk?.signOut)
-        return false;
-
-    const signOutOptions = redirectUrl ? { redirectUrl: buildClerkAbsoluteUrl(redirectUrl) } : undefined;
-
-    if(typeof afterSignOut === 'function') {
-        await runtimeState.clerk.signOut(afterSignOut, signOutOptions);
+export const isClerkBrowserSessionCleared = (runtimeState = getClerkRuntimeState()) => {
+    if(!runtimeState.enabled)
         return true;
-    }
 
-    await runtimeState.clerk.signOut(signOutOptions);
+    const clientSessions = runtimeState.clerk?.client?.sessions;
+    const hasStoredClientSessions = Array.isArray(clientSessions) && clientSessions.length > 0;
+
+    return Boolean(runtimeState.loaded)
+        && !runtimeState.isSignedIn
+        && !runtimeState.clerk?.session
+        && !runtimeState.clerk?.user
+        && !hasStoredClientSessions;
+};
+
+/**
+ * Menunggu state browser Clerk benar-benar bersih setelah perintah sign-out selesai.
+ *
+ * @param {Object} options Batas waktu dan interval pemeriksaan state Clerk.
+ */
+export const waitUntilClerkBrowserSessionIsCleared = ({
+    timeout = CLERK_SIGN_OUT_CONFIRM_TIMEOUT_MS,
+    interval = CLERK_SIGN_OUT_CONFIRM_INTERVAL_MS,
+} = {}) => {
+    const initialState = getClerkRuntimeState();
+
+    if(isClerkBrowserSessionCleared(initialState))
+        return Promise.resolve(true);
+
+    return new Promise(resolve => {
+        const startedAt = Date.now();
+
+        const timer = window.setInterval(() => {
+            const runtimeState = getClerkRuntimeState();
+            const isTimedOut = Date.now() - startedAt >= timeout;
+
+            if(isClerkBrowserSessionCleared(runtimeState) || isTimedOut) {
+                window.clearInterval(timer);
+                resolve(isClerkBrowserSessionCleared(runtimeState));
+            }
+        }, interval);
+    });
+};
+
+/**
+ * Menutup seluruh sesi Clerk yang tersimpan pada browser aktif dan memastikan
+ * state user lama sudah hilang sebelum autentikasi berikutnya boleh dimulai.
+ */
+export const signOutClerkBrowserSession = async () => {
+    const runtimeState = await waitForClerkLoaded({
+        timeout: CLERK_SIGN_OUT_LOAD_TIMEOUT_MS,
+        interval: 50,
+    });
+
+    if(!runtimeState.enabled)
+        return true;
+
+    if(!runtimeState.loaded)
+        throw new Error('Layanan autentikasi belum siap menyelesaikan logout.');
+
+    if(isClerkBrowserSessionCleared(runtimeState))
+        return true;
+
+    if(typeof runtimeState.clerk?.signOut !== 'function')
+        throw new Error('Layanan autentikasi belum menyediakan proses logout.');
+
+    await runtimeState.clerk.signOut();
+
+    const isSessionCleared = await waitUntilClerkBrowserSessionIsCleared();
+
+    if(!isSessionCleared)
+        throw new Error('Sesi akun sebelumnya belum berhasil ditutup. Silakan coba lagi.');
 
     return true;
 };
