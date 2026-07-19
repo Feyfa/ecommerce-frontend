@@ -31,6 +31,7 @@ import {
   waitForClerkLoaded
 } from '@/clerk';
 import { bootstrapResolvedAuthSession, resolveDefaultAuthenticatedRouteName } from '@/authBridge';
+import axios from '@/axios';
 import AuthProcessingPanel from '@/components/auth/AuthProcessingPanel.vue';
 
 export default {
@@ -82,6 +83,36 @@ export default {
       const redirectUrl = appendClerkAuthErrorToUrl(fallbackUrl, message);
 
       return this.$router.replace(redirectUrl);
+    },
+
+    /**
+     * Tujuan method ini untuk meminta Laravel menghapus external account Google
+     * sementara yang ditinggalkan Clerk setelah callback link gagal atau batal.
+     */
+    async cleanupFailedGoogleLink() {
+      try {
+        await axios.post('/security/google/link/cleanup', null, {
+          skipAuthExpiredWarning: true,
+        });
+
+        return '';
+      } catch(error) {
+        return error?.response?.data?.message
+          || 'Percobaan menghubungkan Google belum berhasil dibersihkan. Silakan coba lagi.';
+      }
+    },
+
+    /**
+     * Tujuan method ini untuk menyelesaikan seluruh cabang link Google yang gagal
+     * melalui cleanup backend sebelum kembali ke halaman keamanan.
+     */
+    async redirectGoogleLinkFailure(message = '') {
+      const cleanupErrorMessage = await this.cleanupFailedGoogleLink();
+      const resolvedMessage = cleanupErrorMessage
+        ? [message, cleanupErrorMessage].filter(Boolean).join(' ')
+        : message;
+
+      return this.redirectToAuthForm(resolvedMessage);
     },
 
     /**
@@ -189,7 +220,11 @@ export default {
           ? getClerkGoogleLinkCallbackErrorMessage(callbackParams)
           : getClerkCallbackErrorMessage(callbackParams, 'Login Google gagal diproses.');
 
-        await this.redirectToAuthForm(callbackMessage);
+        if(isGoogleLinkCallback)
+          await this.redirectGoogleLinkFailure(callbackMessage);
+        else
+          await this.redirectToAuthForm(callbackMessage);
+
         return;
       }
 
@@ -259,7 +294,7 @@ export default {
           const googleAccountResult = await this.getGoogleExternalAccountResult(latestRuntimeState.clerk);
 
           if(googleAccountResult.status !== 'success') {
-            await this.redirectToAuthForm(googleAccountResult.message);
+            await this.redirectGoogleLinkFailure(googleAccountResult.message);
             return;
           }
 
@@ -267,7 +302,11 @@ export default {
         }
       } catch(error) {
         if(isClerkOauthCancelledError(error)) {
-          await this.redirectToAuthForm('');
+          if(isGoogleLinkCallback)
+            await this.redirectGoogleLinkFailure('');
+          else
+            await this.redirectToAuthForm('');
+
           return;
         }
 
@@ -275,7 +314,10 @@ export default {
           ? getClerkGoogleLinkErrorMessage(error)
           : getClerkErrorMessage(error, 'Login Google gagal diproses.');
 
-        await this.redirectToAuthForm(errorMessage);
+        if(isGoogleLinkCallback)
+          await this.redirectGoogleLinkFailure(errorMessage);
+        else
+          await this.redirectToAuthForm(errorMessage);
       } finally {
         this.isProcessingCallback = false;
       }
