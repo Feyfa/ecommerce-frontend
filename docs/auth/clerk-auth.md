@@ -250,15 +250,31 @@ After verification completes:
 
 Google login and register share the Clerk callback route. Callback cancellation should not create a noisy failure toast.
 
+Before a new Google login or register redirect starts, the frontend verifies
+that the current browser no longer contains a previous Clerk user or session.
+If the application state is already signed out while Clerk still exposes an
+old session, the frontend removes only that user's unverified Google external
+accounts, signs out the stale browser session, and confirms that both the Clerk
+user and all sessions stored by the active Clerk browser client are gone. OAuth
+must not start when this confirmation fails.
+
+Normal logout follows the same boundary. Local application state is cleared
+immediately so stale account data is no longer rendered, but navigation to the
+public auth page waits for Clerk sign-out to finish and for the browser runtime
+to report no active user or session. This sign-out affects the active browser
+client; it does not revoke valid sessions on other devices.
+
 When Clerk returns a meaningful OAuth error, the callback page redirects back to the intended auth page and attaches a safe auth error message in the query string. The target auth page consumes that message once and then removes the query value so the toast does not repeat after refresh.
 
 ## Logout Behavior
 
 The frontend logout behavior is:
 
-1. Sign out from Clerk.
-2. Clear the relevant local app state.
-3. Redirect to `/login`.
+1. Attempt the backend logout audit without allowing audit failure to retain local account data.
+2. Clear the relevant local app state immediately.
+3. Sign out the Clerk sessions stored by the active browser client.
+4. Confirm that Clerk no longer exposes an active user or session.
+5. Redirect to `/login` only after that confirmation succeeds.
 
 ## Error and Failure Handling
 

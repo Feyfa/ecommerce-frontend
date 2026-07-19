@@ -1,7 +1,12 @@
 import axios from '@/axios';
 import global from '@/global';
-import { clearAuthSession, syncClearedAuthSessionToStore, signOutClerkBrowserSession } from '@/authSession';
-import { clearClerkAuthReturnUrl, clearGoogleLoginCallback, waitForClerkLoaded } from '@/clerk';
+import {
+    clearAuthSession,
+    isClerkBrowserSessionCleared,
+    signOutClerkBrowserSession,
+    syncClearedAuthSessionToStore,
+} from '@/authSession';
+import { clearClerkAuthReturnUrl, clearGoogleLoginCallback, getClerkRuntimeState, waitForClerkLoaded } from '@/clerk';
 
 const AUTH_SESSION_TTL_MS = 2 * 60 * 1000;
 let lastResolvedAuthSessionAt = 0;
@@ -123,6 +128,55 @@ export const getBrowserAuthPresence = async () => {
 };
 
 /**
+ * Memastikan flow autentikasi baru tidak memakai user Clerk lama yang masih
+ * tertinggal pada browser setelah state aplikasi sudah dibersihkan.
+ *
+ * @param {Object} store Vuex store aplikasi.
+ */
+export const prepareBrowserForNewAuthentication = async (store) => {
+    const runtimeState = await waitForClerkLoaded({ timeout: 5000, interval: 50 });
+
+    if(!runtimeState.enabled)
+        return;
+
+    if(!runtimeState.loaded)
+        throw new Error('Layanan autentikasi belum siap. Silakan coba lagi.');
+
+    if(isClerkBrowserSessionCleared(runtimeState))
+        return;
+
+    /* step 1: hapus hanya external account Google unverified ketika token sesi lama masih dapat dipakai */
+    if(runtimeState.isSignedIn && runtimeState.clerk?.session?.getToken) {
+        try {
+            await axios.post('/security/google/link/cleanup', null, {
+                timeout: 5000,
+                skipAuthExpiredWarning: true,
+            });
+        } catch(error) {
+            throw new Error(
+                error?.response?.data?.message
+                || 'Sesi akun sebelumnya belum berhasil dibersihkan. Silakan coba lagi.'
+            );
+        }
+    }
+    /* step 1 */
+
+    /* step 2: tutup sesi browser lama dan tunggu sampai Clerk mengonfirmasi state sudah bersih */
+    await signOutClerkBrowserSession();
+    /* step 2 */
+
+    /* step 3: samakan snapshot aplikasi dengan state Clerk yang sudah signed-out */
+    clearResolvedAuthSessionTtl();
+    clearAuthSession();
+    clearGoogleLoginCallback();
+    syncClearedAuthSessionToStore(store);
+    /* step 3 */
+
+    if(!isClerkBrowserSessionCleared(getClerkRuntimeState()))
+        throw new Error('Sesi akun sebelumnya belum berhasil ditutup. Silakan coba lagi.');
+};
+
+/**
  * Logout frontend membersihkan state lokal dan menutup sesi provider auth utama.
  * Audit backend dicoba terlebih dahulu, tetapi kegagalannya tidak membatalkan logout.
  *
@@ -153,21 +207,10 @@ export const logoutResolvedAuthSession = async (store, router, redirectUrl = '/l
         syncClearedAuthSessionToStore(store);
         // --- step 2 - end - setelah audit dicoba bersihkan seluruh session aplikasi
 
-        // --- step 3 - start - tutup session provider dan selalu lanjutkan redirect
-        let hasSignedOutClerk = false;
-
-        try {
-            hasSignedOutClerk = await signOutClerkBrowserSession({
-                redirectUrl: finalRedirectUrl,
-                afterSignOut: () => router.replace(finalRedirectUrl),
-            });
-        } catch {
-            console.warn('Clerk sign-out could not be completed.');
-        }
-
-        if(!hasSignedOutClerk)
-            await router.replace(finalRedirectUrl);
-        // --- step 3 - end - tutup session provider dan selalu lanjutkan redirect
+        // --- step 3 - start - konfirmasi session provider sudah hilang sebelum membuka halaman login
+        await signOutClerkBrowserSession();
+        await router.replace(finalRedirectUrl);
+        // --- step 3 - end - konfirmasi session provider sudah hilang sebelum membuka halaman login
     } finally {
         global.isLoggingOut = false;
     }
