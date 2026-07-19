@@ -518,8 +518,10 @@ import { ElMessageBox, ElNotification } from 'element-plus';
 import Modal from '@/components/partials/ModalView.vue';
 import {
     buildClerkAbsoluteUrl,
+    clearClerkAuthErrorFromRoute,
+    consumeClerkAuthErrorFromRoute,
     consumeGoogleLinkCallback,
-    getClerkErrorMessage,
+    getClerkGoogleLinkErrorMessage,
     rememberClerkAuthReturnUrl,
     rememberGoogleLinkCallback,
     waitForClerkLoaded,
@@ -616,11 +618,32 @@ export default {
     },
 
     async mounted() {
+        this.notifyGoogleLinkCallbackError();
+        const googleLinkResult = await this.finalizeGoogleLinkCallback();
         await this.loadSecurityData();
-        await this.finalizeGoogleLinkCallback();
+        this.notifyGoogleLinkResult(googleLinkResult);
     },
 
     methods: {
+        /**
+         * Tujuan method ini untuk menampilkan error callback Google satu kali
+         * lalu membersihkan query agar notifikasi tidak berulang saat refresh.
+         */
+        notifyGoogleLinkCallbackError() {
+            const message = consumeClerkAuthErrorFromRoute(this.$route);
+
+            if(!message)
+                return;
+
+            ElNotification({
+                type: 'error',
+                title: 'Gagal Menghubungkan Google',
+                message,
+            });
+
+            clearClerkAuthErrorFromRoute(this.$route, this.$router);
+        },
+
         /**
          * Tujuan method ini untuk memuat semua data halaman keamanan
          * saat pertama kali halaman dibuka.
@@ -700,11 +723,6 @@ export default {
             this.actionMethodKey = 'google';
 
             try {
-                const activeClerkUser = await this.getActiveClerkUser();
-
-                if(typeof activeClerkUser.createExternalAccount !== 'function')
-                    throw new Error('Fitur hubungkan Google belum tersedia pada sesi ini.');
-
                 const callbackPath = '/auth/callback';
                 const completePath = '/settings/security?google_link=callback';
                 const redirectUrl = buildClerkAbsoluteUrl(callbackPath);
@@ -713,23 +731,36 @@ export default {
                 rememberClerkAuthReturnUrl('/settings/security');
                 rememberGoogleLinkCallback();
 
-                const externalAccount = await activeClerkUser.createExternalAccount({
-                    strategy: 'oauth_google',
-                    redirectUrl,
-                    redirectUrlComplete,
-                });
+                const externalAccount = await this.runClerkActionWithSessionVerification(async () => {
+                    const activeClerkUser = await this.getActiveClerkUser();
+
+                    if(typeof activeClerkUser.createExternalAccount !== 'function')
+                        throw new Error('Fitur hubungkan Google belum tersedia pada sesi ini.');
+
+                    return activeClerkUser.createExternalAccount({
+                        strategy: 'oauth_google',
+                        redirectUrl,
+                        redirectUrlComplete,
+                    });
+                }, { level: this.getSensitiveCredentialReverificationLevel() });
                 const verificationUrl = externalAccount?.verification?.externalVerificationRedirectURL
                     || externalAccount?.verification?.external_verification_redirect_url;
 
-                if(verificationUrl)
-                    window.location.href = verificationUrl;
+                if(!verificationUrl)
+                    throw new Error('Clerk tidak memberikan URL verifikasi Google.');
+
+                window.location.href = verificationUrl;
             } catch(error) {
                 consumeGoogleLinkCallback();
-                ElNotification({
-                    type: 'error',
-                    title: 'error',
-                    message: getClerkErrorMessage(error, 'Akun Google belum berhasil dihubungkan.'),
-                });
+                const message = getClerkGoogleLinkErrorMessage(error);
+
+                if(message) {
+                    ElNotification({
+                        type: 'error',
+                        title: 'Gagal Menghubungkan Google',
+                        message,
+                    });
+                }
             } finally {
                 this.actionMethodKey = '';
             }
@@ -744,31 +775,40 @@ export default {
             const isGoogleLinkCallback = this.$route.query.google_link === 'callback';
 
             if(!isGoogleLinkCallback)
-                return;
+                return null;
 
+            this.isLoadingSummary = true;
             this.actionMethodKey = 'google';
 
             try {
                 await axios.post('/security/google/link/validate');
-                await this.loadSummary();
-
-                ElNotification({
+                return {
                     type: 'success',
                     title: 'Success',
                     message: 'Akun Google berhasil dihubungkan.',
-                });
+                };
             } catch(error) {
                 consumeGoogleLinkCallback();
-                ElNotification({
+                return {
                     type: 'error',
-                    title: 'error',
+                    title: 'Gagal Menghubungkan Google',
                     message: error?.response?.data?.message || 'Akun Google belum berhasil dihubungkan.',
-                });
-                await this.loadSummary();
+                };
             } finally {
                 this.actionMethodKey = '';
                 this.clearGoogleLinkQuery();
             }
+        },
+
+        /**
+         * Tujuan method ini untuk menampilkan hasil hubungkan Google setelah
+         * ringkasan keamanan final selesai dimuat dari backend.
+         */
+        notifyGoogleLinkResult(result) {
+            if(!result)
+                return;
+
+            ElNotification(result);
         },
 
         /**

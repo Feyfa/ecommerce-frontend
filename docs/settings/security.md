@@ -82,10 +82,17 @@ Rules:
 
 - Show `Terhubung` when the Clerk user has a valid Google external account connected.
 - Show `Belum terhubung -> Hubungkan` when Google is available but not connected.
+- Google linking uses Clerk session re-verification and retries external-account creation after verification succeeds.
+- Clerk's prebuilt re-verification modal uses the official Indonesian `idID` localization.
 - Google linking starts a Clerk OAuth redirect and marks the callback as a Google-link flow.
-- After OAuth returns, the frontend calls backend `POST /api/security/google/link/validate`.
+- After OAuth returns, the frontend distinguishes a verified connection, a failed or expired verification, and a user cancellation.
+- Clerk verification failures return to Security with a user-friendly error that is displayed once and then removed from the URL.
+- User cancellation returns to Security without a noisy failure notification.
+- Only a verified Google external account continues to backend `POST /api/security/google/link/validate`.
 - The backend validates that the linked Google email matches the local authenticated user email.
 - If the linked Google account is invalid, the backend removes invalid provider accounts through Clerk and the frontend shows an error.
+- While callback validation is in progress, the frontend keeps the security summary in its loading state instead of rendering Clerk's temporary linked state.
+- The frontend reloads the final security summary before showing the Google-link result notification.
 
 ### Passkey
 

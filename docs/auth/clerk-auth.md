@@ -346,6 +346,13 @@ callback is only finalized when Clerk exposes a verified Google external
 account. Cancelling the provider flow returns to Security without calling the
 backend link validator or showing a false connected state.
 
+A failed or expired Google external-account verification is different from
+cancellation. The callback reads Clerk's verification status and error, returns
+to Security with a link-specific message, and Security displays that message
+once before removing it from the URL. Errors indicating that the Google
+identity already belongs to another Clerk user are presented as an
+account-linking conflict, not as an instruction to sign in.
+
 The Security page only finalizes a link when the URL explicitly contains
 `google_link=callback`. The session marker is used to recognize the flow on
 the callback page, but it cannot independently trigger a success notification
@@ -357,6 +364,10 @@ linking. It first confirms that the Google external account is verified, then
 navigates explicitly to Security with `google_link=callback`. This guarantees
 that a successful link displays its notification once while a regular Google
 login cannot reuse a stale link marker.
+
+The callback reloads Clerk's `signIn` resource only for Google login flows.
+Google account linking keeps the existing signed-in user and does not request a
+sign-in resource reload.
 
 This prevents a slow callback from briefly showing a logged-out form before
 the authenticated session is ready.
