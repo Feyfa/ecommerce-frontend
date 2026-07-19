@@ -24,6 +24,8 @@ import {
   isClerkOauthCancelledError,
   getClerkCallbackErrorMessage,
   getClerkErrorMessage,
+  getClerkGoogleLinkCallbackErrorMessage,
+  getClerkGoogleLinkErrorMessage,
   hasGoogleLinkCallback,
   hasGoogleLoginCallback,
   waitForClerkLoaded
@@ -62,11 +64,11 @@ export default {
     /**
      * Menentukan apakah callback kembali karena user membatalkan atau provider mengirim error.
      */
-    isCanceledCallback(params) {
-      const status = params.get('__clerk_status') || params.get('status') || '';
-      const canceledStatuses = ['abandoned', 'cancelled', 'canceled', 'failed'];
+    hasCanceledOrFailedCallback(params) {
+      const status = String(params.get('__clerk_status') || params.get('status') || '').toLowerCase();
+      const terminalStatuses = ['abandoned', 'cancelled', 'canceled', 'failed', 'expired'];
 
-      return params.has('error') || params.has('error_description') || canceledStatuses.includes(status);
+      return params.has('error') || params.has('error_description') || terminalStatuses.includes(status);
     },
 
     /**
@@ -116,14 +118,15 @@ export default {
     },
 
     /**
-     * Memastikan flow hubungkan Google benar-benar menghasilkan external account
-     * terverifikasi sebelum callback diteruskan sebagai callback sukses.
+     * Memeriksa hasil external account Google agar callback bisa membedakan
+     * proses yang berhasil, dibatalkan, atau gagal dengan pesan dari Clerk.
      */
-    async hasVerifiedGoogleExternalAccount(clerk = null) {
+    async getGoogleExternalAccountResult(clerk = null) {
       const clerkUser = clerk?.user || null;
+      const fallbackMessage = 'Akun Google belum berhasil dihubungkan.';
 
       if(!clerkUser)
-        return false;
+        return { status: 'failed', message: fallbackMessage };
 
       if(typeof clerkUser.reload === 'function')
         await clerkUser.reload();
@@ -131,13 +134,39 @@ export default {
       const externalAccounts = Array.isArray(clerkUser.externalAccounts)
         ? clerkUser.externalAccounts
         : [];
-
-      return externalAccounts.some(account => {
+      const googleAccounts = externalAccounts.filter(account => {
         const provider = String(account?.provider || '').toLowerCase();
+
+        return provider.includes('google');
+      });
+      const verifiedGoogleAccount = googleAccounts.find(account => {
         const verificationStatus = String(account?.verification?.status || '').toLowerCase();
 
-        return provider.includes('google') && verificationStatus === 'verified';
+        return verificationStatus === 'verified';
       });
+
+      if(verifiedGoogleAccount)
+        return { status: 'success', message: '' };
+
+      const failedGoogleAccount = googleAccounts.find(account => {
+        const verificationStatus = String(account?.verification?.status || '').toLowerCase();
+
+        return ['failed', 'expired'].includes(verificationStatus)
+          || Boolean(account?.verification?.error);
+      });
+
+      if(!failedGoogleAccount)
+        return { status: 'cancelled', message: '' };
+
+      const verificationError = failedGoogleAccount?.verification?.error;
+      const normalizedError = typeof verificationError === 'string'
+        ? new Error(verificationError)
+        : verificationError || {};
+
+      return {
+        status: 'failed',
+        message: getClerkGoogleLinkErrorMessage(normalizedError, fallbackMessage),
+      };
     },
 
     /**
@@ -155,8 +184,12 @@ export default {
         return;
       }
 
-      if(hasCallbackPayload && this.isCanceledCallback(callbackParams)) {
-        await this.redirectToAuthForm(getClerkCallbackErrorMessage(callbackParams));
+      if(hasCallbackPayload && this.hasCanceledOrFailedCallback(callbackParams)) {
+        const callbackMessage = isGoogleLinkCallback
+          ? getClerkGoogleLinkCallbackErrorMessage(callbackParams)
+          : getClerkCallbackErrorMessage(callbackParams, 'Login Google gagal diproses.');
+
+        await this.redirectToAuthForm(callbackMessage);
         return;
       }
 
@@ -184,7 +217,7 @@ export default {
             }
           : undefined;
 
-        await runtimeState.clerk.handleRedirectCallback({
+        const callbackOptions = {
           signInUrl: this.clerkUi.signInUrl,
           signUpUrl: this.clerkUi.signUpUrl,
           secondFactorUrl: this.clerkUi.signInUrl,
@@ -194,14 +227,19 @@ export default {
           signUpFallbackRedirectUrl: postAuthUrl,
           continueSignUpUrl: postAuthUrl,
           verifyEmailAddressUrl: postAuthUrl,
-          reloadResource: 'signIn',
-        }, customNavigate);
+        };
+
+        /* step 3: Resource sign-in hanya dimuat ulang untuk login, bukan account linking. */
+        if(isGoogleLoginCallback)
+          callbackOptions.reloadResource = 'signIn';
+
+        await runtimeState.clerk.handleRedirectCallback(callbackOptions, customNavigate);
 
         if(isGoogleLoginCallback) {
           const latestRuntimeState = await waitForClerkLoaded({ timeout: 1200, interval: 50 });
           const signInAttempt = this.getRuntimeClerkSignInAttempt(latestRuntimeState.clerk);
 
-          /* step 3: Batal setelah pilih akun bisa kembali tanpa error eksplisit dari Clerk. */
+          /* step 4: Batal setelah pilih akun bisa kembali tanpa error eksplisit dari Clerk. */
           if(!latestRuntimeState.isSignedIn && !this.isPendingClerkVerificationStep(signInAttempt)) {
             await this.redirectToAuthForm('');
             return;
@@ -218,10 +256,10 @@ export default {
 
         if(isGoogleLinkCallback) {
           const latestRuntimeState = await waitForClerkLoaded({ timeout: 1200, interval: 50 });
-          const hasVerifiedGoogleAccount = await this.hasVerifiedGoogleExternalAccount(latestRuntimeState.clerk);
+          const googleAccountResult = await this.getGoogleExternalAccountResult(latestRuntimeState.clerk);
 
-          if(!hasVerifiedGoogleAccount) {
-            await this.redirectToAuthForm('');
+          if(googleAccountResult.status !== 'success') {
+            await this.redirectToAuthForm(googleAccountResult.message);
             return;
           }
 
@@ -233,7 +271,11 @@ export default {
           return;
         }
 
-        await this.redirectToAuthForm(getClerkErrorMessage(error, 'Login Google gagal diproses.'));
+        const errorMessage = isGoogleLinkCallback
+          ? getClerkGoogleLinkErrorMessage(error)
+          : getClerkErrorMessage(error, 'Login Google gagal diproses.');
+
+        await this.redirectToAuthForm(errorMessage);
       } finally {
         this.isProcessingCallback = false;
       }
