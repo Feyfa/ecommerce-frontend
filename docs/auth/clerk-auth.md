@@ -346,6 +346,14 @@ callback is only finalized when Clerk exposes a verified Google external
 account. Cancelling the provider flow returns to Security without calling the
 backend link validator or showing a false connected state.
 
+Before returning from any failed, cancelled, or expired Google-link callback,
+the callback requests `POST /api/security/google/link/cleanup`. The backend
+removes only unverified temporary Google external accounts and preserves every
+verified provider account and email address. If cleanup cannot be confirmed,
+the Security page shows the callback error together with the cleanup failure so
+the user is not told that the account is clean when Clerk still reports the
+temporary provider account.
+
 A failed or expired Google external-account verification is different from
 cancellation. The callback reads Clerk's verification status and error, returns
 to Security with a link-specific message, and Security displays that message
