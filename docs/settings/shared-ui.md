@@ -86,8 +86,11 @@ Deletion confirmation should use Element Plus confirmation UI instead of SweetAl
 
 ## Auth State During Logout
 
-When an explicit logout succeeds, account UI must clear persistent auth data
-and runtime state together.
+When an explicit logout starts, account UI must clear persistent auth data and
+runtime state together so stale account details disappear immediately. The
+shared logout orchestrator must then sign out Clerk, confirm that the active
+browser client has no remaining user or session, and only then open the public
+authentication page.
 
 Use the shared auth session helpers instead of repeating manual `localStorage` cleanup in components:
 
@@ -99,6 +102,11 @@ syncClearedAuthSessionToStore(this.$store);
 ```
 
 This keeps Vuex synchronized with the empty storage state so account components do not keep rendering stale user or company data after logout.
+
+Do not redirect to Login merely because the Clerk `signOut()` call was started.
+If Clerk cannot finish or confirm browser-session cleanup, keep the new
+authentication flow blocked and show a retryable logout error. This prevents a
+new Google attempt from attaching temporary identity data to the previous user.
 
 Unauthenticated API responses are handled globally by the Axios interceptor.
 The shared handler guarantees that concurrent `401` responses produce only one
