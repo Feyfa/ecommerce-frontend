@@ -250,15 +250,31 @@ After verification completes:
 
 Google login and register share the Clerk callback route. Callback cancellation should not create a noisy failure toast.
 
+Before a new Google login or register redirect starts, the frontend verifies
+that the current browser no longer contains a previous Clerk user or session.
+If the application state is already signed out while Clerk still exposes an
+old session, the frontend removes only that user's unverified Google external
+accounts, signs out the stale browser session, and confirms that both the Clerk
+user and all sessions stored by the active Clerk browser client are gone. OAuth
+must not start when this confirmation fails.
+
+Normal logout follows the same boundary. Local application state is cleared
+immediately so stale account data is no longer rendered, but navigation to the
+public auth page waits for Clerk sign-out to finish and for the browser runtime
+to report no active user or session. This sign-out affects the active browser
+client; it does not revoke valid sessions on other devices.
+
 When Clerk returns a meaningful OAuth error, the callback page redirects back to the intended auth page and attaches a safe auth error message in the query string. The target auth page consumes that message once and then removes the query value so the toast does not repeat after refresh.
 
 ## Logout Behavior
 
 The frontend logout behavior is:
 
-1. Sign out from Clerk.
-2. Clear the relevant local app state.
-3. Redirect to `/login`.
+1. Attempt the backend logout audit without allowing audit failure to retain local account data.
+2. Clear the relevant local app state immediately.
+3. Sign out the Clerk sessions stored by the active browser client.
+4. Confirm that Clerk no longer exposes an active user or session.
+5. Redirect to `/login` only after that confirmation succeeds.
 
 ## Error and Failure Handling
 
@@ -346,6 +362,21 @@ callback is only finalized when Clerk exposes a verified Google external
 account. Cancelling the provider flow returns to Security without calling the
 backend link validator or showing a false connected state.
 
+Before returning from any failed, cancelled, or expired Google-link callback,
+the callback requests `POST /api/security/google/link/cleanup`. The backend
+removes only unverified temporary Google external accounts and preserves every
+verified provider account and email address. If cleanup cannot be confirmed,
+the Security page shows the callback error together with the cleanup failure so
+the user is not told that the account is clean when Clerk still reports the
+temporary provider account.
+
+A failed or expired Google external-account verification is different from
+cancellation. The callback reads Clerk's verification status and error, returns
+to Security with a link-specific message, and Security displays that message
+once before removing it from the URL. Errors indicating that the Google
+identity already belongs to another Clerk user are presented as an
+account-linking conflict, not as an instruction to sign in.
+
 The Security page only finalizes a link when the URL explicitly contains
 `google_link=callback`. The session marker is used to recognize the flow on
 the callback page, but it cannot independently trigger a success notification
@@ -357,6 +388,10 @@ linking. It first confirms that the Google external account is verified, then
 navigates explicitly to Security with `google_link=callback`. This guarantees
 that a successful link displays its notification once while a regular Google
 login cannot reuse a stale link marker.
+
+The callback reloads Clerk's `signIn` resource only for Google login flows.
+Google account linking keeps the existing signed-in user and does not request a
+sign-in resource reload.
 
 This prevents a slow callback from briefly showing a logged-out form before
 the authenticated session is ready.

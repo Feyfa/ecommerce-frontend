@@ -219,7 +219,12 @@ import { ref } from 'vue';
 import googleIcon from '@/assets/icons/google.svg';
 import AuthProcessingPanel from '@/components/auth/AuthProcessingPanel.vue';
 import { features } from '@/features';
-import { bootstrapResolvedAuthSession, logoutResolvedAuthSession, resolveDefaultAuthenticatedRouteName } from '@/authBridge';
+import {
+  bootstrapResolvedAuthSession,
+  logoutResolvedAuthSession,
+  prepareBrowserForNewAuthentication,
+  resolveDefaultAuthenticatedRouteName
+} from '@/authBridge';
 import {
   clearClerkAuthErrorFromRoute,
   clearCancelledClerkSecondFactorStep,
@@ -1030,12 +1035,20 @@ export default {
       this.isProcessingGoogleLogin = true;
 
       try {
+        await prepareBrowserForNewAuthentication(this.$store);
+        await this.$nextTick();
+
+        const signInResource = this.getRuntimeClerkSignInAttempt() || this.clerkSignInResource;
+
+        if(typeof signInResource?.authenticateWithRedirect !== 'function')
+          throw new Error('Form login Google belum siap. Silakan coba lagi.');
+
         const { redirectUrl, redirectUrlComplete } = getClerkOauthRedirectUrls(this.clerkUi.signInUrl);
         this.clearSecondFactorTimeoutState();
         rememberClerkAuthReturnUrl(this.clerkUi.signInUrl);
         rememberGoogleLoginCallback();
 
-        await this.clerkSignInResource.authenticateWithRedirect({
+        await signInResource.authenticateWithRedirect({
           strategy: 'oauth_google',
           redirectUrl,
           redirectUrlComplete,

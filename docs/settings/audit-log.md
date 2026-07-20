@@ -211,10 +211,11 @@ The logout flow calls the authenticated backend audit endpoint before signing ou
 record logout activity
   -> clear local auth state
   -> Clerk sign-out
+  -> confirm the active browser client has no remaining session
   -> redirect to login
 ```
 
-Audit recording is best-effort. A failure or timeout must not block local session cleanup, Clerk sign-out, or login redirection. If the Clerk SDK itself cannot finish sign-out, the helper still clears local application state and falls back to the Login route. The existing shared logout helper must remain the single frontend orchestration path rather than duplicating logout behavior across components.
+Audit recording is best-effort. A failure or timeout must not block local session cleanup or the Clerk sign-out attempt. Redirecting to Login is intentionally different: it happens only after Clerk confirms that the active browser client no longer contains a user or session. If Clerk cannot finish or confirm sign-out, the frontend keeps the public authentication flow blocked and displays a logout failure instead of allowing a new login to reuse stale identity state. The existing shared logout helper must remain the single frontend orchestration path rather than duplicating logout behavior across components.
 
 ## Time Presentation
 
