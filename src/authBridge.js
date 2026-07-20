@@ -207,10 +207,18 @@ export const logoutResolvedAuthSession = async (store, router, redirectUrl = '/l
         syncClearedAuthSessionToStore(store);
         // --- step 2 - end - setelah audit dicoba bersihkan seluruh session aplikasi
 
-        // --- step 3 - start - konfirmasi session provider sudah hilang sebelum membuka halaman login
+        // --- step 3 - start - konfirmasi dan sinkronkan session provider sebelum membuka halaman login
         await signOutClerkBrowserSession();
+
+        global.clerk = {
+            ...global.clerk,
+            loaded: true,
+            isSignedIn: false,
+            userId: '',
+        };
+
         await router.replace(finalRedirectUrl);
-        // --- step 3 - end - konfirmasi session provider sudah hilang sebelum membuka halaman login
+        // --- step 3 - end - konfirmasi dan sinkronkan session provider sebelum membuka halaman login
     } finally {
         global.isLoggingOut = false;
     }
