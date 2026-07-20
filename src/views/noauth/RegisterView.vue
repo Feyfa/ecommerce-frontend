@@ -14,7 +14,7 @@
       </section>
 
       <AuthProcessingPanel
-        v-else-if="isClerkResolving || (isClerkSignedIn && shouldShowBridgePanel)"
+        v-else-if="!$global.isLoggingOut && (isClerkResolving || (isClerkSignedIn && shouldShowBridgePanel))"
         :error-message="clerkBootstrapErrorMessage"
         error-subtitle="Akun sudah aktif, tetapi data aplikasi belum berhasil disiapkan."
         :retrying="isBootstrappingClerkSession"
@@ -22,7 +22,7 @@
         @retry="bridgeClerkSessionToBackend"
         @sign-out="signOutClerkSession" />
 
-      <form v-else class="auth-card">
+      <form v-else-if="!$global.isLoggingOut" class="auth-card">
         <div class="text-center">
           <p class="auth-brand">TokShop</p>
           <h1 class="auth-title">{{ isClerkVerificationStep ? 'Verifikasi Email' : 'Register TokShop' }}</h1>
@@ -288,7 +288,7 @@ export default {
       immediate: true,
 
       handler(isSignedIn) {
-        if(isSignedIn && !this.isInlineAuthBridge)
+        if(isSignedIn && !this.$global.isLoggingOut && !this.isInlineAuthBridge)
           this.bridgeClerkSessionToBackend();
       }
     }
@@ -363,7 +363,7 @@ export default {
      * Setelah register selesai, sesi browser perlu dihubungkan ke backend Laravel.
      */
     async bridgeClerkSessionToBackend({ requireSignedIn = true } = {}) {
-      if(!this.isClerkEnabled || this.isBootstrappingClerkSession)
+      if(!this.isClerkEnabled || this.isBootstrappingClerkSession || this.$global.isLoggingOut)
         return;
 
       if(requireSignedIn && !this.isClerkSignedIn)
