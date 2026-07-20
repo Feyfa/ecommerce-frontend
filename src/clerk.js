@@ -1,3 +1,5 @@
+import { idID } from '@clerk/localizations';
+
 const clerkPublishableKey = (import.meta.env.VITE_CLERK_PUBLISHABLE_KEY || '').trim();
 const clerkSignInUrl = import.meta.env.VITE_CLERK_SIGN_IN_URL || '/login';
 const clerkSignUpUrl = import.meta.env.VITE_CLERK_SIGN_UP_URL || '/register';
@@ -13,6 +15,8 @@ const clerkInvalidIdentifierMessage = 'Email belum valid atau akun belum terdaft
 const clerkPasskeyNotRegisteredMessage = 'Passkey belum terdaftar untuk akun ini. Pilih passkey yang sesuai atau login dengan email/password.';
 const clerkInvalidVerificationCodeMessage = 'Kode verifikasi salah atau sudah kedaluwarsa. Periksa kembali kode terbaru lalu coba lagi.';
 const clerkPasswordNotCreatedMessage = 'Akun ini belum memiliki password. Masuk dengan Google atau gunakan Lupa password untuk membuat password baru.';
+const clerkGoogleLinkAlreadyUsedMessage = 'Akun Google sudah digunakan oleh akun TokShop lain.';
+const clerkGoogleLinkEmailMismatchMessage = 'Email akun Google harus sama dengan email utama akun Anda.';
 const clerkAuthErrorQueryKey = 'auth_error';
 const clerkCancelledOauthErrorPatterns = [
     'oauth_access_denied',
@@ -26,6 +30,8 @@ const clerkCancelledOauthErrorPatterns = [
 const clerkAlreadyRegisteredErrorPatterns = [
     'form_identifier_exists',
     'identifier_exists',
+    'oauth_identification_claimed',
+    'identification_claimed',
     'external_account_exists',
     'account_exists',
     'already_exists',
@@ -34,6 +40,7 @@ const clerkAlreadyRegisteredErrorPatterns = [
     'already exists',
     'email address is taken',
     'identifier is already',
+    'identification claimed by another user',
     'has already been taken',
 ];
 const clerkUnknownAccountErrorPatterns = [
@@ -71,6 +78,11 @@ const clerkPasswordNotCreatedErrorPatterns = [
     'verification strategy is not valid',
     'verification strategy is not valid for this account',
 ];
+const clerkGoogleLinkEmailMismatchErrorPatterns = [
+    'oauth_connection_blocked_by_immutable_attribute',
+    'does not match your existing email address',
+    'email address does not match',
+];
 export const clerkSecondFactorTimeoutMs = 5 * 60 * 1000;
 
 /**
@@ -83,6 +95,7 @@ export const isClerkEnabled = clerkPublishableKey !== '';
  */
 export const getClerkPluginOptions = () => ({
     publishableKey: clerkPublishableKey,
+    localization: idID,
 });
 
 export const clerkUiConfig = {
@@ -375,6 +388,16 @@ const hasClerkPasswordNotCreatedPayload = (payload = '') => {
 };
 
 /**
+ * Mencocokkan penolakan Clerk ketika email external account berbeda,
+ * sementara perubahan email user sudah dinonaktifkan pada instance Clerk.
+ */
+const hasClerkGoogleLinkEmailMismatchPayload = (payload = '') => {
+    const normalizedPayload = String(payload).toLowerCase();
+
+    return clerkGoogleLinkEmailMismatchErrorPatterns.some(pattern => normalizedPayload.includes(pattern));
+};
+
+/**
  * Mencocokkan payload OAuth yang berarti user membatalkan flow provider.
  */
 const hasClerkCancelledOauthPayload = (payload = '') => {
@@ -461,7 +484,7 @@ export const isClerkOauthCancelledError = (error = {}) => {
 /**
  * Mengambil pesan error dari callback OAuth yang dikembalikan lewat query/hash.
  */
-export const getClerkCallbackErrorMessage = (params) => {
+export const getClerkCallbackErrorMessage = (params, fallbackMessage = '') => {
     const errorPayload = [
         params?.get?.('error'),
         params?.get?.('error_description'),
@@ -484,7 +507,32 @@ export const getClerkCallbackErrorMessage = (params) => {
     if(hasClerkPasskeyNotRegisteredPayload(errorPayload))
         return clerkPasskeyNotRegisteredMessage;
 
-    return '';
+    return fallbackMessage;
+};
+
+/**
+ * Mengubah error callback khusus hubungkan Google menjadi pesan yang sesuai
+ * dengan konteks akun yang sedang aktif di halaman keamanan.
+ */
+export const getClerkGoogleLinkCallbackErrorMessage = (
+    params,
+    fallbackMessage = 'Akun Google belum berhasil dihubungkan.'
+) => {
+    const errorPayload = [
+        params?.get?.('error'),
+        params?.get?.('error_description'),
+        params?.get?.('__clerk_status'),
+        params?.get?.('status'),
+    ].filter(Boolean).join(' ').toLowerCase();
+
+    if(hasClerkGoogleLinkEmailMismatchPayload(errorPayload))
+        return clerkGoogleLinkEmailMismatchMessage;
+
+    const message = getClerkCallbackErrorMessage(params, fallbackMessage);
+
+    return message === clerkAccountAlreadyRegisteredMessage
+        ? clerkGoogleLinkAlreadyUsedMessage
+        : message;
 };
 
 /**
@@ -520,4 +568,37 @@ export const getClerkErrorMessage = (error, fallbackMessage = 'Terjadi kesalahan
         return clerkPasswordNotCreatedMessage;
 
     return firstError?.longMessage || firstError?.message || error?.message || fallbackMessage;
+};
+
+/**
+ * Mengubah error runtime Clerk khusus hubungkan Google menjadi pesan yang
+ * tidak memakai instruksi login milik flow autentikasi biasa.
+ */
+export const getClerkGoogleLinkErrorMessage = (
+    error,
+    fallbackMessage = 'Akun Google belum berhasil dihubungkan.'
+) => {
+    if(isClerkOauthCancelledError(error))
+        return '';
+
+    if(isClerkAccountAlreadyRegisteredError(error))
+        return clerkGoogleLinkAlreadyUsedMessage;
+
+    const firstError = error?.errors?.[0];
+    const errorPayload = [
+        error?.code,
+        error?.status,
+        error?.message,
+        error?.longMessage,
+        error?.long_message,
+        firstError?.code,
+        firstError?.message,
+        firstError?.longMessage,
+        firstError?.long_message,
+    ].filter(Boolean).join(' ').toLowerCase();
+
+    if(hasClerkGoogleLinkEmailMismatchPayload(errorPayload))
+        return clerkGoogleLinkEmailMismatchMessage;
+
+    return getClerkErrorMessage(error, fallbackMessage);
 };
