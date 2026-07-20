@@ -182,11 +182,15 @@ Session rows use:
 id
 status
 is_current
+is_mobile
 device_label
 location_label
 last_active_at
 last_active_at_timestamp
 ```
+
+The session icon uses `is_mobile` from the backend instead of inferring the
+device category from the localized `device_label` text.
 
 ## UI States
 
