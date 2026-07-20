@@ -274,7 +274,14 @@ The frontend logout behavior is:
 2. Clear the relevant local app state immediately.
 3. Sign out the Clerk sessions stored by the active browser client.
 4. Confirm that Clerk no longer exposes an active user or session.
-5. Redirect to `/login` only after that confirmation succeeds.
+5. Synchronize the reactive Clerk snapshot to the confirmed signed-out state.
+6. Redirect to `/login` only after that confirmation succeeds.
+
+While explicit logout is active, Login and Register must not show either the
+account-preparation panel or an interactive auth form, and must not bootstrap
+the local application session through `GET /api/auth/me`. This prevents a stale
+reactive signed-in snapshot from restoring local account data or starting a new
+auth attempt during the Clerk sign-out transition.
 
 ## Error and Failure Handling
 
@@ -351,6 +358,10 @@ for Login, Register, and the OAuth callback. Auth forms must not render while
 the Clerk browser state is still resolving. Google callbacks also keep this
 panel visible while Clerk completes the redirect and the frontend bootstraps
 the local application session through `GET /api/auth/me`.
+
+During explicit logout, Login and Register suppress this shared panel. Logout
+state takes precedence over the resolving or signed-in conditions used to show
+the account-preparation UI.
 
 The OAuth callback uses neutral copy (`Memeriksa Status Login`) because the
 provider result may still be successful, cancelled, or failed while Clerk is
