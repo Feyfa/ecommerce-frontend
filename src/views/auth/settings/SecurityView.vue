@@ -1715,7 +1715,7 @@ export default {
         },
 
         sessionIcon(session) {
-            return session.device_label?.toLowerCase().includes('mobile')
+            return session.is_mobile
                 ? 'fa-solid fa-mobile-screen-button'
                 : 'fa-solid fa-laptop';
         },
