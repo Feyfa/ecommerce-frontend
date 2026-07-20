@@ -14,14 +14,14 @@
       </section>
 
       <AuthProcessingPanel
-        v-else-if="isClerkResolving || (isClerkSignedIn && shouldShowBridgePanel)"
+        v-else-if="!$global.isLoggingOut && (isClerkResolving || (isClerkSignedIn && shouldShowBridgePanel))"
         :error-message="clerkBootstrapErrorMessage"
         :retrying="isBootstrappingClerkSession"
         :signing-out="isProcessingClerkSignOut"
         @retry="bridgeClerkSessionToBackend"
         @sign-out="signOutClerkSession" />
 
-      <form v-else class="auth-card" @submit.prevent="submitActiveLoginStep">
+      <form v-else-if="!$global.isLoggingOut" class="auth-card" @submit.prevent="submitActiveLoginStep">
         <div class="text-center">
           <p class="auth-brand">TokShop</p>
           <h1 class="auth-title">{{ authFormTitle }}</h1>
@@ -429,7 +429,7 @@ export default {
       immediate: true,
 
       handler(isSignedIn) {
-        if(isSignedIn && !this.isInlineAuthBridge)
+        if(isSignedIn && !this.$global.isLoggingOut && !this.isInlineAuthBridge)
           this.bridgeClerkSessionToBackend();
       }
     },
@@ -935,7 +935,7 @@ export default {
      * Setelah login berhasil, sesi browser perlu dihubungkan ke backend Laravel.
      */
     async bridgeClerkSessionToBackend({ requireSignedIn = true } = {}) {
-      if(!this.isClerkEnabled || this.isBootstrappingClerkSession)
+      if(!this.isClerkEnabled || this.isBootstrappingClerkSession || this.$global.isLoggingOut)
         return;
 
       if(requireSignedIn && !this.isClerkSignedIn)
