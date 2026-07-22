@@ -18,59 +18,13 @@
                 </div>
             </div>
 
-            <!-- zoom img -->
-            <el-image-viewer
-                v-if="isZoomUserImage"
-                :url-list="[ProductImage]"
-                :initial-index="0"
-                :min-scale="0.2"
-                :max-scale="7"
-                :zoom-rate="1.2"
-                :z-index="9999"
-                teleported
-                @close="zoomUserImage('out')" />
-            <!-- zoom img -->
-
             <div class="flex-1 overflow-y-auto px-5 py-5">
                 <div class="space-y-5">
-                    <div>
-                        <div
-                            class="relative aspect-[4/3] w-full overflow-hidden rounded-md border border-slate-200 bg-slate-100 bg-cover bg-center shadow-sm"
-                            :style="{ backgroundImage: `url(${ProductImage})` }">
-                            <div class="absolute inset-x-0 bottom-0 flex flex-wrap items-center justify-between gap-2 bg-gradient-to-t from-slate-950/80 to-transparent p-3">
-                                <input
-                                    class="hidden"
-                                    type="file"
-                                    id="add-product-image-file"
-                                    ref="imageFile"
-                                    name="file"
-                                    accept="image/*"
-                                    @change="imageFileChange"/>
-
-                                <button
-                                    type="button"
-                                    class="inline-flex h-9 items-center gap-2 rounded-md bg-white px-3 text-sm font-medium text-slate-700 shadow-sm hover:bg-slate-100"
-                                    @click="this.$refs.imageFile.click()">
-                                    <i class="fa-solid fa-upload text-xs"></i>
-                                    Upload
-                                </button>
-
-                                <button
-                                    type="button"
-                                    class="inline-flex h-9 items-center gap-2 rounded-md bg-white/90 px-3 text-sm font-medium text-slate-700 shadow-sm hover:bg-white"
-                                    @click="zoomUserImage('in')">
-                                    <i class="fa-solid fa-magnifying-glass-plus text-xs"></i>
-                                    Zoom
-                                </button>
-                            </div>
-                        </div>
-
-                        <small
-                            v-if="errors.img"
-                            class="mt-2 block text-sm text-red-500">
-                            {{ errors.img }}
-                        </small>
-                    </div>
+                    <ProductImagesInput
+                        ref="productImagesInput"
+                        v-model="productImages"
+                        :error="errors.images"
+                        @clear-error="errors.images = ''" />
 
                     <div class="space-y-4">
                         <div class="input-container flex flex-col gap-y-1.5">
@@ -176,8 +130,12 @@
 
 <script>
 import { ElNotification } from "element-plus";
+import ProductImagesInput from './ProductImagesInput.vue';
 
 export default {
+    components: {
+        ProductImagesInput,
+    },
     props: {
         show: {
             type: Boolean,
@@ -187,7 +145,7 @@ export default {
 
     data() {
         return {
-            ProductImage: '/img/product.png',
+            productImages: [],
 
             name: '',
             price: '',
@@ -197,13 +155,12 @@ export default {
             isProcessAddProduct: false,
 
             errors: {
-                img: '',
+                images: '',
                 name: '',
                 price: '',
                 stock: '',
             },
 
-            isZoomUserImage: false,
         }
     },
 
@@ -215,69 +172,13 @@ export default {
             }
         },
 
-        zoomUserImage(type) {
-            this.isZoomUserImage = (type == 'in') ? true : false;
-        },
-
-        imageFileChange(event) {
-            const file = event.target.files[0];
-            // cek apakah file tipe nya image
-            const extensionValid = file ? file.type.startsWith('image/') : false;
-            // cek apakah file kurang dari 1mb
-            const sizeValid = file ? file.size <= 1000000 : false;
-
-            // jika file bukan image
-            if(!extensionValid)
-            {
-                this.clearImageFile();
-                
-                ElNotification({
-                    type: 'error',
-                    title: 'Error',
-                    message: `The foto field must be an image`
-                })
-            }
-            // jika file di atas 1mb
-            else if(!sizeValid)
-            {
-                this.clearImageFile();
-                
-                ElNotification({
-                    type: 'error',
-                    title: 'Error',
-                    message: `The foto field must not be greater than 1024 kilobytes`
-                })
-            }
-            else 
-            {
-                const oFReader = new FileReader();
-
-                oFReader.readAsDataURL(file);
-
-                oFReader.onload = (OFREvent) => {
-                    this.ProductImage = OFREvent.target.result;
-                }
-
-                this.errors.img = '';
-            }
-        },
-
-        clearImageFile() {
-            if(this.$refs.imageFile) {
-                this.$refs.imageFile.value = '';
-            }
-        },
-
         resetForm() {
-            this.clearImageFile();
+            this.$refs.productImagesInput?.clear();
             this.name = '';
             this.price = '';
             this.priceString = '';
             this.stock = '';
-            this.ProductImage = '/img/product.png';
-            this.isZoomUserImage = false;
-
-            this.errors.img = '';
+            this.errors.images = '';
             this.errors.name = '';
             this.errors.price = '';
             this.errors.stock = '';
@@ -336,10 +237,10 @@ export default {
         },
 
         addProduct() {
-            if(!this.$refs.imageFile.files[0] || !this.name || !this.price || (this.stock === ''))
+            if(this.productImages.length === 0 || !this.name || !this.price || (this.stock === ''))
             {
-                if(!this.$refs.imageFile.files[0])
-                    this.errors.img = 'The Field File Is Required';
+                if(this.productImages.length === 0)
+                    this.errors.images = 'Produk wajib memiliki minimal 1 foto.';
                 if(!this.name)
                     this.errors.name = 'The Field Name Is Required';
                 if(!this.price)
@@ -353,7 +254,10 @@ export default {
 
                 const form = new FormData();
                 form.append('user_id_seller', this.$store.getters.user.id);
-                form.append('img', this.$refs.imageFile.files[0]);
+                this.productImages.forEach((image, index) => {
+                    form.append('images[]', image.file);
+                    form.append('image_order[]', `new:${index}`);
+                });
                 form.append('name', this.name);        
                 form.append('price', this.price);        
                 form.append('stock', this.stock);        
@@ -382,13 +286,19 @@ export default {
                                 // console.error(error);
                                 this.isProcessAddProduct = false;
 
-                                if(error.response.data.status === 422) {
+                                if(error.response?.data?.status === 422) {
                                     const message = error.response.data.message;
                         
                                     Object.keys(message).forEach(key => {
+                                        if(key.startsWith('images.') || key.startsWith('image_order.')) {
+                                            this.errors.images = message[key][0];
+                                            return;
+                                        }
+
                                         switch(key) {
-                                            case 'img' : 
-                                                this.errors.img = message[key][0];
+                                            case 'images' :
+                                            case 'image_order' :
+                                                this.errors.images = message[key][0];
                                                 break;
                                             case 'name' : 
                                                 this.errors.name = message[key][0];
