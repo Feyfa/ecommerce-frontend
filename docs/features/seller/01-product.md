@@ -14,8 +14,8 @@ Current supported actions:
 - Search products by name.
 - Filter products by stock condition.
 - Sort products by latest update, price, stock, or name.
-- Add a product with image upload.
-- Edit product data and optionally replace the image.
+- Add a product with one to five image uploads.
+- Edit product data and manage image additions, removals, and ordering.
 - Delete a product after confirmation.
 - Preview product images through a zoom viewer.
 
@@ -28,7 +28,10 @@ Current supported actions:
   Product creation drawer. It handles image selection, preview, form fields, validation display, image zoom, and submit.
 
 - `src/components/product/edit.vue`
-  Product editing drawer. It fetches one product before editing, supports loading state, image replacement, image zoom, and submit.
+  Product editing drawer. It fetches one product before editing, supports loading state, ordered image management, and submit.
+
+- `src/components/product/ProductImagesInput.vue`
+  Shared image input for local previews, validation, zoom, removal, and drag-and-drop ordering in both product forms.
 
 - `src/store.js`
   Vuex actions for product API calls.
@@ -55,11 +58,11 @@ Current supported actions:
 
 `add.vue` and `edit.vue`:
 
-- `ProductImage`: preview image URL shown in the image area.
-- `image`: selected image file.
+- `productImages`: ordered existing images and local file previews, with the first entry acting as the primary image.
 - `name`, `price`, `priceString`, `stock`: form fields. `price` keeps the raw numeric value for the API payload, while `priceString` keeps the formatted rupiah input display.
 - `errors`: validation errors returned by the backend.
-- `isZoomUserImage`: controls the Element Plus image viewer.
+
+`ProductImagesInput.vue` owns the shared file input, local preview URLs, zoom viewer state, removal, and drag-and-drop ordering.
 
 ## Flows
 
@@ -114,9 +117,9 @@ Supported sort values:
 
 1. The seller clicks `Tambah Produk`.
 2. `this.$global.modals.addProduct` opens `add.vue`.
-3. The seller selects an image and fills name, price, and stock.
+3. The seller selects 1 to 5 images, arranges them with drag-and-drop, and fills name, price, and stock.
 4. `add.vue` submits a `FormData` payload through the `addProduct` Vuex action.
-5. On success, `ProductView.vue` prepends the returned product to `products`.
+5. Files remain local previews until submit. On success, `ProductView.vue` prepends the returned product to `products`.
 
 The price input is displayed as a rupiah-style input group with an `Rp` prefix and Indonesian thousands separators. For example, typing `500000` is displayed as `500.000`, but the value submitted through `FormData` remains the clean numeric string `500000`.
 
@@ -126,9 +129,9 @@ The price input is displayed as a rupiah-style input group with an `Rp` prefix a
 2. `ProductView.vue` stores the selected product id in `editProductId`.
 3. `edit.vue` opens and fetches the product by id.
 4. The drawer shows a loading state while product data is fetched.
-5. The seller edits the fields and may replace the image.
+5. The seller may add, remove, zoom, and reorder images while editing the fields.
 6. `edit.vue` submits a `FormData` payload through the `editProduct` Vuex action.
-7. On success, `ProductView.vue` replaces the old product in the list with the updated product.
+7. The form refuses to submit with zero images. On success, `ProductView.vue` replaces the old product in the list with the updated product.
 
 The edit modal guard must accept UUID ids. Do not rely on numeric id checks.
 
@@ -156,6 +159,8 @@ Authenticated requests use the current Clerk session token attached by the share
 ## UI Notes
 
 - Product cards use a light page background and white cards so adjacent products do not blend together.
+- Add and edit drawers show up to five draggable thumbnails; the first is labeled `Foto Utama`.
+- Each image is limited to 1 MB. Closing or cancelling the drawer removes unsaved local previews without uploading them.
 - Product images use `object-contain` so the full product is visible.
 - Prices are formatted with Indonesian thousands separators, for example `Rp 12.000.000`.
 - Add and edit price inputs use an `Rp` prefix and Indonesian thousands separators, but submit raw numeric values to the backend.
@@ -168,7 +173,8 @@ Authenticated requests use the current Clerk session token attached by the share
 
 ## Known Decisions
 
-- `add.vue` and `edit.vue` are still separate components. This keeps the current change impact small, but duplicated UI must be maintained manually in both files.
+- `add.vue` and `edit.vue` remain separate because their loading and submission flows differ.
+- Both forms share `ProductImagesInput.vue` for image validation, preview, zoom, removal, and drag-and-drop behavior.
 - Product search is executed on Enter, not on every keystroke.
 - Clearing the search input after a search reloads the full product list.
 - Product pagination uses `products_current_id` instead of a page number.
