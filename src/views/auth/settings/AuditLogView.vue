@@ -2,18 +2,27 @@
     <div class="audit-page">
         <section class="audit-toolbar" aria-label="Filter audit log">
             <div class="audit-filter-group">
-                <div class="audit-filter-field">
+                <div class="audit-filter-field audit-event-filter-field">
                     <label for="auditEventFilter">Jenis Aktivitas</label>
                     <el-select
                         id="auditEventFilter"
                         v-model="eventFilter"
+                        filterable
+                        no-match-text="Aktivitas tidak ditemukan"
+                        popper-class="audit-event-filter-popper"
                         placeholder="Semua Aktivitas"
                         @change="handleFilterChange">
-                        <el-option
-                            v-for="option in eventOptions"
-                            :key="option.value"
-                            :label="option.label"
-                            :value="option.value" />
+                        <el-option label="Semua Aktivitas" value="" />
+                        <el-option-group
+                            v-for="group in eventGroups"
+                            :key="group.label"
+                            :label="group.label">
+                            <el-option
+                                v-for="option in group.options"
+                                :key="option.value"
+                                :label="option.label"
+                                :value="option.value" />
+                        </el-option-group>
                     </el-select>
                 </div>
 
@@ -120,7 +129,7 @@
             </template>
             <template v-else>
                 <h3>Belum ada aktivitas</h3>
-                <p>Aktivitas register, login, dan logout akan tampil di halaman ini.</p>
+                <p>Aktivitas akun dan pengelolaan produk akan tampil di halaman ini.</p>
             </template>
         </section>
 
@@ -134,11 +143,29 @@
                     <div class="audit-card-content">
                         <div class="audit-card-heading">
                             <div>
-                                <div class="audit-title-row">
-                                    <h3>{{ audit.title }}</h3>
-                                    <span class="audit-event-badge">{{ audit.event_label }}</span>
-                                </div>
+                                <h3>{{ audit.title }}</h3>
                                 <p>{{ audit.description }}</p>
+
+                                <div v-if="isProductAudit(audit)" class="audit-product-card-summary">
+                                    <strong class="audit-product-name">{{ audit.subject?.name || 'Produk' }}</strong>
+                                    <template v-if="audit.event === 'product.updated'">
+                                        <span>
+                                            <strong class="audit-summary-label">Data produk :</strong>
+                                            {{ productChangeSummary(audit) }}
+                                        </span>
+                                        <span>
+                                            <strong class="audit-summary-label">Foto produk :</strong>
+                                            {{ productImageChangeSummary(audit.image_changes) }}
+                                        </span>
+                                    </template>
+                                    <template v-else-if="audit.product_snapshot">
+                                        <span>
+                                            {{ formatCurrency(audit.product_snapshot.price) }}
+                                            • Stok {{ audit.product_snapshot.stock }}
+                                            • {{ audit.product_snapshot.image_count }} foto
+                                        </span>
+                                    </template>
+                                </div>
                             </div>
 
                             <button type="button" class="audit-detail-button" @click="openDetail(audit)">
@@ -214,6 +241,85 @@
                 <template v-else-if="selectedAudit">
                     <p class="audit-detail-description">{{ selectedAudit.description }}</p>
 
+                    <section v-if="isProductAudit(selectedAudit)" class="audit-product-detail">
+                        <div class="audit-product-detail-heading">
+                            <span>Produk</span>
+                            <h4>{{ selectedAudit.subject?.name || 'Produk' }}</h4>
+                            <p v-if="selectedAudit.event === 'product.deleted'">
+                                Produk sudah dihapus. Data berikut adalah kondisi terakhir sebelum penghapusan.
+                            </p>
+                        </div>
+
+                        <template v-if="selectedAudit.event === 'product.updated'">
+                            <div v-if="productDetailChangeRows(selectedAudit).length" class="audit-change-table-wrap">
+                                <table class="audit-change-table">
+                                    <colgroup>
+                                        <col class="audit-change-data-column">
+                                        <col class="audit-change-value-column">
+                                        <col class="audit-change-value-column">
+                                        <col class="audit-change-status-column">
+                                    </colgroup>
+                                    <thead>
+                                        <tr>
+                                            <th>Data</th>
+                                            <th>Sebelum</th>
+                                            <th>Sesudah</th>
+                                            <th>Status</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <tr v-for="change in productDetailChangeRows(selectedAudit)" :key="change.field">
+                                            <th>{{ change.label }}</th>
+                                            <td>{{ formatProductValue(change.field, change.before) }}</td>
+                                            <td>{{ formatProductValue(change.field, change.after) }}</td>
+                                            <td>
+                                                <span
+                                                    class="audit-change-status"
+                                                    :class="change.changed ? 'is-changed' : 'is-unchanged'">
+                                                    {{ change.changed ? 'Berubah' : 'Tetap' }}
+                                                </span>
+                                            </td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                            <div v-if="selectedAudit.image_changes" class="audit-image-change-summary">
+                                <h5>Perubahan foto</h5>
+                                <ul v-if="productImageChangeItems(selectedAudit.image_changes).length">
+                                    <li
+                                        v-for="item in productImageChangeItems(selectedAudit.image_changes)"
+                                        :key="item">
+                                        {{ item }}
+                                    </li>
+                                </ul>
+                                <p v-else>Tidak ada perubahan foto.</p>
+                            </div>
+                        </template>
+
+                        <div v-else-if="selectedAudit.product_snapshot" class="audit-snapshot-table-wrap">
+                            <table class="audit-snapshot-table">
+                                <colgroup>
+                                    <col class="audit-snapshot-data-column">
+                                    <col>
+                                </colgroup>
+                                <thead>
+                                    <tr>
+                                        <th>Data</th>
+                                        <th>
+                                            {{ selectedAudit.event === 'product.created' ? 'Nilai awal' : 'Nilai terakhir' }}
+                                        </th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr v-for="row in productSnapshotRows(selectedAudit)" :key="row.field">
+                                        <th>{{ row.label }}</th>
+                                        <td>{{ formatProductValue(row.field, row.value) }}</td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </section>
+
                     <dl class="audit-detail-list">
                         <div v-if="selectedAudit.auth_method">
                             <dt>Metode login</dt>
@@ -250,7 +356,7 @@
                         </div>
                     </dl>
 
-                    <div class="audit-security-note">
+                    <div v-if="!isProductAudit(selectedAudit)" class="audit-security-note">
                         <div>
                             <strong>Tidak mengenali aktivitas ini?</strong>
                             <p>Periksa dan keluarkan perangkat lain melalui halaman Keamanan.</p>
@@ -276,11 +382,23 @@ export default {
 
     data() {
         return {
-            eventOptions: [
-                {label: 'Semua Aktivitas', value: ''},
-                {label: 'Register', value: 'auth.registered'},
-                {label: 'Login', value: 'auth.logged_in'},
-                {label: 'Logout', value: 'auth.logged_out'},
+            eventGroups: [
+                {
+                    label: 'Akun',
+                    options: [
+                        {label: 'Register', value: 'auth.registered'},
+                        {label: 'Login', value: 'auth.logged_in'},
+                        {label: 'Logout', value: 'auth.logged_out'},
+                    ],
+                },
+                {
+                    label: 'Produk',
+                    options: [
+                        {label: 'Produk Ditambahkan', value: 'product.created'},
+                        {label: 'Produk Diperbarui', value: 'product.updated'},
+                        {label: 'Produk Dihapus', value: 'product.deleted'},
+                    ],
+                },
             ],
             timeOptions: [
                 {label: '7 Hari Terakhir', value: '7'},
@@ -692,6 +810,9 @@ export default {
                 'auth.registered': 'fa-solid fa-user-plus',
                 'auth.logged_in': 'fa-solid fa-right-to-bracket',
                 'auth.logged_out': 'fa-solid fa-arrow-right-from-bracket',
+                'product.created': 'fa-solid fa-box-open',
+                'product.updated': 'fa-solid fa-pen-to-square',
+                'product.deleted': 'fa-solid fa-trash-can',
             }[event] || 'fa-solid fa-clock-rotate-left';
         },
 
@@ -705,7 +826,180 @@ export default {
                 'auth.registered': 'is-register',
                 'auth.logged_in': 'is-login',
                 'auth.logged_out': 'is-logout',
+                'product.created': 'is-product-created',
+                'product.updated': 'is-product-updated',
+                'product.deleted': 'is-product-deleted',
             }[event] || '';
+        },
+
+        /**
+         * Membedakan detail produk dari event autentikasi tanpa bergantung pada title.
+         *
+         * @param {Object} audit Audit yang akan ditampilkan.
+         * @returns {boolean}
+         */
+        isProductAudit(audit) {
+            return audit?.category === 'product';
+        },
+
+        /**
+         * Merangkum label field update untuk card tanpa memenuhi timeline dengan tabel.
+         *
+         * @param {Object} audit Audit update produk.
+         * @returns {string}
+         */
+        productChangeSummary(audit) {
+            const labels = Array.isArray(audit?.changes)
+                ? audit.changes.map(change => change.label).filter(Boolean)
+                : [];
+
+            if(labels.length === 0)
+                return 'Tidak berubah';
+            if(labels.length === 1)
+                return `${labels[0]} berubah`;
+            if(labels.length === 2)
+                return `${labels[0]} dan ${labels[1]} berubah`;
+
+            return `${labels.slice(0, -1).join(', ')}, dan ${labels.at(-1)} berubah`;
+        },
+
+        /**
+         * Membentuk ringkasan singkat perubahan gambar dalam bentuk teks saja.
+         *
+         * @param {Object|null} imageChanges Metadata perubahan gambar.
+         * @returns {string}
+         */
+        productImageChangeSummary(imageChanges) {
+            if(!imageChanges)
+                return 'Informasi tidak tersedia';
+
+            const parts = [];
+            if(imageChanges.added_count)
+                parts.push(`${imageChanges.added_count} ditambahkan`);
+            if(imageChanges.removed_count)
+                parts.push(`${imageChanges.removed_count} dihapus`);
+            if(imageChanges.cover_changed)
+                parts.push('Foto utama berubah');
+            if(imageChanges.order_changed)
+                parts.push('Urutan berubah');
+
+            return parts.length > 0 ? parts.join(' • ') : 'Tidak berubah';
+        },
+
+        /**
+         * Menyatukan perubahan field produk dan jumlah foto dalam tabel perbandingan.
+         *
+         * @param {Object} audit Audit update produk.
+         * @returns {Array<{field: string, label: string, before: *, after: *, changed: boolean}>}
+         */
+        productDetailChangeRows(audit) {
+            const changes = new Map(
+                (Array.isArray(audit?.changes) ? audit.changes : [])
+                    .map(change => [change.field, change])
+            );
+            const fields = [
+                {field: 'name', label: 'Nama produk', value: audit?.subject?.name},
+                {field: 'price', label: 'Harga', value: audit?.product_snapshot?.price},
+                {field: 'stock', label: 'Stok', value: audit?.product_snapshot?.stock},
+            ];
+            const rows = fields.map(field => {
+                const change = changes.get(field.field);
+
+                return {
+                    field: field.field,
+                    label: field.label,
+                    before: change?.before ?? field.value,
+                    after: change?.after ?? field.value,
+                    changed: Boolean(change),
+                };
+            });
+
+            if(audit?.image_changes) {
+                rows.push({
+                    field: 'image_count',
+                    label: 'Jumlah foto',
+                    before: audit.image_changes.before_count ?? null,
+                    after: audit.image_changes.after_count ?? null,
+                    changed: audit.image_changes.before_count !== audit.image_changes.after_count,
+                });
+            }
+
+            return rows;
+        },
+
+        /**
+         * Membentuk tabel nilai awal atau nilai terakhir untuk audit create/delete.
+         *
+         * @param {Object} audit Audit produk beserta snapshot allow-listed.
+         * @returns {Array<{field: string, label: string, value: *}>}
+         */
+        productSnapshotRows(audit) {
+            return [
+                {field: 'name', label: 'Nama produk', value: audit?.subject?.name},
+                {field: 'price', label: 'Harga', value: audit?.product_snapshot?.price},
+                {field: 'stock', label: 'Stok', value: audit?.product_snapshot?.stock},
+                {field: 'image_count', label: 'Jumlah foto', value: audit?.product_snapshot?.image_count},
+            ];
+        },
+
+        /**
+         * Menampilkan hanya perubahan foto yang benar-benar terjadi agar detail
+         * tidak dipenuhi nilai nol dan status "Tidak".
+         *
+         * @param {Object} imageChanges Metadata perubahan gambar.
+         * @returns {string[]}
+         */
+        productImageChangeItems(imageChanges = {}) {
+            const items = [];
+
+            if(imageChanges.added_count)
+                items.push(`${imageChanges.added_count} foto ditambahkan`);
+            if(imageChanges.removed_count)
+                items.push(`${imageChanges.removed_count} foto dihapus`);
+            if(imageChanges.cover_changed)
+                items.push('Foto utama berubah');
+            if(imageChanges.order_changed)
+                items.push('Urutan foto berubah');
+
+            return items;
+        },
+
+        /**
+         * Memformat harga dengan Rupiah dan membiarkan nama/stok tetap natural.
+         *
+         * @param {string} field Nama field contract audit.
+         * @param {string|number|null} value Nilai before/after.
+         * @returns {string}
+         */
+        formatProductValue(field, value) {
+            if(field === 'price')
+                return this.formatCurrency(value);
+            if(field === 'image_count')
+                return value === null || value === undefined ? '-' : `${value} foto`;
+
+            return String(value ?? '-');
+        },
+
+        /**
+         * Memformat angka harga sesuai locale Indonesia.
+         *
+         * @param {number|string|null} value Harga dari API.
+         * @returns {string}
+         */
+        formatCurrency(value) {
+            if(value === null || value === undefined || value === '')
+                return '-';
+
+            const number = Number(value);
+
+            if(!Number.isFinite(number))
+                return '-';
+
+            return new Intl.NumberFormat('id-ID', {
+                style: 'currency',
+                currency: 'IDR',
+                maximumFractionDigits: 0,
+            }).format(number);
         },
 
         /**
@@ -781,6 +1075,10 @@ export default {
     width: 190px;
 }
 
+.audit-event-filter-field {
+    width: 240px;
+}
+
 .audit-date-field {
     width: 320px;
 }
@@ -800,6 +1098,10 @@ export default {
 .audit-filter-field :deep(.el-select),
 .audit-filter-field :deep(.el-date-editor) {
     width: 100%;
+}
+
+:global(.audit-event-filter-popper .el-select-dropdown__wrap) {
+    max-height: min(360px, calc(100vh - 160px));
 }
 
 .audit-refresh-button,
@@ -880,6 +1182,21 @@ button:disabled {
     color: #ea580c;
 }
 
+.audit-event-icon.is-product-created {
+    background: #ecfdf5;
+    color: #047857;
+}
+
+.audit-event-icon.is-product-updated {
+    background: #eff6ff;
+    color: #2563eb;
+}
+
+.audit-event-icon.is-product-deleted {
+    background: #fef2f2;
+    color: #dc2626;
+}
+
 .audit-card-content {
     min-width: 0;
     flex: 1;
@@ -892,14 +1209,7 @@ button:disabled {
     gap: 14px;
 }
 
-.audit-title-row {
-    display: flex;
-    align-items: center;
-    flex-wrap: wrap;
-    gap: 8px;
-}
-
-.audit-title-row h3 {
+.audit-card-heading h3 {
     color: #0f172a;
     font-size: 15px;
     font-weight: 750;
@@ -916,11 +1226,35 @@ button:disabled {
     margin-top: 4px;
 }
 
+.audit-product-card-summary {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    margin-top: 10px;
+    color: #475569;
+    font-size: 12px;
+    line-height: 1.5;
+}
+
+.audit-product-name {
+    margin-bottom: 2px;
+    color: #1e293b;
+    font-size: 13px;
+}
+
+.audit-product-card-summary > span {
+    line-height: 1.6;
+}
+
+.audit-summary-label {
+    color: #334155;
+    font-weight: 750;
+}
+
 .audit-detail-description {
     margin-top: 12px;
 }
 
-.audit-event-badge,
 .audit-success-badge {
     display: inline-flex;
     align-items: center;
@@ -1122,7 +1456,7 @@ button:disabled {
 }
 
 :deep(.modal-panel.audit-detail-modal-panel) {
-    width: min(620px, calc(100vw - 32px));
+    width: min(720px, calc(100vw - 32px));
     min-height: 0;
 }
 
@@ -1188,6 +1522,211 @@ button:disabled {
 .audit-detail-error {
     flex-direction: column;
     text-align: center;
+}
+
+.audit-product-detail {
+    margin-top: 18px;
+    border: 1px solid #dbeafe;
+    border-radius: 9px;
+    background: #f8fbff;
+    padding: 14px;
+}
+
+.audit-product-detail-heading > span {
+    color: #2563eb;
+    font-size: 10px;
+    font-weight: 800;
+    letter-spacing: 0.05em;
+    text-transform: uppercase;
+}
+
+.audit-product-detail-heading h4 {
+    margin-top: 2px;
+    color: #1e293b;
+    font-size: 15px;
+    font-weight: 750;
+}
+
+.audit-product-detail-heading p,
+.audit-no-product-changes {
+    margin-top: 5px;
+    color: #64748b;
+    font-size: 12px;
+    line-height: 1.55;
+}
+
+.audit-snapshot-table-wrap {
+    margin-top: 12px;
+    overflow-x: auto;
+    border: 1px solid #dbeafe;
+    border-radius: 8px;
+    background: #ffffff;
+}
+
+.audit-snapshot-table {
+    width: 100%;
+    min-width: 420px;
+    border-collapse: collapse;
+    table-layout: fixed;
+    text-align: left;
+}
+
+.audit-snapshot-data-column {
+    /* Keep snapshot values close to the metadata alignment without crowding their labels. */
+    width: 152px;
+}
+
+.audit-snapshot-table th,
+.audit-snapshot-table td {
+    padding: 10px 12px;
+    color: #334155;
+    font-size: 12px;
+}
+
+.audit-snapshot-table thead th {
+    background: #eff6ff;
+    color: #475569;
+    font-size: 11px;
+    font-weight: 750;
+    white-space: nowrap;
+}
+
+.audit-snapshot-table tbody tr + tr {
+    border-top: 1px solid #e2e8f0;
+}
+
+.audit-snapshot-table tbody th {
+    color: #1e293b;
+    font-weight: 750;
+    white-space: nowrap;
+}
+
+.audit-snapshot-table tbody td {
+    overflow-wrap: anywhere;
+}
+
+.audit-change-table-wrap {
+    margin-top: 12px;
+    overflow-x: auto;
+    border: 1px solid #dbeafe;
+    border-radius: 8px;
+    background: #ffffff;
+}
+
+.audit-change-table {
+    width: 100%;
+    min-width: 620px;
+    border-collapse: collapse;
+    table-layout: fixed;
+    text-align: left;
+}
+
+.audit-change-data-column {
+    width: 110px;
+}
+
+.audit-change-value-column {
+    width: auto;
+}
+
+.audit-change-status-column {
+    width: 86px;
+}
+
+.audit-change-table th,
+.audit-change-table td {
+    padding: 10px 12px;
+    color: #334155;
+    font-size: 12px;
+}
+
+.audit-change-table thead th {
+    background: #eff6ff;
+    color: #475569;
+    font-size: 11px;
+    font-weight: 750;
+    white-space: nowrap;
+}
+
+.audit-change-table tbody tr + tr {
+    border-top: 1px solid #e2e8f0;
+}
+
+.audit-change-table tbody th {
+    color: #1e293b;
+    font-weight: 750;
+    white-space: nowrap;
+}
+
+.audit-change-table tbody td:nth-child(2),
+.audit-change-table tbody td:nth-child(3) {
+    overflow-wrap: anywhere;
+}
+
+.audit-change-table thead th:last-child,
+.audit-change-table tbody td:last-child {
+    text-align: center;
+}
+
+.audit-change-status {
+    display: inline-flex;
+    align-items: center;
+    min-height: 22px;
+    border-radius: 999px;
+    padding: 0 8px;
+    font-size: 10px;
+    font-weight: 800;
+    white-space: nowrap;
+}
+
+.audit-change-status.is-changed {
+    background: #dbeafe;
+    color: #1d4ed8;
+}
+
+.audit-change-status.is-unchanged {
+    background: #f1f5f9;
+    color: #64748b;
+}
+
+.audit-image-change-summary {
+    margin-top: 14px;
+    border: 1px solid #dbeafe;
+    border-radius: 8px;
+    background: #ffffff;
+    padding: 12px;
+}
+
+.audit-image-change-summary h5 {
+    color: #1e293b;
+    font-size: 12px;
+    font-weight: 750;
+}
+
+.audit-image-change-summary ul {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 7px;
+    margin: 8px 0 0;
+    padding: 0;
+    color: #475569;
+    font-size: 12px;
+    line-height: 1.55;
+    list-style: none;
+}
+
+.audit-image-change-summary li {
+    border-radius: 999px;
+    background: #eff6ff;
+    color: #1e40af;
+    padding: 5px 9px;
+    font-weight: 650;
+}
+
+.audit-image-change-summary p {
+    margin-top: 5px;
+    color: #64748b;
+    font-size: 12px;
 }
 
 .audit-detail-list {
@@ -1339,6 +1878,7 @@ button:disabled {
     .audit-detail-list > .audit-ip-row {
         padding: 12px 14px;
     }
+
 }
 
 @media (max-width: 480px) {

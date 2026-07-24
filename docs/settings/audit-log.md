@@ -1,6 +1,6 @@
 # Audit Log
 
-This document explains the frontend implementation for Audit Log phase 1 under Jira issue `TOK-1`.
+This document explains the frontend Audit Log foundation from `TOK-1` and the product activity extension under `TOK-16`.
 
 ## Status
 
@@ -8,11 +8,11 @@ Implemented. `/settings/audit-log` renders the dedicated authenticated audit tim
 
 ## Purpose
 
-Audit Log lets an authenticated buyer or seller review important activity on the shared account. Phase 1 displays successful Register, Login, and user-initiated Logout activity only.
+Audit Log lets an authenticated buyer or seller review important activity on the shared account. It displays successful Register, Login, user-initiated Logout, and seller product create/update/delete activity.
 
 The page is a global settings route. It must remain available without requiring the user to change buyer or seller mode.
 
-## Phase 1 Event Labels
+## Event Labels
 
 The user-facing filter and event labels use:
 
@@ -21,11 +21,14 @@ Semua Aktivitas
 Register
 Login
 Logout
+Produk Ditambahkan
+Produk Diperbarui
+Produk Dihapus
 ```
 
 Rules:
 
-- a completed registration displays `Akun berhasil dibuat` only;
+- a completed registration displays `Akun Berhasil Dibuat` only;
 - the first session after registration does not display a redundant login item;
 - only successful activity is displayed;
 - login method wording is shown only when the backend provides a verified method;
@@ -77,14 +80,21 @@ The filter toolbar remains sticky at the top of the scrollable Settings content 
 
 ## Filters
 
-Phase 1 event filter options are:
+Event filters are grouped as:
 
 ```text
 Semua Aktivitas
-Register
-Login
-Logout
+Akun
+  Register
+  Login
+  Logout
+Produk
+  Produk Ditambahkan
+  Produk Diperbarui
+  Produk Dihapus
 ```
+
+The event select is searchable by its user-facing label. Its dropdown uses a viewport-aware maximum height and keeps scrolling available as more event groups are added.
 
 The time filter provides:
 
@@ -138,6 +148,13 @@ Each item may display:
 
 The interface must not guess device or authentication values. Missing data should be omitted or represented by neutral wording.
 
+### Product Activity Cards
+
+- Create and delete cards show the product name, price, stock, and photo count from the safe snapshot.
+- Update cards show the product name, changed field labels, and a text summary of photo changes.
+- Product events use distinct icons and colors, but labels remain the primary meaning.
+- Image changes are metadata only. The UI never expects or renders historical photo previews.
+
 ## Detail Panel
 
 Opening Detail shows one owner-scoped audit event:
@@ -166,6 +183,15 @@ Periksa dan keluarkan perangkat lain melalui halaman Keamanan.
 ```
 
 Do not add a non-functional report action.
+
+For product events, Detail additionally shows:
+
+- create: a two-column `Data`/`Nilai awal` table containing the product name, price, stock, and photo count;
+- update: a stable `Data`/`Sebelum`/`Sesudah`/`Status` table containing name, price, stock, and photo count, including unchanged values marked `Tetap`;
+- update image metadata: a separate `Perubahan foto` card that lists only actual additions, removals, cover changes, or order changes, with neutral wording when nothing changed;
+- delete: a two-column `Data`/`Nilai terakhir` table and an explanation that the product has been deleted.
+
+An identical successful update keeps the historical values visible and marks them `Tetap` instead of inventing changes. Product details end after their metadata/status content; the login/security-device warning and Security link remain limited to authentication events.
 
 ## IP Reveal Behavior
 
@@ -238,7 +264,7 @@ No activity:
 ```text
 Belum ada aktivitas
 
-Aktivitas register, login, dan logout akan tampil di halaman ini.
+Aktivitas akun dan pengelolaan produk akan tampil di halaman ini.
 ```
 
 No filter result:
@@ -295,18 +321,18 @@ cursor
 per_page=20
 ```
 
-The collection response supplies masked IP data and pagination metadata. The detail response may supply the full IP after backend ownership authorization. The frontend must not send a user id to select audit ownership.
+The collection response supplies masked IP data and pagination metadata. Product responses may additionally supply `subject`, `product_snapshot`, `changes`, and `image_changes`. The detail response may supply the full IP after backend ownership authorization. The frontend must not send a user id to select audit ownership.
 
 ## Out of Scope
 
-Phase 1 does not include:
+The current scope does not include:
 
 - failed authentication attempts;
 - geolocation from IP;
 - numbered pagination;
 - export or download;
 - full-text search;
-- profile, address, bank account, product, checkout, transaction, or financial audit events;
+- profile, address, bank account, checkout, transaction, or financial audit events;
 - administrator audit access;
 - historical backfill;
 - retention controls.
