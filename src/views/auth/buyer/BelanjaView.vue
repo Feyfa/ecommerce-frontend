@@ -11,19 +11,25 @@
         <h1 class="text-3xl font-medium text-slate-950">Barang Belanja</h1>
       </div>
 
-      <div class="mt-3 grid grid-cols-1 gap-3 lg:grid-cols-[minmax(14rem,27rem)_1fr_14rem_12rem_10.5rem] lg:items-center">
-        <input
-          placeholder="Search produk"
-          id="search-product"
-          type="text"
-          class="h-11 w-full rounded-md border border-slate-300 px-3 text-base text-slate-900 outline-none shadow-sm placeholder:text-slate-400 focus:border-violet-500 focus:ring-2 focus:ring-violet-100"
-          v-model="searchProduct"
-          @input="onSearchProductInput"
-          @keyup.enter="enterSearchProduct">
+      <div class="mt-3 grid grid-cols-1 gap-3 lg:grid-cols-[minmax(14rem,27rem)_1fr_14rem_10.5rem] lg:items-end">
+        <div class="flex min-w-0 flex-col gap-1.5">
+          <label for="search-product" class="text-xs font-semibold text-slate-600">Cari Produk</label>
+          <input
+            placeholder="Search produk"
+            id="search-product"
+            type="text"
+            class="h-11 w-full rounded-md border border-slate-300 px-3 text-base text-slate-900 outline-none shadow-sm placeholder:text-slate-400 focus:border-violet-500 focus:ring-2 focus:ring-violet-100"
+            v-model="searchProduct"
+            @input="onSearchProductInput"
+            @keyup.enter="enterSearchProduct">
+        </div>
 
         <div class="hidden lg:block"></div>
 
-        <el-select
+        <div class="flex min-w-0 flex-col gap-1.5">
+          <label for="buyer-product-sort" class="text-xs font-semibold text-slate-600">Urutkan Produk</label>
+          <el-select
+            id="buyer-product-sort"
             aria-label="Urutkan produk belanja"
             v-model="sortProduct"
             class="product-sort-filter !w-full"
@@ -34,20 +40,8 @@
               :key="option.value"
               :label="option.label"
               :value="option.value" />
-        </el-select>
-
-        <el-select
-            aria-label="Filter stok belanja"
-            v-model="stockFilter"
-            class="product-stock-filter !w-full"
-            popper-class="product-filter-popper"
-            @change="applyBelanjaFilters">
-            <el-option
-              v-for="option in stockFilterOptions"
-              :key="option.value"
-              :label="option.label"
-              :value="option.value" />
-        </el-select>
+          </el-select>
+        </div>
 
         <button
           type="button"
@@ -106,16 +100,6 @@
               :src="`${APP_BACKEND_BASE_URL}/${SYMLINK_FOLDER}/${product.p_img}`"
               :alt="product.p_name">
 
-          <!-- WHEN STOCK 0 -->
-          <div
-            class="absolute inset-0 bg-slate-950/35 z-[1] flex justify-center items-start"
-            v-if="product.p_stock < 1">
-            <img
-              class="w-40 mt-10"
-              :src="SoldOutImage" 
-              alt="SoldOutImage">
-          </div>
-          <!-- WHEN STOCK 0 -->
           </div>
   
           <div class="flex flex-1 flex-col justify-between p-3">
@@ -127,13 +111,11 @@
     
             <div class="mt-3 flex items-center justify-between gap-2">
               <span
-                class="inline-flex h-7 max-w-[6rem] items-center rounded-full px-2.5 text-xs font-medium"
-                :class="product.p_stock < 1 ? 'bg-red-50 text-red-600' : 'bg-slate-100 text-slate-600'">
+                class="inline-flex h-7 max-w-[6rem] items-center rounded-full bg-slate-100 px-2.5 text-xs font-medium text-slate-600">
                 Stok: {{ product.p_stock }}
               </span>
     
               <button
-                v-if="product.p_stock > 0"
                 type="button"
                 class="flex h-8 w-8 shrink-0 items-center justify-center rounded-md text-slate-500 transition hover:bg-violet-50 hover:text-violet-600"
                 aria-label="Tambah ke keranjang"
@@ -165,6 +147,7 @@
 
 <script>
 import eventBus from "@/eventBus";
+import { DEFAULT_PRODUCT_SORT, PRODUCT_SORT_OPTIONS } from '@/utils/productFilters';
 import { ElNotification } from 'element-plus';
 
 
@@ -174,28 +157,14 @@ export default {
       APP_BACKEND_BASE_URL: import.meta.env.VITE_APP_BACKEND_BASE_URL,
       SYMLINK_FOLDER: import.meta.env.VITE_SYMLINK_FOLDER,
       
-      SoldOutImage: '/img/sold-out.png',
-
       products: [],
 
       searchProduct: '',
       activeSearchProduct: '',
-      stockFilter: 'all',
-      sortProduct: 'latest',
+      sortProduct: DEFAULT_PRODUCT_SORT,
       productRequestVersion: 0,
       belanjaHeaderStuck: false,
-      stockFilterOptions: [
-        { value: 'all', label: 'Semua Produk' },
-        { value: 'available', label: 'Stok Tersedia' },
-        { value: 'empty', label: 'Stok Habis' },
-      ],
-      sortProductOptions: [
-        { value: 'latest', label: 'Terbaru' },
-        { value: 'price_lowest', label: 'Harga Terendah' },
-        { value: 'price_highest', label: 'Harga Tertinggi' },
-        { value: 'name_asc', label: 'Nama A-Z' },
-        { value: 'name_desc', label: 'Nama Z-A' },
-      ],
+      sortProductOptions: PRODUCT_SORT_OPTIONS,
       completeProduct: false,
 
       show: {
@@ -208,10 +177,10 @@ export default {
 
   computed: {
     /**
-     * Mengecek apakah pencarian, urutan, atau filter stok belanja sedang aktif.
+     * Mengecek apakah pencarian atau urutan belanja sedang aktif.
      */
     hasActiveBelanjaFilter() {
-      return this.activeSearchProduct.length > 0 || this.stockFilter !== 'all' || this.sortProduct !== 'latest';
+      return this.activeSearchProduct.length > 0 || this.sortProduct !== DEFAULT_PRODUCT_SORT;
     },
 
     /**
@@ -219,19 +188,14 @@ export default {
      */
     activeBelanjaFilterChips() {
       const chips = [];
-      const activeStockFilter = this.stockFilterOptions.find(option => option.value === this.stockFilter);
       const activeSortProduct = this.sortProductOptions.find(option => option.value === this.sortProduct);
 
       if(this.activeSearchProduct.length > 0) {
         chips.push({ key: 'search', label: `Pencarian: ${this.activeSearchProduct}` });
       }
 
-      if(activeSortProduct && activeSortProduct.value !== 'latest') {
+      if(activeSortProduct && activeSortProduct.value !== DEFAULT_PRODUCT_SORT) {
         chips.push({ key: 'sort', label: `Urutkan: ${activeSortProduct.label}` });
-      }
-
-      if(activeStockFilter && activeStockFilter.value !== 'all') {
-        chips.push({ key: 'stock', label: activeStockFilter.label });
       }
 
       return chips;
@@ -301,7 +265,7 @@ export default {
     },
 
     /**
-     * Mengambil ulang produk belanja dari awal ketika filter stok atau urutan berubah.
+     * Mengambil ulang produk belanja dari awal ketika urutan berubah.
      */
     applyBelanjaFilters() {
       this.show.loading_search_product = true;
@@ -321,8 +285,7 @@ export default {
 
       this.searchProduct = '';
       this.activeSearchProduct = '';
-      this.stockFilter = 'all';
-      this.sortProduct = 'latest';
+      this.sortProduct = DEFAULT_PRODUCT_SORT;
       this.show.loading_search_product = true;
       this.completeProduct = false;
       this.products = [];
@@ -390,10 +353,8 @@ export default {
       /* GET ALL ID */
 
       this.$store.dispatch('getBelanja', {
-        user_id_seller: this.$store.getters.user.id,
         products_current_id: products_current_id,
         search_product: requestSearchProduct,
-        stock_filter: this.stockFilter,
         sort_product: this.sortProduct,
       })
       .then(response => {
@@ -427,7 +388,14 @@ export default {
       
         this.show.belanja_view = true;
         this.show.loading = false;
+        this.show.loading_search_product = false;
         this.$global.globalContainer.loading = false;
+
+        ElNotification({
+          type: 'error',
+          title: 'Error',
+          message: 'Daftar produk gagal dimuat. Silakan coba lagi.'
+        });
       
       })
     }
