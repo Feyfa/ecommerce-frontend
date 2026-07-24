@@ -16,7 +16,7 @@ Current supported areas:
 - Balance overview and withdrawal.
 - Bank account management.
 - Clerk-backed security settings.
-- Authentication Audit Log for successful Register, Login, and Logout activity.
+- Audit Log for successful Register, Login, Logout, and seller product management activity.
 - Coming soon placeholders for notifications and support report.
 
 ## Main Files
@@ -136,7 +136,7 @@ Desktop uses the left settings sidebar. Mobile uses a custom dropdown menu above
   Clerk-backed security settings page, sign-in methods, MFA, passkey management, active sessions, and Clerk-owned behavior.
 
 - [Audit Log](audit-log.md)
-  Phase 1 activity timeline, filtering, masked IP reveal, detail behavior, and cursor pagination for successful Register, Login, and Logout activity.
+  Owner-scoped authentication and product activity timeline, grouped filtering, masked IP reveal, product change detail, and cursor pagination.
 
 ## Role Rules
 
