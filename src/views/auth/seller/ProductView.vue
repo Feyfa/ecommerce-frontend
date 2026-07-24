@@ -20,19 +20,25 @@
         </button>
       </div>
 
-      <div class="mt-3 grid grid-cols-1 gap-3 lg:grid-cols-[minmax(14rem,27rem)_1fr_12rem_14rem_10.5rem] lg:items-center">
-        <input
-          placeholder="Search produk"
-          id="search-product"
-          type="text"
-          class="h-11 w-full rounded-md border border-slate-300 px-3 text-base text-slate-900 outline-none shadow-sm placeholder:text-slate-400 focus:border-violet-500 focus:ring-2 focus:ring-violet-100"
-          v-model="searchProduct"
-          @input="onSearchProductInput"
-          @keyup.enter="enterSearchProduct">
+      <div class="mt-3 grid grid-cols-1 gap-3 lg:grid-cols-[minmax(14rem,27rem)_1fr_12rem_14rem_10.5rem] lg:items-end">
+        <div class="flex min-w-0 flex-col gap-1.5">
+          <label for="search-product" class="text-xs font-semibold text-slate-600">Cari Produk</label>
+          <input
+            placeholder="Search produk"
+            id="search-product"
+            type="text"
+            class="h-11 w-full rounded-md border border-slate-300 px-3 text-base text-slate-900 outline-none shadow-sm placeholder:text-slate-400 focus:border-violet-500 focus:ring-2 focus:ring-violet-100"
+            v-model="searchProduct"
+            @input="onSearchProductInput"
+            @keyup.enter="enterSearchProduct">
+        </div>
 
         <div class="hidden lg:block"></div>
 
-        <el-select
+        <div class="flex min-w-0 flex-col gap-1.5">
+          <label for="seller-stock-filter" class="text-xs font-semibold text-slate-600">Kondisi Stok</label>
+          <el-select
+            id="seller-stock-filter"
             aria-label="Filter stok produk"
             v-model="stockFilter"
             class="product-stock-filter !w-full"
@@ -42,10 +48,19 @@
               v-for="option in stockFilterOptions"
               :key="option.value"
               :label="option.label"
-              :value="option.value" />
-        </el-select>
+              :value="option.value">
+              <div class="flex items-center gap-2">
+                <i :class="option.iconClass" aria-hidden="true"></i>
+                <span>{{ option.label }}</span>
+              </div>
+            </el-option>
+          </el-select>
+        </div>
 
-        <el-select
+        <div class="flex min-w-0 flex-col gap-1.5">
+          <label for="seller-product-sort" class="text-xs font-semibold text-slate-600">Urutkan Produk</label>
+          <el-select
+            id="seller-product-sort"
             aria-label="Urutkan produk"
             v-model="sortProduct"
             class="product-sort-filter !w-full"
@@ -56,7 +71,8 @@
               :key="option.value"
               :label="option.label"
               :value="option.value" />
-        </el-select>
+          </el-select>
+        </div>
 
         <button
           type="button"
@@ -215,6 +231,7 @@
 
 <script>
 import eventBus from "@/eventBus";
+import { DEFAULT_PRODUCT_SORT, PRODUCT_SORT_OPTIONS, SELLER_STOCK_FILTER_OPTIONS } from '@/utils/productFilters';
 import { ElMessageBox, ElNotification } from "element-plus";
 import AddProduct from "@/components/product/add.vue";
 import EditProduct from "@/components/product/edit.vue"
@@ -236,25 +253,11 @@ export default {
       searchProduct: '',
       activeSearchProduct: '',
       stockFilter: 'all',
-      sortProduct: 'latest',
+      sortProduct: DEFAULT_PRODUCT_SORT,
       productRequestVersion: 0,
       productHeaderStuck: false,
-      stockFilterOptions: [
-        { value: 'all', label: 'Semua Stok' },
-        { value: 'available', label: 'Stok Tersedia' },
-        { value: 'low', label: 'Stok Menipis' },
-        { value: 'empty', label: 'Stok Habis' },
-      ],
-      sortProductOptions: [
-        { value: 'latest', label: 'Terbaru' },
-        { value: 'oldest', label: 'Terlama' },
-        { value: 'price_highest', label: 'Harga Tertinggi' },
-        { value: 'price_lowest', label: 'Harga Terendah' },
-        { value: 'stock_highest', label: 'Stok Terbanyak' },
-        { value: 'stock_lowest', label: 'Stok Tersedikit' },
-        { value: 'name_asc', label: 'Nama A-Z' },
-        { value: 'name_desc', label: 'Nama Z-A' },
-      ],
+      stockFilterOptions: SELLER_STOCK_FILTER_OPTIONS,
+      sortProductOptions: PRODUCT_SORT_OPTIONS,
       
       completeProduct: false,
 
@@ -272,7 +275,7 @@ export default {
      * Mengecek apakah pencarian atau filter produk sedang aktif.
      */
     hasActiveProductFilter() {
-      return this.activeSearchProduct.length > 0 || this.stockFilter !== 'all' || this.sortProduct !== 'latest';
+      return this.activeSearchProduct.length > 0 || this.stockFilter !== 'all' || this.sortProduct !== DEFAULT_PRODUCT_SORT;
     },
 
     /**
@@ -284,14 +287,14 @@ export default {
       const activeSortProduct = this.sortProductOptions.find(option => option.value === this.sortProduct);
 
       if(this.activeSearchProduct.length > 0) {
-        chips.push({ key: 'search', label: `Search: ${this.activeSearchProduct}` });
+        chips.push({ key: 'search', label: `Pencarian: ${this.activeSearchProduct}` });
       }
 
       if(activeStockFilter && activeStockFilter.value !== 'all') {
         chips.push({ key: 'stock', label: activeStockFilter.label });
       }
 
-      if(activeSortProduct && activeSortProduct.value !== 'latest') {
+      if(activeSortProduct && activeSortProduct.value !== DEFAULT_PRODUCT_SORT) {
         chips.push({ key: 'sort', label: `Urutkan: ${activeSortProduct.label}` });
       }
 
@@ -384,7 +387,7 @@ export default {
       this.searchProduct = '';
       this.activeSearchProduct = '';
       this.stockFilter = 'all';
-      this.sortProduct = 'latest';
+      this.sortProduct = DEFAULT_PRODUCT_SORT;
       this.show.loading_search_product = true;
       this.completeProduct = false;
       this.products = [];
@@ -530,8 +533,16 @@ export default {
         }
 
         this.show.loading = false;
+        this.show.loading_search_product = false;
+        this.show.product_view = true;
         this.show.not_connected_account = true;
         this.$global.globalContainer.loading = false;
+
+        ElNotification({
+          type: 'error',
+          title: 'Error',
+          message: 'Daftar produk gagal dimuat. Silakan coba lagi.'
+        });
       })
     }
   }

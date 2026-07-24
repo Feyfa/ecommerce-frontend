@@ -12,18 +12,17 @@ Current supported actions:
 
 - View product list from other sellers.
 - Search products by product name or seller name.
-- Sort products by latest update, price, or name.
-- Filter products by stock availability.
-- Reset active search, sort, and stock filters.
+- Sort products by update date, price, or name.
+- Reset active search and sorting.
 - Load more products through infinite scroll.
 - Add an available product to the cart.
-- See sold-out products without a cart action.
-- See an empty state when the active search or filters return no results.
+- See only products that currently have purchasable stock.
+- See an empty state when the active search or sorting returns no results.
 
 ## Main Files
 
 - `src/views/auth/buyer/BelanjaView.vue`
-  Main buyer shopping page. It owns the product list, search keyword, sort option, stock filter, filter chips, empty state, sold-out card state, add-to-cart action, price formatting, and infinite-scroll product loading.
+  Main buyer shopping page. It owns the product list, search keyword, sort option, filter chips, empty state, add-to-cart action, price formatting, and infinite-scroll product loading.
 
 - `src/store.js`
   Vuex actions for buyer belanja and cart API calls.
@@ -38,19 +37,18 @@ Current supported actions:
 - `products`: currently loaded buyer product cards.
 - `searchProduct`: current input value in the search field.
 - `activeSearchProduct`: keyword that is actually used by the current belanja query.
-- `stockFilter`: selected buyer stock filter. Supported values are `all`, `available`, and `empty`.
-- `sortProduct`: selected buyer sort option. Supported values are `latest`, `price_lowest`, `price_highest`, `name_asc`, and `name_desc`.
-- `stockFilterOptions`: stock filter options shown in the toolbar.
+- `sortProduct`: selected buyer sort option. Supported values are `latest`, `oldest`, `price_lowest`, `price_highest`, `name_asc`, and `name_desc`.
 - `sortProductOptions`: sort options shown in the toolbar.
 - `productRequestVersion`: internal request guard so stale list/search responses do not overwrite newer product state.
+- Failed current requests stop both page and filter loading states so the toolbar cannot remain stuck after an API error.
 - `completeProduct`: marks that the backend has no more products to return.
 - `show.loading`: initial page loading state.
 - `show.loading_search_product`: search/list reload loading state.
 
 Computed state:
 
-- `hasActiveBelanjaFilter`: true when search, sort, or stock filter differs from the default state.
-- `activeBelanjaFilterChips`: compact labels for the active search, sort, and stock filters.
+- `hasActiveBelanjaFilter`: true when search or sorting differs from the default state.
+- `activeBelanjaFilterChips`: compact labels for active search and sorting.
 
 ## Flows
 
@@ -59,27 +57,27 @@ Computed state:
 1. `BelanjaView.vue` mounts.
 2. It calls `getBelanja()`.
 3. The current product ids are sent as `products_current_id`.
-4. The active search keyword, stock filter, and sort option are sent with the request.
+4. The active search keyword and sort option are sent with the request.
 5. The backend returns the next product batch.
 6. New products are appended to `products`.
 
 Infinite scroll is driven by the global scroll event. When the global container reaches the bottom, `getBelanja()` loads the next batch unless `completeProduct` is already true.
 
-### Filter And Sort Products
+### Sort Products
 
-1. The buyer changes the sort or stock dropdown.
+1. The buyer changes the sort dropdown.
 2. `applyBelanjaFilters()` clears the current list and resets infinite-scroll completion state.
-3. `getBelanja()` reloads products from the first batch using the selected filter values.
+3. `getBelanja()` reloads products from the first batch using the selected sort value.
 4. New products are appended to `products`.
 
-The reset button is disabled while the search, stock filter, and sort option are all in their default state. Clicking it clears search, restores `Semua Produk` and `Terbaru`, then reloads the product list.
+The reset button is disabled while search and sorting are in their default state. Clicking it clears search, restores `Terbaru`, then reloads the product list.
 
 ### Search Products
 
 1. The buyer types in the search input.
 2. Pressing Enter copies the trimmed input into `activeSearchProduct`.
 3. The product list is cleared and fetched again with the active keyword.
-4. If no product matches the active search and filters, the empty state shows `Produk tidak ditemukan`.
+4. If no product matches the active search and sorting, the empty state shows `Produk tidak ditemukan`.
 5. When the input is cleared after a search, `activeSearchProduct` is reset and all products are fetched again.
 
 `hasActiveBelanjaFilter` exists so the empty state can distinguish between "the active search or filter returned no result" and "there are no products available for the buyer".
@@ -92,34 +90,32 @@ The reset button is disabled while the search, stock filter, and sort option are
 4. On success, Element Plus notification shows the backend message.
 5. If the backend returns `stock_maximum`, an error notification is shown.
 
-Sold-out products show a sold-out overlay and do not render the cart button.
+The backend excludes sold-out products from this list. Cart validation still protects against stock changes that happen after the list response.
 
 ## API Calls
 
 The frontend uses these backend API actions through `src/store.js`:
 
-- `GET /api/belanja/{user_id_seller}`
+- `GET /api/belanja`
 - `POST /api/keranjang`
 
 Authenticated requests use the current Clerk session token attached by the shared Axios interceptor.
 
-`GET /api/belanja/{user_id_seller}` sends:
+`GET /api/belanja` sends:
 
 - `products_current_id`
 - `search_product`
-- `stock_filter`
 - `sort_product`
 
 ## UI Notes
 
 - The page follows the same visual direction as seller product: white toolbar, light page background, white cards, soft border, and soft shadow.
-- The toolbar uses a responsive grid: the search field is capped on wide desktop screens, while sort, stock filter, and reset button stay grouped on the right with consistent fixed columns.
-- Active search, sort, and stock filters are shown as violet chips below the toolbar.
+- The toolbar uses a responsive grid: the labeled search and sort controls remain clear on mobile, while sort and reset stay grouped on the right on wide screens.
+- Active search and non-default sorting are shown as violet chips below the toolbar.
 - Buyer cards include seller name, so they use `h-[18.5rem]` instead of the seller product card height.
 - Product images use `object-contain` so the full product is visible.
 - Prices are formatted with Indonesian thousands separators, for example `Rp 12.000.000`.
-- Stock is shown as a badge. Sold-out stock uses red styling.
-- The cart icon is hidden for sold-out products.
+- Stock is shown as a badge and every returned product has stock greater than zero.
 - Empty state is different for no search result and truly unavailable products.
 - The mobile layout is supported and should be checked when changing toolbar, grid, card, or empty-state layout.
 
@@ -128,7 +124,7 @@ Authenticated requests use the current Clerk session token attached by the share
 - Buyer belanja does not show the buyer's own seller products.
 - Product search is executed on Enter, not on every keystroke.
 - Clearing the search input after a search reloads the full product list.
-- Sort and stock filter changes reload the product list immediately.
-- Buyer stock filters intentionally use fewer options than seller product management because buyers only need all products, available stock, or sold-out products.
+- Sort changes reload the product list immediately.
+- Stock condition is intentionally not exposed as a buyer control; the backend only returns products that can be purchased.
 - Product pagination uses `products_current_id` instead of a page number.
 - Buyer card UI is similar to seller product but not identical because buyer cards include seller name and cart action instead of edit/delete actions.
