@@ -13,7 +13,7 @@ Current supported actions:
 - View product list.
 - Search products by name.
 - Filter products by stock condition.
-- Sort products by latest update, price, stock, or name.
+- Sort products by update date, price, or name.
 - Add a product with one to five image uploads.
 - Edit product data and manage image additions, removals, and ordering.
 - Delete a product after confirmation.
@@ -51,6 +51,7 @@ Current supported actions:
 - `stockFilterOptions`: available stock filter choices shown in the product toolbar.
 - `sortProductOptions`: available sort choices shown in the product toolbar.
 - `productRequestVersion`: internal request guard so stale list/search responses do not overwrite newer product state.
+- Failed current requests stop page/filter loading and restore the product view instead of leaving the toolbar stuck.
 - `completeProduct`: marks that the backend has no more products to return.
 - `editProductId`: selected product id for the edit drawer.
 - `show.loading`: initial page loading state.
@@ -98,7 +99,7 @@ Infinite scroll is driven by the global scroll event. When the global container 
 Supported stock filter values:
 
 - `all`: all seller products.
-- `available`: products with stock greater than `0`.
+- `healthy`: products with stock greater than `5`.
 - `low`: products with stock between `1` and `5`.
 - `empty`: products with stock less than or equal to `0`.
 
@@ -108,8 +109,6 @@ Supported sort values:
 - `oldest`: oldest updated products first.
 - `price_highest`: highest price first.
 - `price_lowest`: lowest price first.
-- `stock_highest`: highest stock first.
-- `stock_lowest`: lowest stock first.
 - `name_asc`: product name A-Z.
 - `name_desc`: product name Z-A.
 
@@ -164,7 +163,8 @@ Authenticated requests use the current Clerk session token attached by the share
 - Product images use `object-contain` so the full product is visible.
 - Prices are formatted with Indonesian thousands separators, for example `Rp 12.000.000`.
 - Add and edit price inputs use an `Rp` prefix and Indonesian thousands separators, but submit raw numeric values to the backend.
-- The product toolbar uses Element Plus selects for stock filter and sorting so it matches other app controls.
+- The product toolbar uses permanently labeled `Kondisi Stok` and `Urutkan Produk` Element Plus selects so their different purposes remain clear.
+- Stock-condition options include status icons and explicit thresholds: `Stok Aman (>5)`, `Stok Menipis (1–5)`, and `Stok Habis (0)`.
 - The desktop toolbar caps the search width on wide screens and keeps stock filter, sort, and reset controls grouped on the right.
 - The add/edit product UI is a right-side drawer below the top navbar.
 - Image zoom uses Element Plus image viewer.
@@ -177,4 +177,6 @@ Authenticated requests use the current Clerk session token attached by the share
 - Both forms share `ProductImagesInput.vue` for image validation, preview, zoom, removal, and drag-and-drop behavior.
 - Product search is executed on Enter, not on every keystroke.
 - Clearing the search input after a search reloads the full product list.
+- `Semua Kondisi` is the default so a seller always sees the complete catalog before narrowing by stock condition.
+- Stock-based sorting is intentionally excluded because stock is represented only as a condition filter.
 - Product pagination uses `products_current_id` instead of a page number.
