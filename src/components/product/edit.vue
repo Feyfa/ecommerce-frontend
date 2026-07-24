@@ -294,11 +294,8 @@ export default {
                 this.isProcessGetProduct = false;
                 
                 if(!response.data.product) {
-                    ElNotification({
-                        type: 'error',
-                        title: 'Error',
-                        message: 'Product Not Valid',
-                    });
+                    // Pertahankan kompatibilitas dengan response lama sementara backend kini memakai 404.
+                    this.handleMissingProduct();
                 } else {
                     this.id = response.data.product.id;
                     this.productImages = response.data.product.images.map(image => ({
@@ -317,10 +314,30 @@ export default {
                 if(requestVersion !== this.productRequestVersion)
                     return;
 
+                if(error.response?.status === 404) {
+                    this.handleMissingProduct();
+                    return;
+                }
+
                 console.error(error);
 
                 this.isProcessGetProduct = false;
             })
+        },
+
+        /**
+         * Menutup drawer yang datanya sudah stale agar form kosong tidak dapat disimpan.
+         */
+        handleMissingProduct() {
+            this.isProcessGetProduct = false;
+
+            ElNotification({
+                type: 'error',
+                title: 'Produk Tidak Ditemukan',
+                message: 'Produk sudah tidak tersedia atau telah dihapus.',
+            });
+
+            this.closeEditProduct();
         },
 
         editProduct() {
