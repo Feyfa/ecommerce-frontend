@@ -39,6 +39,9 @@ Deployment, branching, staging, production, Docker Compose, and server runbooks 
 - [Settings](settings/README.md)
   Documents the shared buyer and seller settings UI, route structure, profile forms, address management, balance, bank accounts, security settings, remaining coming soon settings routes, and shared styling rules.
 
+- [Commit Guidelines](development/commit-guidelines.md)
+  Explains how to keep commits focused on one purpose and separate unrelated changes.
+
 ## Documentation Rules
 
 Use English for every Markdown document in this folder.
