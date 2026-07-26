@@ -5,7 +5,7 @@
     <div class="w-full max-w-[26rem] space-y-4 relative z-[1]">
       <section v-if="!isClerkEnabled" class="auth-card">
         <div class="text-center">
-          <p class="auth-brand">TokShop</p>
+          <p class="auth-brand">tokshop</p>
           <h1 class="auth-title">Login Belum Tersedia</h1>
           <p class="auth-subtitle">
             Konfigurasi login belum lengkap. Silakan hubungi admin aplikasi.
@@ -23,7 +23,7 @@
 
       <form v-else-if="!$global.isLoggingOut" class="auth-card" @submit.prevent="submitActiveLoginStep">
         <div class="text-center">
-          <p class="auth-brand">TokShop</p>
+          <p class="auth-brand">tokshop</p>
           <h1 class="auth-title">{{ authFormTitle }}</h1>
           <p class="auth-subtitle">
             {{ authFormSubtitle }}
@@ -374,7 +374,7 @@ export default {
       if(this.isClerkSecondFactorStep)
         return 'Verifikasi Two-Factor Authentication';
 
-      return 'Login TokShop';
+      return 'Login tokshop';
     },
 
     authFormSubtitle() {
