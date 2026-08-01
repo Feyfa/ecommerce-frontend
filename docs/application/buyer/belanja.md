@@ -11,12 +11,12 @@ The buyer belanja feature lets a buyer browse products sold by other users and a
 Current supported actions:
 
 - View product list from other sellers.
-- Search products by product name or seller name.
+- Search products by product name or store name.
 - Sort products by update date, price, or name.
 - Reset active search and sorting.
 - Load more products through infinite scroll.
 - Add an available product to the cart.
-- See only products that currently have purchasable stock.
+- See only active products with stock whose seller location is verified.
 - See an empty state when the active search or sorting returns no results.
 
 ## Main Files
@@ -88,9 +88,9 @@ The reset button is disabled while search and sorting are in their default state
 2. `BelanjaView.vue` dispatches `addKeranjang`.
 3. The request sends `user_id_buyer`, `user_id_seller`, and `product_id`.
 4. On success, Element Plus notification shows the backend message.
-5. If the backend returns `stock_maximum`, an error notification is shown.
+5. If availability changed after listing, a warning is shown and the stale product card is removed from the current catalog.
 
-The backend excludes sold-out products from this list. Cart validation still protects against stock changes that happen after the list response.
+The backend excludes soft-deleted, sold-out, and unverified-seller products from this list. Add-to-cart and cart validation still protect against changes after the list response.
 
 ## API Calls
 
@@ -112,10 +112,10 @@ Authenticated requests use the current Clerk session token attached by the share
 - The page follows the same visual direction as seller product: white toolbar, light page background, white cards, soft border, and soft shadow.
 - The toolbar uses a responsive grid: the labeled search and sort controls remain clear on mobile, while sort and reset stay grouped on the right on wide screens.
 - Active search and non-default sorting are shown as violet chips below the toolbar.
-- Buyer cards include seller name, so they use `h-[18.5rem]` instead of the seller product card height.
+- Buyer cards include the public store name, so they use `h-[18.5rem]` instead of the seller product card height.
 - Product images use `object-contain` so the full product is visible.
 - Prices are formatted with Indonesian thousands separators, for example `Rp 12.000.000`.
-- Stock is shown as a badge and every returned product has stock greater than zero.
+- Stock is shown as a badge and every returned product satisfies all backend purchase rules.
 - Empty state is different for no search result and truly unavailable products.
 - The mobile layout is supported and should be checked when changing toolbar, grid, card, or empty-state layout.
 
@@ -127,4 +127,5 @@ Authenticated requests use the current Clerk session token attached by the share
 - Sort changes reload the product list immediately.
 - Stock condition is intentionally not exposed as a buyer control; the backend only returns products that can be purchased.
 - Product pagination uses `products_current_id` instead of a page number.
-- Buyer card UI is similar to seller product but not identical because buyer cards include seller name and cart action instead of edit/delete actions.
+- Buyer card UI is similar to seller product but not identical because buyer cards include the public store name and cart action instead of edit/delete actions.
+- The backend prioritizes the seller company/store name and only falls back to the seller account name for a legacy or incomplete company profile.

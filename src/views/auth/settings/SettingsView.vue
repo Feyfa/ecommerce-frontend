@@ -13,35 +13,38 @@
                 <button
                     type="button"
                     class="settings-mobile-button"
-                    :class="{'is-open': isMobileMenuOpen}"
+                    :class="{ 'is-open': isMobileMenuOpen }"
                     :aria-expanded="isMobileMenuOpen"
-                    @click="toggleMobileMenu">
+                    @click="toggleMobileMenu"
+                >
                     <span>{{ currentSettingsMenuLabel }}</span>
                     <svg
                         class="settings-mobile-chevron"
-                        :class="{'is-open': isMobileMenuOpen}"
+                        :class="{ 'is-open': isMobileMenuOpen }"
                         xmlns="http://www.w3.org/2000/svg"
                         width="16"
                         height="16"
                         fill="currentColor"
-                        viewBox="0 0 16 16">
-                        <path fill-rule="evenodd" d="M1.646 4.646a.5.5 0 0 1 .708 0L8 10.293l5.646-5.647a.5.5 0 0 1 .708.708l-6 6a.5.5 0 0 1-.708 0l-6-6a.5.5 0 0 1 0-.708"/>
+                        viewBox="0 0 16 16"
+                    >
+                        <path
+                            fill-rule="evenodd"
+                            d="M1.646 4.646a.5.5 0 0 1 .708 0L8 10.293l5.646-5.647a.5.5 0 0 1 .708.708l-6 6a.5.5 0 0 1-.708 0l-6-6a.5.5 0 0 1 0-.708"
+                        />
                     </svg>
                 </button>
 
                 <div v-if="isMobileMenuOpen" class="settings-mobile-dropdown">
-                    <div
-                        v-for="section in settingsMenus"
-                        :key="section.title"
-                        class="settings-mobile-section">
+                    <div v-for="section in settingsMenus" :key="section.title" class="settings-mobile-section">
                         <h3>{{ section.title }}</h3>
                         <button
                             v-for="item in section.items"
                             :key="item.name"
                             type="button"
                             class="settings-mobile-item"
-                            :class="{'is-active': isMenuActive(item)}"
-                            @click="changeSettingsMenu(item.name)">
+                            :class="{ 'is-active': isMenuActive(item) }"
+                            @click="changeSettingsMenu(item.name)"
+                        >
                             <span>{{ item.label }}</span>
                             <span v-if="item.soon" class="settings-soon-badge">Segera</span>
                         </button>
@@ -51,18 +54,16 @@
 
             <div class="settings-layout">
                 <aside class="settings-menu" aria-label="Settings navigation">
-                    <div
-                        v-for="section in settingsMenus"
-                        :key="section.title"
-                        class="settings-menu-section">
+                    <div v-for="section in settingsMenus" :key="section.title" class="settings-menu-section">
                         <h2>{{ section.title }}</h2>
 
                         <router-link
                             v-for="item in section.items"
                             :key="item.name"
-                            :to="{name: item.name}"
+                            :to="{ name: item.name }"
                             class="settings-menu-item"
-                            :class="{'is-active': isMenuActive(item)}">
+                            :class="{ 'is-active': isMenuActive(item) }"
+                        >
                             <span>{{ item.label }}</span>
                             <span v-if="item.soon" class="settings-soon-badge">Segera</span>
                         </router-link>
@@ -87,6 +88,11 @@
 
 <script>
 export default {
+    /**
+     * Membuat state reaktif yang digunakan komponen untuk halaman settings.
+     *
+     * @returns {Object} State reaktif yang diinisialisasi untuk komponen.
+     */
     data() {
         return {
             isMobileMenuOpen: false,
@@ -105,84 +111,128 @@ export default {
                 },
                 {
                     title: 'Bisnis / Toko',
-                    items: [
-                        { name: 'settings_store', label: 'Profil Toko' },
-                    ],
+                    items: [{ name: 'settings_store', label: 'Profil Toko' }],
                 },
                 {
                     title: 'Keuangan',
                     items: [
                         { name: 'settings_balance', label: 'Saldo' },
-                        { name: 'settings_bank_accounts', label: 'Rekening Bank' },
+                        {
+                            name: 'settings_bank_accounts',
+                            label: 'Rekening Bank',
+                        },
                     ],
                 },
                 {
                     title: 'Aktivitas',
-                    items: [
-                        { name: 'settings_audit_log', label: 'Audit Log' },
-                    ],
+                    items: [{ name: 'settings_audit_log', label: 'Audit Log' }],
                 },
                 {
                     title: 'Preferensi',
                     items: [
-                        { name: 'settings_notifications', label: 'Notifikasi', soon: true },
+                        {
+                            name: 'settings_notifications',
+                            label: 'Notifikasi',
+                            soon: true,
+                        },
                     ],
                 },
                 {
                     title: 'Bantuan',
                     items: [
-                        { name: 'settings_support_report', label: 'Support Report', soon: true },
+                        {
+                            name: 'settings_support_report',
+                            label: 'Support Report',
+                            soon: true,
+                        },
                     ],
                 },
-            ]
-        }
+            ],
+        };
     },
 
     computed: {
+        /**
+         * Mengembalikan current settings title yang dihitung dari state reaktif saat ini untuk halaman settings.
+         *
+         * @returns {*} Nilai yang dihasilkan oleh operasi current settings title.
+         */
         currentSettingsTitle() {
             return this.$route.meta.settingsTitle || 'Pengaturan';
         },
 
+        /**
+         * Mengembalikan current settings description yang dihitung dari state reaktif saat ini untuk halaman settings.
+         *
+         * @returns {*} Nilai yang dihasilkan oleh operasi current settings description.
+         */
         currentSettingsDescription() {
-            return this.$route.meta.settingsDescription || 'Kelola informasi akun, toko, pembayaran, dan preferensi aplikasi.';
+            return (
+                this.$route.meta.settingsDescription ||
+                'Kelola informasi akun, toko, pembayaran, dan preferensi aplikasi.'
+            );
         },
 
+        /**
+         * Memproses current settings menu label untuk halaman settings.
+         *
+         * @returns {string} Teks current settings menu label yang telah diformat atau ditentukan.
+         */
         currentSettingsMenuLabel() {
-            for(const section of this.settingsMenus) {
-                const item = section.items.find(item => item.name == this.$route.name);
+            for (const section of this.settingsMenus) {
+                const item = section.items.find((item) => item.name == this.$route.name);
 
-                if(item)
-                    return item.label;
+                if (item) return item.label;
             }
 
             return 'Pilih Menu';
-        }
+        },
     },
 
     methods: {
+        /**
+         * Menentukan apakah kondisi menu active terpenuhi untuk halaman settings.
+         *
+         * @param {*} item Item yang diproses oleh operasi UI saat ini.
+         *
+         * @returns {boolean} Menunjukkan apakah kondisi is menu active terpenuhi.
+         */
         isMenuActive(item) {
             return this.$route.name == item.name;
         },
 
         /**
          * Navigasi mobile memakai dropdown custom supaya bisa toggle buka dan tutup.
+         *
+         * @returns {void} Memperbarui state komponen atau aplikasi tanpa mengembalikan nilai.
          */
         toggleMobileMenu() {
             this.isMobileMenuOpen = !this.isMobileMenuOpen;
         },
 
+        /**
+         * Menutup mobile menu untuk halaman settings.
+         *
+         * @returns {void} Function menerapkan efeknya melalui state komponen atau aplikasi.
+         */
         closeMobileMenu() {
             this.isMobileMenuOpen = false;
         },
 
+        /**
+         * Menerapkan terpilih settings menu perubahan untuk halaman settings, termasuk state navigasi yang dihasilkan.
+         *
+         * @param {*} routeName Nilai route name yang diproses oleh function.
+         *
+         * @returns {void} Function menerapkan efeknya melalui state komponen atau aplikasi.
+         */
         changeSettingsMenu(routeName) {
             this.closeMobileMenu();
 
-            if(routeName && routeName != this.$route.name)
-                this.$router.push({name: routeName});
-        }
-    }
-}
+            if (routeName && routeName != this.$route.name) this.$router.push({ name: routeName });
+        },
+    },
+};
 </script>
 
 <style scoped>
@@ -366,13 +416,17 @@ export default {
     gap: 6px;
 }
 
-:deep(.input-container label) {
+:deep(.input-container > label) {
     color: #334155;
     font-size: 14px;
     font-weight: 500;
 }
 
-:deep(input:not([type="checkbox"]):not([type="radio"]):not([type="file"]):not(.el-input__inner):not(.el-range-input):not(.el-select__input)),
+:deep(
+        input:not([type='checkbox']):not([type='radio']):not([type='file']):not(.el-input__inner):not(
+                .el-range-input
+            ):not(.el-select__input)
+    ),
 :deep(select),
 :deep(textarea) {
     width: 100%;
@@ -384,10 +438,17 @@ export default {
     font-size: 16px;
     outline: none;
     box-shadow: none;
-    transition: border-color 150ms ease-in-out, box-shadow 150ms ease-in-out, background-color 150ms ease-in-out;
+    transition:
+        border-color 150ms ease-in-out,
+        box-shadow 150ms ease-in-out,
+        background-color 150ms ease-in-out;
 }
 
-:deep(input:not([type="checkbox"]):not([type="radio"]):not([type="file"]):not(.el-input__inner):not(.el-range-input):not(.el-select__input)) {
+:deep(
+        input:not([type='checkbox']):not([type='radio']):not([type='file']):not(.el-input__inner):not(
+                .el-range-input
+            ):not(.el-select__input)
+    ) {
     height: 44px;
     padding: 0 12px;
 }
@@ -407,14 +468,22 @@ export default {
     color: #94a3b8;
 }
 
-:deep(input:not([type="checkbox"]):not([type="radio"]):not([type="file"]):not(.el-input__inner):not(.el-range-input):not(.el-select__input):focus),
+:deep(
+        input:not([type='checkbox']):not([type='radio']):not([type='file']):not(.el-input__inner):not(
+                .el-range-input
+            ):not(.el-select__input):focus
+    ),
 :deep(select:focus),
 :deep(textarea:focus) {
     border-color: #8b5cf6 !important;
     box-shadow: 0 0 0 2px #f3e8ff !important;
 }
 
-:deep(input:not([type="checkbox"]):not([type="radio"]):not([type="file"]):not(.el-input__inner):not(.el-range-input):not(.el-select__input):disabled),
+:deep(
+        input:not([type='checkbox']):not([type='radio']):not([type='file']):not(.el-input__inner):not(
+                .el-range-input
+            ):not(.el-select__input):disabled
+    ),
 :deep(select:disabled),
 :deep(textarea:disabled),
 :deep(.input-disabled) {
@@ -455,7 +524,10 @@ export default {
     border: 1px solid #cbd5e1;
     background-color: #ffffff;
     box-shadow: none !important;
-    transition: border-color 150ms ease-in-out, box-shadow 150ms ease-in-out, background-color 150ms ease-in-out;
+    transition:
+        border-color 150ms ease-in-out,
+        box-shadow 150ms ease-in-out,
+        background-color 150ms ease-in-out;
 }
 
 :deep(.el-input__wrapper:hover),
@@ -507,7 +579,11 @@ export default {
 }
 
 :deep(.border-red-500:focus),
-:deep(input.is-error-field:not([type="checkbox"]):not([type="radio"]):not([type="file"]):not(.el-input__inner):not(.el-range-input):not(.el-select__input):focus),
+:deep(
+        input.is-error-field:not([type='checkbox']):not([type='radio']):not([type='file']):not(.el-input__inner):not(
+                .el-range-input
+            ):not(.el-select__input):focus
+    ),
 :deep(.setting-card input.is-error-field),
 :deep(.setting-card input.is-error-field:focus),
 :deep(.setting-card input.is-error-field.border-red-500:focus),
@@ -523,7 +599,9 @@ export default {
 :deep(.is-error .el-input__wrapper.is-focus),
 :deep(.is-error .el-input__wrapper:focus-within) {
     border-color: #ef4444 !important;
-    box-shadow: 0 0 0 2px #fee2e2, 0 1px 2px rgba(15, 23, 42, 0.05) !important;
+    box-shadow:
+        0 0 0 2px #fee2e2,
+        0 1px 2px rgba(15, 23, 42, 0.05) !important;
 }
 
 @media (max-width: 1024px) {
@@ -555,7 +633,9 @@ export default {
         padding: 0 12px;
         text-align: left;
         box-shadow: 0 8px 18px rgba(15, 23, 42, 0.04);
-        transition: border-color 150ms ease-in-out, box-shadow 150ms ease-in-out;
+        transition:
+            border-color 150ms ease-in-out,
+            box-shadow 150ms ease-in-out;
     }
 
     .settings-mobile-button.is-open,
@@ -574,7 +654,9 @@ export default {
     .settings-mobile-chevron {
         flex: 0 0 auto;
         color: #94a3b8;
-        transition: transform 150ms ease-in-out, color 150ms ease-in-out;
+        transition:
+            transform 150ms ease-in-out,
+            color 150ms ease-in-out;
     }
 
     .settings-mobile-chevron.is-open {

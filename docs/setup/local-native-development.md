@@ -47,7 +47,14 @@ Frontend `.env`:
 ```env
 VITE_APP_BACKEND_BASE_URL="https://api.ecommerce.dev"
 VITE_SYMLINK_FOLDER="storage"
+
+# Public browser key restricted to https://app.ecommerce.dev
+VITE_GEOAPIFY_API_KEY="<development-key>"
 ```
+
+Geoapify is required for new buyer and seller address writes. When its browser
+key is empty or unavailable, the form preserves existing inputs but cannot save
+a location. Never commit a real key; keep it only in the ignored local `.env`.
 
 Frontend Vite config:
 
@@ -64,7 +71,16 @@ Backend `.env`:
 ```env
 APP_URL=https://api.ecommerce.dev
 FRONTEND_URL=https://app.ecommerce.dev
+
+# Server-only key used to verify coordinates before saving
+GEOAPIFY_API_KEY="<development-server-key>"
+GEOAPIFY_API_URL=https://api.geoapify.com/v1/geocode
+GEOAPIFY_TIMEOUT=8
 ```
+
+Use a separate backend key when applying IP restrictions. The browser key is
+public and restricted by frontend origin; the server key must never be exposed
+through Vite or committed to Git.
 
 ## macOS Setup
 
@@ -155,6 +171,7 @@ server {
     index index.php index.html;
 
     charset utf-8;
+    client_max_body_size 20m;
 
     location / {
         try_files $uri $uri/ /index.php?$query_string;
@@ -173,6 +190,12 @@ server {
 }
 ```
 
+The API body limit must stay above the application's aggregate upload limit.
+Product images are validated individually at 1 MB, but a valid five-image
+multipart request is larger than 1 MB in total. Without this directive, Nginx
+uses its 1 MB default and returns `413 Request Entity Too Large` before Laravel
+can validate the files.
+
 Validate and reload nginx:
 
 ```bash
@@ -184,8 +207,12 @@ Run the frontend:
 
 ```bash
 cd "/Users/muhammadjidan/Documents/CODE LARAVEL10 AND VUEJS 3 VSC/Ecommerce/frontend"
+npm run format:check
 npm run dev
 ```
+
+Use `npm run format` to apply the repository's four-space Vue and JavaScript
+format before running `format:check` again.
 
 Open:
 

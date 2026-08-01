@@ -10,12 +10,12 @@ export default {
     props: {
         label: {
             type: String,
-            required: true
+            required: true,
         },
         value: {
             type: [String, Number],
-            default: '-'
-        }
-    }
-}
+            default: '-',
+        },
+    },
+};
 </script>

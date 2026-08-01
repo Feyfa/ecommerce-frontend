@@ -10,6 +10,18 @@ Deployment, branching, staging, production, Docker Compose, and server runbooks 
 ../deploy/docs/
 ```
 
+## Repository Path Aliases
+
+Cross-repository documentation uses logical aliases so references do not depend
+on each developer's local workspace layout:
+
+- `frontend-repo:/` means the root of the frontend repository.
+- `backend-repo:/` means the root of the backend repository.
+- `deploy-repo:/` means the root of the deploy repository.
+
+Use normal relative Markdown links for files inside this repository. Use an
+alias path as inline code for a file owned by another repository.
+
 ## Current Documents
 
 - [Local Native Development](setup/local-native-development.md)
@@ -38,6 +50,15 @@ Deployment, branching, staging, production, Docker Compose, and server runbooks 
 
 - [Settings](application/settings/README.md)
   Documents the shared buyer and seller settings UI, route structure, profile forms, address management, balance, bank accounts, security settings, remaining coming soon settings routes, and shared styling rules.
+
+- [TOK-6 Product Images QA](qa/tok-6-product-images.md)
+  Tracks the frontend manual QA status for product image selection, ordering, validation, and display.
+
+- [TOK-8 Pinpoint Address QA](qa/tok-8-pinpoint-address.md)
+  Tracks the frontend manual QA status for buyer addresses, store locations, cart-to-checkout guards, and checkout address behavior.
+
+- [TOK-16 Product Audit Log QA](qa/tok-16-product-audit-log.md)
+  Tracks the frontend manual QA status for product audit cards, details, filters, pagination, privacy presentation, and responsive behavior.
 
 - [Commit Guidelines](development/commit-guidelines.md)
   Explains how to keep commits focused on one purpose and separate unrelated changes.
@@ -84,6 +105,11 @@ docs/
       audit-log.md
     transaction.md
 
+  qa/
+    tok-6-product-images.md
+    tok-8-pinpoint-address.md
+    tok-16-product-audit-log.md
+
   development/
     commit-guidelines.md
 
@@ -91,4 +117,7 @@ docs/
     local-native-development.md
 ```
 
-Keep documentation directly related to Vue implementation inside `application/`. Keep setup and development-process documentation in their dedicated top-level folders.
+Keep documentation directly related to Vue implementation inside `application/`.
+Keep task-specific manual verification, status, and evidence inside `qa/`. Keep
+setup and development-process documentation in their dedicated top-level
+folders.

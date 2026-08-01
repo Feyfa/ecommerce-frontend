@@ -3,9 +3,12 @@
     <div
         v-if="show.payment_view"
         class="w-full flex flex-col justify-center mb-8"
-        :class="embedded ? 'px-0' : 'px-4 lg:px-6'">
+        :class="embedded ? 'px-0' : 'px-4 lg:px-6'"
+    >
         <!-- title -->
-        <h1 v-if="!embedded" class="text-center text-3xl font-medium flex justify-center items-center">Rekening Bank</h1>
+        <h1 v-if="!embedded" class="text-center text-3xl font-medium flex justify-center items-center">
+            Rekening Bank
+        </h1>
         <!-- title -->
 
         <!-- form add rekening -->
@@ -13,58 +16,53 @@
             <div class="account-form-modal flex flex-col gap-3 p-5">
                 <h1 class="account-modal-title text-center">Tambah Rekening</h1>
                 <div class="input-container flex flex-col w-full">
-                    <label
-                        for="paymentName">
-                        Nama Bank
-                    </label>
+                    <label for="paymentName"> Nama Bank </label>
                     <el-select
                         v-model="paymentName"
                         filterable
                         placeholder="Nama Bank"
                         size="large"
-                        @change="paymentNameChange">
-                        <el-option
-                            v-for="item in paymentList"
-                            :key="item.id"
-                            :label="item.name"
-                            :value="item.name"/>
+                        @change="paymentNameChange"
+                    >
+                        <el-option v-for="item in paymentList" :key="item.id" :label="item.name" :value="item.name" />
                     </el-select>
                 </div>
-                <div
-                    class="input-container flex flex-col w-full"
-                    v-show="paymentName && paymentName.trim() != ''">
-                    <label
-                        for="paymentAccount">
-                        Nomor Rekening
-                    </label>
+                <div class="input-container flex flex-col w-full" v-show="paymentName && paymentName.trim() != ''">
+                    <label for="paymentAccount"> Nomor Rekening </label>
                     <el-input
                         v-model="paymentAccount"
                         placeholder="Nomor Rekening"
                         class="custom-input"
                         size="large"
-                        clearable>
+                        clearable
+                    >
                         <template #append>
                             <div
                                 class="check-account-button"
-                                :class="{'opacity-50 cursor-default': isProcessValidateAccount, 'hover:bg-violet-50': !isProcessValidateAccount}">
+                                :class="{
+                                    'opacity-50 cursor-default': isProcessValidateAccount,
+                                    'hover:bg-violet-50': !isProcessValidateAccount,
+                                }"
+                            >
                                 <button
                                     class="h-full"
                                     :disabled="isProcessValidateAccount"
-                                    @click="validatePaymentAccount">Check Nama Pemilik
+                                    @click="validatePaymentAccount"
+                                >
+                                    Check Nama Pemilik
                                 </button>
                                 <i v-if="isProcessValidateAccount" class="fa-solid fa-spinner fa-spin-pulse ml-2"></i>
                             </div>
                         </template>
                     </el-input>
-                    <small
-                        v-if="errors.paymentAccount"
-                        class="text-red-500">
+                    <small v-if="errors.paymentAccount" class="text-red-500">
                         {{ errors.paymentAccount }}
                     </small>
                 </div>
                 <div
                     class="input-container flex flex-col w-full border border-slate-200 bg-slate-50 rounded-lg p-3 gap-1 mt-3"
-                    v-show="isPaymentAccountValid">
+                    v-show="isPaymentAccountValid"
+                >
                     <p class="text-[0.85rem] -tracking-[0.2px]">Nama Pemilik Rekening</p>
                     <p class="uppercase tracking-[0.2px] font-medium">{{ paymentUsername }}</p>
                 </div>
@@ -75,7 +73,8 @@
                         class="account-modal-action is-cancel w-full mt-1.5"
                         @click="closeFormAddPayment"
                         :disabled="isProcessAddPayment"
-                        :class="{'opacity-50': isProcessAddPayment}">
+                        :class="{ 'opacity-50': isProcessAddPayment }"
+                    >
                         Cancel
                     </button>
                     <button
@@ -83,7 +82,8 @@
                         class="account-modal-action is-primary w-full mt-1.5"
                         @click="addPayment"
                         :disabled="isProcessAddPayment || !paymentName || !isPaymentAccountValid"
-                        :class="{'opacity-50': isProcessAddPayment || !paymentName || !isPaymentAccountValid}">
+                        :class="{ 'opacity-50': isProcessAddPayment || !paymentName || !isPaymentAccountValid }"
+                    >
                         Tambah Rekening
                         <i v-if="isProcessAddPayment" class="fa-solid fa-spinner fa-spin-pulse ml-1"></i>
                     </button>
@@ -93,7 +93,10 @@
         <!-- form add rekening -->
 
         <!-- search and button add rekening -->
-        <div class="flex flex-col md:flex-row md:justify-between md:items-center gap-3" :class="embedded ? 'mt-0' : 'mt-5'">
+        <div
+            class="flex flex-col md:flex-row md:justify-between md:items-center gap-3"
+            :class="embedded ? 'mt-0' : 'mt-5'"
+        >
             <div class="account-search-control w-full md:w-[40%] lg:w-[35%]">
                 <input
                     placeholder="Cari Rekening Bank"
@@ -101,7 +104,8 @@
                     type="text"
                     class="account-search-input border w-full outline-none h-12 px-3"
                     v-model="searchPayment"
-                    @keyup.enter="enterSearchPayment">
+                    @keyup.enter="enterSearchPayment"
+                />
             </div>
             <div class="account-add-control md:w-[25%] lg:w-[26%]">
                 <button
@@ -109,7 +113,8 @@
                     class="account-add-button w-full h-12"
                     @click="openFormAddPayment"
                     :disabled="isProcessGetPaymentList"
-                    :class="{'opacity-50': isProcessGetPaymentList}">
+                    :class="{ 'opacity-50': isProcessGetPaymentList }"
+                >
                     Tambah Rekening
                     <i v-if="isProcessGetPaymentList" class="fa-solid fa-spinner fa-spin-pulse ml-1"></i>
                 </button>
@@ -125,18 +130,14 @@
                 </span>
             </div>
             <div v-else>
-                <div
-                    v-if="this.payments.length > 0"
-                    class="flex flex-col gap-5">
+                <div v-if="this.payments.length > 0" class="flex flex-col gap-5">
                     <!-- kontent -->
                     <div
                         v-for="(payment, index) in payments"
-                        class="payment-card w-full p-4 flex flex-col gap-4 sm:flex-row sm:justify-between sm:items-center">
+                        class="payment-card w-full p-4 flex flex-col gap-4 sm:flex-row sm:justify-between sm:items-center"
+                    >
                         <div class="flex items-center gap-4 min-w-0">
-                            <img
-                                :src="getImagePayment(payment.slug)"
-                                alt=""
-                                class="payment-bank-logo cursor-default">
+                            <img :src="getImagePayment(payment.slug)" alt="" class="payment-bank-logo cursor-default" />
                             <div class="flex flex-col gap-1 min-w-0">
                                 <h3 class="payment-bank-name">{{ payment.name }}</h3>
                                 <h3 class="payment-account-number">{{ payment.account }}</h3>
@@ -148,19 +149,21 @@
                                 type="button"
                                 class="payment-delete-button"
                                 :disabled="isProcessDeletePayment[index]"
-                                :class="{'opacity-50': isProcessDeletePayment[index]}"
-                                @click="deletePayment(payment.id, index)">
+                                :class="{ 'opacity-50': isProcessDeletePayment[index] }"
+                                @click="deletePayment(payment.id, index)"
+                            >
                                 <i class="fa-solid fa-trash-can text-xs"></i>
                                 Hapus
-                                <i v-if="isProcessDeletePayment[index]" class="fa-solid fa-spinner fa-spin-pulse ml-1"></i>
+                                <i
+                                    v-if="isProcessDeletePayment[index]"
+                                    class="fa-solid fa-spinner fa-spin-pulse ml-1"
+                                ></i>
                             </button>
                         </div>
                     </div>
                     <!-- kontent -->
                 </div>
-                <div
-                    v-else
-                    class="text-center mt-10">
+                <div v-else class="text-center mt-10">
                     <h5 class="text-[.9rem]">Rekening Kosong</h5>
                 </div>
             </div>
@@ -190,10 +193,15 @@ export default {
     props: {
         embedded: {
             type: Boolean,
-            default: false
-        }
+            default: false,
+        },
     },
 
+    /**
+     * Membuat state reaktif yang digunakan komponen untuk halaman payment.
+     *
+     * @returns {Object} State reaktif yang diinisialisasi untuk komponen.
+     */
     data() {
         return {
             APP_BACKEND_BASE_URL: import.meta.env.VITE_APP_BACKEND_BASE_URL,
@@ -201,12 +209,12 @@ export default {
             PAYMENT_IMG: 'payment-imgs',
 
             modal: {
-                addPayment: false
+                addPayment: false,
             },
 
             errors: {
                 paymentName: '',
-                paymentAccount: ''
+                paymentAccount: '',
             },
 
             isProcessAddPayment: false,
@@ -256,169 +264,222 @@ export default {
 
             show: {
                 payment_view: false,
-            }
-
-        }
+            },
+        };
     },
 
+    /**
+     * Menginisialisasi behavior komponen yang bergantung pada browser setelah mounted untuk halaman payment.
+     *
+     * @returns {void} Function menerapkan efeknya melalui state komponen atau aplikasi.
+     */
     mounted() {
         this.getPayment();
     },
 
     methods: {
+        /**
+         * Menghapus payment untuk payment page, dengan mendelegasikan pekerjaan backend atau shared state melalui Vuex store.
+         *
+         * @param {*} id Identifier record target.
+         * @param {*} index Posisi item target dengan indeks yang dimulai dari nol.
+         *
+         * @returns {void} Function menerapkan efeknya melalui state komponen atau aplikasi.
+         */
         deletePayment(id, index) {
-            ElMessageBox
-            .confirm(
-                'Anda Yakin Ingin Hapus Rekening Ini?',
-                'Warning',
-                {
-                    confirmButtonText: 'OK',
-                    cancelButtonText: 'Cancel',
-                    type: 'warning',
-                }
-            )
-            .then(() => {
-                this.isProcessDeletePayment[index] = true;
+            ElMessageBox.confirm('Anda Yakin Ingin Hapus Rekening Ini?', 'Warning', {
+                confirmButtonText: 'OK',
+                cancelButtonText: 'Cancel',
+                type: 'warning',
+            })
+                .then(() => {
+                    this.isProcessDeletePayment[index] = true;
 
-                this
-                .$store
-                .dispatch('deletePayment', {
-                    id: id,
-                    searchPayment: this.searchPayment
+                    this.$store
+                        .dispatch('deletePayment', {
+                            id: id,
+                            searchPayment: this.searchPayment,
+                        })
+                        .then((response) => {
+                            // console.log(response);
+                            this.isProcessDeletePayment[index] = false;
+                            this.payments = response.payments;
+                            ElNotification({ type: 'success', title: 'Success', message: response.message });
+                        })
+                        .catch((error) => {
+                            // console.error(error);
+                            this.isProcessDeletePayment[index] = false;
+                            ElNotification({ type: 'error', title: 'Error', message: error.response.data.message });
+                        });
                 })
-                .then(response => {
+                .catch(() => {});
+        },
+
+        /**
+         * Membuat payment untuk halaman payment, dengan mendelegasikan pekerjaan backend atau shared state melalui Vuex store.
+         *
+         * @returns {void} Function menerapkan efeknya melalui state komponen atau aplikasi.
+         */
+        addPayment() {
+            this.isProcessAddPayment = true;
+            this.$store
+                .dispatch('addPayment', {
+                    paymentName: this.paymentName,
+                    paymentSlug: this.paymentSlug,
+                    paymentAccount: this.paymentAccount,
+                    paymentUsername: this.paymentUsername,
+                    searchPayment: this.searchPayment,
+                })
+                .then((response) => {
                     // console.log(response);
-                    this.isProcessDeletePayment[index] = false;
+                    this.isProcessAddPayment = false;
+                    this.modal.addPayment = false;
                     this.payments = response.payments;
                     ElNotification({ type: 'success', title: 'Success', message: response.message });
                 })
-                .catch(error => {
+                .catch((error) => {
                     // console.error(error);
-                    this.isProcessDeletePayment[index] = false;
-                    ElNotification({ type: 'error', title: 'Error', message: error.response.data.message });
+                    this.isProcessAddPayment = false;
+                    if (error.response.status == 422) {
+                        const message = error.response.data.message;
+                        Object.keys(message).forEach((key) => {
+                            setTimeout(() => {
+                                ElNotification({ type: 'error', title: 'Error', message: message[key][0] });
+                            }, 100);
+                        });
+                    } else {
+                        ElNotification({ type: 'error', title: 'Error', message: error.response.data.message });
+                    }
                 });
-            })
-            .catch(() => {});
-
         },
 
-        addPayment() {
-            this.isProcessAddPayment = true;
-            this
-            .$store
-            .dispatch('addPayment', {
-                paymentName: this.paymentName,
-                paymentSlug: this.paymentSlug,
-                paymentAccount: this.paymentAccount,
-                paymentUsername: this.paymentUsername,
-                searchPayment: this.searchPayment
-            })
-            .then(response => {
-                // console.log(response);
-                this.isProcessAddPayment = false;
-                this.modal.addPayment = false;
-                this.payments = response.payments;
-                ElNotification({ type: 'success', title: 'Success', message: response.message });
-            })
-            .catch(error => {
-                // console.error(error);
-                this.isProcessAddPayment = false;
-                if(error.response.status == 422) {
-                    const message = error.response.data.message;
-                    Object.keys(message).forEach(key => {
-                        setTimeout(() => {
-                            ElNotification({ type: 'error', title: 'Error', message: message[key][0] });
-                        }, 100);
-                    })
-                } else {
-                    ElNotification({ type: 'error', title: 'Error', message: error.response.data.message });
-                }
-            })
-        },
-
+        /**
+         * Memvalidasi payment account untuk halaman payment, dengan mendelegasikan pekerjaan backend atau shared state melalui Vuex store.
+         *
+         * @returns {void} Function menerapkan efeknya melalui state komponen atau aplikasi.
+         */
         validatePaymentAccount() {
             this.isProcessValidateAccount = true;
-            this
-            .$store
-            .dispatch('validatePaymentAccount', {
-                paymentAccount: this.paymentAccount,
-                paymentSlug: this.paymentSlug,
-            })
-            .then(response => {
-                // console.log(response);
+            this.$store
+                .dispatch('validatePaymentAccount', {
+                    paymentAccount: this.paymentAccount,
+                    paymentSlug: this.paymentSlug,
+                })
+                .then((response) => {
+                    // console.log(response);
 
-                this.isProcessValidateAccount = false;
-                this.isPaymentAccountValid = true;
-                this.paymentUsername = response.username;
-            })
-            .catch(error => {
-                console.error(error);
-                const message = typeof(error.response.data.message) != 'undefined' ? error.response.data.message : 'Sepertinya Ada Yang Salah';
-                ElNotification({ type: 'error', title: 'Error', message: message });
-                this.isProcessValidateAccount = false;
-            })
+                    this.isProcessValidateAccount = false;
+                    this.isPaymentAccountValid = true;
+                    this.paymentUsername = response.username;
+                })
+                .catch((error) => {
+                    console.error(error);
+                    const message =
+                        typeof error.response.data.message != 'undefined'
+                            ? error.response.data.message
+                            : 'Sepertinya Ada Yang Salah';
+                    ElNotification({ type: 'error', title: 'Error', message: message });
+                    this.isProcessValidateAccount = false;
+                });
         },
 
+        /**
+         * Menjalankan proses payment name perubahan dan menyinkronkan state hasilnya untuk halaman payment.
+         *
+         * @param {*} event Event browser atau komponen yang memicu handler.
+         *
+         * @returns {void} Function menerapkan efeknya melalui state komponen atau aplikasi.
+         */
         paymentNameChange(event) {
-            const paymentFind = this.paymentList.find(item => item.name == event);
+            const paymentFind = this.paymentList.find((item) => item.name == event);
             this.paymentSlug = paymentFind ? paymentFind.slug : '';
         },
 
+        /**
+         * Mengambil gambar payment untuk halaman payment.
+         *
+         * @param {*} slug Slug yang diproses oleh function.
+         *
+         * @returns {string} Teks get gambar payment yang telah diformat atau ditentukan.
+         */
         getImagePayment(slug) {
             return `/img/${slug}.png`;
         },
 
+        /**
+         * Membuka form add payment untuk halaman payment, dengan mendelegasikan pekerjaan backend atau shared state melalui Vuex store.
+         *
+         * @returns {void} Function menerapkan efeknya melalui state komponen atau aplikasi.
+         */
         openFormAddPayment() {
             this.resetFormAddPayment();
             this.isProcessGetPaymentList = true;
 
-            this
-            .$store
-            .dispatch('getPaymentList')
-            .then(response => {
-                // console.log(response);
+            this.$store
+                .dispatch('getPaymentList')
+                .then((response) => {
+                    // console.log(response);
 
-                this.paymentList = response.paymentList;
-                this.isProcessGetPaymentList = false;
-                this.modal.addPayment = true;
-            })
-            .catch(error => {
-                this.isProcessGetPaymentList = false;
-                console.error(error);
-            })
+                    this.paymentList = response.paymentList;
+                    this.isProcessGetPaymentList = false;
+                    this.modal.addPayment = true;
+                })
+                .catch((error) => {
+                    this.isProcessGetPaymentList = false;
+                    console.error(error);
+                });
         },
 
+        /**
+         * Menutup form add payment untuk halaman payment.
+         *
+         * @returns {void} Function menerapkan efeknya melalui state komponen atau aplikasi.
+         */
         closeFormAddPayment() {
             this.modal.addPayment = false;
         },
 
+        /**
+         * Mengambil payment untuk halaman payment, dengan mendelegasikan pekerjaan backend atau shared state melalui Vuex store.
+         *
+         * @returns {void} Function menerapkan efeknya melalui state komponen atau aplikasi.
+         */
         getPayment() {
             this.isProcessGetPayment = true;
 
-            this
-            .$store
-            .dispatch('getPayment', {
-                searchPayment: this.searchPayment
-            })
-            .then(response => {
-                // console.log(response);
+            this.$store
+                .dispatch('getPayment', {
+                    searchPayment: this.searchPayment,
+                })
+                .then((response) => {
+                    // console.log(response);
 
-                this.show.payment_view = true;
-                this.isProcessGetPayment = false;
-                this.payments = response.payments;
-            })
-            .catch(error => {
-                console.error(error);
+                    this.show.payment_view = true;
+                    this.isProcessGetPayment = false;
+                    this.payments = response.payments;
+                })
+                .catch((error) => {
+                    console.error(error);
 
-                this.show.payment_view = true;
-                this.isProcessGetPayment = false;
-            })
+                    this.show.payment_view = true;
+                    this.isProcessGetPayment = false;
+                });
         },
 
+        /**
+         * Menjalankan proses enter pencarian payment dan menyinkronkan state hasilnya untuk halaman payment.
+         *
+         * @returns {void} Function menerapkan efeknya melalui state komponen atau aplikasi.
+         */
         enterSearchPayment() {
             this.getPayment();
         },
 
+        /**
+         * Mengembalikan form add payment ke state awal untuk halaman payment.
+         *
+         * @returns {void} Function menerapkan efeknya melalui state komponen atau aplikasi.
+         */
         resetFormAddPayment() {
             this.paymentName = '';
             this.paymentSlug = '';
@@ -427,21 +488,35 @@ export default {
             this.isPaymentAccountValid = false;
             this.errors.paymentName = '';
             this.errors.paymentAccount = '';
-        }
+        },
     },
 
     watch: {
-        'modal.addPayment': function(newValue) {
-            if(!newValue) {
+        /**
+         * Menjalankan proses modal.add payment dan menyinkronkan state hasilnya untuk halaman payment.
+         *
+         * @param {*} newValue Nilai terbaru yang diberikan oleh watcher reaktif.
+         *
+         * @returns {void} Function menerapkan efeknya melalui state komponen atau aplikasi.
+         */
+        'modal.addPayment': function (newValue) {
+            if (!newValue) {
                 this.resetFormAddPayment();
             }
         },
 
+        /**
+         * Menjalankan proses payments dan menyinkronkan state hasilnya untuk halaman payment.
+         *
+         * @param {*} newValue Nilai terbaru yang diberikan oleh watcher reaktif.
+         *
+         * @returns {void} Function menerapkan efeknya melalui state komponen atau aplikasi.
+         */
         payments(newValue) {
             this.isProcessDeletePayment = Array(newValue.length).fill(false);
         },
-    }
-}
+    },
+};
 </script>
 
 <style>
@@ -464,7 +539,9 @@ export default {
 
 .account-search-input:focus {
     border-color: #8b5cf6 !important;
-    box-shadow: 0 0 0 2px #ede9fe, 0 1px 2px rgba(15, 23, 42, 0.05);
+    box-shadow:
+        0 0 0 2px #ede9fe,
+        0 1px 2px rgba(15, 23, 42, 0.05);
 }
 
 .payment-card {

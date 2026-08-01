@@ -1,6 +1,10 @@
 <template>
     <div id="add-product-container" class="fixed inset-0 z-[3] bg-slate-950/50" v-show="show" @click="closeAddProduct">
-        <div class="product-drawer-panel fixed bottom-0 right-0 top-14 flex w-full flex-col bg-white shadow-2xl sm:w-[55%] md:w-[45%] lg:w-[40%] xl:w-[35%] 2xl:w-[30%]" v-show="show" @click.stop>
+        <div
+            class="product-drawer-panel fixed bottom-0 right-0 top-14 flex w-full flex-col bg-white shadow-2xl sm:w-[55%] md:w-[45%] lg:w-[40%] xl:w-[35%] 2xl:w-[30%]"
+            v-show="show"
+            @click.stop
+        >
             <div class="border-b border-slate-200 px-5 py-4">
                 <div class="flex items-start justify-between gap-4">
                     <div>
@@ -12,7 +16,8 @@
                         type="button"
                         class="flex h-9 w-9 shrink-0 items-center justify-center rounded-md border border-slate-200 text-slate-500 hover:bg-slate-100 hover:text-slate-900"
                         aria-label="Tutup tambah produk"
-                        @click="closeAddProduct">
+                        @click="closeAddProduct"
+                    >
                         <i class="fa-solid fa-xmark"></i>
                     </button>
                 </div>
@@ -24,13 +29,12 @@
                         ref="productImagesInput"
                         v-model="productImages"
                         :error="errors.images"
-                        @clear-error="errors.images = ''" />
+                        @clear-error="errors.images = ''"
+                    />
 
                     <div class="space-y-4">
                         <div class="input-container flex flex-col gap-y-1.5">
-                            <label
-                                for="add-product-name"
-                                class="text-sm font-medium text-slate-700">
+                            <label for="add-product-name" class="text-sm font-medium text-slate-700">
                                 Nama Produk
                             </label>
                             <input
@@ -38,27 +42,32 @@
                                 id="add-product-name"
                                 type="text"
                                 class="h-11 w-full rounded-md border border-slate-300 px-3 text-base text-slate-900 outline-none shadow-sm placeholder:text-slate-400 focus:border-violet-500 focus:ring-2 focus:ring-violet-100"
-                                :class="{'border-red-500 focus:border-red-500 focus:ring-red-100': errors.name}"
+                                :class="{
+                                    'border-red-500 focus:border-red-500 focus:ring-red-100': errors.name,
+                                }"
                                 v-model="name"
-                                @input="watchInputName">
-                            <small
-                                v-if="errors.name"
-                                class="text-sm text-red-500">
+                                @input="watchInputName"
+                            />
+                            <small v-if="errors.name" class="text-sm text-red-500">
                                 {{ errors.name }}
                             </small>
                         </div>
 
                         <div class="grid grid-cols-1 gap-4 sm500:grid-cols-2 sm:grid-cols-1">
                             <div class="input-container flex flex-col gap-y-1.5">
-                                <label
-                                    for="add-product-price"
-                                    class="text-sm font-medium text-slate-700">
+                                <label for="add-product-price" class="text-sm font-medium text-slate-700">
                                     Harga
                                 </label>
                                 <div
                                     class="flex h-11 w-full overflow-hidden rounded-md border border-slate-300 bg-white text-base text-slate-900 shadow-sm focus-within:border-violet-500 focus-within:ring-2 focus-within:ring-violet-100"
-                                    :class="{'border-red-500 focus-within:border-red-500 focus-within:ring-red-100': errors.price}">
-                                    <div class="flex w-12 shrink-0 items-center justify-center border-r border-slate-300 bg-slate-50 text-sm font-semibold text-slate-500">
+                                    :class="{
+                                        'border-red-500 focus-within:border-red-500 focus-within:ring-red-100':
+                                            errors.price,
+                                    }"
+                                >
+                                    <div
+                                        class="flex w-12 shrink-0 items-center justify-center border-r border-slate-300 bg-slate-50 text-sm font-semibold text-slate-500"
+                                    >
                                         Rp
                                     </div>
                                     <input
@@ -69,33 +78,29 @@
                                         class="h-full min-w-0 flex-1 px-3 text-base text-slate-900 outline-none placeholder:text-slate-400"
                                         v-model="priceString"
                                         @keydown="restrictPriceInput"
-                                        @input="watchInputPrice">
+                                        @input="watchInputPrice"
+                                    />
                                 </div>
-                                <small
-                                    v-if="errors.price"
-                                    class="text-sm text-red-500">
+                                <small v-if="errors.price" class="text-sm text-red-500">
                                     {{ errors.price }}
                                 </small>
                             </div>
 
                             <div class="input-container flex flex-col gap-y-1.5">
-                                <label
-                                    for="add-product-stock"
-                                    class="text-sm font-medium text-slate-700">
-                                    Stok
-                                </label>
+                                <label for="add-product-stock" class="text-sm font-medium text-slate-700"> Stok </label>
                                 <input
                                     placeholder="8"
                                     id="add-product-stock"
                                     type="number"
                                     min="1"
                                     class="h-11 w-full rounded-md border border-slate-300 px-3 text-base text-slate-900 outline-none shadow-sm placeholder:text-slate-400 focus:border-violet-500 focus:ring-2 focus:ring-violet-100"
-                                    :class="{'border-red-500 focus:border-red-500 focus:ring-red-100': errors.stock}"
+                                    :class="{
+                                        'border-red-500 focus:border-red-500 focus:ring-red-100': errors.stock,
+                                    }"
                                     v-model="stock"
-                                    @input="watchInputStock">
-                                <small
-                                    v-if="errors.stock"
-                                    class="text-sm text-red-500">
+                                    @input="watchInputStock"
+                                />
+                                <small v-if="errors.stock" class="text-sm text-red-500">
                                     {{ errors.stock }}
                                 </small>
                             </div>
@@ -110,7 +115,8 @@
                         type="button"
                         class="h-11 rounded-md border border-slate-300 bg-white px-3 text-sm font-medium text-slate-700 hover:bg-slate-100"
                         :disabled="isProcessAddProduct"
-                        @click="closeAddProduct">
+                        @click="closeAddProduct"
+                    >
                         Batal
                     </button>
                     <button
@@ -118,7 +124,8 @@
                         class="h-11 rounded-md border border-violet-500 bg-violet-500 px-3 text-sm font-semibold text-white shadow-sm"
                         :class="isProcessAddProduct ? 'cursor-not-allowed opacity-70' : 'hover:bg-violet-600'"
                         :disabled="isProcessAddProduct"
-                        @click="addProduct">
+                        @click="addProduct"
+                    >
                         Tambah Produk
                         <i v-if="isProcessAddProduct" class="ml-1 fas fa-spinner fa-pulse"></i>
                     </button>
@@ -129,8 +136,9 @@
 </template>
 
 <script>
-import { ElNotification } from "element-plus";
+import { ElNotification } from 'element-plus';
 import ProductImagesInput from './ProductImagesInput.vue';
+import { getProductUploadErrorMessage } from '@/services/productUploadError';
 
 export default {
     components: {
@@ -139,10 +147,15 @@ export default {
     props: {
         show: {
             type: Boolean,
-            required: true
-        }
+            required: true,
+        },
     },
 
+    /**
+     * Membuat state reaktif yang digunakan komponen untuk add.
+     *
+     * @returns {Object} State reaktif yang diinisialisasi untuk komponen.
+     */
     data() {
         return {
             productImages: [],
@@ -160,18 +173,27 @@ export default {
                 price: '',
                 stock: '',
             },
-
-        }
+        };
     },
 
     methods: {
+        /**
+         * Menutup add produk untuk add.
+         *
+         * @returns {void} Function menerapkan efeknya melalui state komponen atau aplikasi.
+         */
         closeAddProduct() {
-            if(this.$global.modals.addProduct) {
+            if (this.$global.modals.addProduct) {
                 this.$global.modals.addProduct = false;
                 this.resetForm();
             }
         },
 
+        /**
+         * Mengembalikan form ke state awal untuk add.
+         *
+         * @returns {void} Function menerapkan efeknya melalui state komponen atau aplikasi.
+         */
         resetForm() {
             this.$refs.productImagesInput?.clear();
             this.name = '';
@@ -184,18 +206,28 @@ export default {
             this.errors.stock = '';
         },
 
+        /**
+         * Memvalidasi and synchronize input name untuk add.
+         *
+         * @returns {void} Function menerapkan efeknya melalui state komponen atau aplikasi.
+         */
         watchInputName() {
-            if(this.name.trim() === '') {
+            if (this.name.trim() === '') {
                 this.errors.name = 'The Field Name Is Required';
             } else {
                 this.errors.name = '';
             }
         },
 
+        /**
+         * Memvalidasi and synchronize input price untuk add.
+         *
+         * @returns {void} Function menerapkan efeknya melalui state komponen atau aplikasi.
+         */
         watchInputPrice() {
             this.syncFormattedPrice();
 
-            if(String(this.price).trim() === '') {
+            if (String(this.price).trim() === '') {
                 this.errors.price = 'The Field Price Is Required';
             } else {
                 this.errors.price = '';
@@ -205,21 +237,24 @@ export default {
         /**
          * Tujuan method ini untuk membatasi input harga agar hanya angka
          * yang masuk sebelum diformat sebagai rupiah.
+         *
+         * @param {*} event Event keyboard atau browser yang ditangani oleh kontrol input.
+         *
+         * @returns {void} Memperbarui state komponen atau aplikasi tanpa mengembalikan nilai.
          */
         restrictPriceInput(event) {
-            if(event.metaKey || event.ctrlKey)
-                return;
+            if (event.metaKey || event.ctrlKey) return;
 
-            if(['Backspace', 'ArrowLeft', 'ArrowRight', 'Tab', 'Delete', 'Home', 'End'].includes(event.key))
-                return;
+            if (['Backspace', 'ArrowLeft', 'ArrowRight', 'Tab', 'Delete', 'Home', 'End'].includes(event.key)) return;
 
-            if(!/^\d$/.test(event.key))
-                event.preventDefault();
+            if (!/^\d$/.test(event.key)) event.preventDefault();
         },
 
         /**
          * Tujuan method ini untuk menjaga tampilan harga memakai format
          * ribuan Indonesia, tetapi nilai yang dikirim tetap angka bersih.
+         *
+         * @returns {void} Memperbarui state komponen atau aplikasi tanpa mengembalikan nilai.
          */
         syncFormattedPrice() {
             const normalizedPrice = String(this.priceString || '').replace(/\D/g, '');
@@ -228,28 +263,35 @@ export default {
             this.priceString = normalizedPrice ? Number(normalizedPrice).toLocaleString('id-ID') : '';
         },
 
+        /**
+         * Memvalidasi and synchronize input stock untuk add.
+         *
+         * @returns {void} Function menerapkan efeknya melalui state komponen atau aplikasi.
+         */
         watchInputStock() {
-            if(String(this.stock).trim() === '') {
+            if (String(this.stock).trim() === '') {
                 this.errors.stock = 'The Field Stock Is Required';
             } else {
                 this.errors.stock = '';
             }
         },
 
+        /**
+         * Membuat produk untuk add, dengan mendelegasikan pekerjaan backend atau shared state melalui Vuex store.
+         *
+         * @returns {void} Function menerapkan efeknya melalui state komponen atau aplikasi.
+         */
         addProduct() {
-            if(this.productImages.length === 0 || !this.name || !this.price || (this.stock === ''))
-            {
-                if(this.productImages.length === 0)
-                    this.errors.images = 'Produk wajib memiliki minimal 1 foto.';
-                if(!this.name)
-                    this.errors.name = 'The Field Name Is Required';
-                if(!this.price)
-                    this.errors.price = 'The Field Price Is Required';
-                if(this.stock === '')
-                    this.errors.stock = 'The Field Stock Is Required';
-            }
-            else
-            {
+            // --- step 1 - start - validasi data dan foto produk sebelum membuat payload
+            if (this.productImages.length === 0 || !this.name || !this.price || this.stock === '') {
+                if (this.productImages.length === 0) this.errors.images = 'Produk wajib memiliki minimal 1 foto.';
+                if (!this.name) this.errors.name = 'The Field Name Is Required';
+                if (!this.price) this.errors.price = 'The Field Price Is Required';
+                if (this.stock === '') this.errors.stock = 'The Field Stock Is Required';
+            } else {
+                // --- step 1 - end - validasi data dan foto produk sebelum membuat payload
+
+                // --- step 2 - start - susun payload produk dan urutan foto untuk backend
                 this.isProcessAddProduct = true;
 
                 const form = new FormData();
@@ -258,65 +300,75 @@ export default {
                     form.append('images[]', image.file);
                     form.append('image_order[]', `new:${index}`);
                 });
-                form.append('name', this.name);        
-                form.append('price', this.price);        
-                form.append('stock', this.stock);        
+                form.append('name', this.name);
+                form.append('price', this.price);
+                form.append('stock', this.stock);
+                // --- step 2 - end - susun payload produk dan urutan foto untuk backend
 
-                this.$store.dispatch('addProduct', form)
-                            .then(response => {
-                                // console.log(response);
+                // --- step 3 - start - simpan produk dan petakan hasil atau error validasi ke tampilan
+                this.$store
+                    .dispatch('addProduct', form)
+                    .then((response) => {
+                        // console.log(response);
 
-                                this.isProcessAddProduct = false;
+                        this.isProcessAddProduct = false;
 
-                                if(response.data.status === 200) {
-                                    ElNotification({
-                                        type: 'success',
-                                        title: 'Success',
-                                        message: response.data.message
-                                    });
+                        if (response.data.status === 200) {
+                            ElNotification({
+                                type: 'success',
+                                title: 'Success',
+                                message: response.data.message,
+                            });
 
-                                    this.resetForm();
-                                    this.$global.modals.addProduct = false;
+                            this.resetForm();
+                            this.$global.modals.addProduct = false;
 
-                                    this.$emit('onAfterAddProduct', response.data.product);
+                            this.$emit('onAfterAddProduct', response.data.product);
+                        }
+                    })
+                    .catch((error) => {
+                        this.isProcessAddProduct = false;
+
+                        if (error.response?.data?.status === 422) {
+                            const message = error.response.data.message;
+
+                            Object.keys(message).forEach((key) => {
+                                if (key.startsWith('images.') || key.startsWith('image_order.')) {
+                                    this.errors.images = message[key][0];
+                                    return;
                                 }
 
-                            })
-                            .catch(error => {
-                                // console.error(error);
-                                this.isProcessAddProduct = false;
-
-                                if(error.response?.data?.status === 422) {
-                                    const message = error.response.data.message;
-                        
-                                    Object.keys(message).forEach(key => {
-                                        if(key.startsWith('images.') || key.startsWith('image_order.')) {
-                                            this.errors.images = message[key][0];
-                                            return;
-                                        }
-
-                                        switch(key) {
-                                            case 'images' :
-                                            case 'image_order' :
-                                                this.errors.images = message[key][0];
-                                                break;
-                                            case 'name' : 
-                                                this.errors.name = message[key][0];
-                                                break;
-                                            case 'price' : 
-                                                this.errors.price = message[key][0];
-                                                break;
-                                            case 'stock' : 
-                                                this.errors.stock = message[key][0];
-                                                break;
-                                        }
-                                    })
+                                switch (key) {
+                                    case 'images':
+                                    case 'image_order':
+                                        this.errors.images = message[key][0];
+                                        break;
+                                    case 'name':
+                                        this.errors.name = message[key][0];
+                                        break;
+                                    case 'price':
+                                        this.errors.price = message[key][0];
+                                        break;
+                                    case 'stock':
+                                        this.errors.stock = message[key][0];
+                                        break;
                                 }
-                            })
+                            });
+
+                            return;
+                        }
+
+                        ElNotification({
+                            type: 'error',
+                            title: 'Produk Gagal Disimpan',
+                            message: getProductUploadErrorMessage(error),
+                        });
+                    });
+                // --- step 3 - end - simpan produk dan petakan hasil atau error validasi ke tampilan
             }
-        }
-    }
-}
+        },
+    },
+};
 </script>
 
 <style scoped>

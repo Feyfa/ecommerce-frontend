@@ -12,8 +12,9 @@
                     class="security-icon-button"
                     :disabled="isLoadingSummary"
                     aria-label="Muat ulang status keamanan"
-                    @click="loadSummary">
-                    <i class="fa-solid fa-rotate-right" :class="{'fa-spin': isLoadingSummary}"></i>
+                    @click="loadSummary"
+                >
+                    <i class="fa-solid fa-rotate-right" :class="{ 'fa-spin': isLoadingSummary }"></i>
                 </button>
             </div>
 
@@ -38,7 +39,8 @@
                             v-for="method in signInMethods"
                             :key="method.key"
                             class="security-row"
-                            :class="{'is-feature-locked': !isFeatureAvailable(method)}">
+                            :class="{ 'is-feature-locked': !isFeatureAvailable(method) }"
+                        >
                             <div class="security-row-icon" aria-hidden="true">
                                 <i :class="methodIcon(method.key)"></i>
                             </div>
@@ -46,7 +48,11 @@
                             <div class="security-row-main">
                                 <div class="security-row-title">
                                     <h5>{{ method.label }}</h5>
-                                    <span v-if="isFeatureAvailable(method)" class="security-badge" :class="statusClass(method.status)">
+                                    <span
+                                        v-if="isFeatureAvailable(method)"
+                                        class="security-badge"
+                                        :class="statusClass(method.status)"
+                                    >
                                         {{ method.status_label }}
                                     </span>
                                     <span v-if="!isFeatureAvailable(method)" class="security-badge is-pro">
@@ -62,8 +68,13 @@
                                 type="button"
                                 class="security-secondary-button"
                                 :disabled="actionMethodKey === method.key || !isFeatureAvailable(method)"
-                                :title="!isFeatureAvailable(method) ? 'Fitur ini memerlukan Clerk Pro dan belum tersedia pada environment ini.' : ''"
-                                @click="handleSignInMethodAction(method)">
+                                :title="
+                                    !isFeatureAvailable(method)
+                                        ? 'Fitur ini memerlukan Clerk Pro dan belum tersedia pada environment ini.'
+                                        : ''
+                                "
+                                @click="handleSignInMethodAction(method)"
+                            >
                                 <i v-if="actionMethodKey === method.key" class="fa-solid fa-spinner fa-spin-pulse"></i>
                                 {{ method.action_label }}
                             </button>
@@ -83,7 +94,8 @@
                             v-for="protection in additionalProtections"
                             :key="protection.key"
                             class="security-row"
-                            :class="{'is-feature-locked': !isFeatureAvailable(protection)}">
+                            :class="{ 'is-feature-locked': !isFeatureAvailable(protection) }"
+                        >
                             <div class="security-row-icon" aria-hidden="true">
                                 <i :class="protectionIcon(protection.key)"></i>
                             </div>
@@ -91,7 +103,11 @@
                             <div class="security-row-main">
                                 <div class="security-row-title">
                                     <h5>{{ protection.label }}</h5>
-                                    <span v-if="isFeatureAvailable(protection)" class="security-badge" :class="statusClass(protection.status)">
+                                    <span
+                                        v-if="isFeatureAvailable(protection)"
+                                        class="security-badge"
+                                        :class="statusClass(protection.status)"
+                                    >
                                         {{ protection.status_label }}
                                     </span>
                                     <span v-if="!isFeatureAvailable(protection)" class="security-badge is-pro">
@@ -107,9 +123,17 @@
                                 type="button"
                                 class="security-secondary-button"
                                 :disabled="actionProtectionKey === protection.key || !isFeatureAvailable(protection)"
-                                :title="!isFeatureAvailable(protection) ? 'Fitur ini memerlukan Clerk Pro dan belum tersedia pada environment ini.' : ''"
-                                @click="handleProtectionAction(protection)">
-                                <i v-if="actionProtectionKey === protection.key" class="fa-solid fa-spinner fa-spin-pulse"></i>
+                                :title="
+                                    !isFeatureAvailable(protection)
+                                        ? 'Fitur ini memerlukan Clerk Pro dan belum tersedia pada environment ini.'
+                                        : ''
+                                "
+                                @click="handleProtectionAction(protection)"
+                            >
+                                <i
+                                    v-if="actionProtectionKey === protection.key"
+                                    class="fa-solid fa-spinner fa-spin-pulse"
+                                ></i>
                                 {{ protection.action_label }}
                             </button>
                         </article>
@@ -131,15 +155,17 @@
                         class="security-icon-button"
                         :disabled="isLoadingSessions"
                         aria-label="Muat ulang perangkat dan sesi aktif"
-                        @click="loadSessions">
-                        <i class="fa-solid fa-rotate-right" :class="{'fa-spin': isLoadingSessions}"></i>
+                        @click="loadSessions"
+                    >
+                        <i class="fa-solid fa-rotate-right" :class="{ 'fa-spin': isLoadingSessions }"></i>
                     </button>
 
                     <button
                         type="button"
                         class="security-danger-outline-button"
                         :disabled="isLoadingSessions || isRevokingOtherSessions || otherSessions.length === 0"
-                        @click="revokeOtherSessions">
+                        @click="revokeOtherSessions"
+                    >
                         <i v-if="isRevokingOtherSessions" class="fa-solid fa-spinner fa-spin-pulse"></i>
                         Keluar Semua Perangkat
                     </button>
@@ -167,10 +193,7 @@
             </div>
 
             <div v-else class="security-list">
-                <article
-                    v-for="session in sessions"
-                    :key="session.id"
-                    class="security-row security-session-row">
+                <article v-for="session in sessions" :key="session.id" class="security-row security-session-row">
                     <div class="security-row-icon" aria-hidden="true">
                         <i :class="sessionIcon(session)"></i>
                     </div>
@@ -189,7 +212,8 @@
                         type="button"
                         class="security-danger-button"
                         :disabled="actionSessionId === session.id"
-                        @click="revokeSession(session)">
+                        @click="revokeSession(session)"
+                    >
                         <i v-if="actionSessionId === session.id" class="fa-solid fa-spinner fa-spin-pulse"></i>
                         Keluar
                     </button>
@@ -209,14 +233,18 @@
                         type="button"
                         class="security-modal-close"
                         aria-label="Tutup modal password"
-                        @click="closePasswordModal">
+                        @click="closePasswordModal"
+                    >
                         <i class="fa-solid fa-xmark"></i>
                     </button>
                 </div>
 
                 <div v-if="passwordForm.requiresCurrentPassword" class="security-info-box">
                     <strong>Verifikasi password diperlukan</strong>
-                    <p>Clerk belum menerima hasil verifikasi dari modal bawaan. Masukkan password saat ini di sini untuk menyimpan perubahan.</p>
+                    <p>
+                        Clerk belum menerima hasil verifikasi dari modal bawaan. Masukkan password saat ini di sini
+                        untuk menyimpan perubahan.
+                    </p>
                 </div>
 
                 <div v-if="passwordForm.requiresCurrentPassword" class="security-modal-field">
@@ -228,13 +256,21 @@
                             :type="passwordVisibility.current ? 'text' : 'password'"
                             autocomplete="current-password"
                             placeholder="Masukkan password saat ini"
-                            :class="{'is-error-field': passwordErrors.currentPassword}">
+                            :class="{ 'is-error-field': passwordErrors.currentPassword }"
+                        />
                         <button
                             type="button"
                             class="security-password-toggle"
-                            :aria-label="passwordVisibility.current ? 'Sembunyikan password saat ini' : 'Tampilkan password saat ini'"
-                            @click="togglePasswordVisibility('current')">
-                            <i :class="passwordVisibility.current ? 'fa-regular fa-eye-slash' : 'fa-regular fa-eye'"></i>
+                            :aria-label="
+                                passwordVisibility.current
+                                    ? 'Sembunyikan password saat ini'
+                                    : 'Tampilkan password saat ini'
+                            "
+                            @click="togglePasswordVisibility('current')"
+                        >
+                            <i
+                                :class="passwordVisibility.current ? 'fa-regular fa-eye-slash' : 'fa-regular fa-eye'"
+                            ></i>
                         </button>
                     </div>
                     <small v-if="passwordErrors.currentPassword">{{ passwordErrors.currentPassword }}</small>
@@ -249,12 +285,16 @@
                             :type="passwordVisibility.new ? 'text' : 'password'"
                             autocomplete="new-password"
                             placeholder="Minimal 8 karakter"
-                            :class="{'is-error-field': passwordErrors.newPassword}">
+                            :class="{ 'is-error-field': passwordErrors.newPassword }"
+                        />
                         <button
                             type="button"
                             class="security-password-toggle"
-                            :aria-label="passwordVisibility.new ? 'Sembunyikan password baru' : 'Tampilkan password baru'"
-                            @click="togglePasswordVisibility('new')">
+                            :aria-label="
+                                passwordVisibility.new ? 'Sembunyikan password baru' : 'Tampilkan password baru'
+                            "
+                            @click="togglePasswordVisibility('new')"
+                        >
                             <i :class="passwordVisibility.new ? 'fa-regular fa-eye-slash' : 'fa-regular fa-eye'"></i>
                         </button>
                     </div>
@@ -270,13 +310,21 @@
                             :type="passwordVisibility.confirm ? 'text' : 'password'"
                             autocomplete="new-password"
                             placeholder="Ulangi password baru"
-                            :class="{'is-error-field': passwordErrors.confirmPassword}">
+                            :class="{ 'is-error-field': passwordErrors.confirmPassword }"
+                        />
                         <button
                             type="button"
                             class="security-password-toggle"
-                            :aria-label="passwordVisibility.confirm ? 'Sembunyikan konfirmasi password' : 'Tampilkan konfirmasi password'"
-                            @click="togglePasswordVisibility('confirm')">
-                            <i :class="passwordVisibility.confirm ? 'fa-regular fa-eye-slash' : 'fa-regular fa-eye'"></i>
+                            :aria-label="
+                                passwordVisibility.confirm
+                                    ? 'Sembunyikan konfirmasi password'
+                                    : 'Tampilkan konfirmasi password'
+                            "
+                            @click="togglePasswordVisibility('confirm')"
+                        >
+                            <i
+                                :class="passwordVisibility.confirm ? 'fa-regular fa-eye-slash' : 'fa-regular fa-eye'"
+                            ></i>
                         </button>
                     </div>
                     <small v-if="passwordErrors.confirmPassword">{{ passwordErrors.confirmPassword }}</small>
@@ -287,13 +335,11 @@
                         type="button"
                         class="security-secondary-button"
                         :disabled="isProcessingPassword"
-                        @click="closePasswordModal">
+                        @click="closePasswordModal"
+                    >
                         Batal
                     </button>
-                    <button
-                        type="submit"
-                        class="security-primary-button"
-                        :disabled="isProcessingPassword">
+                    <button type="submit" class="security-primary-button" :disabled="isProcessingPassword">
                         <i v-if="isProcessingPassword" class="fa-solid fa-spinner fa-spin-pulse"></i>
                         Simpan Password
                     </button>
@@ -305,7 +351,13 @@
             <div class="security-modal">
                 <div class="security-modal-header">
                     <div>
-                        <h3>{{ mfaMode === 'manage' ? 'Kelola Two-Factor Authentication' : 'Aktifkan Two-Factor Authentication' }}</h3>
+                        <h3>
+                            {{
+                                mfaMode === 'manage'
+                                    ? 'Kelola Two-Factor Authentication'
+                                    : 'Aktifkan Two-Factor Authentication'
+                            }}
+                        </h3>
                         <p>Gunakan aplikasi authenticator untuk menambahkan verifikasi ekstra saat login.</p>
                     </div>
 
@@ -313,7 +365,8 @@
                         type="button"
                         class="security-modal-close"
                         aria-label="Tutup modal two-factor authentication"
-                        @click="closeMfaModal">
+                        @click="closeMfaModal"
+                    >
                         <i class="fa-solid fa-xmark"></i>
                     </button>
                 </div>
@@ -345,7 +398,8 @@
                             type="button"
                             class="security-secondary-button"
                             :disabled="isProcessingMfaBackup || isProcessingMfaDisable"
-                            @click="regenerateBackupCodes">
+                            @click="regenerateBackupCodes"
+                        >
                             <i v-if="isProcessingMfaBackup" class="fa-solid fa-spinner fa-spin-pulse"></i>
                             Buat Backup Codes
                         </button>
@@ -353,7 +407,8 @@
                             type="button"
                             class="security-danger-outline-button"
                             :disabled="isProcessingMfaBackup || isProcessingMfaDisable"
-                            @click="disableMfa">
+                            @click="disableMfa"
+                        >
                             <i v-if="isProcessingMfaDisable" class="fa-solid fa-spinner fa-spin-pulse"></i>
                             Nonaktifkan
                         </button>
@@ -378,20 +433,21 @@
                     </div>
 
                     <div class="security-modal-actions">
-                        <button type="button" class="security-primary-button" @click="closeMfaModal">
-                            Selesai
-                        </button>
+                        <button type="button" class="security-primary-button" @click="closeMfaModal">Selesai</button>
                     </div>
                 </template>
 
                 <form v-else class="security-mfa-setup-form" @submit.prevent="verifyMfaSetup">
                     <div class="security-info-box">
                         <strong>Scan QR code</strong>
-                        <p>Gunakan Google Authenticator, Microsoft Authenticator, Authy, 1Password, atau aplikasi sejenis.</p>
+                        <p>
+                            Gunakan Google Authenticator, Microsoft Authenticator, Authy, 1Password, atau aplikasi
+                            sejenis.
+                        </p>
                     </div>
 
                     <div v-if="totpQrCodeDataUri" class="security-qr-card">
-                        <img :src="totpQrCodeDataUri" alt="QR code authenticator">
+                        <img :src="totpQrCodeDataUri" alt="QR code authenticator" />
                     </div>
 
                     <div v-else class="security-info-box">
@@ -416,7 +472,8 @@
                             inputmode="numeric"
                             autocomplete="one-time-code"
                             placeholder="Masukkan 6 digit kode"
-                            :class="{'is-error-field': mfaErrors.totpCode}">
+                            :class="{ 'is-error-field': mfaErrors.totpCode }"
+                        />
                         <small v-if="mfaErrors.totpCode">{{ mfaErrors.totpCode }}</small>
                     </div>
 
@@ -425,13 +482,15 @@
                             type="button"
                             class="security-secondary-button"
                             :disabled="isProcessingMfaVerify"
-                            @click="closeMfaModal">
+                            @click="closeMfaModal"
+                        >
                             Batal
                         </button>
                         <button
                             type="submit"
                             class="security-primary-button"
-                            :disabled="isProcessingMfaVerify || !totpSetup">
+                            :disabled="isProcessingMfaVerify || !totpSetup"
+                        >
                             <i v-if="isProcessingMfaVerify" class="fa-solid fa-spinner fa-spin-pulse"></i>
                             Verifikasi
                         </button>
@@ -452,7 +511,8 @@
                         type="button"
                         class="security-modal-close"
                         aria-label="Tutup modal passkey"
-                        @click="closePasskeyModal">
+                        @click="closePasskeyModal"
+                    >
                         <i class="fa-solid fa-xmark"></i>
                     </button>
                 </div>
@@ -467,7 +527,8 @@
                         type="button"
                         class="security-secondary-button"
                         :disabled="isProcessingPasskeyCreate"
-                        @click="createPasskey(passkeyProtection)">
+                        @click="createPasskey(passkeyProtection)"
+                    >
                         <i v-if="isProcessingPasskeyCreate" class="fa-solid fa-spinner fa-spin-pulse"></i>
                         Tambah Passkey
                     </button>
@@ -482,10 +543,7 @@
                 </div>
 
                 <div v-else class="security-list security-modal-list">
-                    <article
-                        v-for="passkey in passkeys"
-                        :key="passkey.id"
-                        class="security-row">
+                    <article v-for="passkey in passkeys" :key="passkey.id" class="security-row">
                         <div class="security-row-icon" aria-hidden="true">
                             <i class="fa-solid fa-key"></i>
                         </div>
@@ -501,7 +559,8 @@
                             type="button"
                             class="security-danger-button"
                             :disabled="actionPasskeyId === passkey.id"
-                            @click="deletePasskey(passkey)">
+                            @click="deletePasskey(passkey)"
+                        >
                             <i v-if="actionPasskeyId === passkey.id" class="fa-solid fa-spinner fa-spin-pulse"></i>
                             Hapus
                         </button>
@@ -534,6 +593,11 @@ export default {
         Modal,
     },
 
+    /**
+     * Membuat state reaktif yang digunakan komponen untuk halaman security.
+     *
+     * @returns {Object} State reaktif yang diinisialisasi untuk komponen.
+     */
     data() {
         return {
             security: {
@@ -596,27 +660,57 @@ export default {
     },
 
     computed: {
+        /**
+         * Mengembalikan login methods yang dihitung dari state reaktif saat ini untuk halaman security.
+         *
+         * @returns {*} Nilai yang dihasilkan oleh operasi login methods.
+         */
         signInMethods() {
             return this.security.sign_in_methods || [];
         },
 
+        /**
+         * Mengembalikan additional protections yang dihitung dari state reaktif saat ini untuk halaman security.
+         *
+         * @returns {*} Nilai yang dihasilkan oleh operasi additional protections.
+         */
         additionalProtections() {
             return this.security.additional_protections || [];
         },
 
+        /**
+         * Mengembalikan other sessions yang dihitung dari state reaktif saat ini untuk halaman security.
+         *
+         * @returns {*} Nilai yang dihasilkan oleh operasi other sessions.
+         */
         otherSessions() {
-            return this.sessions.filter(session => !session.is_current);
+            return this.sessions.filter((session) => !session.is_current);
         },
 
+        /**
+         * Mengembalikan passkey protection yang dihitung dari state reaktif saat ini untuk halaman security.
+         *
+         * @returns {*} Nilai yang dihasilkan oleh operasi passkey protection.
+         */
         passkeyProtection() {
-            return this.signInMethods.find(method => method.key === 'passkey') || null;
+            return this.signInMethods.find((method) => method.key === 'passkey') || null;
         },
 
+        /**
+         * Mengembalikan passkeys yang dihitung dari state reaktif saat ini untuk halaman security.
+         *
+         * @returns {*} Nilai yang dihasilkan oleh operasi passkeys.
+         */
         passkeys() {
             return this.passkeyProtection?.meta?.passkeys || [];
         },
     },
 
+    /**
+     * Menginisialisasi behavior komponen yang bergantung pada browser setelah mounted untuk halaman security.
+     *
+     * @returns {Promise<void>} Promise diselesaikan setelah alur asynchronous selesai.
+     */
     async mounted() {
         this.notifyGoogleLinkCallbackError();
         const googleLinkResult = await this.finalizeGoogleLinkCallback();
@@ -628,12 +722,13 @@ export default {
         /**
          * Tujuan method ini untuk menampilkan error callback Google satu kali
          * lalu membersihkan query agar notifikasi tidak berulang saat refresh.
+         *
+         * @returns {void} Memperbarui state komponen atau aplikasi tanpa mengembalikan nilai.
          */
         notifyGoogleLinkCallbackError() {
             const message = consumeClerkAuthErrorFromRoute(this.$route);
 
-            if(!message)
-                return;
+            if (!message) return;
 
             ElNotification({
                 type: 'error',
@@ -647,17 +742,18 @@ export default {
         /**
          * Tujuan method ini untuk memuat semua data halaman keamanan
          * saat pertama kali halaman dibuka.
+         *
+         * @returns {Promise<void>} Promise diselesaikan setelah alur asynchronous selesai.
          */
         async loadSecurityData() {
-            await Promise.all([
-                this.loadSummary(),
-                this.loadSessions(),
-            ]);
+            await Promise.all([this.loadSummary(), this.loadSessions()]);
         },
 
         /**
          * Tujuan method ini untuk mengambil ringkasan metode login
          * dan perlindungan tambahan dari backend.
+         *
+         * @returns {Promise<void>} Promise diselesaikan setelah alur asynchronous selesai.
          */
         async loadSummary() {
             this.isLoadingSummary = true;
@@ -678,6 +774,8 @@ export default {
 
         /**
          * Tujuan method ini untuk mengambil daftar session aktif user.
+         *
+         * @returns {Promise<void>} Promise diselesaikan setelah alur asynchronous selesai.
          */
         async loadSessions() {
             this.isLoadingSessions = true;
@@ -696,11 +794,13 @@ export default {
         /**
          * Tujuan method ini untuk memastikan user Clerk aktif tersedia
          * sebelum action keamanan dijalankan dari frontend.
+         *
+         * @returns {Promise<*>} Promise diselesaikan setelah alur asynchronous selesai.
          */
         async getActiveClerkUser() {
             const runtimeState = await waitForClerkLoaded({ timeout: 3000, interval: 50 });
 
-            if(!runtimeState.loaded || !runtimeState.isSignedIn || !runtimeState.clerk?.user)
+            if (!runtimeState.loaded || !runtimeState.isSignedIn || !runtimeState.clerk?.user)
                 throw new Error('Sesi Clerk belum siap. Silakan muat ulang halaman.');
 
             return runtimeState.clerk.user;
@@ -709,9 +809,13 @@ export default {
         /**
          * Tujuan method ini untuk menghubungkan OAuth Google ke akun Clerk
          * yang sedang login dari halaman keamanan.
+         *
+         * @param {*} method Metode authentication yang dipilih user.
+         *
+         * @returns {Promise<void>} Promise diselesaikan setelah alur asynchronous selesai.
          */
         async connectGoogleAccount(method) {
-            if(method.is_enabled) {
+            if (method.is_enabled) {
                 ElNotification({
                     type: 'info',
                     title: 'Info',
@@ -731,30 +835,33 @@ export default {
                 rememberClerkAuthReturnUrl('/settings/security');
                 rememberGoogleLinkCallback();
 
-                const externalAccount = await this.runClerkActionWithSessionVerification(async () => {
-                    const activeClerkUser = await this.getActiveClerkUser();
+                const externalAccount = await this.runClerkActionWithSessionVerification(
+                    async () => {
+                        const activeClerkUser = await this.getActiveClerkUser();
 
-                    if(typeof activeClerkUser.createExternalAccount !== 'function')
-                        throw new Error('Fitur hubungkan Google belum tersedia pada sesi ini.');
+                        if (typeof activeClerkUser.createExternalAccount !== 'function')
+                            throw new Error('Fitur hubungkan Google belum tersedia pada sesi ini.');
 
-                    return activeClerkUser.createExternalAccount({
-                        strategy: 'oauth_google',
-                        redirectUrl,
-                        redirectUrlComplete,
-                    });
-                }, { level: this.getSensitiveCredentialReverificationLevel() });
-                const verificationUrl = externalAccount?.verification?.externalVerificationRedirectURL
-                    || externalAccount?.verification?.external_verification_redirect_url;
+                        return activeClerkUser.createExternalAccount({
+                            strategy: 'oauth_google',
+                            redirectUrl,
+                            redirectUrlComplete,
+                        });
+                    },
+                    { level: this.getSensitiveCredentialReverificationLevel() },
+                );
+                const verificationUrl =
+                    externalAccount?.verification?.externalVerificationRedirectURL ||
+                    externalAccount?.verification?.external_verification_redirect_url;
 
-                if(!verificationUrl)
-                    throw new Error('Clerk tidak memberikan URL verifikasi Google.');
+                if (!verificationUrl) throw new Error('Clerk tidak memberikan URL verifikasi Google.');
 
                 window.location.href = verificationUrl;
-            } catch(error) {
+            } catch (error) {
                 consumeGoogleLinkCallback();
                 const message = getClerkGoogleLinkErrorMessage(error);
 
-                if(message) {
+                if (message) {
                     ElNotification({
                         type: 'error',
                         title: 'Gagal Menghubungkan Google',
@@ -769,13 +876,14 @@ export default {
         /**
          * Tujuan method ini untuk memastikan Google yang baru terhubung
          * emailnya sama dan status OAuth-nya verified sebelum dianggap aktif.
+         *
+         * @returns {Promise<Object>} Promise diselesaikan setelah alur asynchronous selesai.
          */
         async finalizeGoogleLinkCallback() {
             consumeGoogleLinkCallback();
             const isGoogleLinkCallback = this.$route.query.google_link === 'callback';
 
-            if(!isGoogleLinkCallback)
-                return null;
+            if (!isGoogleLinkCallback) return null;
 
             this.isLoadingSummary = true;
             this.actionMethodKey = 'google';
@@ -787,7 +895,7 @@ export default {
                     title: 'Success',
                     message: 'Akun Google berhasil dihubungkan.',
                 };
-            } catch(error) {
+            } catch (error) {
                 consumeGoogleLinkCallback();
                 return {
                     type: 'error',
@@ -803,10 +911,13 @@ export default {
         /**
          * Tujuan method ini untuk menampilkan hasil hubungkan Google setelah
          * ringkasan keamanan final selesai dimuat dari backend.
+         *
+         * @param {*} result Hasil alur yang telah selesai dan ditampilkan kepada user.
+         *
+         * @returns {void} Memperbarui state komponen atau aplikasi tanpa mengembalikan nilai.
          */
         notifyGoogleLinkResult(result) {
-            if(!result)
-                return;
+            if (!result) return;
 
             ElNotification(result);
         },
@@ -814,10 +925,11 @@ export default {
         /**
          * Tujuan method ini untuk membersihkan query callback agar refresh halaman
          * tidak memproses validasi Google berulang.
+         *
+         * @returns {void} Memperbarui state komponen atau aplikasi tanpa mengembalikan nilai.
          */
         clearGoogleLinkQuery() {
-            if(this.$route.query.google_link !== 'callback')
-                return;
+            if (this.$route.query.google_link !== 'callback') return;
 
             const query = { ...this.$route.query };
             delete query.google_link;
@@ -828,18 +940,21 @@ export default {
         /**
          * Tujuan method ini untuk membuka action metode login
          * sesuai jenis credential yang dipilih user.
+         *
+         * @param {*} method Metode authentication yang dipilih user.
+         *
+         * @returns {void} Memperbarui state komponen atau aplikasi tanpa mengembalikan nilai.
          */
         handleSignInMethodAction(method) {
-            if(!this.isFeatureAvailable(method))
-                return;
+            if (!this.isFeatureAvailable(method)) return;
 
-            if(method.key === 'password') {
+            if (method.key === 'password') {
                 this.openPasswordModal(method);
                 return;
             }
 
-            if(method.key === 'passkey') {
-                if(method.is_enabled) {
+            if (method.key === 'passkey') {
+                if (method.is_enabled) {
                     this.openPasskeyModal();
                     return;
                 }
@@ -848,7 +963,7 @@ export default {
                 return;
             }
 
-            if(method.key === 'google') {
+            if (method.key === 'google') {
                 this.connectGoogleAccount(method);
                 return;
             }
@@ -863,12 +978,15 @@ export default {
         /**
          * Tujuan method ini untuk membuka action perlindungan tambahan
          * yang sudah dikelola langsung melalui Clerk.
+         *
+         * @param {*} protection Perlindungan keamanan yang dipilih user.
+         *
+         * @returns {void} Memperbarui state komponen atau aplikasi tanpa mengembalikan nilai.
          */
         handleProtectionAction(protection) {
-            if(!this.isFeatureAvailable(protection))
-                return;
+            if (!this.isFeatureAvailable(protection)) return;
 
-            if(protection.key === 'mfa') {
+            if (protection.key === 'mfa') {
                 this.openMfaModal(protection);
                 return;
             }
@@ -879,6 +997,10 @@ export default {
         /**
          * Tujuan method ini untuk membuka form buat atau ubah password
          * tanpa memperbolehkan user mengganti email utama.
+         *
+         * @param {*} method Metode authentication yang dipilih user.
+         *
+         * @returns {void} Memperbarui state komponen atau aplikasi tanpa mengembalikan nilai.
          */
         openPasswordModal(method) {
             this.selectedPasswordMethod = method;
@@ -901,9 +1023,15 @@ export default {
             this.modal.password = true;
         },
 
+        /**
+         * Menutup password modal untuk halaman security.
+         *
+         * @param {*} [force] Nilai force yang diproses oleh function.
+         *
+         * @returns {void} Function menerapkan efeknya melalui state komponen atau aplikasi.
+         */
         closePasswordModal(force = false) {
-            if(this.isProcessingPassword && !force)
-                return;
+            if (this.isProcessingPassword && !force) return;
 
             this.modal.password = false;
             this.selectedPasswordMethod = null;
@@ -912,14 +1040,22 @@ export default {
         /**
          * Tujuan method ini untuk menampilkan atau menyembunyikan
          * isi password tanpa mengubah nilai input.
+         *
+         * @param {*} field Field form yang state UI-nya sedang diubah.
+         *
+         * @returns {void} Memperbarui state komponen atau aplikasi tanpa mengembalikan nilai.
          */
         togglePasswordVisibility(field) {
-            if(!Object.prototype.hasOwnProperty.call(this.passwordVisibility, field))
-                return;
+            if (!Object.prototype.hasOwnProperty.call(this.passwordVisibility, field)) return;
 
             this.passwordVisibility[field] = !this.passwordVisibility[field];
         },
 
+        /**
+         * Memvalidasi password form untuk halaman security.
+         *
+         * @returns {*} Nilai yang dihasilkan oleh operasi validate password form.
+         */
         validatePasswordForm() {
             this.passwordErrors = {
                 currentPassword: '',
@@ -927,15 +1063,15 @@ export default {
                 confirmPassword: '',
             };
 
-            if(this.passwordForm.requiresCurrentPassword && this.passwordForm.currentPassword.trim() === '')
+            if (this.passwordForm.requiresCurrentPassword && this.passwordForm.currentPassword.trim() === '')
                 this.passwordErrors.currentPassword = 'password saat ini wajib diisi';
 
-            if(this.passwordForm.newPassword.trim().length < 8)
+            if (this.passwordForm.newPassword.trim().length < 8)
                 this.passwordErrors.newPassword = 'password baru minimal 8 karakter';
 
-            if(this.passwordForm.confirmPassword.trim() === '')
+            if (this.passwordForm.confirmPassword.trim() === '')
                 this.passwordErrors.confirmPassword = 'konfirmasi password wajib diisi';
-            else if(this.passwordForm.newPassword !== this.passwordForm.confirmPassword)
+            else if (this.passwordForm.newPassword !== this.passwordForm.confirmPassword)
                 this.passwordErrors.confirmPassword = 'konfirmasi password tidak sama';
 
             return !Object.values(this.passwordErrors).some(Boolean);
@@ -944,43 +1080,62 @@ export default {
         /**
          * Tujuan method ini untuk mendeteksi response Clerk saat
          * action sensitif membutuhkan verifikasi ulang sesi.
+         *
+         * @param {*} error Error yang dikembalikan backend atau authentication provider.
+         *
+         * @returns {boolean} Menunjukkan apakah kondisi yang dievaluasi terpenuhi.
          */
         isSessionVerificationRequired(error) {
-            const errorCodes = error?.errors?.map(item => item.code) || [];
+            const errorCodes = error?.errors?.map((item) => item.code) || [];
 
-            return errorCodes.includes('session_verification_required')
-                || errorCodes.includes('session_reverification_required');
+            return (
+                errorCodes.includes('session_verification_required') ||
+                errorCodes.includes('session_reverification_required')
+            );
         },
 
+        /**
+         * Mengambil session verification level untuk halaman security.
+         *
+         * @param {*} error Error yang terjadi ketika operasi dijalankan.
+         *
+         * @returns {*} Nilai yang dihasilkan oleh operasi get session verification level.
+         */
         getSessionVerificationLevel(error) {
             const firstError = error?.errors?.[0] || {};
-            const reverification = firstError.meta?.reverification
-                || firstError.metadata?.reverification;
+            const reverification = firstError.meta?.reverification || firstError.metadata?.reverification;
 
-            return reverification?.level
-                || firstError.meta?.level
-                || firstError.metadata?.level
-                || 'first_factor';
+            return reverification?.level || firstError.meta?.level || firstError.metadata?.level || 'first_factor';
         },
 
+        /**
+         * Menjalankan proses sleep dan menyinkronkan state hasilnya untuk halaman security.
+         *
+         * @param {*} [milliseconds] Nilai milliseconds yang diproses oleh function.
+         *
+         * @returns {*} Nilai yang dihasilkan oleh operasi sleep.
+         */
         sleep(milliseconds = 0) {
-            return new Promise(resolve => window.setTimeout(resolve, milliseconds));
+            return new Promise((resolve) => window.setTimeout(resolve, milliseconds));
         },
 
         /**
          * Tujuan method ini untuk memberi waktu Clerk menyimpan hasil
          * re-verification sebelum action sensitif dicoba ulang.
+         *
+         * @param {*} clerk Instance Clerk yang telah dimuat untuk alur authentication.
+         * @param {*} [delay] Jeda dalam millisecond sebelum memperbarui state provider.
+         *
+         * @returns {Promise<void>} Promise diselesaikan setelah alur asynchronous selesai.
          */
         async refreshClerkStateAfterSessionVerification(clerk, delay = 350) {
             await this.sleep(delay);
 
-            const reloadTargets = [
-                clerk?.session,
-                clerk?.user,
-                clerk?.client,
-            ].filter(target => typeof target?.reload === 'function');
+            const reloadTargets = [clerk?.session, clerk?.user, clerk?.client].filter(
+                (target) => typeof target?.reload === 'function',
+            );
 
-            await Promise.all(reloadTargets.map(target => target.reload.call(target)));
+            await Promise.all(reloadTargets.map((target) => target.reload.call(target)));
 
             await this.sleep(150);
         },
@@ -988,29 +1143,47 @@ export default {
         /**
          * Tujuan method ini untuk membuka modal verifikasi ulang bawaan Clerk
          * sebelum action keamanan sensitif dicoba ulang.
+         *
+         * @param {*} error Error yang dikembalikan backend atau authentication provider.
+         * @param {*} [preferredLevel] Level verifikasi sesi yang diprioritaskan ketika tersedia.
+         *
+         * @returns {Promise<void>} Promise diselesaikan setelah alur asynchronous selesai.
          */
         async requestClerkSessionVerification(error, preferredLevel = '') {
             const runtimeState = await waitForClerkLoaded({ timeout: 3000, interval: 50 });
             const clerk = runtimeState.clerk;
 
-            if(typeof clerk?.__internal_openReverification !== 'function')
-                throw new Error('Sesi perlu diverifikasi ulang. Silakan logout lalu login kembali sebelum melanjutkan.');
+            if (typeof clerk?.__internal_openReverification !== 'function')
+                throw new Error(
+                    'Sesi perlu diverifikasi ulang. Silakan logout lalu login kembali sebelum melanjutkan.',
+                );
 
             await new Promise((resolve, reject) => {
                 try {
                     clerk.__internal_openReverification({
                         level: preferredLevel || this.getSessionVerificationLevel(error),
+                        /**
+                         * Menjalankan proses after verification dan menyinkronkan state hasilnya untuk halaman security.
+                         *
+                         * @returns {Promise<void>} Promise diselesaikan setelah alur asynchronous selesai.
+                         */
                         afterVerification: async () => {
                             try {
                                 await this.refreshClerkStateAfterSessionVerification(clerk);
                                 resolve();
-                            } catch(reverificationError) {
+                            } catch (reverificationError) {
                                 reject(reverificationError);
                             }
                         },
-                        afterVerificationCancelled: () => reject(new Error('Verifikasi dibatalkan. Perubahan keamanan belum disimpan.')),
+                        /**
+                         * Menjalankan proses after verification cancelled dan menyinkronkan state hasilnya untuk halaman security.
+                         *
+                         * @returns {*} Nilai yang dihasilkan oleh operasi after verification cancelled.
+                         */
+                        afterVerificationCancelled: () =>
+                            reject(new Error('Verifikasi dibatalkan. Perubahan keamanan belum disimpan.')),
                     });
-                } catch(reverificationError) {
+                } catch (reverificationError) {
                     reject(reverificationError);
                 }
             });
@@ -1019,22 +1192,25 @@ export default {
         /**
          * Tujuan method ini untuk menjalankan action Clerk yang bisa membutuhkan
          * verifikasi ulang, lalu retry satu kali setelah verifikasi selesai.
+         *
+         * @param {*} action Action Clerk yang dijalankan oleh alur keamanan.
+         * @param {*} [options] Pengaturan opsional yang mengendalikan alur.
+         *
+         * @returns {Promise<*>} Promise diselesaikan setelah alur asynchronous selesai.
          */
         async runClerkActionWithSessionVerification(action, options = {}) {
             try {
                 return await action();
-            } catch(error) {
-                if(!this.isSessionVerificationRequired(error))
-                    throw error;
+            } catch (error) {
+                if (!this.isSessionVerificationRequired(error)) throw error;
 
                 const runtimeState = await waitForClerkLoaded({ timeout: 3000, interval: 50 });
                 await this.requestClerkSessionVerification(error, options.level || '');
 
                 try {
                     return await action();
-                } catch(retryError) {
-                    if(!this.isSessionVerificationRequired(retryError))
-                        throw retryError;
+                } catch (retryError) {
+                    if (!this.isSessionVerificationRequired(retryError)) throw retryError;
 
                     await this.refreshClerkStateAfterSessionVerification(runtimeState.clerk, 600);
                     return await action();
@@ -1045,6 +1221,8 @@ export default {
         /**
          * Tujuan method ini untuk membuka fallback current password saat
          * modal re-verification Clerk sudah sukses tetapi action tetap ditolak.
+         *
+         * @returns {void} Memperbarui state komponen atau aplikasi tanpa mengembalikan nilai.
          */
         requestCurrentPasswordFallback() {
             this.passwordForm.requiresCurrentPassword = true;
@@ -1057,6 +1235,8 @@ export default {
          * Tujuan method ini untuk menentukan level re-verification password.
          * Akun yang sudah MFA aktif perlu verifikasi multi factor agar Clerk
          * tidak terus menolak action change_password.
+         *
+         * @returns {*} Nilai yang dihasilkan oleh alur saat ini.
          */
         getPasswordReverificationLevel() {
             return this.getSensitiveCredentialReverificationLevel();
@@ -1065,9 +1245,11 @@ export default {
         /**
          * Tujuan method ini untuk menentukan level re-verification action
          * kredensial sensitif seperti password dan passkey.
+         *
+         * @returns {*} Nilai yang dihasilkan oleh alur saat ini.
          */
         getSensitiveCredentialReverificationLevel() {
-            const mfaProtection = this.additionalProtections.find(item => item.key === 'mfa');
+            const mfaProtection = this.additionalProtections.find((item) => item.key === 'mfa');
 
             return mfaProtection?.is_enabled ? 'multi_factor' : 'first_factor';
         },
@@ -1076,6 +1258,8 @@ export default {
          * Tujuan method ini untuk menyusun payload update password.
          * Saat fallback aktif, snake_case ikut dikirim karena endpoint Clerk
          * change_password menerima format field tersebut.
+         *
+         * @returns {Object} Object yang telah disiapkan untuk alur saat ini.
          */
         createPasswordUpdatePayload() {
             const payload = {
@@ -1083,8 +1267,7 @@ export default {
                 signOutOfOtherSessions: true,
             };
 
-            if(!this.passwordForm.requiresCurrentPassword)
-                return payload;
+            if (!this.passwordForm.requiresCurrentPassword) return payload;
 
             return {
                 ...payload,
@@ -1098,6 +1281,10 @@ export default {
         /**
          * Tujuan method ini untuk menjalankan update password langsung saat
          * fallback current password sudah aktif agar tidak masuk loop modal Clerk.
+         *
+         * @param {*} payload Payload yang dikirim ke backend atau authentication provider.
+         *
+         * @returns {Promise<*>} Promise diselesaikan setelah alur asynchronous selesai.
          */
         async updatePasswordWithFallbackPayload(payload) {
             const activeClerkUser = await this.getActiveClerkUser();
@@ -1108,10 +1295,11 @@ export default {
         /**
          * Tujuan method ini untuk membuat atau mengubah password utama
          * melalui Clerk, lalu memuat ulang ringkasan keamanan.
+         *
+         * @returns {Promise<void>} Promise diselesaikan setelah alur asynchronous selesai.
          */
         async submitPasswordForm() {
-            if(!this.validatePasswordForm())
-                return;
+            if (!this.validatePasswordForm()) return;
 
             this.isProcessingPassword = true;
             this.actionMethodKey = 'password';
@@ -1120,25 +1308,32 @@ export default {
                 const payload = this.createPasswordUpdatePayload();
                 const clerkUser = this.passwordForm.requiresCurrentPassword
                     ? await this.updatePasswordWithFallbackPayload(payload)
-                    : await this.runClerkActionWithSessionVerification(async () => {
-                        const activeClerkUser = await this.getActiveClerkUser();
+                    : await this.runClerkActionWithSessionVerification(
+                          async () => {
+                              const activeClerkUser = await this.getActiveClerkUser();
 
-                        return activeClerkUser.updatePassword(payload);
-                    }, { level: this.getPasswordReverificationLevel() });
+                              return activeClerkUser.updatePassword(payload);
+                          },
+                          { level: this.getPasswordReverificationLevel() },
+                      );
                 await clerkUser.reload();
                 await this.loadSummary();
 
                 ElNotification({
                     type: 'success',
                     title: 'Success',
-                    message: this.selectedPasswordMethod?.is_enabled ? 'Password berhasil diubah.' : 'Password berhasil dibuat.',
+                    message: this.selectedPasswordMethod?.is_enabled
+                        ? 'Password berhasil diubah.'
+                        : 'Password berhasil dibuat.',
                 });
 
                 this.closePasswordModal(true);
-            } catch(error) {
-                if(this.selectedPasswordMethod?.is_enabled
-                    && !this.passwordForm.requiresCurrentPassword
-                    && this.isSessionVerificationRequired(error)) {
+            } catch (error) {
+                if (
+                    this.selectedPasswordMethod?.is_enabled &&
+                    !this.passwordForm.requiresCurrentPassword &&
+                    this.isSessionVerificationRequired(error)
+                ) {
                     this.requestCurrentPasswordFallback();
 
                     ElNotification({
@@ -1162,18 +1357,25 @@ export default {
 
         /**
          * Tujuan method ini untuk membuat passkey baru melalui WebAuthn Clerk.
+         *
+         * @param {*} protection Perlindungan keamanan yang dipilih user.
+         *
+         * @returns {Promise<void>} Promise diselesaikan setelah alur asynchronous selesai.
          */
         async createPasskey(protection) {
             this.actionMethodKey = protection?.key || 'passkey';
             this.isProcessingPasskeyCreate = true;
 
             try {
-                const clerkUser = await this.runClerkActionWithSessionVerification(async () => {
-                    const activeClerkUser = await this.getActiveClerkUser();
-                    await activeClerkUser.createPasskey();
+                const clerkUser = await this.runClerkActionWithSessionVerification(
+                    async () => {
+                        const activeClerkUser = await this.getActiveClerkUser();
+                        await activeClerkUser.createPasskey();
 
-                    return activeClerkUser;
-                }, { level: this.getSensitiveCredentialReverificationLevel() });
+                        return activeClerkUser;
+                    },
+                    { level: this.getSensitiveCredentialReverificationLevel() },
+                );
                 await clerkUser.reload();
                 await this.loadSummary();
 
@@ -1182,8 +1384,8 @@ export default {
                     title: 'Success',
                     message: 'Passkey berhasil ditambahkan.',
                 });
-            } catch(error) {
-                if(this.isPasskeyRegistrationCancelled(error)) {
+            } catch (error) {
+                if (this.isPasskeyRegistrationCancelled(error)) {
                     ElNotification({
                         type: 'info',
                         title: 'Info',
@@ -1192,11 +1394,12 @@ export default {
                     return;
                 }
 
-                if(this.isPasskeyAlreadyRegistered(error)) {
+                if (this.isPasskeyAlreadyRegistered(error)) {
                     ElNotification({
                         type: 'warning',
                         title: 'Passkey sudah terdaftar',
-                        message: 'Perangkat atau metode passkey ini sudah terhubung ke akun Anda. Gunakan perangkat lain atau hapus passkey lama sebelum menambahkannya lagi.',
+                        message:
+                            'Perangkat atau metode passkey ini sudah terhubung ke akun Anda. Gunakan perangkat lain atau hapus passkey lama sebelum menambahkannya lagi.',
                     });
                     return;
                 }
@@ -1215,51 +1418,75 @@ export default {
         /**
          * Tujuan method ini untuk membedakan pembatalan dialog passkey
          * dari error asli agar user tidak melihat pesan teknis WebAuthn.
+         *
+         * @param {*} error Error yang dikembalikan backend atau authentication provider.
+         *
+         * @returns {boolean} Menunjukkan apakah kondisi yang dievaluasi terpenuhi.
          */
         isPasskeyRegistrationCancelled(error) {
-            const errorCodes = error?.errors?.map(item => item.code) || [];
+            const errorCodes = error?.errors?.map((item) => item.code) || [];
             const errorText = [
                 error?.code,
                 error?.message,
                 error?.errors?.[0]?.code,
                 error?.errors?.[0]?.message,
                 error?.errors?.[0]?.longMessage,
-            ].filter(Boolean).join(' ').toLowerCase();
+            ]
+                .filter(Boolean)
+                .join(' ')
+                .toLowerCase();
 
-            return errorCodes.includes('passkey_registration_cancelled')
-                || errorText.includes('passkey_registration_cancelled');
+            return (
+                errorCodes.includes('passkey_registration_cancelled') ||
+                errorText.includes('passkey_registration_cancelled')
+            );
         },
 
         /**
          * Tujuan method ini untuk mendeteksi passkey yang sama saat user
          * mencoba mendaftarkan authenticator yang sudah pernah terhubung.
+         *
+         * @param {*} error Error yang dikembalikan backend atau authentication provider.
+         *
+         * @returns {boolean} Menunjukkan apakah kondisi yang dievaluasi terpenuhi.
          */
         isPasskeyAlreadyRegistered(error) {
-            const errorCodes = error?.errors?.map(item => item.code) || [];
+            const errorCodes = error?.errors?.map((item) => item.code) || [];
             const errorText = [
                 error?.code,
                 error?.message,
                 error?.errors?.[0]?.code,
                 error?.errors?.[0]?.message,
                 error?.errors?.[0]?.longMessage,
-            ].filter(Boolean).join(' ').toLowerCase();
+            ]
+                .filter(Boolean)
+                .join(' ')
+                .toLowerCase();
 
-            return errorCodes.includes('passkey_already_exists')
-                || errorText.includes('passkey_already_exists')
-                || errorText.includes('already registered');
+            return (
+                errorCodes.includes('passkey_already_exists') ||
+                errorText.includes('passkey_already_exists') ||
+                errorText.includes('already registered')
+            );
         },
 
         /**
          * Tujuan method ini untuk membuka daftar pengelolaan passkey
          * setelah user minimal memiliki satu passkey aktif.
+         *
+         * @returns {void} Memperbarui state komponen atau aplikasi tanpa mengembalikan nilai.
          */
         openPasskeyModal() {
             this.modal.passkey = true;
         },
 
+        /**
+         * Menutup passkey modal untuk halaman security.
+         *
+         * @returns {void} Function menerapkan efeknya melalui state komponen atau aplikasi.
+         */
         closePasskeyModal() {
-            if(this.isProcessingPasskeyCreate || this.actionPasskeyId)
-                return;
+            if (this.isProcessingPasskeyCreate || this.actionPasskeyId) return;
 
             this.modal.passkey = false;
         },
@@ -1267,18 +1494,18 @@ export default {
         /**
          * Tujuan method ini untuk menghapus passkey tertentu dari akun Clerk
          * setelah user menyetujui konfirmasi.
+         *
+         * @param {*} passkey Nilai passkey yang diproses oleh function.
+         *
+         * @returns {Promise<void>} Promise diselesaikan setelah alur asynchronous selesai.
          */
         async deletePasskey(passkey) {
             try {
-                await ElMessageBox.confirm(
-                    'Passkey ini akan dihapus dari akun Anda.',
-                    'Hapus passkey?',
-                    {
-                        type: 'warning',
-                        confirmButtonText: 'Hapus',
-                        cancelButtonText: 'Batal',
-                    }
-                );
+                await ElMessageBox.confirm('Passkey ini akan dihapus dari akun Anda.', 'Hapus passkey?', {
+                    type: 'warning',
+                    confirmButtonText: 'Hapus',
+                    cancelButtonText: 'Batal',
+                });
             } catch {
                 return;
             }
@@ -1286,19 +1513,22 @@ export default {
             this.actionPasskeyId = passkey.id;
 
             try {
-                const clerkUser = await this.runClerkActionWithSessionVerification(async () => {
-                    const activeClerkUser = await this.getActiveClerkUser();
-                    await activeClerkUser.reload();
+                const clerkUser = await this.runClerkActionWithSessionVerification(
+                    async () => {
+                        const activeClerkUser = await this.getActiveClerkUser();
+                        await activeClerkUser.reload();
 
-                    const targetPasskey = activeClerkUser.passkeys.find(item => item.id === passkey.id);
+                        const targetPasskey = activeClerkUser.passkeys.find((item) => item.id === passkey.id);
 
-                    if(!targetPasskey)
-                        throw new Error('Passkey tidak ditemukan. Silakan muat ulang data keamanan.');
+                        if (!targetPasskey)
+                            throw new Error('Passkey tidak ditemukan. Silakan muat ulang data keamanan.');
 
-                    await targetPasskey.delete();
+                        await targetPasskey.delete();
 
-                    return activeClerkUser;
-                }, { level: this.getSensitiveCredentialReverificationLevel() });
+                        return activeClerkUser;
+                    },
+                    { level: this.getSensitiveCredentialReverificationLevel() },
+                );
                 await clerkUser.reload();
                 await this.loadSummary();
 
@@ -1307,7 +1537,7 @@ export default {
                     title: 'Success',
                     message: 'Passkey berhasil dihapus.',
                 });
-            } catch(error) {
+            } catch (error) {
                 ElNotification({
                     type: 'error',
                     title: 'error',
@@ -1320,6 +1550,10 @@ export default {
 
         /**
          * Tujuan method ini untuk membuka setup atau pengelolaan MFA TOTP.
+         *
+         * @param {*} protection Perlindungan keamanan yang dipilih user.
+         *
+         * @returns {Promise<void>} Promise diselesaikan setelah alur asynchronous selesai.
          */
         async openMfaModal(protection) {
             this.selectedMfaProtection = protection;
@@ -1334,12 +1568,24 @@ export default {
             };
             this.modal.mfa = true;
 
-            if(!protection.is_enabled)
-                await this.prepareMfaSetup();
+            if (!protection.is_enabled) await this.prepareMfaSetup();
         },
 
+        /**
+         * Menutup mfa modal untuk halaman security.
+         *
+         * @param {*} [force] Nilai force yang diproses oleh function.
+         *
+         * @returns {void} Function menerapkan efeknya melalui state komponen atau aplikasi.
+         */
         closeMfaModal(force = false) {
-            if(!force && (this.isProcessingMfaSetup || this.isProcessingMfaVerify || this.isProcessingMfaBackup || this.isProcessingMfaDisable))
+            if (
+                !force &&
+                (this.isProcessingMfaSetup ||
+                    this.isProcessingMfaVerify ||
+                    this.isProcessingMfaBackup ||
+                    this.isProcessingMfaDisable)
+            )
                 return;
 
             this.modal.mfa = false;
@@ -1353,6 +1599,8 @@ export default {
 
         /**
          * Tujuan method ini untuk meminta secret TOTP baru dari Clerk.
+         *
+         * @returns {Promise<void>} Promise diselesaikan setelah alur asynchronous selesai.
          */
         async prepareMfaSetup() {
             this.isProcessingMfaSetup = true;
@@ -1365,7 +1613,7 @@ export default {
                     return clerkUser.createTOTP();
                 });
                 this.totpQrCodeDataUri = await this.createTotpQrCodeDataUri(this.totpSetup?.uri || '');
-            } catch(error) {
+            } catch (error) {
                 this.modal.mfa = false;
                 ElNotification({
                     type: 'error',
@@ -1381,14 +1629,17 @@ export default {
         /**
          * Tujuan method ini untuk membuat QR code TOTP dari URI Clerk.
          * Jika QR gagal dibuat, user tetap bisa memakai secret key manual.
+         *
+         * @param {*} uri URI TOTP yang akan dikodekan menjadi data URI QR code.
+         *
+         * @returns {Promise<string>} Promise diselesaikan setelah alur asynchronous selesai.
          */
         async createTotpQrCodeDataUri(uri) {
-            if(!uri)
-                return '';
+            if (!uri) return '';
 
             try {
                 return await createQrCodeSvgDataUri(uri);
-            } catch(error) {
+            } catch (error) {
                 console.error(error);
 
                 return '';
@@ -1398,11 +1649,13 @@ export default {
         /**
          * Tujuan method ini untuk memverifikasi kode TOTP pertama
          * dan membuat backup codes setelah MFA aktif.
+         *
+         * @returns {Promise<void>} Promise diselesaikan setelah alur asynchronous selesai.
          */
         async verifyMfaSetup() {
             this.mfaErrors.totpCode = '';
 
-            if(this.totpCode.trim() === '') {
+            if (this.totpCode.trim() === '') {
                 this.mfaErrors.totpCode = 'kode verifikasi wajib diisi';
                 return;
             }
@@ -1436,7 +1689,7 @@ export default {
                     title: 'Success',
                     message: 'Two-factor authentication berhasil diaktifkan.',
                 });
-            } catch(error) {
+            } catch (error) {
                 ElNotification({
                     type: 'error',
                     title: 'error',
@@ -1450,6 +1703,8 @@ export default {
 
         /**
          * Tujuan method ini untuk membuat ulang backup codes MFA.
+         *
+         * @returns {Promise<void>} Promise diselesaikan setelah alur asynchronous selesai.
          */
         async regenerateBackupCodes() {
             this.isProcessingMfaBackup = true;
@@ -1466,7 +1721,7 @@ export default {
                     title: 'Success',
                     message: 'Backup codes berhasil dibuat ulang.',
                 });
-            } catch(error) {
+            } catch (error) {
                 ElNotification({
                     type: 'error',
                     title: 'error',
@@ -1481,18 +1736,25 @@ export default {
          * Tujuan method ini untuk membuat backup codes MFA melalui Clerk.
          * Backup codes memakai verifikasi multi-factor karena aksinya mengubah
          * recovery method untuk fitur two-factor authentication.
+         *
+         * @returns {Promise<*>} Promise diselesaikan setelah alur asynchronous selesai.
          */
         async createBackupCodesWithSessionVerification() {
-            return this.runClerkActionWithSessionVerification(async () => {
-                const clerkUser = await this.getActiveClerkUser();
+            return this.runClerkActionWithSessionVerification(
+                async () => {
+                    const clerkUser = await this.getActiveClerkUser();
 
-                return clerkUser.createBackupCode();
-            }, { level: 'multi_factor' });
+                    return clerkUser.createBackupCode();
+                },
+                { level: 'multi_factor' },
+            );
         },
 
         /**
          * Tujuan method ini untuk menonaktifkan TOTP milik user
          * setelah user menyetujui konfirmasi.
+         *
+         * @returns {Promise<void>} Promise diselesaikan setelah alur asynchronous selesai.
          */
         async disableMfa() {
             try {
@@ -1503,7 +1765,7 @@ export default {
                         type: 'warning',
                         confirmButtonText: 'Nonaktifkan',
                         cancelButtonText: 'Batal',
-                    }
+                    },
                 );
             } catch {
                 return;
@@ -1512,12 +1774,15 @@ export default {
             this.isProcessingMfaDisable = true;
 
             try {
-                const clerkUser = await this.runClerkActionWithSessionVerification(async () => {
-                    const activeClerkUser = await this.getActiveClerkUser();
-                    await activeClerkUser.disableTOTP();
+                const clerkUser = await this.runClerkActionWithSessionVerification(
+                    async () => {
+                        const activeClerkUser = await this.getActiveClerkUser();
+                        await activeClerkUser.disableTOTP();
 
-                    return activeClerkUser;
-                }, { level: 'multi_factor' });
+                        return activeClerkUser;
+                    },
+                    { level: 'multi_factor' },
+                );
                 await clerkUser.reload();
                 await this.loadSummary();
 
@@ -1528,7 +1793,7 @@ export default {
                 });
 
                 this.closeMfaModal(true);
-            } catch(error) {
+            } catch (error) {
                 ElNotification({
                     type: 'error',
                     title: 'error',
@@ -1539,9 +1804,16 @@ export default {
             }
         },
 
+        /**
+         * Mengembalikan penyalinan teks yang ditentukan modul untuk halaman security.
+         *
+         * @param {*} value Nilai yang diproses oleh function.
+         * @param {*} successMessage Nilai success pesan yang diproses oleh function.
+         *
+         * @returns {Promise<void>} Promise diselesaikan setelah alur asynchronous selesai.
+         */
         async copyText(value, successMessage) {
-            if(!value)
-                return;
+            if (!value) return;
 
             try {
                 await navigator.clipboard.writeText(value);
@@ -1551,10 +1823,20 @@ export default {
             }
         },
 
+        /**
+         * Menjalankan proses copy totp secret dan menyinkronkan state hasilnya untuk halaman security.
+         *
+         * @returns {void} Function menerapkan efeknya melalui state komponen atau aplikasi.
+         */
         copyTotpSecret() {
             this.copyText(this.totpSetup?.secret || '', 'Secret key berhasil disalin.');
         },
 
+        /**
+         * Menjalankan proses copy backup codes dan menyinkronkan state hasilnya untuk halaman security.
+         *
+         * @returns {void} Function menerapkan efeknya melalui state komponen atau aplikasi.
+         */
         copyBackupCodes() {
             this.copyText(this.backupCodes.join('\n'), 'Backup codes berhasil disalin.');
         },
@@ -1562,6 +1844,8 @@ export default {
         /**
          * Tujuan method ini untuk membentuk isi file backup codes
          * yang bisa disimpan user secara lokal.
+         *
+         * @returns {*} Nilai yang dihasilkan oleh alur saat ini.
          */
         getBackupCodesFileContent() {
             return [
@@ -1579,10 +1863,11 @@ export default {
         /**
          * Tujuan method ini untuk mengunduh backup codes sebagai file teks
          * tanpa mengirim kode ke backend atau layanan lain.
+         *
+         * @returns {void} Memperbarui state komponen atau aplikasi tanpa mengembalikan nilai.
          */
         downloadBackupCodes() {
-            if(this.backupCodes.length === 0)
-                return;
+            if (this.backupCodes.length === 0) return;
 
             const fileContent = this.getBackupCodesFileContent();
             const fileBlob = new Blob([fileContent], { type: 'text/plain;charset=utf-8' });
@@ -1601,6 +1886,10 @@ export default {
         /**
          * Tujuan method ini untuk mengeluarkan satu perangkat lain
          * setelah user menyetujui konfirmasi.
+         *
+         * @param {*} session Sesi Clerk yang dipilih untuk dicabut.
+         *
+         * @returns {Promise<void>} Promise diselesaikan setelah alur asynchronous selesai.
          */
         async revokeSession(session) {
             try {
@@ -1611,7 +1900,7 @@ export default {
                         type: 'warning',
                         confirmButtonText: 'Keluar',
                         cancelButtonText: 'Batal',
-                    }
+                    },
                 );
             } catch {
                 return;
@@ -1641,10 +1930,11 @@ export default {
         /**
          * Tujuan method ini untuk mengeluarkan semua perangkat lain
          * tanpa memutus perangkat yang sedang dipakai.
+         *
+         * @returns {Promise<void>} Promise diselesaikan setelah alur asynchronous selesai.
          */
         async revokeOtherSessions() {
-            if(this.otherSessions.length === 0)
-                return;
+            if (this.otherSessions.length === 0) return;
 
             try {
                 await ElMessageBox.confirm(
@@ -1654,7 +1944,7 @@ export default {
                         type: 'warning',
                         confirmButtonText: 'Keluar Semua',
                         cancelButtonText: 'Batal',
-                    }
+                    },
                 );
             } catch {
                 return;
@@ -1683,76 +1973,111 @@ export default {
             }
         },
 
+        /**
+         * Memproses method icon untuk halaman security.
+         *
+         * @param {*} key Key yang diproses oleh function.
+         *
+         * @returns {string} Teks method icon yang telah diformat atau ditentukan.
+         */
         methodIcon(key) {
-            if(key === 'google')
-                return 'fa-brands fa-google';
+            if (key === 'google') return 'fa-brands fa-google';
 
-            if(key === 'passkey')
-                return 'fa-solid fa-key';
+            if (key === 'passkey') return 'fa-solid fa-key';
 
             return 'fa-solid fa-lock';
         },
 
+        /**
+         * Menentukan apakah kondisi feature tersedia terpenuhi untuk halaman security.
+         *
+         * @param {*} item Item yang diproses oleh operasi UI saat ini.
+         *
+         * @returns {boolean} Menunjukkan apakah kondisi is feature tersedia terpenuhi.
+         */
         isFeatureAvailable(item) {
-            if(item?.key === 'passkey')
-                return this.features.clerkPasskey && item.feature_available !== false;
+            if (item?.key === 'passkey') return this.features.clerkPasskey && item.feature_available !== false;
 
-            if(item?.key === 'mfa')
-                return this.features.clerkTotp && item.feature_available !== false;
+            if (item?.key === 'mfa') return this.features.clerkTotp && item.feature_available !== false;
 
             return true;
         },
 
+        /**
+         * Memproses feature description untuk halaman security.
+         *
+         * @param {*} item Item yang diproses oleh operasi UI saat ini.
+         *
+         * @returns {string} Teks feature description yang telah diformat atau ditentukan.
+         */
         featureDescription(item) {
-            if(this.isFeatureAvailable(item))
-                return item.description;
+            if (this.isFeatureAvailable(item)) return item.description;
 
             return `${item.description} Fitur ini memerlukan Clerk Pro dan belum tersedia.`;
         },
 
+        /**
+         * Memproses protection icon untuk halaman security.
+         *
+         * @param {*} key Key yang diproses oleh function.
+         *
+         * @returns {string} Teks protection icon yang telah diformat atau ditentukan.
+         */
         protectionIcon(key) {
             return 'fa-solid fa-shield-halved';
         },
 
+        /**
+         * Mengembalikan session icon yang ditentukan modul untuk halaman security.
+         *
+         * @param {*} session Sesi yang diproses oleh function.
+         *
+         * @returns {*} Nilai yang dihasilkan oleh operasi session icon.
+         */
         sessionIcon(session) {
-            return session.is_mobile
-                ? 'fa-solid fa-mobile-screen-button'
-                : 'fa-solid fa-laptop';
+            return session.is_mobile ? 'fa-solid fa-mobile-screen-button' : 'fa-solid fa-laptop';
         },
 
+        /**
+         * Memproses class status untuk halaman security.
+         *
+         * @param {*} status Nilai status yang diproses oleh function.
+         *
+         * @returns {string} Teks class status yang telah diformat atau ditentukan.
+         */
         statusClass(status) {
-            if(['active', 'connected'].includes(status))
-                return 'is-success';
+            if (['active', 'connected'].includes(status)) return 'is-success';
 
             return 'is-muted';
         },
 
+        /**
+         * Memformat session time untuk ditampilkan untuk halaman security.
+         *
+         * @param {*} session Sesi yang diproses oleh function.
+         *
+         * @returns {string} Teks format session time yang telah diformat atau ditentukan.
+         */
         formatSessionTime(session) {
-            if(session.is_current)
-                return 'Aktif sekarang';
+            if (session.is_current) return 'Aktif sekarang';
 
             const timestamp = Number(session.last_active_at_timestamp || 0);
 
-            if(!timestamp)
-                return 'Terakhir aktif tidak tersedia';
+            if (!timestamp) return 'Terakhir aktif tidak tersedia';
 
             const seconds = Math.max(0, Math.floor((Date.now() - timestamp * 1000) / 1000));
 
-            if(seconds < 60)
-                return 'Terakhir aktif baru saja';
+            if (seconds < 60) return 'Terakhir aktif baru saja';
 
             const minutes = Math.floor(seconds / 60);
 
-            if(minutes < 60)
-                return `Terakhir aktif ${minutes} menit lalu`;
+            if (minutes < 60) return `Terakhir aktif ${minutes} menit lalu`;
 
             const hours = Math.floor(minutes / 60);
 
-            if(hours < 24)
-                return `Terakhir aktif ${hours} jam lalu`;
+            if (hours < 24) return `Terakhir aktif ${hours} jam lalu`;
 
-            if(hours < 48)
-                return 'Terakhir aktif kemarin';
+            if (hours < 48) return 'Terakhir aktif kemarin';
 
             return `Terakhir aktif ${new Intl.DateTimeFormat('id-ID', {
                 day: '2-digit',
@@ -1761,11 +2086,17 @@ export default {
             }).format(new Date(timestamp * 1000))}`;
         },
 
+        /**
+         * Memformat passkey last used untuk ditampilkan untuk halaman security.
+         *
+         * @param {*} passkey Nilai passkey yang diproses oleh function.
+         *
+         * @returns {string} Teks format passkey last used yang telah diformat atau ditentukan.
+         */
         formatPasskeyLastUsed(passkey) {
             const timestamp = Number(passkey.last_used_at_timestamp || 0);
 
-            if(!timestamp)
-                return 'Belum pernah digunakan';
+            if (!timestamp) return 'Belum pernah digunakan';
 
             return `Terakhir digunakan ${new Intl.DateTimeFormat('id-ID', {
                 day: '2-digit',
@@ -1774,7 +2105,7 @@ export default {
             }).format(new Date(timestamp * 1000))}`;
         },
     },
-}
+};
 </script>
 
 <style scoped>

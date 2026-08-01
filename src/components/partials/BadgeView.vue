@@ -1,7 +1,8 @@
 <template>
-    <h3 
+    <h3
         class="font-normal text-[12px] border border-neutral-300 shadow-sm w-max text-center rounded-xl text-white py-0.5 px-2"
-        :class="background">
+        :class="background"
+    >
         {{ text }}
     </h3>
 </template>
@@ -14,11 +15,16 @@ export default {
         },
         text: {
             type: String,
-            required: true
-        }
+            required: true,
+        },
     },
 
     computed: {
+        /**
+         * Memproses background untuk halaman badge.
+         *
+         * @returns {string} Teks background yang telah diformat atau ditentukan.
+         */
         background() {
             switch (this.color) {
                 case 'yellow':
@@ -28,7 +34,7 @@ export default {
                 default:
                     return 'bg-gray-400';
             }
-        }
-    }
-}
+        },
+    },
+};
 </script>
