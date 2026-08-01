@@ -1,31 +1,44 @@
 <template>
-    <div class="settings-page px-5 pb-6 lg:px-8 w-full" @click="closeMobileMenu">
+    <div
+        class="settings-page px-5 pb-6 lg:px-8 w-full"
+        @click="closeMobileMenu"
+    >
         <div class="settings-shell">
             <header class="settings-header">
                 <div>
                     <h1>Pengaturan</h1>
-                    <p>Kelola informasi akun, toko, pembayaran, dan preferensi aplikasi.</p>
+                    <p>
+                        Kelola informasi akun, toko, pembayaran, dan preferensi
+                        aplikasi.
+                    </p>
                 </div>
             </header>
 
             <div class="settings-mobile-menu" @click.stop>
-                <label class="settings-mobile-field-label">Menu Pengaturan</label>
+                <label class="settings-mobile-field-label"
+                    >Menu Pengaturan</label
+                >
                 <button
                     type="button"
                     class="settings-mobile-button"
-                    :class="{'is-open': isMobileMenuOpen}"
+                    :class="{ 'is-open': isMobileMenuOpen }"
                     :aria-expanded="isMobileMenuOpen"
-                    @click="toggleMobileMenu">
+                    @click="toggleMobileMenu"
+                >
                     <span>{{ currentSettingsMenuLabel }}</span>
                     <svg
                         class="settings-mobile-chevron"
-                        :class="{'is-open': isMobileMenuOpen}"
+                        :class="{ 'is-open': isMobileMenuOpen }"
                         xmlns="http://www.w3.org/2000/svg"
                         width="16"
                         height="16"
                         fill="currentColor"
-                        viewBox="0 0 16 16">
-                        <path fill-rule="evenodd" d="M1.646 4.646a.5.5 0 0 1 .708 0L8 10.293l5.646-5.647a.5.5 0 0 1 .708.708l-6 6a.5.5 0 0 1-.708 0l-6-6a.5.5 0 0 1 0-.708"/>
+                        viewBox="0 0 16 16"
+                    >
+                        <path
+                            fill-rule="evenodd"
+                            d="M1.646 4.646a.5.5 0 0 1 .708 0L8 10.293l5.646-5.647a.5.5 0 0 1 .708.708l-6 6a.5.5 0 0 1-.708 0l-6-6a.5.5 0 0 1 0-.708"
+                        />
                     </svg>
                 </button>
 
@@ -33,17 +46,21 @@
                     <div
                         v-for="section in settingsMenus"
                         :key="section.title"
-                        class="settings-mobile-section">
+                        class="settings-mobile-section"
+                    >
                         <h3>{{ section.title }}</h3>
                         <button
                             v-for="item in section.items"
                             :key="item.name"
                             type="button"
                             class="settings-mobile-item"
-                            :class="{'is-active': isMenuActive(item)}"
-                            @click="changeSettingsMenu(item.name)">
+                            :class="{ 'is-active': isMenuActive(item) }"
+                            @click="changeSettingsMenu(item.name)"
+                        >
                             <span>{{ item.label }}</span>
-                            <span v-if="item.soon" class="settings-soon-badge">Segera</span>
+                            <span v-if="item.soon" class="settings-soon-badge"
+                                >Segera</span
+                            >
                         </button>
                     </div>
                 </div>
@@ -54,17 +71,21 @@
                     <div
                         v-for="section in settingsMenus"
                         :key="section.title"
-                        class="settings-menu-section">
+                        class="settings-menu-section"
+                    >
                         <h2>{{ section.title }}</h2>
 
                         <router-link
                             v-for="item in section.items"
                             :key="item.name"
-                            :to="{name: item.name}"
+                            :to="{ name: item.name }"
                             class="settings-menu-item"
-                            :class="{'is-active': isMenuActive(item)}">
+                            :class="{ 'is-active': isMenuActive(item) }"
+                        >
                             <span>{{ item.label }}</span>
-                            <span v-if="item.soon" class="settings-soon-badge">Segera</span>
+                            <span v-if="item.soon" class="settings-soon-badge"
+                                >Segera</span
+                            >
                         </router-link>
                     </div>
                 </aside>
@@ -73,7 +94,10 @@
                     <div class="settings-content-header">
                         <h2>{{ currentSettingsTitle }}</h2>
                         <p>{{ currentSettingsDescription }}</p>
-                        <div class="settings-title-divider" aria-hidden="true"></div>
+                        <div
+                            class="settings-title-divider"
+                            aria-hidden="true"
+                        ></div>
                     </div>
 
                     <div class="settings-content-body">
@@ -96,67 +120,78 @@ export default {
              */
             settingsMenus: [
                 {
-                    title: 'Akun',
+                    title: "Akun",
                     items: [
-                        { name: 'settings_profile', label: 'Profil Pengguna' },
-                        { name: 'settings_security', label: 'Keamanan' },
-                        { name: 'settings_addresses', label: 'Alamat' },
+                        { name: "settings_profile", label: "Profil Pengguna" },
+                        { name: "settings_security", label: "Keamanan" },
+                        { name: "settings_addresses", label: "Alamat" },
                     ],
                 },
                 {
-                    title: 'Bisnis / Toko',
+                    title: "Bisnis / Toko",
+                    items: [{ name: "settings_store", label: "Profil Toko" }],
+                },
+                {
+                    title: "Keuangan",
                     items: [
-                        { name: 'settings_store', label: 'Profil Toko' },
+                        { name: "settings_balance", label: "Saldo" },
+                        {
+                            name: "settings_bank_accounts",
+                            label: "Rekening Bank",
+                        },
                     ],
                 },
                 {
-                    title: 'Keuangan',
+                    title: "Aktivitas",
+                    items: [{ name: "settings_audit_log", label: "Audit Log" }],
+                },
+                {
+                    title: "Preferensi",
                     items: [
-                        { name: 'settings_balance', label: 'Saldo' },
-                        { name: 'settings_bank_accounts', label: 'Rekening Bank' },
+                        {
+                            name: "settings_notifications",
+                            label: "Notifikasi",
+                            soon: true,
+                        },
                     ],
                 },
                 {
-                    title: 'Aktivitas',
+                    title: "Bantuan",
                     items: [
-                        { name: 'settings_audit_log', label: 'Audit Log' },
+                        {
+                            name: "settings_support_report",
+                            label: "Support Report",
+                            soon: true,
+                        },
                     ],
                 },
-                {
-                    title: 'Preferensi',
-                    items: [
-                        { name: 'settings_notifications', label: 'Notifikasi', soon: true },
-                    ],
-                },
-                {
-                    title: 'Bantuan',
-                    items: [
-                        { name: 'settings_support_report', label: 'Support Report', soon: true },
-                    ],
-                },
-            ]
-        }
+            ],
+        };
     },
 
     computed: {
         currentSettingsTitle() {
-            return this.$route.meta.settingsTitle || 'Pengaturan';
+            return this.$route.meta.settingsTitle || "Pengaturan";
         },
 
         currentSettingsDescription() {
-            return this.$route.meta.settingsDescription || 'Kelola informasi akun, toko, pembayaran, dan preferensi aplikasi.';
+            return (
+                this.$route.meta.settingsDescription ||
+                "Kelola informasi akun, toko, pembayaran, dan preferensi aplikasi."
+            );
         },
 
         currentSettingsMenuLabel() {
-            for(const section of this.settingsMenus) {
-                const item = section.items.find(item => item.name == this.$route.name);
+            for (const section of this.settingsMenus) {
+                const item = section.items.find(
+                    (item) => item.name == this.$route.name,
+                );
 
-                if(item)
-                    return item.label;
+                if (item) return item.label;
             }
 
-            return 'Pilih Menu';
-        }
+            return "Pilih Menu";
+        },
     },
 
     methods: {
@@ -178,11 +213,11 @@ export default {
         changeSettingsMenu(routeName) {
             this.closeMobileMenu();
 
-            if(routeName && routeName != this.$route.name)
-                this.$router.push({name: routeName});
-        }
-    }
-}
+            if (routeName && routeName != this.$route.name)
+                this.$router.push({ name: routeName });
+        },
+    },
+};
 </script>
 
 <style scoped>
@@ -366,13 +401,17 @@ export default {
     gap: 6px;
 }
 
-:deep(.input-container label) {
+:deep(.input-container > label) {
     color: #334155;
     font-size: 14px;
     font-weight: 500;
 }
 
-:deep(input:not([type="checkbox"]):not([type="radio"]):not([type="file"]):not(.el-input__inner):not(.el-range-input):not(.el-select__input)),
+:deep(
+        input:not([type="checkbox"]):not([type="radio"]):not([type="file"]):not(
+                .el-input__inner
+            ):not(.el-range-input):not(.el-select__input)
+    ),
 :deep(select),
 :deep(textarea) {
     width: 100%;
@@ -384,10 +423,17 @@ export default {
     font-size: 16px;
     outline: none;
     box-shadow: none;
-    transition: border-color 150ms ease-in-out, box-shadow 150ms ease-in-out, background-color 150ms ease-in-out;
+    transition:
+        border-color 150ms ease-in-out,
+        box-shadow 150ms ease-in-out,
+        background-color 150ms ease-in-out;
 }
 
-:deep(input:not([type="checkbox"]):not([type="radio"]):not([type="file"]):not(.el-input__inner):not(.el-range-input):not(.el-select__input)) {
+:deep(
+        input:not([type="checkbox"]):not([type="radio"]):not([type="file"]):not(
+                .el-input__inner
+            ):not(.el-range-input):not(.el-select__input)
+    ) {
     height: 44px;
     padding: 0 12px;
 }
@@ -402,19 +448,31 @@ export default {
     padding: 10px 12px;
 }
 
-:deep(input:not(.el-input__inner):not(.el-range-input):not(.el-select__input)::placeholder),
+:deep(
+        input:not(.el-input__inner):not(.el-range-input):not(
+                .el-select__input
+            )::placeholder
+    ),
 :deep(textarea::placeholder) {
     color: #94a3b8;
 }
 
-:deep(input:not([type="checkbox"]):not([type="radio"]):not([type="file"]):not(.el-input__inner):not(.el-range-input):not(.el-select__input):focus),
+:deep(
+        input:not([type="checkbox"]):not([type="radio"]):not([type="file"]):not(
+                .el-input__inner
+            ):not(.el-range-input):not(.el-select__input):focus
+    ),
 :deep(select:focus),
 :deep(textarea:focus) {
     border-color: #8b5cf6 !important;
     box-shadow: 0 0 0 2px #f3e8ff !important;
 }
 
-:deep(input:not([type="checkbox"]):not([type="radio"]):not([type="file"]):not(.el-input__inner):not(.el-range-input):not(.el-select__input):disabled),
+:deep(
+        input:not([type="checkbox"]):not([type="radio"]):not([type="file"]):not(
+                .el-input__inner
+            ):not(.el-range-input):not(.el-select__input):disabled
+    ),
 :deep(select:disabled),
 :deep(textarea:disabled),
 :deep(.input-disabled) {
@@ -455,7 +513,10 @@ export default {
     border: 1px solid #cbd5e1;
     background-color: #ffffff;
     box-shadow: none !important;
-    transition: border-color 150ms ease-in-out, box-shadow 150ms ease-in-out, background-color 150ms ease-in-out;
+    transition:
+        border-color 150ms ease-in-out,
+        box-shadow 150ms ease-in-out,
+        background-color 150ms ease-in-out;
 }
 
 :deep(.el-input__wrapper:hover),
@@ -507,7 +568,13 @@ export default {
 }
 
 :deep(.border-red-500:focus),
-:deep(input.is-error-field:not([type="checkbox"]):not([type="radio"]):not([type="file"]):not(.el-input__inner):not(.el-range-input):not(.el-select__input):focus),
+:deep(
+        input.is-error-field:not([type="checkbox"]):not([type="radio"]):not(
+                [type="file"]
+            ):not(.el-input__inner):not(.el-range-input):not(
+                .el-select__input
+            ):focus
+    ),
 :deep(.setting-card input.is-error-field),
 :deep(.setting-card input.is-error-field:focus),
 :deep(.setting-card input.is-error-field.border-red-500:focus),
@@ -523,7 +590,9 @@ export default {
 :deep(.is-error .el-input__wrapper.is-focus),
 :deep(.is-error .el-input__wrapper:focus-within) {
     border-color: #ef4444 !important;
-    box-shadow: 0 0 0 2px #fee2e2, 0 1px 2px rgba(15, 23, 42, 0.05) !important;
+    box-shadow:
+        0 0 0 2px #fee2e2,
+        0 1px 2px rgba(15, 23, 42, 0.05) !important;
 }
 
 @media (max-width: 1024px) {
@@ -555,7 +624,9 @@ export default {
         padding: 0 12px;
         text-align: left;
         box-shadow: 0 8px 18px rgba(15, 23, 42, 0.04);
-        transition: border-color 150ms ease-in-out, box-shadow 150ms ease-in-out;
+        transition:
+            border-color 150ms ease-in-out,
+            box-shadow 150ms ease-in-out;
     }
 
     .settings-mobile-button.is-open,
@@ -574,7 +645,9 @@ export default {
     .settings-mobile-chevron {
         flex: 0 0 auto;
         color: #94a3b8;
-        transition: transform 150ms ease-in-out, color 150ms ease-in-out;
+        transition:
+            transform 150ms ease-in-out,
+            color 150ms ease-in-out;
     }
 
     .settings-mobile-chevron.is-open {

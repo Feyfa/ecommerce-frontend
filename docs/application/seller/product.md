@@ -17,6 +17,7 @@ Current supported actions:
 - Add a product with one to five image uploads.
 - Edit product data and manage image additions, removals, and ordering.
 - Delete a product after confirmation.
+- See a store-location warning and keep existing products manageable when the seller location is not verified.
 - Preview product images through a zoom viewer.
 
 ## Main Files
@@ -54,6 +55,7 @@ Current supported actions:
 - Failed current requests stop page/filter loading and restore the product view instead of leaving the toolbar stuck.
 - `completeProduct`: marks that the backend has no more products to return.
 - `editProductId`: selected product id for the edit drawer.
+- `sellerLocationVerified`: controls the store-location warning and add-product availability.
 - `show.loading`: initial page loading state.
 - `show.loading_search_product`: search/list reload loading state.
 
@@ -114,13 +116,15 @@ Supported sort values:
 
 ### Add Product
 
-1. The seller clicks `Tambah Produk`.
+1. The seller clicks `Tambah Produk`; the action is disabled when the store has no active verified Pinpoint location.
 2. `this.$global.modals.addProduct` opens `add.vue`.
 3. The seller selects 1 to 5 images, arranges them with drag-and-drop, and fills name, price, and stock.
 4. `add.vue` submits a `FormData` payload through the `addProduct` Vuex action.
 5. Files remain local previews until submit. On success, `ProductView.vue` prepends the returned product to `products`.
 
 The price input is displayed as a rupiah-style input group with an `Rp` prefix and Indonesian thousands separators. For example, typing `500000` is displayed as `500.000`, but the value submitted through `FormData` remains the clean numeric string `500000`.
+
+When the location is not verified, the page shows `Lokasi Toko Belum Diverifikasi`, a link to store settings, and the same badge on existing product cards. Existing products remain visible and editable.
 
 ### Edit Product
 
@@ -143,6 +147,8 @@ When an existing product is loaded, the API price is copied into both `price` an
 3. The `deleteProduct` Vuex action calls the backend.
 4. On success, the deleted product is removed from `products`.
 
+The backend performs a soft delete, so old buyer cart rows can still explain why the item is unavailable.
+
 ## API Calls
 
 The frontend uses these backend API actions through `src/store.js`:
@@ -160,6 +166,7 @@ Authenticated requests use the current Clerk session token attached by the share
 - Product cards use a light page background and white cards so adjacent products do not blend together.
 - Add and edit drawers show up to five draggable thumbnails; the first is labeled `Foto Utama`.
 - Each image is limited to 1 MB. Closing or cancelling the drawer removes unsaved local previews without uploading them.
+- Add and edit keep the form open when an upload fails. A proxy `413`, request timeout, or network failure is reported with an actionable notification instead of leaving the submit request as an unexplained cancellation.
 - Product images use `object-contain` so the full product is visible.
 - Prices are formatted with Indonesian thousands separators, for example `Rp 12.000.000`.
 - Add and edit price inputs use an `Rp` prefix and Indonesian thousands separators, but submit raw numeric values to the backend.
@@ -180,3 +187,8 @@ Authenticated requests use the current Clerk session token attached by the share
 - `Semua Kondisi` is the default so a seller always sees the complete catalog before narrowing by stock condition.
 - Stock-based sorting is intentionally excluded because stock is represented only as a condition filter.
 - Product pagination uses `products_current_id` instead of a page number.
+
+## QA Coverage
+
+- [TOK-6 Product Images QA](../../qa/tok-6-product-images.md) tracks product
+  image UI verification.

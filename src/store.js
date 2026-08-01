@@ -261,6 +261,12 @@ export default createStore({
                     name: data.name,
                     phone: data.phone,
                     alamat: data.alamat,
+                    location_source: data.location_source,
+                    latitude: data.latitude,
+                    longitude: data.longitude,
+                    geoapify_place_id: data.geoapify_place_id,
+                    formatted_address: data.formatted_address,
+                    address_detail: data.address_detail,
                     enable: data.enable,
                     searchAlamat: data.searchAlamat
                 })
@@ -310,6 +316,12 @@ export default createStore({
                     name: data.name,
                     phone: data.phone,
                     alamat: data.alamat,
+                    location_source: data.location_source,
+                    latitude: data.latitude,
+                    longitude: data.longitude,
+                    geoapify_place_id: data.geoapify_place_id,
+                    formatted_address: data.formatted_address,
+                    address_detail: data.address_detail,
                     enable: data.enable,
                     searchAlamat: data.searchAlamat
                 })
@@ -678,6 +690,12 @@ export default createStore({
                     phone: data.phone,
                     description: data.description,
                     alamat: data.alamat,
+                    location_source: data.location_source,
+                    latitude: data.latitude,
+                    longitude: data.longitude,
+                    geoapify_place_id: data.geoapify_place_id,
+                    formatted_address: data.formatted_address,
+                    address_detail: data.address_detail,
                 })
                 .then(response => {
                     resolve(response.data);

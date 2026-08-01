@@ -20,6 +20,10 @@ The address UI is separated from the user profile tab because addresses can grow
 - `src/views/auth/settings/SettingsView.vue`
   Owns the `Alamat` settings menu entry, content header, and shared settings styling.
 
+- `src/components/address/LocationPicker.vue`
+  Owns the reusable Leaflet map, Geoapify search, reverse geocoding, marker,
+  device location, and map-unavailable behavior shared with the seller form.
+
 ## Fields
 
 Address modal fields:
@@ -28,7 +32,7 @@ Address modal fields:
 Place
 nama
 Phone
-Alamat
+Pinpoint dan Detail Alamat
 Tetapkan Sebagai Pilihan
 ```
 
@@ -37,7 +41,7 @@ Required fields:
 - `place`
 - `nama`
 - `phone`
-- `alamat`
+- a confirmed pinpoint and address detail
 
 Optional fields:
 
@@ -50,6 +54,14 @@ Optional fields:
 - Empty address state displays `Alamat Kosong`.
 - Add and edit actions use a modal.
 - Existing address cards show address identity, contact number, address text, edit/delete actions, and selected/default state.
+- Verified address cards show `Pinpoint`; legacy manual rows show `Perlu Verifikasi` without mini maps.
+- Add and edit forms use pinpoint only.
+- Editing a legacy row keeps its old text visible and converts the same row after a successful pinpoint save.
+- Legacy rows cannot become the selected address or pass checkout before verification.
+- Geoapify failures preserve recipient inputs, restore the marker to the last
+  verified coordinate, and block saving until verification is available.
+- Search results and map movement are constrained to Indonesia in the UI; the backend performs the authoritative country validation.
+- The shared picker observes its container size and refreshes Leaflet tiles when a hidden profile or modal becomes visible.
 - The selected/default address indicator stays visible on the address row.
 
 ## Validation
@@ -79,10 +91,23 @@ The add/edit address modal should keep:
 
 Address actions are handled through Vuex actions in `src/store.js`.
 
+Add and edit failures without an HTTP response use a connection-safe fallback
+message and always release the related loading state so the form can be retried.
+
 Keep backend field names unchanged when building payloads:
 
 - `place`
 - `nama`
 - `phone`
-- `alamat`
+- `location_source`
+- `latitude`
+- `longitude`
+- `geoapify_place_id`
+- `formatted_address`
+- `address_detail`
 - selected/default flag field used by the existing backend contract.
+
+## QA Coverage
+
+- [TOK-8 Pinpoint Address QA](../../qa/tok-8-pinpoint-address.md) tracks
+  buyer-address UI verification.

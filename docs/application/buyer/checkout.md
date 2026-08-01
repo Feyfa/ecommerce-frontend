@@ -41,6 +41,7 @@ Current supported actions:
 `CheckoutView.vue`:
 
 - `alamat`: active buyer address text shown in the address section.
+- `activeAlamat`: full active address used to compare its id and update version during submit.
 - `alamats`: address list shown in the address picker modal.
 - `checkouts`: seller-grouped checkout packages returned by the backend.
 - `payments`: backend payment methods available for checkout.
@@ -104,20 +105,30 @@ Mobile layout:
 6. Shipping total and final total are calculated.
 7. The checkout page is shown.
 
-If loading fails, the page shows an error notification and redirects to `/buyer/keranjang`.
+If loading fails generically, the page shows an error notification and redirects to `/buyer/keranjang`.
+
+If the active buyer address is a legacy manual row, the backend returns
+`ADDRESS_REQUIRES_VERIFICATION` and the page directs the buyer to address
+settings. If a seller still has a legacy manual address, the backend returns
+`SELLER_ADDRESS_REQUIRES_VERIFICATION`. The page shows a blocking `Lokasi Toko
+Belum Diverifikasi` dialog and only returns to the cart after the buyer confirms
+`Kembali ke Keranjang`. The same dialog behavior applies when the seller loses
+verification immediately before `Bayar Sekarang`. Neither condition may
+proceed to payment.
 
 ### Change Address
 
 1. The buyer clicks `Ganti`.
 2. The page dispatches `getAlamatBuyer`.
 3. The address modal opens with available buyer addresses.
-4. The buyer clicks `Pilih` on a non-active address.
+4. The buyer clicks `Pilih` on a verified non-active address. Legacy rows show
+   `Verifikasi` and route to address settings instead.
 5. The page dispatches `setEnableAlamatBuyer`.
 6. On success, `alamat` is replaced with the backend `currentAlamat.alamat`, the modal closes, and a success notification is shown.
 
 ### Change Courier
 
-Each seller package has an independent courier selector.
+Each seller package has an independent courier selector. The package heading uses the seller's public company/store name, with the seller account name only as a backend fallback for legacy or incomplete profiles.
 
 When the selected courier changes:
 
@@ -160,6 +171,8 @@ The request sends:
   ],
   "payment_slug": "bca",
   "client_snapshot": {
+    "alamat_id": "address uuid",
+    "alamat_updated_at": "address ISO timestamp",
     "cart_item_ids": ["cart uuid"],
     "total_product": 1310000,
     "total_shipping": 30000,
@@ -216,8 +229,16 @@ Expected invalid cases include:
 
 - active address missing;
 - no checkout cart rows;
+- product was deleted or became sold out;
 - product stock changed below checkout quantity;
 - checkout cart data became stale enough that the buyer should return to cart.
+
+A seller location that becomes unverified after Checkout opens uses the more
+specific `SELLER_ADDRESS_REQUIRES_VERIFICATION` contract instead. Both checkout
+load and payment submission wait for the buyer to acknowledge the seller-location
+dialog before routing back to the cart.
+
+The backend cancels the complete attempt rather than silently removing only the invalid item. The affected cart selection is cleared after rollback, while its quantity is preserved for review on the cart page.
 
 ### Validation Errors
 
@@ -241,3 +262,8 @@ Expected invalid cases include:
 - The frontend sends a client snapshot so the backend can reject stale totals before creating a payment.
 - The backend is the source of truth for final checkout validity and payment support.
 - The visible checkout UI can show all payment methods returned by the backend, but payment processing currently depends on backend validation.
+
+## QA Coverage
+
+- [TOK-8 Pinpoint Address QA](../../qa/tok-8-pinpoint-address.md) tracks
+  checkout and address-snapshot UI verification.
