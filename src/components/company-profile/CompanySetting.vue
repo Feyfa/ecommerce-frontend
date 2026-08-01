@@ -1,7 +1,5 @@
 <template>
-    <div
-        class="setting-card w-full border bg-neutral-50 border-neutral-400 shadow-md p-5 rounded"
-    >
+    <div class="setting-card w-full border bg-neutral-50 border-neutral-400 shadow-md p-5 rounded">
         <!-- title -->
         <div class="setting-card-header relative">
             <h3 class="text-xl text-center">Company Setting</h3>
@@ -10,9 +8,7 @@
 
         <!-- input -->
         <div class="mt-5">
-            <div
-                class="grid grid-cols-1 md:grid-cols-3 items-start gap-y-4 gap-x-4 lg:gap-x-6"
-            >
+            <div class="grid grid-cols-1 md:grid-cols-3 items-start gap-y-4 gap-x-4 lg:gap-x-6">
                 <div class="input-container flex flex-col w-full">
                     <label for="name">
                         Name
@@ -50,8 +46,7 @@
                         aria-required="true"
                         v-model="email"
                         :class="{
-                            'is-error-field border border-red-500':
-                                errors.email,
+                            'is-error-field border border-red-500': errors.email,
                         }"
                         @input="watchInputEmail"
                     />
@@ -75,8 +70,7 @@
                         v-model="phone"
                         @keypress="validatePhone"
                         :class="{
-                            'is-error-field border border-red-500':
-                                errors.phone,
+                            'is-error-field border border-red-500': errors.phone,
                         }"
                         @input="watchInputPhone"
                     />
@@ -88,19 +82,13 @@
 
             <div class="mt-4 grid grid-cols-1 items-start gap-y-4">
                 <div class="input-container flex flex-col w-full gap-2">
-                    <span
-                        >Lokasi Toko
-                        <span class="required-mark" aria-hidden="true"
-                            >*</span
-                        ></span
-                    >
+                    <span>Lokasi Toko <span class="required-mark" aria-hidden="true">*</span></span>
                     <div v-if="legacyAddress" class="legacy-address-notice">
                         <strong>Lokasi toko perlu diverifikasi.</strong>
                         <span>Alamat lama: {{ legacyAddress }}</span>
                     </div>
                     <small class="text-slate-500"
-                        >Lokasi wajib berada di Indonesia dan diverifikasi saat
-                        profil disimpan.</small
+                        >Lokasi wajib berada di Indonesia dan diverifikasi saat profil disimpan.</small
                     >
                     <div class="location-source-content">
                         <LocationPicker
@@ -154,15 +142,20 @@
 </template>
 
 <script>
-import { ElNotification } from "element-plus";
-import LocationPicker from "../address/LocationPicker.vue";
+import { ElNotification } from 'element-plus';
+import LocationPicker from '../address/LocationPicker.vue';
 
+/**
+ * Membuat data location kosong untuk company setting.
+ *
+ * @returns {Object} Object create empty location yang telah disiapkan.
+ */
 const createEmptyLocation = () => ({
     latitude: null,
     longitude: null,
     geoapify_place_id: null,
-    formatted_address: "",
-    address_detail: "",
+    formatted_address: '',
+    address_detail: '',
 });
 
 export default {
@@ -170,25 +163,30 @@ export default {
         LocationPicker,
     },
 
+    /**
+     * Membuat state reaktif yang digunakan komponen untuk company setting.
+     *
+     * @returns {Object} State reaktif yang diinisialisasi untuk komponen.
+     */
     data() {
         return {
-            name: "",
-            email: "",
-            phone: "081388992799",
-            alamat: "",
+            name: '',
+            email: '',
+            phone: '081388992799',
+            alamat: '',
             location: createEmptyLocation(),
-            legacyAddress: "",
-            description: "",
+            legacyAddress: '',
+            description: '',
 
             isProcessUpdate: false,
 
             errors: {
-                name: "",
-                email: "",
-                phone: "",
-                alamat: "",
-                location: "",
-                addressDetail: "",
+                name: '',
+                email: '',
+                phone: '',
+                alamat: '',
+                location: '',
+                addressDetail: '',
             },
 
             rows: {
@@ -198,23 +196,32 @@ export default {
         };
     },
 
+    /**
+     * Menginisialisasi behavior komponen yang bergantung pada browser setelah mounted untuk company setting.
+     *
+     * @returns {void} Function menerapkan efeknya melalui state komponen atau aplikasi.
+     */
     mounted() {
         this.getCompany();
         this.setRowsTextAreaBasedOnScreenSize();
-        window.addEventListener(
-            "resize",
-            this.setRowsTextAreaBasedOnScreenSize,
-        );
+        window.addEventListener('resize', this.setRowsTextAreaBasedOnScreenSize);
     },
 
+    /**
+     * Melepaskan resource komponen dan pekerjaan tertunda sebelum unmount untuk company setting.
+     *
+     * @returns {void} Function menerapkan efeknya melalui state komponen atau aplikasi.
+     */
     beforeUnmount() {
-        window.removeEventListener(
-            "resize",
-            this.setRowsTextAreaBasedOnScreenSize,
-        );
+        window.removeEventListener('resize', this.setRowsTextAreaBasedOnScreenSize);
     },
 
     methods: {
+        /**
+         * Memperbarui rows text area based on screen size untuk company setting.
+         *
+         * @returns {void} Function menerapkan efeknya melalui state komponen atau aplikasi.
+         */
         setRowsTextAreaBasedOnScreenSize() {
             if (window.innerWidth < 500) {
                 this.rows.alamat = 4;
@@ -229,10 +236,14 @@ export default {
         },
 
         /**
-         * Synchronize the form with the authoritative company payload.
+         * Menyinkronkan form dengan payload company yang menjadi sumber data utama.
          *
-         * Reusing this after both load and save prevents legacy address notices
-         * and provider-normalized location metadata from becoming stale.
+         * Penggunaan ulang proses ini setelah load dan save mencegah pemberitahuan alamat lama
+         * serta metadata lokasi hasil normalisasi provider menjadi stale.
+         *
+         * @param {*} company Nilai company yang diproses oleh function.
+         *
+         * @returns {void} Memperbarui state komponen atau aplikasi tanpa mengembalikan nilai.
          */
         applyCompanyState(company) {
             this.name = company.name;
@@ -240,41 +251,47 @@ export default {
             this.phone = company.phone;
             this.description = company.description;
             this.alamat = company.alamat;
-            this.legacyAddress =
-                company.location_source === "map" ? "" : company.alamat;
+            this.legacyAddress = company.location_source === 'map' ? '' : company.alamat;
             this.location = {
                 latitude: company.latitude,
                 longitude: company.longitude,
                 geoapify_place_id: company.geoapify_place_id,
-                formatted_address: company.formatted_address || "",
-                address_detail: company.address_detail || "",
+                formatted_address: company.formatted_address || '',
+                address_detail: company.address_detail || '',
             };
         },
 
+        /**
+         * Mengambil company untuk company setting, dengan mendelegasikan pekerjaan backend atau shared state melalui Vuex store.
+         *
+         * @returns {void} Function menerapkan efeknya melalui state komponen atau aplikasi.
+         */
         getCompany() {
             this.$global.showCompanyProfileView.companySetting = false;
             this.$store
-                .dispatch("getCompany")
+                .dispatch('getCompany')
                 .then((response) => {
-                    localStorage.setItem(
-                        "company",
-                        JSON.stringify(response.company),
-                    );
+                    localStorage.setItem('company', JSON.stringify(response.company));
                     this.applyCompanyState(response.company);
 
                     this.$global.showCompanyProfileView.companySetting = true;
                 })
                 .catch((error) => {
                     ElNotification({
-                        type: "error",
-                        title: "Gagal Memuat Data",
+                        type: 'error',
+                        title: 'Gagal Memuat Data',
                         message: error?.response
-                            ? "Data profil toko belum berhasil dimuat. Silakan coba lagi."
-                            : "Tidak dapat terhubung ke server. Periksa koneksi internet lalu coba lagi.",
+                            ? 'Data profil toko belum berhasil dimuat. Silakan coba lagi.'
+                            : 'Tidak dapat terhubung ke server. Periksa koneksi internet lalu coba lagi.',
                     });
                 });
         },
 
+        /**
+         * Memperbarui input untuk company setting, dengan mendelegasikan pekerjaan backend atau shared state melalui Vuex store.
+         *
+         * @returns {void} Function menerapkan efeknya melalui state komponen atau aplikasi.
+         */
         updateInput() {
             /* VALIDATION */
             this.watchInputName();
@@ -298,7 +315,7 @@ export default {
                 this.isProcessUpdate = true;
 
                 this.$store
-                    .dispatch("updateCompany", {
+                    .dispatch('updateCompany', {
                         name: this.name,
                         email: this.email,
                         phone: this.phone,
@@ -311,24 +328,19 @@ export default {
 
                         this.isProcessUpdate = false;
 
-                        if (response.status == "success") {
-                            localStorage.setItem(
-                                "company",
-                                JSON.stringify(response.company),
-                            );
+                        if (response.status == 'success') {
+                            localStorage.setItem('company', JSON.stringify(response.company));
                             this.applyCompanyState(response.company);
 
                             ElNotification({
-                                type: "success",
-                                title: "Success",
+                                type: 'success',
+                                title: 'Success',
                                 message: response.message,
                             });
 
                             /* UPDATE PENGAMBILAN DARI LOCALSTORAGE */
-                            this.$store.dispatch("fetchUserFromLocalStorage");
-                            this.$store.dispatch(
-                                "fetchCompanyFromLocalStorage",
-                            );
+                            this.$store.dispatch('fetchUserFromLocalStorage');
+                            this.$store.dispatch('fetchCompanyFromLocalStorage');
                             /* UPDATE PENGAMBILAN DARI LOCALSTORAGE */
                         }
                     })
@@ -342,134 +354,176 @@ export default {
 
                             Object.keys(message).forEach((key) => {
                                 switch (key) {
-                                    case "name":
+                                    case 'name':
                                         setTimeout(() => {
                                             ElNotification({
-                                                type: "error",
-                                                title: "Error",
+                                                type: 'error',
+                                                title: 'Error',
                                                 message: message[key][0],
                                             });
                                         }, 1);
                                         this.errors.name = message[key][0];
                                         break;
-                                    case "email":
+                                    case 'email':
                                         setTimeout(() => {
                                             ElNotification({
-                                                type: "error",
-                                                title: "Error",
+                                                type: 'error',
+                                                title: 'Error',
                                                 message: message[key][0],
                                             });
                                         }, 1);
                                         this.errors.email = message[key][0];
                                         break;
-                                    case "phone":
+                                    case 'phone':
                                         setTimeout(() => {
                                             ElNotification({
-                                                type: "error",
-                                                title: "Error",
+                                                type: 'error',
+                                                title: 'Error',
                                                 message: message[key][0],
                                             });
                                         }, 1);
                                         this.errors.phone = message[key][0];
                                         break;
-                                    case "alamat":
+                                    case 'alamat':
                                         setTimeout(() => {
                                             ElNotification({
-                                                type: "error",
-                                                title: "Error",
+                                                type: 'error',
+                                                title: 'Error',
                                                 message: message[key][0],
                                             });
                                         }, 1);
                                         this.errors.alamat = message[key][0];
                                         break;
-                                    case "latitude":
-                                    case "longitude":
-                                    case "formatted_address":
-                                    case "location_source":
+                                    case 'latitude':
+                                    case 'longitude':
+                                    case 'formatted_address':
+                                    case 'location_source':
                                         this.errors.location = message[key][0];
                                         break;
-                                    case "address_detail":
-                                        this.errors.addressDetail =
-                                            message[key][0];
+                                    case 'address_detail':
+                                        this.errors.addressDetail = message[key][0];
                                         break;
                                 }
                             });
                         } else {
                             ElNotification({
-                                type: "error",
-                                title: "Lokasi Belum Tersimpan",
+                                type: 'error',
+                                title: 'Lokasi Belum Tersimpan',
                                 message:
                                     error.response?.data?.message ||
-                                    "Lokasi belum dapat diverifikasi. Silakan coba lagi.",
+                                    'Lokasi belum dapat diverifikasi. Silakan coba lagi.',
                             });
                         }
                     });
             }
         },
 
+        /**
+         * Memvalidasi and synchronize input name untuk company setting.
+         *
+         * @returns {void} Function menerapkan efeknya melalui state komponen atau aplikasi.
+         */
         watchInputName() {
-            if (!this.name || this.name.trim() === "") {
-                this.errors.name = "name is required";
+            if (!this.name || this.name.trim() === '') {
+                this.errors.name = 'name is required';
             } else {
-                this.errors.name = "";
+                this.errors.name = '';
             }
         },
 
+        /**
+         * Memvalidasi and synchronize input email untuk company setting.
+         *
+         * @returns {void} Function menerapkan efeknya melalui state komponen atau aplikasi.
+         */
         watchInputEmail() {
-            if (!this.email || this.email.trim() === "") {
-                this.errors.email = "email is required";
+            if (!this.email || this.email.trim() === '') {
+                this.errors.email = 'email is required';
             } else {
-                this.errors.email = "";
+                this.errors.email = '';
             }
         },
 
+        /**
+         * Memvalidasi and synchronize input phone untuk company setting.
+         *
+         * @returns {void} Function menerapkan efeknya melalui state komponen atau aplikasi.
+         */
         watchInputPhone() {
-            if (!this.phone || this.phone.trim() === "") {
-                this.errors.phone = "phone is required";
+            if (!this.phone || this.phone.trim() === '') {
+                this.errors.phone = 'phone is required';
             } else {
-                this.errors.phone = "";
+                this.errors.phone = '';
             }
         },
 
+        /**
+         * Memvalidasi and synchronize input alamat untuk company setting.
+         *
+         * @returns {void} Function menerapkan efeknya melalui state komponen atau aplikasi.
+         */
         watchInputAlamat() {
-            this.errors.location = "";
-            this.errors.addressDetail = "";
+            this.errors.location = '';
+            this.errors.addressDetail = '';
             if (this.isMapPinpointInvalid(this.location)) {
-                this.errors.location = "Pilih lokasi toko pada peta.";
+                this.errors.location = 'Pilih lokasi toko pada peta.';
             }
             if (this.isMapDetailInvalid(this.location)) {
-                this.errors.addressDetail = "Detail alamat toko wajib diisi.";
+                this.errors.addressDetail = 'Detail alamat toko wajib diisi.';
             }
-            this.errors.alamat = "";
+            this.errors.alamat = '';
         },
 
+        /**
+         * Menentukan apakah kondisi map pinpoint invalid terpenuhi untuk company setting.
+         *
+         * @param {*} location Lokasi yang diproses oleh function.
+         *
+         * @returns {boolean} Menunjukkan apakah kondisi is map pinpoint invalid terpenuhi.
+         */
         isMapPinpointInvalid(location) {
             return (
                 !location.formatted_address ||
                 location.latitude === null ||
-                location.latitude === "" ||
+                location.latitude === '' ||
                 location.longitude === null ||
-                location.longitude === "" ||
+                location.longitude === '' ||
                 !Number.isFinite(Number(location.latitude)) ||
                 !Number.isFinite(Number(location.longitude))
             );
         },
 
+        /**
+         * Menentukan apakah kondisi map detail invalid terpenuhi untuk company setting.
+         *
+         * @param {*} location Lokasi yang diproses oleh function.
+         *
+         * @returns {boolean} Menunjukkan apakah kondisi is map detail invalid terpenuhi.
+         */
         isMapDetailInvalid(location) {
             return !location.address_detail?.trim();
         },
 
+        /**
+         * Memvalidasi and synchronize location detail untuk company setting.
+         *
+         * @param {*} addressDetail Detail rumah, unit, lantai, atau patokan yang dimasukkan user.
+         *
+         * @returns {void} Function menerapkan efeknya melalui state komponen atau aplikasi.
+         */
         watchLocationDetail(addressDetail) {
-            this.errors.addressDetail =
-                addressDetail.trim() === ""
-                    ? "Detail alamat toko wajib diisi."
-                    : "";
+            this.errors.addressDetail = addressDetail.trim() === '' ? 'Detail alamat toko wajib diisi.' : '';
         },
 
+        /**
+         * Mengambil location payload untuk company setting.
+         *
+         * @returns {Object} Object get location payload yang telah disiapkan.
+         */
         getLocationPayload() {
             return {
-                location_source: "map",
-                alamat: "",
+                location_source: 'map',
+                alamat: '',
                 latitude: this.location.latitude,
                 longitude: this.location.longitude,
                 geoapify_place_id: this.location.geoapify_place_id,
@@ -478,10 +532,17 @@ export default {
             };
         },
 
+        /**
+         * Menangani location tidak tersedia untuk company setting.
+         *
+         * @param {*} message Pesan yang ditampilkan atau disimpan oleh alur saat ini.
+         *
+         * @returns {void} Function menerapkan efeknya melalui state komponen atau aplikasi.
+         */
         handleLocationUnavailable(message) {
             ElNotification({
-                type: "warning",
-                title: "Pinpoint Tidak Tersedia",
+                type: 'warning',
+                title: 'Pinpoint Tidak Tersedia',
                 message,
             });
         },
@@ -490,12 +551,19 @@ export default {
     watch: {
         location: {
             deep: true,
+            /**
+             * Menyinkronkan state komponen ketika location berubah untuk company setting.
+             *
+             * @param {*} newValue Nilai terbaru yang diberikan oleh watcher reaktif.
+             *
+             * @returns {void} Function menerapkan efeknya melalui state komponen atau aplikasi.
+             */
             handler(newValue) {
                 if (!this.isMapPinpointInvalid(newValue)) {
-                    this.errors.location = "";
+                    this.errors.location = '';
                 }
                 if (!this.isMapDetailInvalid(newValue)) {
-                    this.errors.addressDetail = "";
+                    this.errors.addressDetail = '';
                 }
             },
         },

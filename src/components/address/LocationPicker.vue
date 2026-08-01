@@ -11,54 +11,27 @@
                     placeholder="Cari jalan, gedung, atau wilayah"
                     @input="scheduleAutocomplete"
                 />
-                <i
-                    v-if="isSearching"
-                    class="fa-solid fa-spinner fa-spin-pulse"
-                ></i>
+                <i v-if="isSearching" class="fa-solid fa-spinner fa-spin-pulse"></i>
             </div>
 
             <div v-if="suggestions.length" class="location-suggestions">
                 <button
                     v-for="suggestion in suggestions"
-                    :key="
-                        suggestion.place_id ||
-                        `${suggestion.lat}-${suggestion.lon}`
-                    "
+                    :key="suggestion.place_id || `${suggestion.lat}-${suggestion.lon}`"
                     type="button"
                     @click="selectSuggestion(suggestion)"
                 >
-                    <strong>{{
-                        suggestion.address_line1 ||
-                        suggestion.name ||
-                        suggestion.formatted
-                    }}</strong>
-                    <span>{{
-                        suggestion.address_line2 || suggestion.formatted
-                    }}</span>
+                    <strong>{{ suggestion.address_line1 || suggestion.name || suggestion.formatted }}</strong>
+                    <span>{{ suggestion.address_line2 || suggestion.formatted }}</span>
                 </button>
             </div>
         </div>
 
-        <div
-            ref="mapContainer"
-            class="location-map"
-            aria-label="Peta pemilih lokasi"
-        ></div>
+        <div ref="mapContainer" class="location-map" aria-label="Peta pemilih lokasi"></div>
 
-        <button
-            type="button"
-            class="current-location-button"
-            :disabled="isLocating"
-            @click="useCurrentLocation"
-        >
-            <i
-                :class="
-                    isLocating
-                        ? 'fa-solid fa-spinner fa-spin-pulse'
-                        : 'fa-solid fa-location-crosshairs'
-                "
-            ></i>
-            {{ isLocating ? "Mengambil lokasi..." : "Gunakan Lokasi Saya" }}
+        <button type="button" class="current-location-button" :disabled="isLocating" @click="useCurrentLocation">
+            <i :class="isLocating ? 'fa-solid fa-spinner fa-spin-pulse' : 'fa-solid fa-location-crosshairs'"></i>
+            {{ isLocating ? 'Mengambil lokasi...' : 'Gunakan Lokasi Saya' }}
         </button>
 
         <p v-if="serviceError" class="location-error" role="alert">
@@ -66,9 +39,7 @@
         </p>
 
         <div class="selected-location">
-            <span
-                >Lokasi yang dipilih <span class="required-mark">*</span></span
-            >
+            <span>Lokasi yang dipilih <span class="required-mark">*</span></span>
             <div
                 class="selected-location-value"
                 :class="{
@@ -76,14 +47,9 @@
                     'is-error': locationError,
                 }"
             >
-                {{
-                    localValue.formatted_address ||
-                    "Cari alamat atau tentukan posisi marker pada peta."
-                }}
+                {{ localValue.formatted_address || 'Cari alamat atau tentukan posisi marker pada peta.' }}
             </div>
-            <small v-if="locationError" class="location-error">{{
-                locationError
-            }}</small>
+            <small v-if="locationError" class="location-error">{{ locationError }}</small>
         </div>
 
         <label class="address-detail" :for="detailInputId">
@@ -97,28 +63,21 @@
                 @input="updateDetail($event.target.value)"
             >
             </textarea>
-            <small v-if="detailError" class="location-error">{{
-                detailError
-            }}</small>
+            <small v-if="detailError" class="location-error">{{ detailError }}</small>
         </label>
     </div>
 </template>
 
 <script>
-import L from "leaflet";
-import "leaflet/dist/leaflet.css";
-import markerIcon from "leaflet/dist/images/marker-icon.png";
-import markerIcon2x from "leaflet/dist/images/marker-icon-2x.png";
-import markerShadow from "leaflet/dist/images/marker-shadow.png";
-import {
-    autocompleteAddress,
-    geoapifyApiKey,
-    GeoapifyRequestError,
-    reverseGeocode,
-} from "@/services/geoapify";
+import L from 'leaflet';
+import 'leaflet/dist/leaflet.css';
+import markerIcon from 'leaflet/dist/images/marker-icon.png';
+import markerIcon2x from 'leaflet/dist/images/marker-icon-2x.png';
+import markerShadow from 'leaflet/dist/images/marker-shadow.png';
+import { autocompleteAddress, geoapifyApiKey, GeoapifyRequestError, reverseGeocode } from '@/services/geoapify';
 
-// Leaflet's default resolver prefixes its detected image directory. Vite already
-// resolves these imports to complete asset URLs, so keeping both duplicates the path.
+// Resolver default Leaflet menambahkan direktori gambar yang terdeteksi sebagai prefix.
+// Vite sudah mengubah import ini menjadi URL asset lengkap sehingga prefix ganda akan menduplikasi path.
 delete L.Icon.Default.prototype._getIconUrl;
 L.Icon.Default.mergeOptions({
     iconRetinaUrl: markerIcon2x,
@@ -133,7 +92,7 @@ const INDONESIA_BOUNDS = [
 ];
 
 export default {
-    name: "LocationPicker",
+    name: 'LocationPicker',
 
     props: {
         modelValue: {
@@ -142,16 +101,21 @@ export default {
         },
         locationError: {
             type: String,
-            default: "",
+            default: '',
         },
         detailError: {
             type: String,
-            default: "",
+            default: '',
         },
     },
 
-    emits: ["update:modelValue", "unavailable", "detail-input"],
+    emits: ['update:modelValue', 'unavailable', 'detail-input'],
 
+    /**
+     * Membuat state reaktif yang digunakan komponen untuk location picker.
+     *
+     * @returns {Object} State reaktif yang diinisialisasi untuk komponen.
+     */
     data() {
         return {
             map: null,
@@ -159,14 +123,14 @@ export default {
             mapResizeObserver: null,
             lastMapSize: { width: 0, height: 0 },
             tileErrorCount: 0,
-            searchQuery: "",
+            searchQuery: '',
             suggestions: [],
             searchTimer: null,
             searchController: null,
             reverseController: null,
             isSearching: false,
             isLocating: false,
-            serviceError: "",
+            serviceError: '',
             localValue: this.normalizeValue(this.modelValue),
             lastValidCoordinate: null,
             instanceId: `location-${Math.random().toString(36).slice(2)}`,
@@ -174,25 +138,43 @@ export default {
     },
 
     computed: {
+        /**
+         * Memproses pencarian input id untuk location picker.
+         *
+         * @returns {string} Teks pencarian input id yang telah diformat atau ditentukan.
+         */
         searchInputId() {
             return `${this.instanceId}-search`;
         },
+        /**
+         * Memproses detail input id untuk location picker.
+         *
+         * @returns {string} Teks detail input id yang telah diformat atau ditentukan.
+         */
         detailInputId() {
             return `${this.instanceId}-detail`;
         },
     },
 
+    /**
+     * Menginisialisasi behavior komponen yang bergantung pada browser setelah mounted untuk location picker.
+     *
+     * @returns {void} Function menerapkan efeknya melalui state komponen atau aplikasi.
+     */
     mounted() {
         if (!geoapifyApiKey) {
-            this.markUnavailable(
-                "Layanan pinpoint belum dikonfigurasi. Alamat belum dapat disimpan.",
-            );
+            this.markUnavailable('Layanan pinpoint belum dikonfigurasi. Alamat belum dapat disimpan.');
             return;
         }
 
         this.$nextTick(this.initializeMap);
     },
 
+    /**
+     * Melepaskan resource komponen dan pekerjaan tertunda sebelum location picker di-unmount.
+     *
+     * @returns {void} Function menerapkan efeknya melalui state komponen atau aplikasi.
+     */
     beforeUnmount() {
         clearTimeout(this.searchTimer);
         this.searchController?.abort();
@@ -203,34 +185,38 @@ export default {
 
     methods: {
         /**
-         * Normalize optional parent form data into the complete picker value shape.
+         * Menormalkan data opsional dari form parent menjadi struktur nilai location picker yang lengkap.
          *
-         * @param {Object} value Location data supplied by the parent form.
+         * @param {Object} value Data lokasi yang diberikan oleh form parent.
          *
-         * @returns {Object} Normalized location data used by the picker.
+         * @returns {Object} Normalized location data yang digunakan oleh the picker.
          */
         normalizeValue(value = {}) {
             return {
                 latitude: value.latitude ?? null,
                 longitude: value.longitude ?? null,
                 geoapify_place_id: value.geoapify_place_id ?? null,
-                formatted_address: value.formatted_address ?? "",
-                address_detail: value.address_detail ?? "",
+                formatted_address: value.formatted_address ?? '',
+                address_detail: value.address_detail ?? '',
             };
         },
 
         /**
-         * Return an Indonesia coordinate from persisted location data.
+         * Mengembalikan koordinat Indonesia dari data lokasi yang tersimpan.
          *
-         * The API may serialize decimal columns as strings, so normalize them
-         * before restoring Leaflet state.
+         * API dapat melakukan serialisasi kolom decimal sebagai string, sehingga nilainya dinormalkan
+         * sebelum state Leaflet dipulihkan.
+         *
+         * @param {*} value Data lokasi tersimpan yang koordinatnya akan dinormalkan dan divalidasi.
+         *
+         * @returns {Object} Object yang telah disiapkan untuk alur saat ini.
          */
         getIndonesiaCoordinate(value) {
             if (
                 value.latitude === null ||
-                value.latitude === "" ||
+                value.latitude === '' ||
                 value.longitude === null ||
-                value.longitude === ""
+                value.longitude === ''
             ) {
                 return null;
             }
@@ -250,23 +236,19 @@ export default {
         },
 
         /**
-         * Apply location data that arrives asynchronously from the parent form.
+         * Menerapkan data lokasi yang diterima secara asynchronous dari form parent.
          *
-         * Company data is loaded after this picker mounts, so the internal value,
-         * marker, and map viewport must follow later model updates as well.
+         * Data company dimuat setelah location picker di-mount, sehingga nilai internal,
+         * marker, dan viewport peta juga harus mengikuti pembaruan model berikutnya.
+         *
+         * @param {*} value Data lokasi terbaru dari form parent yang akan diterapkan ke picker.
+         *
+         * @returns {void} Memperbarui state komponen atau aplikasi tanpa mengembalikan nilai.
          */
         applyModelValue(value) {
             const normalizedValue = this.normalizeValue(value);
-            const fields = [
-                "latitude",
-                "longitude",
-                "geoapify_place_id",
-                "formatted_address",
-                "address_detail",
-            ];
-            const hasChanged = fields.some(
-                (field) => normalizedValue[field] !== this.localValue[field],
-            );
+            const fields = ['latitude', 'longitude', 'geoapify_place_id', 'formatted_address', 'address_detail'];
+            const hasChanged = fields.some((field) => normalizedValue[field] !== this.localValue[field]);
             if (!hasChanged) return;
 
             this.localValue = normalizedValue;
@@ -278,7 +260,11 @@ export default {
         },
 
         /**
-         * Keep the persisted marker centered after hidden containers become visible.
+         * Menjaga marker tersimpan tetap berada di tengah setelah container tersembunyi ditampilkan.
+         *
+         * @param {*} coordinate Koordinat geografis untuk memulihkan atau memperbarui peta.
+         *
+         * @returns {void} Memperbarui state komponen atau aplikasi tanpa mengembalikan nilai.
          */
         restoreMapViewport(coordinate) {
             this.lastValidCoordinate = coordinate;
@@ -289,10 +275,10 @@ export default {
         },
 
         /**
-         * Initialize the bounded Indonesia map and connect marker interactions.
+         * Menginisialisasi peta yang dibatasi pada wilayah Indonesia dan menghubungkan interaksi marker.
          *
-         * Persisted coordinates are restored when available; otherwise the map uses
-         * Jakarta only as an initial viewport and does not emit it as a selection.
+         * Koordinat tersimpan dipulihkan ketika tersedia; jika tidak, peta menggunakan
+         * Jakarta hanya sebagai viewport awal dan tidak mengirimkannya sebagai lokasi terpilih.
          *
          * @returns {void}
          */
@@ -310,8 +296,8 @@ export default {
                 maxBounds: indonesiaBounds,
                 maxBoundsViscosity: 1,
             }).setView([latitude, longitude], hasCoordinate ? 17 : 15);
-            L.control.zoom({ position: "bottomleft" }).addTo(this.map);
-            const retinaSuffix = L.Browser.retina ? "@2x" : "";
+            L.control.zoom({ position: 'bottomleft' }).addTo(this.map);
+            const retinaSuffix = L.Browser.retina ? '@2x' : '';
             const tileLayer = L.tileLayer(
                 `https://maps.geoapify.com/v1/tile/osm-bright/{z}/{x}/{y}${retinaSuffix}.png?apiKey=${geoapifyApiKey}`,
                 {
@@ -321,12 +307,10 @@ export default {
                 },
             );
 
-            tileLayer.on("tileerror", () => {
+            tileLayer.on('tileerror', () => {
                 this.tileErrorCount += 1;
                 if (this.tileErrorCount >= 3) {
-                    this.markUnavailable(
-                        "Peta belum dapat dimuat. Alamat belum dapat disimpan.",
-                    );
+                    this.markUnavailable('Peta belum dapat dimuat. Alamat belum dapat disimpan.');
                 }
             });
             tileLayer.addTo(this.map);
@@ -334,11 +318,11 @@ export default {
             this.marker = L.marker([latitude, longitude], {
                 draggable: true,
             }).addTo(this.map);
-            this.marker.on("dragend", () => {
+            this.marker.on('dragend', () => {
                 const coordinate = this.marker.getLatLng();
                 this.confirmCoordinate(coordinate.lat, coordinate.lng);
             });
-            this.map.on("click", (event) => {
+            this.map.on('click', (event) => {
                 this.marker.setLatLng(event.latlng);
                 this.confirmCoordinate(event.latlng.lat, event.latlng.lng);
             });
@@ -348,24 +332,18 @@ export default {
         },
 
         /**
-         * Recalculate Leaflet tiles after a hidden profile or modal becomes visible.
-         * Leaflet otherwise keeps the zero/small size measured during initialization.
+         * Menghitung ulang tile Leaflet setelah profile atau modal tersembunyi ditampilkan.
+         * Tanpa langkah ini, Leaflet mempertahankan ukuran nol atau kecil yang dihitung saat inisialisasi.
+         *
+         * @returns {void} Memperbarui state komponen atau aplikasi tanpa mengembalikan nilai.
          */
         observeMapSize() {
-            if (
-                typeof ResizeObserver === "undefined" ||
-                !this.$refs.mapContainer
-            )
-                return;
+            if (typeof ResizeObserver === 'undefined' || !this.$refs.mapContainer) return;
 
             this.mapResizeObserver = new ResizeObserver((entries) => {
                 const { width, height } = entries[0]?.contentRect || {};
                 if (!width || !height) return;
-                if (
-                    width === this.lastMapSize.width &&
-                    height === this.lastMapSize.height
-                )
-                    return;
+                if (width === this.lastMapSize.width && height === this.lastMapSize.height) return;
 
                 this.lastMapSize = { width, height };
                 requestAnimationFrame(() => {
@@ -373,9 +351,7 @@ export default {
 
                     this.map.invalidateSize({ pan: false, animate: false });
 
-                    const coordinate = this.getIndonesiaCoordinate(
-                        this.localValue,
-                    );
+                    const coordinate = this.getIndonesiaCoordinate(this.localValue);
                     if (coordinate) this.restoreMapViewport(coordinate);
                 });
             });
@@ -383,7 +359,7 @@ export default {
         },
 
         /**
-         * Debounce address searches and cancel requests made obsolete by user input.
+         * Menerapkan debounce pada pencarian alamat dan membatalkan request yang tidak lagi relevan akibat input user.
          *
          * @returns {void}
          */
@@ -391,7 +367,7 @@ export default {
             clearTimeout(this.searchTimer);
             this.searchController?.abort();
             this.suggestions = [];
-            this.serviceError = "";
+            this.serviceError = '';
 
             const query = this.searchQuery.trim();
             if (query.length < 3) {
@@ -399,16 +375,13 @@ export default {
                 return;
             }
 
-            this.searchTimer = setTimeout(
-                () => this.loadSuggestions(query),
-                400,
-            );
+            this.searchTimer = setTimeout(() => this.loadSuggestions(query), 400);
         },
 
         /**
-         * Load Indonesia-only address suggestions for the current search text.
+         * Memuat saran alamat Indonesia untuk teks pencarian yang sedang aktif.
          *
-         * @param {string} query Trimmed address text entered by the user.
+         * @param {string} query Teks alamat dari user yang telah di-trim.
          *
          * @returns {Promise<void>}
          */
@@ -425,12 +398,11 @@ export default {
                     signal: controller.signal,
                 });
 
-                // An older request can finish after newer input on browsers where abort
-                // delivery is delayed. Only the active request may replace suggestions.
-                if (this.searchController === controller)
-                    this.suggestions = suggestions;
+                // Request lama dapat selesai setelah input terbaru pada browser yang terlambat
+                // menjalankan pembatalan. Hanya request aktif yang boleh mengganti daftar saran.
+                if (this.searchController === controller) this.suggestions = suggestions;
             } catch (error) {
-                if (error.name !== "AbortError") this.handleServiceError(error);
+                if (error.name !== 'AbortError') this.handleServiceError(error);
             } finally {
                 if (this.searchController === controller) {
                     this.searchController = null;
@@ -440,20 +412,18 @@ export default {
         },
 
         /**
-         * Apply an autocomplete result and move the map to its verified coordinate.
+         * Menerapkan hasil autocomplete dan memindahkan peta ke koordinat yang telah diverifikasi.
          *
-         * @param {Object} suggestion Geoapify autocomplete result selected by the user.
+         * @param {Object} suggestion Hasil autocomplete Geoapify yang dipilih user.
          *
          * @returns {void}
          */
         selectSuggestion(suggestion) {
             const latitude = Number(suggestion.lat);
             const longitude = Number(suggestion.lon);
-            if (!Number.isFinite(latitude) || !Number.isFinite(longitude))
-                return;
+            if (!Number.isFinite(latitude) || !Number.isFinite(longitude)) return;
 
-            this.searchQuery =
-                suggestion.formatted || suggestion.address_line1 || "";
+            this.searchQuery = suggestion.formatted || suggestion.address_line1 || '';
             this.suggestions = [];
             this.marker.setLatLng([latitude, longitude]);
             this.map.setView([latitude, longitude], 17);
@@ -461,13 +431,13 @@ export default {
         },
 
         /**
-         * Reverse-geocode a marker coordinate before exposing it to the parent form.
+         * Melakukan reverse geocoding pada koordinat marker sebelum mengirimkannya ke form parent.
          *
-         * Failed or empty lookups restore the last verified marker so the visible map
-         * cannot disagree with the location payload that will be submitted.
+         * Pencarian yang gagal atau kosong memulihkan marker terakhir yang terverifikasi agar peta
+         * yang terlihat tetap sesuai dengan payload lokasi yang akan dikirim.
          *
-         * @param {number} latitude Marker latitude selected by the user.
-         * @param {number} longitude Marker longitude selected by the user.
+         * @param {number} latitude Latitude marker yang dipilih user.
+         * @param {number} longitude Longitude marker yang dipilih user.
          *
          * @returns {Promise<void>}
          */
@@ -475,17 +445,12 @@ export default {
             this.reverseController?.abort();
             const controller = new AbortController();
             this.reverseController = controller;
-            this.serviceError = "";
+            this.serviceError = '';
 
             try {
-                const result = await reverseGeocode(
-                    latitude,
-                    longitude,
-                    controller.signal,
-                );
+                const result = await reverseGeocode(latitude, longitude, controller.signal);
                 if (!result) {
-                    this.serviceError =
-                        "Alamat pada titik tersebut belum ditemukan.";
+                    this.serviceError = 'Alamat pada titik tersebut belum ditemukan.';
                     this.restoreLastValidCoordinate();
                     return;
                 }
@@ -493,28 +458,27 @@ export default {
                 if (this.reverseController !== controller) return;
                 this.applyLocation(result, latitude, longitude);
             } catch (error) {
-                if (error.name !== "AbortError") {
+                if (error.name !== 'AbortError') {
                     this.handleServiceError(error);
                     this.restoreLastValidCoordinate();
                 }
             } finally {
-                if (this.reverseController === controller)
-                    this.reverseController = null;
+                if (this.reverseController === controller) this.reverseController = null;
             }
         },
 
         /**
-         * Accept a provider result only when it represents an Indonesian location.
+         * Menerima hasil provider hanya ketika lokasi yang direpresentasikan berada di Indonesia.
          *
-         * @param {Object} result Geoapify geocoding result for the selected point.
-         * @param {number} latitude Verified latitude returned for the point.
-         * @param {number} longitude Verified longitude returned for the point.
+         * @param {Object} result Hasil geocoding Geoapify untuk titik terpilih.
+         * @param {number} latitude Latitude terverifikasi untuk titik tersebut.
+         * @param {number} longitude Longitude terverifikasi untuk titik tersebut.
          *
          * @returns {void}
          */
         applyLocation(result, latitude, longitude) {
-            if (String(result.country_code || "").toLowerCase() !== "id") {
-                this.serviceError = "Lokasi harus berada di wilayah Indonesia.";
+            if (String(result.country_code || '').toLowerCase() !== 'id') {
+                this.serviceError = 'Lokasi harus berada di wilayah Indonesia.';
                 this.restoreLastValidCoordinate();
                 return;
             }
@@ -524,15 +488,14 @@ export default {
                 latitude,
                 longitude,
                 geoapify_place_id: result.place_id || null,
-                formatted_address:
-                    result.formatted || result.address_line1 || "",
+                formatted_address: result.formatted || result.address_line1 || '',
             };
             this.lastValidCoordinate = { latitude, longitude };
             this.emitValue();
         },
 
         /**
-         * Return the marker to the last coordinate accepted by the provider.
+         * Mengembalikan marker ke koordinat terakhir yang diterima provider.
          *
          * @returns {void}
          */
@@ -545,9 +508,9 @@ export default {
         },
 
         /**
-         * Update the user-authored address detail without changing provider metadata.
+         * Memperbarui detail alamat yang ditulis user tanpa mengubah metadata provider.
          *
-         * @param {string} addressDetail House, unit, floor, or landmark detail.
+         * @param {string} addressDetail Detail rumah, unit, lantai, atau patokan alamat.
          *
          * @returns {void}
          */
@@ -557,27 +520,26 @@ export default {
                 address_detail: addressDetail,
             };
             this.emitValue();
-            this.$emit("detail-input", addressDetail);
+            this.$emit('detail-input', addressDetail);
         },
 
         /**
-         * Emit an immutable location snapshot to the parent form.
+         * Mengirim snapshot lokasi immutable ke form parent.
          *
          * @returns {void}
          */
         emitValue() {
-            this.$emit("update:modelValue", { ...this.localValue });
+            this.$emit('update:modelValue', { ...this.localValue });
         },
 
         /**
-         * Request the device coordinate and verify it before selecting the location.
+         * Meminta koordinat perangkat dan memverifikasinya sebelum memilih lokasi.
          *
          * @returns {void}
          */
         useCurrentLocation() {
             if (!navigator.geolocation) {
-                this.serviceError =
-                    "Browser ini tidak mendukung pengambilan lokasi perangkat.";
+                this.serviceError = 'Browser ini tidak mendukung pengambilan lokasi perangkat.';
                 return;
             }
 
@@ -593,50 +555,51 @@ export default {
                 },
                 () => {
                     this.isLocating = false;
-                    this.serviceError =
-                        "Izin lokasi tidak tersedia. Cari alamat atau pindahkan marker secara manual.";
+                    this.serviceError = 'Izin lokasi tidak tersedia. Cari alamat atau pindahkan marker secara manual.';
                 },
                 { enableHighAccuracy: true, timeout: 10000, maximumAge: 60000 },
             );
         },
 
         /**
-         * Translate provider failures into recoverable or form-blocking UI states.
+         * Menerjemahkan kegagalan provider menjadi state UI yang dapat dipulihkan atau memblokir form.
          *
-         * @param {Error} error Error raised while requesting Geoapify.
+         * @param {Error} error Error yang terjadi saat memanggil Geoapify.
          *
          * @returns {void}
          */
         handleServiceError(error) {
-            if (
-                error instanceof GeoapifyRequestError &&
-                [401, 403, 429].includes(error.status)
-            ) {
-                this.markUnavailable(
-                    "Layanan pinpoint tidak tersedia. Alamat belum dapat disimpan.",
-                );
+            if (error instanceof GeoapifyRequestError && [401, 403, 429].includes(error.status)) {
+                this.markUnavailable('Layanan pinpoint tidak tersedia. Alamat belum dapat disimpan.');
                 return;
             }
 
-            this.serviceError = "Lokasi belum dapat dimuat. Silakan coba lagi.";
+            this.serviceError = 'Lokasi belum dapat dimuat. Silakan coba lagi.';
         },
 
         /**
-         * Mark pinpoint selection unavailable and prevent the parent form from saving.
+         * Menandai pemilihan pinpoint tidak tersedia dan mencegah form parent menyimpan data.
          *
-         * @param {string} message User-facing explanation of the unavailable service.
+         * @param {string} message Penjelasan untuk user mengenai layanan yang tidak tersedia.
          *
          * @returns {void}
          */
         markUnavailable(message) {
             this.serviceError = message;
-            this.$emit("unavailable", message);
+            this.$emit('unavailable', message);
         },
     },
 
     watch: {
         modelValue: {
             deep: true,
+            /**
+             * Menyinkronkan state komponen ketika nilai model location picker berubah.
+             *
+             * @param {*} value Nilai yang diproses oleh function.
+             *
+             * @returns {void} Function menerapkan efeknya melalui state komponen atau aplikasi.
+             */
             handler(value) {
                 this.applyModelValue(value);
             },
@@ -787,7 +750,7 @@ export default {
         height: 260px;
     }
 
-    /* Keep zoom controls clear of attribution when it wraps on narrow maps. */
+    /* Jaga kontrol zoom agar tidak bertumpuk dengan attribution ketika peta berukuran sempit. */
     :deep(.leaflet-bottom .leaflet-control-zoom) {
         margin-bottom: 42px;
     }

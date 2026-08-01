@@ -1,21 +1,15 @@
 <template>
     <!-- Product View -->
-    <div
-        v-show="show.product_view"
-        class="min-h-full w-full bg-slate-50 text-xl"
-    >
+    <div v-show="show.product_view" class="min-h-full w-full bg-slate-50 text-xl">
         <div
             class="sticky top-0 z-[2] px-4 pt-4 transition-all duration-200 lg:px-6"
             :class="{
-                'border-b border-slate-200 bg-slate-50/95 pb-3 shadow-sm backdrop-blur':
-                    productHeaderStuck,
+                'border-b border-slate-200 bg-slate-50/95 pb-3 shadow-sm backdrop-blur': productHeaderStuck,
                 'bg-slate-50': !productHeaderStuck,
             }"
         >
             <div class="flex items-center justify-between gap-3">
-                <h1 class="text-3xl font-medium text-slate-950">
-                    Product Saya
-                </h1>
+                <h1 class="text-3xl font-medium text-slate-950">Product Saya</h1>
 
                 <button
                     type="button"
@@ -35,8 +29,7 @@
                 <div>
                     <p class="font-semibold">Lokasi Toko Belum Diverifikasi</p>
                     <p class="mt-0.5 text-xs leading-5 text-amber-700">
-                        Verifikasi lokasi toko dengan Pinpoint agar produk dapat
-                        ditambahkan dan dibeli.
+                        Verifikasi lokasi toko dengan Pinpoint agar produk dapat ditambahkan dan dibeli.
                     </p>
                 </div>
                 <button
@@ -52,11 +45,7 @@
                 class="mt-3 grid grid-cols-1 gap-3 lg:grid-cols-[minmax(14rem,27rem)_1fr_12rem_14rem_10.5rem] lg:items-end"
             >
                 <div class="flex min-w-0 flex-col gap-1.5">
-                    <label
-                        for="search-product"
-                        class="text-xs font-semibold text-slate-600"
-                        >Cari Produk</label
-                    >
+                    <label for="search-product" class="text-xs font-semibold text-slate-600">Cari Produk</label>
                     <input
                         placeholder="Search produk"
                         id="search-product"
@@ -71,11 +60,7 @@
                 <div class="hidden lg:block"></div>
 
                 <div class="flex min-w-0 flex-col gap-1.5">
-                    <label
-                        for="seller-stock-filter"
-                        class="text-xs font-semibold text-slate-600"
-                        >Kondisi Stok</label
-                    >
+                    <label for="seller-stock-filter" class="text-xs font-semibold text-slate-600">Kondisi Stok</label>
                     <el-select
                         id="seller-stock-filter"
                         aria-label="Filter stok produk"
@@ -91,10 +76,7 @@
                             :value="option.value"
                         >
                             <div class="flex items-center gap-2">
-                                <i
-                                    :class="option.iconClass"
-                                    aria-hidden="true"
-                                ></i>
+                                <i :class="option.iconClass" aria-hidden="true"></i>
                                 <span>{{ option.label }}</span>
                             </div>
                         </el-option>
@@ -102,11 +84,7 @@
                 </div>
 
                 <div class="flex min-w-0 flex-col gap-1.5">
-                    <label
-                        for="seller-product-sort"
-                        class="text-xs font-semibold text-slate-600"
-                        >Urutkan Produk</label
-                    >
+                    <label for="seller-product-sort" class="text-xs font-semibold text-slate-600">Urutkan Produk</label>
                     <el-select
                         id="seller-product-sort"
                         aria-label="Urutkan produk"
@@ -145,10 +123,7 @@
                 </button>
             </div>
 
-            <div
-                v-if="activeProductFilterChips.length > 0"
-                class="mt-3 flex flex-wrap items-center gap-2"
-            >
+            <div v-if="activeProductFilterChips.length > 0" class="mt-3 flex flex-wrap items-center gap-2">
                 <span
                     v-for="chip in activeProductFilterChips"
                     :key="chip.key"
@@ -160,48 +135,32 @@
         </div>
 
         <div class="w-full bg-slate-50">
-            <div
-                v-show="show.loading_search_product"
-                class="w-full text-center mt-28 sm:mt-16"
-            >
+            <div v-show="show.loading_search_product" class="w-full text-center mt-28 sm:mt-16">
                 <span>
                     <i class="fas fa-spinner fa-pulse text-xl"></i>
                 </span>
             </div>
 
-            <div
-                v-if="!show.loading_search_product && products.length === 0"
-                class="px-3 py-6 sm:p-6"
-            >
+            <div v-if="!show.loading_search_product && products.length === 0" class="px-3 py-6 sm:p-6">
                 <div
                     class="mx-auto flex min-h-[18rem] max-w-xl flex-col items-center justify-center rounded-md border border-dashed border-slate-300 bg-white px-6 py-10 text-center shadow-sm"
                 >
-                    <div
-                        class="flex h-14 w-14 items-center justify-center rounded-full bg-violet-50 text-violet-600"
-                    >
+                    <div class="flex h-14 w-14 items-center justify-center rounded-full bg-violet-50 text-violet-600">
                         <i
                             class="text-xl"
-                            :class="
-                                hasActiveProductFilter
-                                    ? 'fa-solid fa-magnifying-glass'
-                                    : 'fa-solid fa-box-open'
-                            "
+                            :class="hasActiveProductFilter ? 'fa-solid fa-magnifying-glass' : 'fa-solid fa-box-open'"
                         ></i>
                     </div>
 
                     <h2 class="mt-4 text-lg font-semibold text-slate-950">
-                        {{
-                            hasActiveProductFilter
-                                ? "Produk tidak ditemukan"
-                                : "Produk Anda kosong"
-                        }}
+                        {{ hasActiveProductFilter ? 'Produk tidak ditemukan' : 'Produk Anda kosong' }}
                     </h2>
 
                     <p class="mt-2 max-w-sm text-sm leading-6 text-slate-500">
                         {{
                             hasActiveProductFilter
-                                ? "Coba ubah filter, kata kunci, atau reset filter yang sedang aktif."
-                                : "Tambahkan produk pertama agar mulai tampil di daftar produk."
+                                ? 'Coba ubah filter, kata kunci, atau reset filter yang sedang aktif.'
+                                : 'Tambahkan produk pertama agar mulai tampil di daftar produk.'
                         }}
                     </p>
 
@@ -240,25 +199,17 @@
                             class="absolute inset-0 bg-slate-950/35 z-[1] flex justify-center items-start"
                             v-if="product.stock < 1"
                         >
-                            <img
-                                class="w-40 mt-10"
-                                :src="SoldOutImage"
-                                alt="SoldOutImage"
-                            />
+                            <img class="w-40 mt-10" :src="SoldOutImage" alt="SoldOutImage" />
                         </div>
                         <!-- WHEN STOCK 0 -->
                     </div>
 
                     <div class="flex flex-1 flex-col justify-between p-3">
                         <div class="flex flex-col">
-                            <h4
-                                class="truncate text-sm font-medium leading-5 text-slate-900"
-                            >
+                            <h4 class="truncate text-sm font-medium leading-5 text-slate-900">
                                 {{ product.name }}
                             </h4>
-                            <h4
-                                class="mt-1 text-sm font-semibold text-slate-950"
-                            >
+                            <h4 class="mt-1 text-sm font-semibold text-slate-950">
                                 {{ formatRupiah(product.price) }}
                             </h4>
                             <span
@@ -269,23 +220,15 @@
                             </span>
                         </div>
 
-                        <div
-                            class="mt-3 flex items-center justify-between gap-2"
-                        >
+                        <div class="mt-3 flex items-center justify-between gap-2">
                             <span
                                 class="inline-flex h-7 shrink-0 items-center whitespace-nowrap rounded-full px-2 text-xs font-medium sm:px-2.5"
-                                :class="
-                                    product.stock < 1
-                                        ? 'bg-red-50 text-red-600'
-                                        : 'bg-slate-100 text-slate-600'
-                                "
+                                :class="product.stock < 1 ? 'bg-red-50 text-red-600' : 'bg-slate-100 text-slate-600'"
                             >
                                 Stok: {{ product.stock }}
                             </span>
 
-                            <div
-                                class="flex shrink-0 items-center gap-0.5 sm:gap-1"
-                            >
+                            <div class="flex shrink-0 items-center gap-0.5 sm:gap-1">
                                 <button
                                     type="button"
                                     class="flex h-8 w-8 items-center justify-center rounded-md text-slate-500 transition hover:bg-red-50 hover:text-red-600"
@@ -293,11 +236,7 @@
                                     title="Hapus produk"
                                     @click="deleteProduct(product.id)"
                                 >
-                                    <svg
-                                        class="w-4"
-                                        xmlns="http://www.w3.org/2000/svg"
-                                        viewBox="0 0 1024 1024"
-                                    >
+                                    <svg class="w-4" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1024 1024">
                                         <path
                                             fill="currentColor"
                                             d="M160 256H96a32 32 0 0 1 0-64h256V95.936a32 32 0 0 1 32-32h256a32 32 0 0 1 32 32V192h256a32 32 0 1 1 0 64h-64v672a32 32 0 0 1-32 32H192a32 32 0 0 1-32-32zm448-64v-64H416v64zM224 896h576V256H224zm192-128a32 32 0 0 1-32-32V416a32 32 0 0 1 64 0v320a32 32 0 0 1-32 32m192 0a32 32 0 0 1-32-32V416a32 32 0 0 1 64 0v320a32 32 0 0 1-32 32"
@@ -312,11 +251,7 @@
                                     title="Edit produk"
                                     @click="editProductView(product.id)"
                                 >
-                                    <svg
-                                        class="w-4"
-                                        xmlns="http://www.w3.org/2000/svg"
-                                        viewBox="0 0 1024 1024"
-                                    >
+                                    <svg class="w-4" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1024 1024">
                                         <path
                                             fill="currentColor"
                                             d="M832 512a32 32 0 1 1 64 0v352a32 32 0 0 1-32 32H160a32 32 0 0 1-32-32V160a32 32 0 0 1 32-32h352a32 32 0 0 1 0 64H192v640h640z"
@@ -337,10 +272,7 @@
     <!-- Product View -->
 
     <!-- Product Add View -->
-    <AddProduct
-        :show="this.$global.modals.addProduct"
-        @onAfterAddProduct="onAfterAddProduct"
-    />
+    <AddProduct :show="this.$global.modals.addProduct" @onAfterAddProduct="onAfterAddProduct" />
     <!-- Product Add View -->
 
     <!-- Product Add View -->
@@ -352,10 +284,7 @@
     <!-- Product Add View -->
 
     <!-- loading view -->
-    <div
-        v-show="show.loading"
-        class="w-full text-xl h-full flex justify-center items-center"
-    >
+    <div v-show="show.loading" class="w-full text-xl h-full flex justify-center items-center">
         <span>
             <i class="fas fa-spinner fa-pulse text-4xl"></i>
         </span>
@@ -364,15 +293,11 @@
 </template>
 
 <script>
-import eventBus from "@/eventBus";
-import {
-    DEFAULT_PRODUCT_SORT,
-    PRODUCT_SORT_OPTIONS,
-    SELLER_STOCK_FILTER_OPTIONS,
-} from "@/utils/productFilters";
-import { ElMessageBox, ElNotification } from "element-plus";
-import AddProduct from "@/components/product/add.vue";
-import EditProduct from "@/components/product/edit.vue";
+import eventBus from '@/eventBus';
+import { DEFAULT_PRODUCT_SORT, PRODUCT_SORT_OPTIONS, SELLER_STOCK_FILTER_OPTIONS } from '@/utils/productFilters';
+import { ElMessageBox, ElNotification } from 'element-plus';
+import AddProduct from '@/components/product/add.vue';
+import EditProduct from '@/components/product/edit.vue';
 
 export default {
     components: {
@@ -380,18 +305,23 @@ export default {
         EditProduct,
     },
 
+    /**
+     * Membuat state reaktif yang digunakan komponen untuk halaman produk.
+     *
+     * @returns {Object} State reaktif yang diinisialisasi untuk komponen.
+     */
     data() {
         return {
             APP_BACKEND_BASE_URL: import.meta.env.VITE_APP_BACKEND_BASE_URL,
             SYMLINK_FOLDER: import.meta.env.VITE_SYMLINK_FOLDER,
-            SoldOutImage: "/img/sold-out.png",
+            SoldOutImage: '/img/sold-out.png',
             products: [],
             sellerLocationVerified: true,
 
-            editProductId: "",
-            searchProduct: "",
-            activeSearchProduct: "",
-            stockFilter: "all",
+            editProductId: '',
+            searchProduct: '',
+            activeSearchProduct: '',
+            stockFilter: 'all',
             sortProduct: DEFAULT_PRODUCT_SORT,
             productRequestVersion: 0,
             productHeaderStuck: false,
@@ -411,45 +341,42 @@ export default {
 
     computed: {
         /**
-         * Mengecek apakah pencarian atau filter produk sedang aktif.
+         * Mengembalikan has active produk filter yang dihitung dari state reaktif saat ini untuk halaman produk.
+         *
+         * @returns {boolean} Menunjukkan apakah kondisi has active produk filter terpenuhi.
          */
         hasActiveProductFilter() {
             return (
                 this.activeSearchProduct.length > 0 ||
-                this.stockFilter !== "all" ||
+                this.stockFilter !== 'all' ||
                 this.sortProduct !== DEFAULT_PRODUCT_SORT
             );
         },
 
         /**
-         * Membuat daftar chip ringkas untuk filter produk yang sedang aktif.
+         * Mengembalikan active produk filter chips yang dihitung dari state reaktif saat ini untuk halaman produk.
+         *
+         * @returns {*} Nilai yang dihasilkan oleh operasi active produk filter chips.
          */
         activeProductFilterChips() {
             const chips = [];
-            const activeStockFilter = this.stockFilterOptions.find(
-                (option) => option.value === this.stockFilter,
-            );
-            const activeSortProduct = this.sortProductOptions.find(
-                (option) => option.value === this.sortProduct,
-            );
+            const activeStockFilter = this.stockFilterOptions.find((option) => option.value === this.stockFilter);
+            const activeSortProduct = this.sortProductOptions.find((option) => option.value === this.sortProduct);
 
             if (this.activeSearchProduct.length > 0) {
                 chips.push({
-                    key: "search",
+                    key: 'search',
                     label: `Pencarian: ${this.activeSearchProduct}`,
                 });
             }
 
-            if (activeStockFilter && activeStockFilter.value !== "all") {
-                chips.push({ key: "stock", label: activeStockFilter.label });
+            if (activeStockFilter && activeStockFilter.value !== 'all') {
+                chips.push({ key: 'stock', label: activeStockFilter.label });
             }
 
-            if (
-                activeSortProduct &&
-                activeSortProduct.value !== DEFAULT_PRODUCT_SORT
-            ) {
+            if (activeSortProduct && activeSortProduct.value !== DEFAULT_PRODUCT_SORT) {
                 chips.push({
-                    key: "sort",
+                    key: 'sort',
                     label: `Urutkan: ${activeSortProduct.label}`,
                 });
             }
@@ -458,9 +385,14 @@ export default {
         },
     },
 
+    /**
+     * Menginisialisasi behavior komponen yang bergantung pada browser setelah mounted untuk halaman produk.
+     *
+     * @returns {void} Function menerapkan efeknya melalui state komponen atau aplikasi.
+     */
     mounted() {
         /* EVENT BUS FOR SCROLL GLOBAL */
-        eventBus.on("scrollGlobal", () => {
+        eventBus.on('scrollGlobal', () => {
             const globalContainer = this.$global.globalContainer.ref;
             const tolerant = 2;
             this.productHeaderStuck = globalContainer.scrollTop > 8;
@@ -476,9 +408,7 @@ export default {
             // });
 
             if (
-                Math.ceil(
-                    globalContainer.scrollTop + globalContainer.clientHeight,
-                ) >=
+                Math.ceil(globalContainer.scrollTop + globalContainer.clientHeight) >=
                     globalContainer.scrollHeight - tolerant &&
                 !this.$global.globalContainer.loading &&
                 !this.completeProduct &&
@@ -502,11 +432,21 @@ export default {
         this.getProducts();
     },
 
+    /**
+     * Melepaskan resource komponen dan pekerjaan tertunda sebelum unmount untuk halaman produk.
+     *
+     * @returns {void} Function menerapkan efeknya melalui state komponen atau aplikasi.
+     */
     beforeUnmount() {
-        eventBus.off("scrollGlobal");
+        eventBus.off('scrollGlobal');
     },
 
     methods: {
+        /**
+         * Menjalankan proses enter pencarian produk dan menyinkronkan state hasilnya untuk halaman produk.
+         *
+         * @returns {void} Function menerapkan efeknya melalui state komponen atau aplikasi.
+         */
         enterSearchProduct() {
             this.activeSearchProduct = this.searchProduct.trim();
             this.show.loading_search_product = true;
@@ -516,15 +456,17 @@ export default {
             this.getProducts();
         },
 
+        /**
+         * Menjalankan proses on pencarian produk input dan menyinkronkan state hasilnya untuk halaman produk.
+         *
+         * @returns {void} Function menerapkan efeknya melalui state komponen atau aplikasi.
+         */
         onSearchProductInput() {
-            if (
-                this.searchProduct.trim().length > 0 ||
-                this.activeSearchProduct.length === 0
-            ) {
+            if (this.searchProduct.trim().length > 0 || this.activeSearchProduct.length === 0) {
                 return;
             }
 
-            this.activeSearchProduct = "";
+            this.activeSearchProduct = '';
             this.show.loading_search_product = true;
             this.completeProduct = false;
             this.products = [];
@@ -533,7 +475,9 @@ export default {
         },
 
         /**
-         * Mengambil ulang produk dari awal ketika filter stok atau urutan berubah.
+         * Menjalankan proses apply produk filters dan menyinkronkan state hasilnya untuk halaman produk.
+         *
+         * @returns {void} Function menerapkan efeknya melalui state komponen atau aplikasi.
          */
         applyProductFilters() {
             this.show.loading_search_product = true;
@@ -544,16 +488,18 @@ export default {
         },
 
         /**
-         * Menghapus semua filter produk dan mengembalikan urutan default.
+         * Mengembalikan produk filters ke state awal untuk halaman produk.
+         *
+         * @returns {void} Function menerapkan efeknya melalui state komponen atau aplikasi.
          */
         resetProductFilters() {
             if (!this.hasActiveProductFilter) {
                 return;
             }
 
-            this.searchProduct = "";
-            this.activeSearchProduct = "";
-            this.stockFilter = "all";
+            this.searchProduct = '';
+            this.activeSearchProduct = '';
+            this.stockFilter = 'all';
             this.sortProduct = DEFAULT_PRODUCT_SORT;
             this.show.loading_search_product = true;
             this.completeProduct = false;
@@ -562,6 +508,13 @@ export default {
             this.getProducts();
         },
 
+        /**
+         * Menjalankan proses on after add produk dan menyinkronkan state hasilnya untuk halaman produk.
+         *
+         * @param {*} data Payload yang digunakan oleh operasi saat ini.
+         *
+         * @returns {void} Function menerapkan efeknya melalui state komponen atau aplikasi.
+         */
         onAfterAddProduct(data) {
             /* CHANGE PRICE STRING TO NUMBER */
             data.price = Number(data.price);
@@ -570,6 +523,13 @@ export default {
             this.products = [data, ...this.products];
         },
 
+        /**
+         * Menjalankan proses on after edit produk dan menyinkronkan state hasilnya untuk halaman produk.
+         *
+         * @param {*} data Payload yang digunakan oleh operasi saat ini.
+         *
+         * @returns {void} Function menerapkan efeknya melalui state komponen atau aplikasi.
+         */
         onAfterEditProduct(data) {
             /* CHANGE PRICE STRING TO NUMBER */
             data.price = Number(data.price);
@@ -588,49 +548,75 @@ export default {
             }
         },
 
+        /**
+         * Menjalankan proses show add produk dan menyinkronkan state hasilnya untuk halaman produk, termasuk state navigasi yang dihasilkan.
+         *
+         * @returns {void} Function menerapkan efeknya melalui state komponen atau aplikasi.
+         */
         showAddProduct() {
             if (!this.sellerLocationVerified) {
                 ElMessageBox.alert(
-                    "Verifikasi lokasi toko dengan Pinpoint sebelum menambahkan produk.",
-                    "Lokasi Toko Belum Diverifikasi",
-                    { confirmButtonText: "Verifikasi Lokasi", type: "warning" },
-                ).then(() => this.$router.push({ name: "settings_store" }));
+                    'Verifikasi lokasi toko dengan Pinpoint sebelum menambahkan produk.',
+                    'Lokasi Toko Belum Diverifikasi',
+                    { confirmButtonText: 'Verifikasi Lokasi', type: 'warning' },
+                ).then(() => this.$router.push({ name: 'settings_store' }));
                 return;
             }
 
             this.$global.modals.addProduct = true;
         },
 
+        /**
+         * Memperbarui produk view untuk halaman produk.
+         *
+         * @param {*} id Identifier record target.
+         *
+         * @returns {void} Function menerapkan efeknya melalui state komponen atau aplikasi.
+         */
         editProductView(id) {
             this.editProductId = id;
             this.$global.modals.editProduct = true;
         },
 
+        /**
+         * Memformat rupiah untuk ditampilkan untuk halaman produk.
+         *
+         * @param {*} value Nilai yang diproses oleh function.
+         *
+         * @returns {string} Teks format rupiah yang telah diformat atau ditentukan.
+         */
         formatRupiah(value) {
             const price = Number(value);
 
             if (!Number.isFinite(price)) {
-                return "Rp 0";
+                return 'Rp 0';
             }
 
-            return `Rp ${price.toLocaleString("id-ID")}`;
+            return `Rp ${price.toLocaleString('id-ID')}`;
         },
 
+        /**
+         * Menghapus product untuk product page, dengan mendelegasikan pekerjaan backend atau shared state melalui Vuex store.
+         *
+         * @param {*} id Identifier record target.
+         *
+         * @returns {void} Function menerapkan efeknya melalui state komponen atau aplikasi.
+         */
         deleteProduct(id) {
             ElMessageBox.confirm(
-                "Produk tidak dapat dibeli lagi. Item yang sudah ada di keranjang pembeli akan ditandai tidak tersedia.",
-                "Hapus Produk",
+                'Produk tidak dapat dibeli lagi. Item yang sudah ada di keranjang pembeli akan ditandai tidak tersedia.',
+                'Hapus Produk',
                 {
-                    type: "warning",
-                    confirmButtonText: "Hapus Produk",
-                    cancelButtonText: "Batal",
-                    confirmButtonClass: "el-button--danger",
+                    type: 'warning',
+                    confirmButtonText: 'Hapus Produk',
+                    cancelButtonText: 'Batal',
+                    confirmButtonClass: 'el-button--danger',
                     distinguishCancelAndClose: true,
                 },
             )
                 .then(() => {
                     this.$store
-                        .dispatch("deleteProduct", {
+                        .dispatch('deleteProduct', {
                             user_id_seller: this.$store.getters.user.id,
                             id_product: id,
                         })
@@ -638,9 +624,7 @@ export default {
                             // console.log(response);
 
                             if (response.data.status === 200) {
-                                const index = this.products.findIndex(
-                                    (item) => item.id === id,
-                                );
+                                const index = this.products.findIndex((item) => item.id === id);
 
                                 if (index >= 0) {
                                     this.products.splice(index, 1);
@@ -651,8 +635,8 @@ export default {
                                 }
 
                                 ElNotification({
-                                    type: "success",
-                                    title: "Success",
+                                    type: 'success',
+                                    title: 'Success',
                                     message: response.data.message,
                                 });
                             }
@@ -664,19 +648,23 @@ export default {
                 .catch(() => {});
         },
 
+        /**
+         * Mengambil produk untuk halaman produk, dengan mendelegasikan pekerjaan backend atau shared state melalui Vuex store.
+         *
+         * @returns {void} Function menerapkan efeknya melalui state komponen atau aplikasi.
+         */
         getProducts() {
+            // --- step 1 - start - siapkan versi request dan id produk yang sudah dimuat
             const requestVersion = ++this.productRequestVersion;
             const requestSearchProduct = this.activeSearchProduct;
 
-            /* GET ALL ID */
-            let products_current_id = this.products.map(
-                (product) => product.id,
-            );
+            let products_current_id = this.products.map((product) => product.id);
             products_current_id = JSON.stringify(products_current_id);
-            /* GET ALL ID */
+            // --- step 1 - end - siapkan versi request dan id produk yang sudah dimuat
 
+            // --- step 2 - start - muat produk seller dan abaikan response dari versi filter yang sudah tidak aktif
             this.$store
-                .dispatch("getProducts", {
+                .dispatch('getProducts', {
                     user_id_seller: this.$store.getters.user.id,
                     products_current_id: products_current_id,
                     search_product: requestSearchProduct,
@@ -693,18 +681,14 @@ export default {
                     this.show.loading_search_product = false;
                     this.show.loading = false;
                     this.show.product_view = true;
-                    this.sellerLocationVerified =
-                        response.data.seller_location_verified === true;
+                    this.sellerLocationVerified = response.data.seller_location_verified === true;
 
                     this.$global.globalContainer.loading = false;
                     if (response.data.products.length == 0) {
                         this.completeProduct = true;
                     }
 
-                    this.products = [
-                        ...this.products,
-                        ...response.data.products,
-                    ];
+                    this.products = [...this.products, ...response.data.products];
 
                     // console.log({
                     //   'length_products': this.products.length
@@ -724,12 +708,12 @@ export default {
                     this.$global.globalContainer.loading = false;
 
                     ElNotification({
-                        type: "error",
-                        title: "Error",
-                        message:
-                            "Daftar produk gagal dimuat. Silakan coba lagi.",
+                        type: 'error',
+                        title: 'Error',
+                        message: 'Daftar produk gagal dimuat. Silakan coba lagi.',
                     });
                 });
+            // --- step 2 - end - muat produk seller dan abaikan response dari versi filter yang sudah tidak aktif
         },
     },
 };

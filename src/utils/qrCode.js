@@ -3,12 +3,15 @@ import QRCode from 'qrcode';
 /**
  * Tujuan function ini untuk membuat QR code lokal dari URI TOTP Clerk
  * tanpa mengirim secret authenticator ke layanan pihak ketiga.
+ *
+ * @param {*} value Nilai URI TOTP yang akan dinormalkan menjadi QR code.
+ *
+ * @returns {Promise<string>} Promise diselesaikan setelah alur asynchronous selesai.
  */
-export const createQrCodeSvgDataUri = async value => {
+export const createQrCodeSvgDataUri = async (value) => {
     const normalizedValue = String(value || '').trim();
 
-    if(normalizedValue === '')
-        return '';
+    if (normalizedValue === '') return '';
 
     const svg = await QRCode.toString(normalizedValue, {
         type: 'svg',

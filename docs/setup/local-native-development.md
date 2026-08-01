@@ -207,8 +207,12 @@ Run the frontend:
 
 ```bash
 cd "/Users/muhammadjidan/Documents/CODE LARAVEL10 AND VUEJS 3 VSC/Ecommerce/frontend"
+npm run format:check
 npm run dev
 ```
+
+Use `npm run format` to apply the repository's four-space Vue and JavaScript
+format before running `format:check` again.
 
 Open:
 

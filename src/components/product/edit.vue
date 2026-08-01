@@ -13,14 +13,8 @@
             <div class="border-b border-slate-200 px-5 py-4">
                 <div class="flex items-start justify-between gap-4">
                     <div>
-                        <h1
-                            class="text-xl font-semibold text-slate-900 sm:text-2xl"
-                        >
-                            Ubah Produk
-                        </h1>
-                        <p class="mt-1 text-sm text-slate-500">
-                            Perbarui foto dan informasi produk.
-                        </p>
+                        <h1 class="text-xl font-semibold text-slate-900 sm:text-2xl">Ubah Produk</h1>
+                        <p class="mt-1 text-sm text-slate-500">Perbarui foto dan informasi produk.</p>
                     </div>
 
                     <button
@@ -39,12 +33,8 @@
                     v-if="isProcessGetProduct"
                     class="flex min-h-[24rem] flex-col items-center justify-center gap-3 text-slate-500"
                 >
-                    <i
-                        class="fas fa-spinner fa-pulse text-2xl text-violet-500"
-                    ></i>
-                    <span class="text-sm font-medium"
-                        >Memuat data produk...</span
-                    >
+                    <i class="fas fa-spinner fa-pulse text-2xl text-violet-500"></i>
+                    <span class="text-sm font-medium">Memuat data produk...</span>
                 </div>
 
                 <div v-else class="space-y-5">
@@ -57,10 +47,7 @@
 
                     <div class="space-y-4">
                         <div class="input-container flex flex-col gap-y-1.5">
-                            <label
-                                for="edit-product-name"
-                                class="text-sm font-medium text-slate-700"
-                            >
+                            <label for="edit-product-name" class="text-sm font-medium text-slate-700">
                                 Nama Produk
                             </label>
                             <input
@@ -69,30 +56,19 @@
                                 type="text"
                                 class="h-11 w-full rounded-md border border-slate-300 px-3 text-base text-slate-900 outline-none shadow-sm placeholder:text-slate-400 focus:border-violet-500 focus:ring-2 focus:ring-violet-100"
                                 :class="{
-                                    'border-red-500 focus:border-red-500 focus:ring-red-100':
-                                        errors.name,
+                                    'border-red-500 focus:border-red-500 focus:ring-red-100': errors.name,
                                 }"
                                 v-model="name"
                                 @input="watchInputName"
                             />
-                            <small
-                                v-if="errors.name"
-                                class="text-sm text-red-500"
-                            >
+                            <small v-if="errors.name" class="text-sm text-red-500">
                                 {{ errors.name }}
                             </small>
                         </div>
 
-                        <div
-                            class="grid grid-cols-1 gap-4 sm500:grid-cols-2 sm:grid-cols-1"
-                        >
-                            <div
-                                class="input-container flex flex-col gap-y-1.5"
-                            >
-                                <label
-                                    for="edit-product-price"
-                                    class="text-sm font-medium text-slate-700"
-                                >
+                        <div class="grid grid-cols-1 gap-4 sm500:grid-cols-2 sm:grid-cols-1">
+                            <div class="input-container flex flex-col gap-y-1.5">
+                                <label for="edit-product-price" class="text-sm font-medium text-slate-700">
                                     Harga
                                 </label>
                                 <div
@@ -118,21 +94,13 @@
                                         @input="watchInputPrice"
                                     />
                                 </div>
-                                <small
-                                    v-if="errors.price"
-                                    class="text-sm text-red-500"
-                                >
+                                <small v-if="errors.price" class="text-sm text-red-500">
                                     {{ errors.price }}
                                 </small>
                             </div>
 
-                            <div
-                                class="input-container flex flex-col gap-y-1.5"
-                            >
-                                <label
-                                    for="edit-product-stock"
-                                    class="text-sm font-medium text-slate-700"
-                                >
+                            <div class="input-container flex flex-col gap-y-1.5">
+                                <label for="edit-product-stock" class="text-sm font-medium text-slate-700">
                                     Stok
                                 </label>
                                 <input
@@ -142,16 +110,12 @@
                                     min="0"
                                     class="h-11 w-full rounded-md border border-slate-300 px-3 text-base text-slate-900 outline-none shadow-sm placeholder:text-slate-400 focus:border-violet-500 focus:ring-2 focus:ring-violet-100"
                                     :class="{
-                                        'border-red-500 focus:border-red-500 focus:ring-red-100':
-                                            errors.stock,
+                                        'border-red-500 focus:border-red-500 focus:ring-red-100': errors.stock,
                                     }"
                                     v-model="stock"
                                     @input="watchInputStock"
                                 />
-                                <small
-                                    v-if="errors.stock"
-                                    class="text-sm text-red-500"
-                                >
+                                <small v-if="errors.stock" class="text-sm text-red-500">
                                     {{ errors.stock }}
                                 </small>
                             </div>
@@ -182,10 +146,7 @@
                         @click="editProduct"
                     >
                         Simpan
-                        <i
-                            v-if="isProcessEditProduct"
-                            class="ml-1 fas fa-spinner fa-pulse"
-                        ></i>
+                        <i v-if="isProcessEditProduct" class="ml-1 fas fa-spinner fa-pulse"></i>
                     </button>
                 </div>
             </div>
@@ -194,9 +155,9 @@
 </template>
 
 <script>
-import { ElNotification } from "element-plus";
-import ProductImagesInput from "./ProductImagesInput.vue";
-import { getProductUploadErrorMessage } from "@/services/productUploadError";
+import { ElNotification } from 'element-plus';
+import ProductImagesInput from './ProductImagesInput.vue';
+import { getProductUploadErrorMessage } from '@/services/productUploadError';
 
 export default {
     components: {
@@ -213,34 +174,51 @@ export default {
         },
     },
 
+    /**
+     * Membuat state reaktif yang digunakan komponen untuk edit.
+     *
+     * @returns {Object} State reaktif yang diinisialisasi untuk komponen.
+     */
     data() {
         return {
             productImages: [],
 
-            id: "",
-            name: "",
-            price: "",
-            priceString: "",
-            stock: "",
+            id: '',
+            name: '',
+            price: '',
+            priceString: '',
+            stock: '',
 
             isProcessGetProduct: true,
             isProcessEditProduct: false,
             productRequestVersion: 0,
 
             errors: {
-                images: "",
-                name: "",
-                price: "",
-                stock: "",
+                images: '',
+                name: '',
+                price: '',
+                stock: '',
             },
         };
     },
 
+    /**
+     * Menginisialisasi behavior komponen yang bergantung pada browser setelah mounted untuk edit.
+     *
+     * @returns {void} Function menerapkan efeknya melalui state komponen atau aplikasi.
+     */
     mounted() {
         // this.getProduct();
     },
 
     watch: {
+        /**
+         * Menjalankan proses show dan menyinkronkan state hasilnya untuk edit.
+         *
+         * @param {*} newValue Nilai terbaru yang diberikan oleh watcher reaktif.
+         *
+         * @returns {void} Function menerapkan efeknya melalui state komponen atau aplikasi.
+         */
         show(newValue) {
             if (newValue && this.productId) {
                 this.getProduct();
@@ -249,6 +227,11 @@ export default {
     },
 
     methods: {
+        /**
+         * Menutup edit produk untuk edit.
+         *
+         * @returns {void} Function menerapkan efeknya melalui state komponen atau aplikasi.
+         */
         closeEditProduct() {
             if (this.$global.modals.editProduct) {
                 this.productRequestVersion++;
@@ -257,60 +240,73 @@ export default {
             }
         },
 
+        /**
+         * Mengembalikan errors ke state awal untuk edit.
+         *
+         * @returns {void} Function menerapkan efeknya melalui state komponen atau aplikasi.
+         */
         resetErrors() {
-            this.errors.images = "";
-            this.errors.name = "";
-            this.errors.price = "";
-            this.errors.stock = "";
+            this.errors.images = '';
+            this.errors.name = '';
+            this.errors.price = '';
+            this.errors.stock = '';
         },
 
+        /**
+         * Mengembalikan form ke state awal untuk edit.
+         *
+         * @returns {void} Function menerapkan efeknya melalui state komponen atau aplikasi.
+         */
         resetForm() {
             this.$refs.productImagesInput?.clear();
-            this.id = "";
-            this.name = "";
-            this.price = "";
-            this.priceString = "";
-            this.stock = "";
+            this.id = '';
+            this.name = '';
+            this.price = '';
+            this.priceString = '';
+            this.stock = '';
             this.resetErrors();
         },
 
+        /**
+         * Memvalidasi and synchronize input name untuk edit.
+         *
+         * @returns {void} Function menerapkan efeknya melalui state komponen atau aplikasi.
+         */
         watchInputName() {
-            if (this.name.trim() === "") {
-                this.errors.name = "The Field Name Is Required";
+            if (this.name.trim() === '') {
+                this.errors.name = 'The Field Name Is Required';
             } else {
-                this.errors.name = "";
+                this.errors.name = '';
             }
         },
 
+        /**
+         * Memvalidasi and synchronize input price untuk edit.
+         *
+         * @returns {void} Function menerapkan efeknya melalui state komponen atau aplikasi.
+         */
         watchInputPrice() {
             this.syncFormattedPrice();
 
-            if (String(this.price).trim() === "") {
-                this.errors.price = "The Field Price Is Required";
+            if (String(this.price).trim() === '') {
+                this.errors.price = 'The Field Price Is Required';
             } else {
-                this.errors.price = "";
+                this.errors.price = '';
             }
         },
 
         /**
          * Tujuan method ini untuk membatasi input harga agar hanya angka
          * yang masuk sebelum diformat sebagai rupiah.
+         *
+         * @param {*} event Event keyboard atau browser yang ditangani oleh kontrol input.
+         *
+         * @returns {void} Memperbarui state komponen atau aplikasi tanpa mengembalikan nilai.
          */
         restrictPriceInput(event) {
             if (event.metaKey || event.ctrlKey) return;
 
-            if (
-                [
-                    "Backspace",
-                    "ArrowLeft",
-                    "ArrowRight",
-                    "Tab",
-                    "Delete",
-                    "Home",
-                    "End",
-                ].includes(event.key)
-            )
-                return;
+            if (['Backspace', 'ArrowLeft', 'ArrowRight', 'Tab', 'Delete', 'Home', 'End'].includes(event.key)) return;
 
             if (!/^\d$/.test(event.key)) event.preventDefault();
         },
@@ -318,38 +314,47 @@ export default {
         /**
          * Tujuan method ini untuk menjaga tampilan harga memakai format
          * ribuan Indonesia, tetapi nilai yang dikirim tetap angka bersih.
+         *
+         * @returns {void} Memperbarui state komponen atau aplikasi tanpa mengembalikan nilai.
          */
         syncFormattedPrice() {
-            const normalizedPrice = String(this.priceString || "").replace(
-                /\D/g,
-                "",
-            );
+            const normalizedPrice = String(this.priceString || '').replace(/\D/g, '');
 
             this.price = normalizedPrice;
-            this.priceString = normalizedPrice
-                ? Number(normalizedPrice).toLocaleString("id-ID")
-                : "";
+            this.priceString = normalizedPrice ? Number(normalizedPrice).toLocaleString('id-ID') : '';
         },
 
         /**
          * Tujuan method ini untuk mengisi harga produk dari API ke state
          * tampilan rupiah dan state angka bersih sekaligus.
+         *
+         * @param {*} price Harga produk untuk menginisialisasi state tampilan yang dapat diedit.
+         *
+         * @returns {void} Memperbarui state komponen atau aplikasi tanpa mengembalikan nilai.
          */
         setProductPrice(price) {
-            this.price = String(price || "");
-            this.priceString = this.price
-                ? Number(this.price).toLocaleString("id-ID")
-                : "";
+            this.price = String(price || '');
+            this.priceString = this.price ? Number(this.price).toLocaleString('id-ID') : '';
         },
 
+        /**
+         * Memvalidasi and synchronize input stock untuk edit.
+         *
+         * @returns {void} Function menerapkan efeknya melalui state komponen atau aplikasi.
+         */
         watchInputStock() {
-            if (String(this.stock).trim() === "") {
-                this.errors.stock = "The Field Stock Is Required";
+            if (String(this.stock).trim() === '') {
+                this.errors.stock = 'The Field Stock Is Required';
             } else {
-                this.errors.stock = "";
+                this.errors.stock = '';
             }
         },
 
+        /**
+         * Mengambil produk untuk edit, dengan mendelegasikan pekerjaan backend atau shared state melalui Vuex store.
+         *
+         * @returns {void} Function menerapkan efeknya melalui state komponen atau aplikasi.
+         */
         getProduct() {
             const requestVersion = ++this.productRequestVersion;
             this.isProcessGetProduct = true;
@@ -357,7 +362,7 @@ export default {
             this.$refs.productImagesInput?.clear();
 
             this.$store
-                .dispatch("getProduct", {
+                .dispatch('getProduct', {
                     user_id_seller: this.$store.getters.user.id,
                     id_product: this.productId,
                 })
@@ -373,15 +378,13 @@ export default {
                         this.handleMissingProduct();
                     } else {
                         this.id = response.data.product.id;
-                        this.productImages = response.data.product.images.map(
-                            (image) => ({
-                                key: image.id,
-                                id: image.id,
-                                type: "existing",
-                                path: image.path,
-                                preview: `${import.meta.env.VITE_APP_BACKEND_BASE_URL}/${import.meta.env.VITE_SYMLINK_FOLDER}/${image.path}`,
-                            }),
-                        );
+                        this.productImages = response.data.product.images.map((image) => ({
+                            key: image.id,
+                            id: image.id,
+                            type: 'existing',
+                            path: image.path,
+                            preview: `${import.meta.env.VITE_APP_BACKEND_BASE_URL}/${import.meta.env.VITE_SYMLINK_FOLDER}/${image.path}`,
+                        }));
                         this.name = response.data.product.name;
                         this.setProductPrice(response.data.product.price);
                         this.stock = response.data.product.stock;
@@ -402,57 +405,61 @@ export default {
         },
 
         /**
-         * Menutup drawer yang datanya sudah stale agar form kosong tidak dapat disimpan.
+         * Menangani missing produk untuk edit.
+         *
+         * @returns {void} Function menerapkan efeknya melalui state komponen atau aplikasi.
          */
         handleMissingProduct() {
             this.isProcessGetProduct = false;
 
             ElNotification({
-                type: "error",
-                title: "Produk Tidak Ditemukan",
-                message: "Produk sudah tidak tersedia atau telah dihapus.",
+                type: 'error',
+                title: 'Produk Tidak Ditemukan',
+                message: 'Produk sudah tidak tersedia atau telah dihapus.',
             });
 
             this.closeEditProduct();
         },
 
+        /**
+         * Memperbarui produk untuk edit, dengan mendelegasikan pekerjaan backend atau shared state melalui Vuex store.
+         *
+         * @returns {void} Function menerapkan efeknya melalui state komponen atau aplikasi.
+         */
         editProduct() {
-            if (
-                this.productImages.length === 0 ||
-                !this.name ||
-                !this.price ||
-                this.stock === ""
-            ) {
-                if (this.productImages.length === 0)
-                    this.errors.images =
-                        "Produk wajib memiliki minimal 1 foto.";
-                if (!this.name) this.errors.name = "The Field Name Is Required";
-                if (!this.price)
-                    this.errors.price = "The Field Price Is Required";
-                if (this.stock === "")
-                    this.errors.stock = "The Field Stock Is Required";
+            // --- step 1 - start - validasi data dan foto produk sebelum membuat payload perubahan
+            if (this.productImages.length === 0 || !this.name || !this.price || this.stock === '') {
+                if (this.productImages.length === 0) this.errors.images = 'Produk wajib memiliki minimal 1 foto.';
+                if (!this.name) this.errors.name = 'The Field Name Is Required';
+                if (!this.price) this.errors.price = 'The Field Price Is Required';
+                if (this.stock === '') this.errors.stock = 'The Field Stock Is Required';
             } else {
+                // --- step 1 - end - validasi data dan foto produk sebelum membuat payload perubahan
+
+                // --- step 2 - start - susun payload perubahan beserta urutan foto lama dan baru
                 this.isProcessEditProduct = true;
 
                 const form = new FormData();
-                form.append("id", this.id);
+                form.append('id', this.id);
                 let newImageIndex = 0;
                 this.productImages.forEach((image) => {
-                    if (image.type === "new") {
-                        form.append("images[]", image.file);
-                        form.append("image_order[]", `new:${newImageIndex}`);
+                    if (image.type === 'new') {
+                        form.append('images[]', image.file);
+                        form.append('image_order[]', `new:${newImageIndex}`);
                         newImageIndex++;
                     } else {
-                        form.append("image_order[]", image.id);
+                        form.append('image_order[]', image.id);
                     }
                 });
-                form.append("name", this.name);
-                form.append("price", this.price);
-                form.append("stock", this.stock);
-                form.append("_method", "PUT");
+                form.append('name', this.name);
+                form.append('price', this.price);
+                form.append('stock', this.stock);
+                form.append('_method', 'PUT');
+                // --- step 2 - end - susun payload perubahan beserta urutan foto lama dan baru
 
+                // --- step 3 - start - simpan perubahan dan petakan hasil atau error validasi ke tampilan
                 this.$store
-                    .dispatch("editProduct", form)
+                    .dispatch('editProduct', form)
                     .then((response) => {
                         // console.log(response);
 
@@ -460,17 +467,14 @@ export default {
 
                         if (response.data.status === 200) {
                             ElNotification({
-                                type: "success",
-                                title: "Success",
+                                type: 'success',
+                                title: 'Success',
                                 message: response.data.message,
                             });
 
                             this.resetForm();
                             this.$global.modals.editProduct = false;
-                            this.$emit(
-                                "onAfterEditProduct",
-                                response.data.product,
-                            );
+                            this.$emit('onAfterEditProduct', response.data.product);
                         }
                     })
                     .catch((error) => {
@@ -480,26 +484,23 @@ export default {
                             const message = error.response.data.message;
 
                             Object.keys(message).forEach((key) => {
-                                if (
-                                    key.startsWith("images.") ||
-                                    key.startsWith("image_order.")
-                                ) {
+                                if (key.startsWith('images.') || key.startsWith('image_order.')) {
                                     this.errors.images = message[key][0];
                                     return;
                                 }
 
                                 switch (key) {
-                                    case "images":
-                                    case "image_order":
+                                    case 'images':
+                                    case 'image_order':
                                         this.errors.images = message[key][0];
                                         break;
-                                    case "name":
+                                    case 'name':
                                         this.errors.name = message[key][0];
                                         break;
-                                    case "price":
+                                    case 'price':
                                         this.errors.price = message[key][0];
                                         break;
-                                    case "stock":
+                                    case 'stock':
                                         this.errors.stock = message[key][0];
                                         break;
                                 }
@@ -509,11 +510,12 @@ export default {
                         }
 
                         ElNotification({
-                            type: "error",
-                            title: "Produk Gagal Disimpan",
+                            type: 'error',
+                            title: 'Produk Gagal Disimpan',
                             message: getProductUploadErrorMessage(error),
                         });
                     });
+                // --- step 3 - end - simpan perubahan dan petakan hasil atau error validasi ke tampilan
             }
         },
     },

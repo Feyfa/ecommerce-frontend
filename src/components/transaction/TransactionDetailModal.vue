@@ -4,17 +4,26 @@
             <header class="flex items-start justify-between gap-4 border-b border-neutral-200 px-5 py-4">
                 <div class="min-w-0">
                     <div class="mb-2 flex flex-wrap items-center gap-2">
-                        <span class="inline-flex items-center gap-2 rounded-md border px-2.5 py-1 text-xs font-semibold" :class="status.class">
+                        <span
+                            class="inline-flex items-center gap-2 rounded-md border px-2.5 py-1 text-xs font-semibold"
+                            :class="status.class"
+                        >
                             <i :class="status.icon"></i>
                             {{ status.label }}
                         </span>
                         <span class="text-sm font-semibold text-neutral-700">{{ item.transaction_date }}</span>
                     </div>
                     <h2 class="text-xl font-semibold text-neutral-950">Detail Transaksi</h2>
-                    <p class="mt-1 text-sm text-neutral-500">{{ role == 'buyer' ? 'Penjual' : 'Pembeli' }}: {{ displayName }}</p>
+                    <p class="mt-1 text-sm text-neutral-500">
+                        {{ role == 'buyer' ? 'Penjual' : 'Pembeli' }}: {{ displayName }}
+                    </p>
                 </div>
 
-                <button class="inline-flex h-9 w-9 shrink-0 items-center justify-center rounded-md text-neutral-500 transition hover:bg-neutral-100 hover:text-neutral-900" aria-label="Tutup modal" @click="$emit('close')">
+                <button
+                    class="inline-flex h-9 w-9 shrink-0 items-center justify-center rounded-md text-neutral-500 transition hover:bg-neutral-100 hover:text-neutral-900"
+                    aria-label="Tutup modal"
+                    @click="$emit('close')"
+                >
                     <i class="fa-solid fa-xmark"></i>
                 </button>
             </header>
@@ -29,7 +38,8 @@
                                     class="inline-flex h-8 w-8 shrink-0 items-center justify-center rounded-md border border-neutral-300 bg-white text-xs text-neutral-700 transition hover:border-violet-300 hover:text-violet-700"
                                     title="Copy Invoice ID"
                                     aria-label="Copy Invoice ID"
-                                    @click="$emit('copy-invoice', item.invoice_id)">
+                                    @click="$emit('copy-invoice', item.invoice_id)"
+                                >
                                     <i class="fa-regular fa-copy"></i>
                                 </button>
                             </div>
@@ -39,11 +49,24 @@
                         <section class="rounded-lg border border-neutral-200 p-4">
                             <h3 class="mb-3 text-base font-semibold text-neutral-900">Produk ({{ productCount }})</h3>
                             <div class="flex flex-col gap-3">
-                                <div v-for="(product, index) in item.products" :key="`${product.name}-${index}`" class="flex min-w-0 gap-3 rounded-md bg-neutral-50 p-3">
-                                    <div class="h-16 w-16 shrink-0 rounded-md bg-neutral-100 bg-cover bg-center bg-no-repeat" :style="{ backgroundImage: `url(${backendBaseUrl}/${symlinkFolder}/${product.img})` }"></div>
+                                <div
+                                    v-for="(product, index) in item.products"
+                                    :key="`${product.name}-${index}`"
+                                    class="flex min-w-0 gap-3 rounded-md bg-neutral-50 p-3"
+                                >
+                                    <div
+                                        class="h-16 w-16 shrink-0 rounded-md bg-neutral-100 bg-cover bg-center bg-no-repeat"
+                                        :style="{
+                                            backgroundImage: `url(${backendBaseUrl}/${symlinkFolder}/${product.img})`,
+                                        }"
+                                    ></div>
                                     <div class="min-w-0 flex-1">
-                                        <h4 class="truncate text-sm font-semibold text-neutral-900">{{ product.name }}</h4>
-                                        <p class="mt-1 text-sm text-neutral-600">{{ product.total }} x {{ formatCurrency(product.price) }}</p>
+                                        <h4 class="truncate text-sm font-semibold text-neutral-900">
+                                            {{ product.name }}
+                                        </h4>
+                                        <p class="mt-1 text-sm text-neutral-600">
+                                            {{ product.total }} x {{ formatCurrency(product.price) }}
+                                        </p>
                                     </div>
                                     <div class="shrink-0 text-right text-sm font-semibold text-neutral-900">
                                         {{ formatCurrency(productSubtotal(product)) }}
@@ -71,7 +94,11 @@
                         <section class="rounded-lg border border-neutral-200 p-4">
                             <h3 class="mb-3 text-base font-semibold text-neutral-900">Pembayaran</h3>
                             <div v-if="paymentLogo" class="mb-3 flex items-center gap-3 rounded-md bg-neutral-50 p-3">
-                                <img :src="paymentLogo" class="h-10 w-10 shrink-0 rounded-sm object-cover object-center" alt="Payment logo">
+                                <img
+                                    :src="paymentLogo"
+                                    class="h-10 w-10 shrink-0 rounded-sm object-cover object-center"
+                                    alt="Payment logo"
+                                />
                                 <span class="text-sm font-semibold text-neutral-900">{{ item.payment_name }}</span>
                             </div>
                             <div class="flex flex-col gap-3 text-sm">
@@ -83,26 +110,35 @@
                             <button
                                 v-if="showPaymentButton"
                                 class="mt-4 inline-flex w-full items-center justify-center gap-2 rounded-md bg-violet-600 px-4 py-2.5 text-sm font-semibold text-white transition hover:bg-violet-700"
-                                @click="$emit('copy-payment', item.payment_account)">
+                                @click="$emit('copy-payment', item.payment_account)"
+                            >
                                 <i class="fa-regular fa-copy"></i>
                                 Copy Virtual Account
                             </button>
                         </section>
 
                         <section class="rounded-lg border border-neutral-200 p-4">
-                            <h3 class="mb-3 text-base font-semibold text-neutral-900">{{ role == 'seller' ? 'Rincian Pendapatan' : 'Rincian Harga' }}</h3>
+                            <h3 class="mb-3 text-base font-semibold text-neutral-900">
+                                {{ role == 'seller' ? 'Rincian Pendapatan' : 'Rincian Harga' }}
+                            </h3>
                             <div class="flex flex-col gap-3 text-sm">
                                 <div class="flex items-center justify-between gap-4">
                                     <span class="text-neutral-600">Barang</span>
-                                    <span class="font-semibold text-neutral-900">{{ formatCurrency(item.product_price) }}</span>
+                                    <span class="font-semibold text-neutral-900">{{
+                                        formatCurrency(item.product_price)
+                                    }}</span>
                                 </div>
                                 <div class="flex items-center justify-between gap-4">
                                     <span class="text-neutral-600">Ongkir</span>
-                                    <span class="font-semibold text-neutral-900">{{ formatCurrency(item.kurir_price) }}</span>
+                                    <span class="font-semibold text-neutral-900">{{
+                                        formatCurrency(item.kurir_price)
+                                    }}</span>
                                 </div>
                                 <div class="flex items-center justify-between gap-4 border-t border-neutral-200 pt-3">
                                     <span class="font-semibold text-neutral-900">{{ totalLabel }}</span>
-                                    <span class="font-bold text-neutral-950">{{ formatCurrency(role == 'seller' ? item.product_price : item.total_price) }}</span>
+                                    <span class="font-bold text-neutral-950">{{
+                                        formatCurrency(role == 'seller' ? item.product_price : item.total_price)
+                                    }}</span>
                                 </div>
                             </div>
                         </section>
@@ -111,7 +147,8 @@
                             v-if="showApproveButton"
                             class="inline-flex items-center justify-center gap-2 rounded-md bg-violet-600 px-5 py-3 text-sm font-semibold text-white transition hover:bg-violet-700 disabled:cursor-not-allowed disabled:opacity-60"
                             :disabled="approving"
-                            @click="$emit('approve', item.id)">
+                            @click="$emit('approve', item.id)"
+                        >
                             Setujui Transaksi
                             <i v-if="approving" class="fa-solid fa-spinner fa-spin-pulse"></i>
                         </button>
@@ -127,112 +164,166 @@ import InfoRow from '@/components/transaction/TransactionInfoRow.vue';
 
 export default {
     components: {
-        InfoRow
+        InfoRow,
     },
 
     props: {
         item: {
             type: Object,
-            required: true
+            required: true,
         },
         role: {
             type: String,
-            required: true
+            required: true,
         },
         approving: {
             type: Boolean,
-            default: false
+            default: false,
         },
         backendBaseUrl: {
             type: String,
-            required: true
+            required: true,
         },
         symlinkFolder: {
             type: String,
-            required: true
-        }
+            required: true,
+        },
     },
 
     emits: ['close', 'copy-payment', 'copy-invoice', 'approve'],
 
     computed: {
+        /**
+         * Mengembalikan nama tampilan yang dihitung dari state reaktif saat ini untuk transaksi detail modal.
+         *
+         * @returns {*} Nilai yang dihasilkan oleh operasi nama tampilan.
+         */
         displayName() {
             return this.role == 'buyer' ? this.item.seller_name : this.item.buyer_name;
         },
 
+        /**
+         * Mengembalikan produk jumlah yang dihitung dari state reaktif saat ini untuk transaksi detail modal.
+         *
+         * @returns {*} Nilai yang dihasilkan oleh operasi produk jumlah.
+         */
         productCount() {
             return this.item.products?.length ?? 0;
         },
 
+        /**
+         * Memproses key status untuk transaksi detail modal.
+         *
+         * @returns {string} Teks key status yang telah diformat atau ditentukan.
+         */
         statusKey() {
-            if(this.item.invoice_status == 'pending')
-                return 'pending_payment';
-            if(this.item.invoice_status == 'done' && this.item.transaction_status == 'approved_seller')
+            if (this.item.invoice_status == 'pending') return 'pending_payment';
+            if (this.item.invoice_status == 'done' && this.item.transaction_status == 'approved_seller')
                 return 'waiting_seller';
-            if(this.item.invoice_status == 'done' && this.item.transaction_status == 'done')
-                return 'done';
+            if (this.item.invoice_status == 'done' && this.item.transaction_status == 'done') return 'done';
 
             return 'unknown';
         },
 
+        /**
+         * Mengembalikan status yang dihitung dari state reaktif saat ini untuk transaksi detail modal.
+         *
+         * @returns {*} Nilai yang dihasilkan oleh operasi status.
+         */
         status() {
             const statusMap = {
                 pending_payment: {
                     label: this.role == 'seller' ? 'Menunggu Pembayaran Pembeli' : 'Selesaikan Pembayaran',
                     class: 'border-amber-200 bg-amber-50 text-amber-700',
-                    icon: 'fa-solid fa-clock'
+                    icon: 'fa-solid fa-clock',
                 },
                 waiting_seller: {
                     label: this.role == 'seller' ? 'Perlu Persetujuan' : 'Menunggu Persetujuan Penjual',
                     class: 'border-blue-200 bg-blue-50 text-blue-700',
-                    icon: 'fa-solid fa-hourglass-half'
+                    icon: 'fa-solid fa-hourglass-half',
                 },
                 done: {
                     label: 'Selesai',
                     class: 'border-emerald-200 bg-emerald-50 text-emerald-700',
-                    icon: 'fa-solid fa-circle-check'
+                    icon: 'fa-solid fa-circle-check',
                 },
                 unknown: {
                     label: 'Status Tidak Dikenal',
                     class: 'border-neutral-200 bg-neutral-50 text-neutral-600',
-                    icon: 'fa-solid fa-circle-info'
-                }
+                    icon: 'fa-solid fa-circle-info',
+                },
             };
 
             return statusMap[this.statusKey];
         },
 
+        /**
+         * Mengembalikan show tombol pembayaran yang dihitung dari state reaktif saat ini untuk transaksi detail modal.
+         *
+         * @returns {*} Nilai yang dihasilkan oleh operasi show tombol pembayaran.
+         */
         showPaymentButton() {
             return this.role == 'buyer' && this.item.invoice_status == 'pending' && this.item.payment_account;
         },
 
+        /**
+         * Memproses logo pembayaran untuk transaksi detail modal.
+         *
+         * @returns {string} Teks logo pembayaran yang telah diformat atau ditentukan.
+         */
         paymentLogo() {
-            if((this.item.payment_name ?? '').toLowerCase().includes('bca'))
-                return '/img/bca.png';
+            if ((this.item.payment_name ?? '').toLowerCase().includes('bca')) return '/img/bca.png';
 
             return '';
         },
 
+        /**
+         * Mengembalikan show approve button yang dihitung dari state reaktif saat ini untuk transaksi detail modal.
+         *
+         * @returns {*} Nilai yang dihasilkan oleh operasi show approve button.
+         */
         showApproveButton() {
-            return this.role == 'seller' && this.item.invoice_status == 'done' && this.item.transaction_status == 'approved_seller';
+            return (
+                this.role == 'seller' &&
+                this.item.invoice_status == 'done' &&
+                this.item.transaction_status == 'approved_seller'
+            );
         },
 
+        /**
+         * Memproses label total untuk transaksi detail modal.
+         *
+         * @returns {string} Teks label total yang telah diformat atau ditentukan.
+         */
         totalLabel() {
-            if(this.role == 'seller')
-                return 'Total Pendapatan';
+            if (this.role == 'seller') return 'Total Pendapatan';
 
             return this.item.invoice_status == 'pending' ? 'Total Pembayaran' : 'Total Harga';
-        }
+        },
     },
 
     methods: {
+        /**
+         * Memformat mata uang untuk ditampilkan untuk transaksi detail modal.
+         *
+         * @param {*} value Nilai yang diproses oleh function.
+         *
+         * @returns {string} Teks format mata uang yang telah diformat atau ditentukan.
+         */
         formatCurrency(value) {
             return `Rp ${Number(value || 0).toLocaleString('id-ID')}`;
         },
 
+        /**
+         * Mengembalikan produk subtotal yang ditentukan modul untuk transaksi detail modal.
+         *
+         * @param {*} product Produk yang diproses oleh alur saat ini.
+         *
+         * @returns {*} Nilai yang dihasilkan oleh operasi produk subtotal.
+         */
         productSubtotal(product) {
             return Number(product.price || 0) * Number(product.total || 0);
-        }
-    }
-}
+        },
+    },
+};
 </script>

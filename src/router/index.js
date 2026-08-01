@@ -1,13 +1,18 @@
-import { createRouter, createWebHistory } from 'vue-router'
+import { createRouter, createWebHistory } from 'vue-router';
 import store from '@/store';
 import global from '@/global';
-import { clearAuthSession, handleExpiredAuthSession, isUnauthenticatedResponse, syncClearedAuthSessionToStore } from '@/authSession';
+import {
+    clearAuthSession,
+    handleExpiredAuthSession,
+    isUnauthenticatedResponse,
+    syncClearedAuthSessionToStore,
+} from '@/authSession';
 import {
     bootstrapResolvedAuthSession,
     clearResolvedAuthSessionTtl,
     getBrowserAuthPresence,
     hasFreshResolvedAuthSession,
-    resolveDefaultAuthenticatedRouteName
+    resolveDefaultAuthenticatedRouteName,
 } from '@/authBridge';
 
 const routerAccountType = {
@@ -26,20 +31,32 @@ const routerAccountType = {
         'settings_notifications',
         'settings_support_report',
     ],
-    buyer: ['buyer_user','buyer_home','buyer_belanja', 'buyer_keranjang','buyer_transaction','buyer_checkout','buyer_bayar'],
-    seller: ['seller_company','seller_dashboard','seller_product','seller_transaction']
+    buyer: [
+        'buyer_user',
+        'buyer_home',
+        'buyer_belanja',
+        'buyer_keranjang',
+        'buyer_transaction',
+        'buyer_checkout',
+        'buyer_bayar',
+    ],
+    seller: ['seller_company', 'seller_dashboard', 'seller_product', 'seller_transaction'],
 };
 
 const defaultRouteByAccountMode = {
     buyer: 'buyer_home',
-    seller: 'seller_dashboard'
+    seller: 'seller_dashboard',
 };
 
+/**
+ * Mengambil mode akun aktif di modul index, dengan mendelegasikan pekerjaan backend atau shared state melalui Vuex store.
+ *
+ * @returns {string} Teks get mode akun aktif yang telah diformat atau ditentukan.
+ */
 const getActiveAccountMode = () => {
     const activeAccountMode = store.getters.activeAccountMode || sessionStorage.getItem('active_account_mode');
 
-    if(['buyer', 'seller'].includes(activeAccountMode))
-        return activeAccountMode;
+    if (['buyer', 'seller'].includes(activeAccountMode)) return activeAccountMode;
 
     store.dispatch('setActiveAccountMode', 'buyer');
     return 'buyer';
@@ -47,6 +64,10 @@ const getActiveAccountMode = () => {
 
 /**
  * Route lama Akun Saya diarahkan ke struktur Settings baru agar deep link tetap aman.
+ *
+ * @param {*} to Route tujuan yang sedang ditentukan.
+ *
+ * @returns {Object} Object yang telah disiapkan untuk alur saat ini.
  */
 const resolveLegacyAccountRoute = (to) => {
     const routeByTab = {
@@ -68,25 +89,25 @@ const routes = [
         path: '/register',
         name: 'register',
         component: () => import('../views/noauth/RegisterView.vue'),
-        meta: {public: true}
+        meta: { public: true },
     },
     {
         path: '/login',
         name: 'login',
         component: () => import('../views/noauth/LoginView.vue'),
-        meta: {public: true}
+        meta: { public: true },
     },
     {
         path: '/forgot-password',
         name: 'forgot_password',
         component: () => import('../views/noauth/ForgotPasswordView.vue'),
-        meta: {public: true}
+        meta: { public: true },
     },
     {
         path: '/auth/callback',
         name: 'auth_callback',
         component: () => import('../views/noauth/ClerkCallbackView.vue'),
-        meta: {public: true}
+        meta: { public: true },
     },
     /* NO AUTH */
 
@@ -95,147 +116,147 @@ const routes = [
         path: '/buyer/beranda',
         name: 'buyer_home',
         component: () => import('../views/auth/buyer/HomeView.vue'),
-        meta: {public: false}
+        meta: { public: false },
     },
     {
         path: '/seller/dashboard',
         name: 'seller_dashboard',
         component: () => import('../views/auth/seller/DashboardView.vue'),
-        meta: {public: false}
+        meta: { public: false },
     },
     {
         path: '/buyer/user',
         name: 'buyer_user',
         component: () => import('../views/auth/buyer/UserProfileView.vue'),
-        meta: {public: false}
+        meta: { public: false },
     },
     {
         path: '/seller/company',
         name: 'seller_company',
         component: () => import('../views/auth/seller/CompanyProfileView.vue'),
-        meta: {public: false}
+        meta: { public: false },
     },
     {
         path: '/seller/product',
         name: 'seller_product',
         component: () => import('../views/auth/seller/ProductView.vue'),
-        meta: {public: false}
+        meta: { public: false },
     },
     {
         path: '/buyer/belanja',
         name: 'buyer_belanja',
         component: () => import('../views/auth/buyer/BelanjaView.vue'),
-        meta: {public: false}
+        meta: { public: false },
     },
     {
         path: '/buyer/keranjang',
         name: 'buyer_keranjang',
         component: () => import('../views/auth/buyer/KeranjangView.vue'),
-        meta: {public: false}
+        meta: { public: false },
     },
     {
         path: '/buyer/transaction',
         name: 'buyer_transaction',
         component: () => import('../views/auth/buyer/TransactionView.vue'),
-        meta: {public: false}
+        meta: { public: false },
     },
     {
         path: '/seller/transaction',
         name: 'seller_transaction',
         component: () => import('../views/auth/seller/TransactionView.vue'),
-        meta: {public: false}
+        meta: { public: false },
     },
     {
         path: '/buyer/checkout',
         name: 'buyer_checkout',
         component: () => import('../views/auth/buyer/CheckoutView.vue'),
-        meta: {public: false}
+        meta: { public: false },
     },
     {
         path: '/buyer/bayar',
         name: 'buyer_bayar',
         component: () => import('../views/auth/buyer/BayarView.vue'),
-        meta: {public: false}
+        meta: { public: false },
     },
     {
         path: '/rekening',
         name: 'rekening',
-        redirect: {name: 'settings_bank_accounts'},
-        meta: {public: false}
+        redirect: { name: 'settings_bank_accounts' },
+        meta: { public: false },
     },
     {
         path: '/saldo',
         name: 'saldo',
-        redirect: {name: 'settings_balance'},
-        meta: {public: false}
+        redirect: { name: 'settings_balance' },
+        meta: { public: false },
     },
     {
         path: '/account',
         name: 'account',
         redirect: resolveLegacyAccountRoute,
-        meta: {public: false}
+        meta: { public: false },
     },
     {
         path: '/settings',
         name: 'settings',
         component: () => import('../views/auth/settings/SettingsView.vue'),
-        redirect: {name: 'settings_profile'},
-        meta: {public: false},
+        redirect: { name: 'settings_profile' },
+        meta: { public: false },
         children: [
             {
                 path: 'profile',
                 name: 'settings_profile',
                 component: () => import('../views/auth/buyer/UserProfileView.vue'),
-                props: {embedded: true, showAlamat: false},
+                props: { embedded: true, showAlamat: false },
                 meta: {
                     public: false,
                     settingsTitle: 'Profil Pengguna',
-                    settingsDescription: 'Kelola data dasar akun yang digunakan untuk identitas dan transaksi.'
-                }
+                    settingsDescription: 'Kelola data dasar akun yang digunakan untuk identitas dan transaksi.',
+                },
             },
             {
                 path: 'addresses',
                 name: 'settings_addresses',
                 component: () => import('../components/user-profile/Alamat.vue'),
-                props: {flat: true, showTitle: false},
+                props: { flat: true, showTitle: false },
                 meta: {
                     public: false,
                     settingsTitle: 'Alamat',
-                    settingsDescription: 'Kelola alamat pengiriman yang digunakan saat bertransaksi.'
-                }
+                    settingsDescription: 'Kelola alamat pengiriman yang digunakan saat bertransaksi.',
+                },
             },
             {
                 path: 'store',
                 name: 'settings_store',
                 component: () => import('../views/auth/seller/CompanyProfileView.vue'),
-                props: {embedded: true},
+                props: { embedded: true },
                 meta: {
                     public: false,
                     settingsTitle: 'Profil Toko',
-                    settingsDescription: 'Kelola informasi toko yang tampil untuk pembeli.'
-                }
+                    settingsDescription: 'Kelola informasi toko yang tampil untuk pembeli.',
+                },
             },
             {
                 path: 'balance',
                 name: 'settings_balance',
                 component: () => import('../views/auth/SaldoView.vue'),
-                props: {embedded: true},
+                props: { embedded: true },
                 meta: {
                     public: false,
                     settingsTitle: 'Saldo',
-                    settingsDescription: 'Pantau saldo aktif, saldo refund, dan riwayat transaksi saldo.'
-                }
+                    settingsDescription: 'Pantau saldo aktif, saldo refund, dan riwayat transaksi saldo.',
+                },
             },
             {
                 path: 'bank-accounts',
                 name: 'settings_bank_accounts',
                 component: () => import('../views/auth/PaymentView.vue'),
-                props: {embedded: true},
+                props: { embedded: true },
                 meta: {
                     public: false,
                     settingsTitle: 'Rekening Bank',
-                    settingsDescription: 'Kelola rekening bank yang digunakan untuk penarikan saldo.'
-                }
+                    settingsDescription: 'Kelola rekening bank yang digunakan untuk penarikan saldo.',
+                },
             },
             {
                 path: 'security',
@@ -244,8 +265,8 @@ const routes = [
                 meta: {
                     public: false,
                     settingsTitle: 'Keamanan',
-                    settingsDescription: 'Kelola cara masuk, perlindungan akun, dan perangkat yang sedang aktif.'
-                }
+                    settingsDescription: 'Kelola cara masuk, perlindungan akun, dan perangkat yang sedang aktif.',
+                },
             },
             {
                 path: 'audit-log',
@@ -254,8 +275,8 @@ const routes = [
                 meta: {
                     public: false,
                     settingsTitle: 'Audit Log',
-                    settingsDescription: 'Pantau aktivitas akun dan pengelolaan produk penting Anda.'
-                }
+                    settingsDescription: 'Pantau aktivitas akun dan pengelolaan produk penting Anda.',
+                },
             },
             {
                 path: 'notifications',
@@ -264,8 +285,9 @@ const routes = [
                 meta: {
                     public: false,
                     settingsTitle: 'Notifikasi',
-                    settingsDescription: 'Fitur notifikasi sedang disiapkan untuk mengatur preferensi email, transaksi, dan informasi aplikasi.'
-                }
+                    settingsDescription:
+                        'Fitur notifikasi sedang disiapkan untuk mengatur preferensi email, transaksi, dan informasi aplikasi.',
+                },
             },
             {
                 path: 'support-report',
@@ -274,10 +296,11 @@ const routes = [
                 meta: {
                     public: false,
                     settingsTitle: 'Support Report',
-                    settingsDescription: 'Fitur support report sedang disiapkan untuk membuat laporan masalah dan memantau status bantuan.'
-                }
+                    settingsDescription:
+                        'Fitur support report sedang disiapkan untuk membuat laporan masalah dan memantau status bantuan.',
+                },
             },
-        ]
+        ],
     },
     /* AUTH */
 
@@ -285,48 +308,78 @@ const routes = [
     {
         path: '/:pathMatch(.*)*',
         name: 'NotFound',
+        /**
+         * Menjalankan proses before enter dan menyinkronkan state hasilnya di modul index.
+         *
+         * @param {*} to Route tujuan yang diproses oleh function.
+         * @param {*} from Route asal yang diproses oleh function.
+         * @param {*} next Callback next yang diproses oleh function.
+         *
+         * @returns {void} Function menerapkan efeknya melalui state komponen atau aplikasi.
+         */
         beforeEnter(to, from, next) {
-            if(store.getters.user?.id) {
-                next({name: defaultRouteByAccountMode[getActiveAccountMode()]})
+            if (store.getters.user?.id) {
+                next({ name: defaultRouteByAccountMode[getActiveAccountMode()] });
             } else {
-                next({name: 'login'})
+                next({ name: 'login' });
             }
-        }
-    }
+        },
+    },
     /* NOT FOUND */
 ];
 
 const router = createRouter({
     history: createWebHistory(import.meta.env.BASE_URL),
 
+    /**
+     * Memproses scroll behavior di modul index.
+     *
+     * @param {*} to Route tujuan yang diproses oleh function.
+     * @param {*} from Route asal yang diproses oleh function.
+     * @param {*} savedPosition Nilai saved position yang diproses oleh function.
+     *
+     * @returns {Object} Object scroll behavior yang telah disiapkan.
+     */
     scrollBehavior(to, from, savedPosition) {
-        if(to.hash) {
+        if (to.hash) {
             return {
                 el: to.hash,
-                behavior: 'smooth'
-            }
+                behavior: 'smooth',
+            };
         }
     },
 
-    routes: routes
+    routes: routes,
 });
 
 /**
  * Setelah sesi terverifikasi, route tetap divalidasi terhadap mode akun aktif per tab.
+ *
+ * @param {*} to Route tujuan yang sedang ditentukan.
+ *
+ * @returns {boolean} Menunjukkan apakah kondisi yang dievaluasi terpenuhi.
  */
 const resolveProtectedRouteByActiveAccountMode = (to) => {
     const activeAccountMode = getActiveAccountMode();
 
-    if(activeAccountMode == 'buyer' && (!routerAccountType.buyer.includes(to.name) && !routerAccountType.all.includes(to.name)))
-        return {name: 'buyer_home'};
+    if (
+        activeAccountMode == 'buyer' &&
+        !routerAccountType.buyer.includes(to.name) &&
+        !routerAccountType.all.includes(to.name)
+    )
+        return { name: 'buyer_home' };
 
-    if(activeAccountMode == 'seller' && (!routerAccountType.seller.includes(to.name) && !routerAccountType.all.includes(to.name)))
-        return {name: 'seller_dashboard'};
+    if (
+        activeAccountMode == 'seller' &&
+        !routerAccountType.seller.includes(to.name) &&
+        !routerAccountType.all.includes(to.name)
+    )
+        return { name: 'seller_dashboard' };
 
     return true;
 };
 
-router.beforeEach(async to => {
+router.beforeEach(async (to) => {
     /**CLOSE SIDEBAR */
     global.isSidebarOpen = false;
     /**CLOSE SIDEBAR */
@@ -337,53 +390,48 @@ router.beforeEach(async to => {
     store.dispatch('fetchActiveAccountModeFromSessionStorage');
     /* REFRESH GET ITEM LOCALSTORAGE */
 
-    /* step 1: callback auth tidak boleh dipotong guard lain sebelum provider selesai memproses redirect */
-    if(to.name === 'auth_callback') {
+    // --- step 1 - start - izinkan provider autentikasi menyelesaikan callback redirect tanpa gangguan guard
+    if (to.name === 'auth_callback') {
         global.isAuth = false;
         return true;
     }
-    /* step 1 */
+    // --- step 1 - end - izinkan provider autentikasi menyelesaikan callback redirect tanpa gangguan guard
 
-    /* step 2: saat logout berjalan, jangan bootstrap ulang halaman protected lama */
-    if(global.isLoggingOut) {
-        if(to.meta.public)
-            return true;
+    // --- step 2 - start - cegah route protected melakukan bootstrap selama logout berlangsung
+    if (global.isLoggingOut) {
+        if (to.meta.public) return true;
 
-        return {name: 'login'};
+        return { name: 'login' };
     }
-    /* step 2 */
+    // --- step 2 - end - cegah route protected melakukan bootstrap selama logout berlangsung
 
-    /* step 3: cek petunjuk sesi dari provider auth utama */
+    // --- step 3 - start - periksa keberadaan autentikasi dari sesi browser utama
     const browserAuthPresence = await getBrowserAuthPresence();
 
-    if(!browserAuthPresence.hasAnySession) {
+    if (!browserAuthPresence.hasAnySession) {
         clearResolvedAuthSessionTtl();
         clearAuthSession();
         syncClearedAuthSessionToStore(store);
         global.isAuth = false;
 
-        if(to.meta.public)
-            return true;
+        if (to.meta.public) return true;
 
-        return {name: 'login'};
+        return { name: 'login' };
     }
-    /* step 3 */
+    // --- step 3 - end - periksa keberadaan autentikasi dari sesi browser utama
 
-    /* step 4: bootstrap session final dari backend melalui /auth/me */
+    // --- step 4 - start - selesaikan sesi aplikasi melalui endpoint autentikasi backend
     try {
         const canUseFreshAuthSession = hasFreshResolvedAuthSession() && Boolean(store.getters.user?.id);
 
-        if(!canUseFreshAuthSession)
-            await bootstrapResolvedAuthSession(store);
-        else
-            global.isAuth = true;
+        if (!canUseFreshAuthSession) await bootstrapResolvedAuthSession(store);
+        else global.isAuth = true;
 
-        if(to.meta.public)
-            return {name: resolveDefaultAuthenticatedRouteName(store)};
+        if (to.meta.public) return { name: resolveDefaultAuthenticatedRouteName(store) };
 
         return resolveProtectedRouteByActiveAccountMode(to);
-    } catch(error) {
-        if(isUnauthenticatedResponse(error)) {
+    } catch (error) {
+        if (isUnauthenticatedResponse(error)) {
             clearResolvedAuthSessionTtl();
             await handleExpiredAuthSession();
 
@@ -392,12 +440,11 @@ router.beforeEach(async to => {
 
         global.isAuth = false;
 
-        if(to.meta.public)
-            return true;
+        if (to.meta.public) return true;
 
-        return {name: 'login'};
+        return { name: 'login' };
     }
-    /* step 4 */
+    // --- step 4 - end - selesaikan sesi aplikasi melalui endpoint autentikasi backend
 });
 
-export default router
+export default router;

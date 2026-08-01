@@ -11,10 +11,14 @@ const clerkGoogleLinkCallbackStorageKey = 'clerk_google_link_callback_pending';
 const clerkGoogleLoginCallbackStorageKey = 'clerk_google_login_callback_pending';
 const clerkAccountAlreadyRegisteredMessage = 'Akun sudah terdaftar. Silakan login terlebih dahulu.';
 const clerkUnknownAccountMessage = 'Akun belum terdaftar. Silakan register terlebih dahulu.';
-const clerkInvalidIdentifierMessage = 'Email belum valid atau akun belum terdaftar. Periksa kembali email Anda atau register terlebih dahulu.';
-const clerkPasskeyNotRegisteredMessage = 'Passkey belum terdaftar untuk akun ini. Pilih passkey yang sesuai atau login dengan email/password.';
-const clerkInvalidVerificationCodeMessage = 'Kode verifikasi salah atau sudah kedaluwarsa. Periksa kembali kode terbaru lalu coba lagi.';
-const clerkPasswordNotCreatedMessage = 'Akun ini belum memiliki password. Masuk dengan Google atau gunakan Lupa password untuk membuat password baru.';
+const clerkInvalidIdentifierMessage =
+    'Email belum valid atau akun belum terdaftar. Periksa kembali email Anda atau register terlebih dahulu.';
+const clerkPasskeyNotRegisteredMessage =
+    'Passkey belum terdaftar untuk akun ini. Pilih passkey yang sesuai atau login dengan email/password.';
+const clerkInvalidVerificationCodeMessage =
+    'Kode verifikasi salah atau sudah kedaluwarsa. Periksa kembali kode terbaru lalu coba lagi.';
+const clerkPasswordNotCreatedMessage =
+    'Akun ini belum memiliki password. Masuk dengan Google atau gunakan Lupa password untuk membuat password baru.';
 const clerkGoogleLinkAlreadyUsedMessage = 'Akun Google sudah digunakan oleh akun TokShop lain.';
 const clerkGoogleLinkEmailMismatchMessage = 'Email akun Google harus sama dengan email utama akun Anda.';
 const clerkAuthErrorQueryKey = 'auth_error';
@@ -44,7 +48,7 @@ const clerkAlreadyRegisteredErrorPatterns = [
     'has already been taken',
 ];
 const clerkUnknownAccountErrorPatterns = [
-    'couldn\'t find your account',
+    "couldn't find your account",
     'could not find your account',
     'account not found',
     'user not found',
@@ -85,13 +89,12 @@ const clerkGoogleLinkEmailMismatchErrorPatterns = [
 ];
 export const clerkSecondFactorTimeoutMs = 5 * 60 * 1000;
 
-/**
- * Menentukan apakah Clerk sudah siap diaktifkan dari konfigurasi environment.
- */
 export const isClerkEnabled = clerkPublishableKey !== '';
 
 /**
- * Menyediakan konfigurasi minimum Clerk untuk fase integrasi awal.
+ * Mengambil clerk plugin options di modul clerk.
+ *
+ * @returns {Object} Object get clerk plugin options yang telah disiapkan.
  */
 export const getClerkPluginOptions = () => ({
     publishableKey: clerkPublishableKey,
@@ -105,8 +108,9 @@ export const clerkUiConfig = {
 };
 
 /**
- * Mengambil status Clerk yang sudah dimuat di browser.
- * Pada fase transisi, helper ini dipakai sebagai sumber status dasar di luar komponen Vue.
+ * Mengambil clerk state runtime di modul clerk.
+ *
+ * @returns {Object} Object get clerk state runtime yang telah disiapkan.
  */
 export const getClerkRuntimeState = () => {
     const clerk = window.Clerk;
@@ -121,39 +125,43 @@ export const getClerkRuntimeState = () => {
 };
 
 /**
- * Mengambil session token Clerk yang nantinya dibawa ke backend Laravel.
+ * Mengambil clerk session token di modul clerk.
+ *
+ * @param {Object} [options] Timeout dan interval polling untuk mendapatkan token sesi.
+ *
+ * @returns {Promise<string>} Promise diselesaikan setelah alur asynchronous selesai.
  */
 export const getClerkSessionToken = async ({ timeout = 1500, interval = 50 } = {}) => {
     const runtimeState = await waitForClerkLoaded({ timeout, interval });
 
-    if(!runtimeState.enabled || !runtimeState.loaded || !runtimeState.isSignedIn)
-        return '';
+    if (!runtimeState.enabled || !runtimeState.loaded || !runtimeState.isSignedIn) return '';
 
-    if(!runtimeState.clerk?.session?.getToken)
-        return '';
+    if (!runtimeState.clerk?.session?.getToken) return '';
 
-    return await runtimeState.clerk.session.getToken() || '';
+    return (await runtimeState.clerk.session.getToken()) || '';
 };
 
 /**
- * Menunggu Clerk selesai load sebelum status runtime dibaca oleh caller lain.
+ * Menjalankan proses wait for clerk loaded dan menyinkronkan state hasilnya di modul clerk.
+ *
+ * @param {Object} [options] Timeout dan interval polling saat menunggu inisialisasi Clerk.
+ *
+ * @returns {Promise<Object>} State runtime Clerk terbaru, termasuk hasil timeout.
  */
 export const waitForClerkLoaded = ({ timeout = 5000, interval = 100 } = {}) => {
-    if(!isClerkEnabled)
-        return Promise.resolve(getClerkRuntimeState());
+    if (!isClerkEnabled) return Promise.resolve(getClerkRuntimeState());
 
     const initialState = getClerkRuntimeState();
-    if(initialState.loaded)
-        return Promise.resolve(initialState);
+    if (initialState.loaded) return Promise.resolve(initialState);
 
-    return new Promise(resolve => {
+    return new Promise((resolve) => {
         const startedAt = Date.now();
 
         const timer = window.setInterval(() => {
             const runtimeState = getClerkRuntimeState();
             const isTimedOut = Date.now() - startedAt >= timeout;
 
-            if(runtimeState.loaded || isTimedOut) {
+            if (runtimeState.loaded || isTimedOut) {
                 window.clearInterval(timer);
                 resolve(runtimeState);
             }
@@ -162,7 +170,11 @@ export const waitForClerkLoaded = ({ timeout = 5000, interval = 100 } = {}) => {
 };
 
 /**
- * Membentuk absolute URL agar flow redirect OAuth Clerk tidak bergantung pada hardcode domain.
+ * Menjalankan proses build clerk absolute url dan menyinkronkan state hasilnya di modul clerk.
+ *
+ * @param {*} [path] Nilai path yang diproses oleh function.
+ *
+ * @returns {string} Teks build clerk absolute url yang telah diformat atau ditentukan.
  */
 export const buildClerkAbsoluteUrl = (path = '/') => {
     const normalizedPath = path.startsWith('/') ? path : `/${path}`;
@@ -171,6 +183,10 @@ export const buildClerkAbsoluteUrl = (path = '/') => {
 
 /**
  * Redirect OAuth Clerk dipusatkan di sini agar login dan register memakai callback yang sama.
+ *
+ * @param {*} [completePath] Path aplikasi yang dibuka setelah alur authentication selesai.
+ *
+ * @returns {Object} Object yang telah disiapkan untuk alur saat ini.
  */
 export const getClerkOauthRedirectUrls = (completePath = clerkSignInUrl) => ({
     redirectUrl: buildClerkAbsoluteUrl(clerkAuthCallbackUrl),
@@ -178,14 +194,20 @@ export const getClerkOauthRedirectUrls = (completePath = clerkSignInUrl) => ({
 });
 
 /**
- * Menyimpan halaman asal OAuth agar callback yang dibatalkan dapat kembali ke form yang tepat.
+ * Menjalankan proses remember clerk URL kembali authentication dan menyinkronkan state hasilnya di modul clerk.
+ *
+ * @param {*} [returnUrl] Nilai return url yang diproses oleh function.
+ *
+ * @returns {void} Function menerapkan efeknya melalui state komponen atau aplikasi.
  */
 export const rememberClerkAuthReturnUrl = (returnUrl = clerkSignInUrl) => {
     sessionStorage.setItem(clerkAuthReturnUrlStorageKey, returnUrl);
 };
 
 /**
- * Mengambil halaman asal OAuth satu kali agar state callback tidak tertinggal di tab browser.
+ * Menjalankan proses consume clerk URL kembali authentication dan menyinkronkan state hasilnya di modul clerk.
+ *
+ * @returns {*} Nilai yang dihasilkan oleh operasi consume clerk URL kembali authentication.
  */
 export const consumeClerkAuthReturnUrl = () => {
     const returnUrl = sessionStorage.getItem(clerkAuthReturnUrlStorageKey);
@@ -195,29 +217,36 @@ export const consumeClerkAuthReturnUrl = () => {
 };
 
 /**
- * Membersihkan halaman asal OAuth setelah session aplikasi berhasil dibuat.
+ * Membersihkan clerk URL kembali authentication di modul clerk.
+ *
+ * @returns {void} Function menerapkan efeknya melalui state komponen atau aplikasi.
  */
 export const clearClerkAuthReturnUrl = () => {
     sessionStorage.removeItem(clerkAuthReturnUrlStorageKey);
 };
 
 /**
- * Menandai callback OAuth berikutnya sebagai proses hubungkan Google
- * dari halaman keamanan akun.
+ * Menjalankan proses remember callback penautan Google dan menyinkronkan state hasilnya di modul clerk.
+ *
+ * @returns {void} Function menerapkan efeknya melalui state komponen atau aplikasi.
  */
 export const rememberGoogleLinkCallback = () => {
     sessionStorage.setItem(clerkGoogleLinkCallbackStorageKey, '1');
 };
 
 /**
- * Mengecek apakah callback aktif berasal dari flow hubungkan Google.
+ * Menentukan apakah kondisi callback penautan Google terpenuhi di modul clerk.
+ *
+ * @returns {boolean} Menunjukkan apakah kondisi has callback penautan Google terpenuhi.
  */
 export const hasGoogleLinkCallback = () => {
     return sessionStorage.getItem(clerkGoogleLinkCallbackStorageKey) === '1';
 };
 
 /**
- * Mengambil status callback hubungkan Google satu kali agar tidak diproses ulang.
+ * Menjalankan proses consume callback penautan Google dan menyinkronkan state hasilnya di modul clerk.
+ *
+ * @returns {*} Nilai yang dihasilkan oleh operasi consume callback penautan Google.
  */
 export const consumeGoogleLinkCallback = () => {
     const isPending = hasGoogleLinkCallback();
@@ -227,7 +256,9 @@ export const consumeGoogleLinkCallback = () => {
 };
 
 /**
- * Menandai callback OAuth berikutnya sebagai proses login Google.
+ * Menjalankan proses remember callback login Google dan menyinkronkan state hasilnya di modul clerk.
+ *
+ * @returns {void} Function menerapkan efeknya melalui state komponen atau aplikasi.
  */
 export const rememberGoogleLoginCallback = () => {
     sessionStorage.setItem(clerkGoogleLoginCallbackStorageKey, '1');
@@ -235,15 +266,21 @@ export const rememberGoogleLoginCallback = () => {
 };
 
 /**
- * Mengecek apakah callback aktif berasal dari proses login Google.
+ * Menentukan apakah kondisi callback login Google terpenuhi di modul clerk.
+ *
+ * @returns {boolean} Menunjukkan apakah kondisi has callback login Google terpenuhi.
  */
 export const hasGoogleLoginCallback = () => {
-    return sessionStorage.getItem(clerkGoogleLoginCallbackStorageKey) === '1'
-        || localStorage.getItem(clerkGoogleLoginCallbackStorageKey) === '1';
+    return (
+        sessionStorage.getItem(clerkGoogleLoginCallbackStorageKey) === '1' ||
+        localStorage.getItem(clerkGoogleLoginCallbackStorageKey) === '1'
+    );
 };
 
 /**
- * Mengambil status callback login Google satu kali agar pesan gagal tidak muncul berulang.
+ * Menjalankan proses consume callback login Google dan menyinkronkan state hasilnya di modul clerk.
+ *
+ * @returns {*} Nilai yang dihasilkan oleh operasi consume callback login Google.
  */
 export const consumeGoogleLoginCallback = () => {
     const isPending = hasGoogleLoginCallback();
@@ -253,7 +290,9 @@ export const consumeGoogleLoginCallback = () => {
 };
 
 /**
- * Membersihkan marker login Google setelah session benar-benar berhasil dibuat.
+ * Membersihkan callback login Google di modul clerk.
+ *
+ * @returns {void} Function menerapkan efeknya melalui state komponen atau aplikasi.
  */
 export const clearGoogleLoginCallback = () => {
     sessionStorage.removeItem(clerkGoogleLoginCallbackStorageKey);
@@ -261,43 +300,57 @@ export const clearGoogleLoginCallback = () => {
 };
 
 /**
- * Mengambil sign-in id yang sudah dibatalkan pada step TFA.
+ * Mengambil cancelled clerk faktor kedua login id di modul clerk.
+ *
+ * @returns {*} Nilai yang dihasilkan oleh operasi get cancelled clerk faktor kedua login id.
  */
 export const getCancelledClerkSecondFactorSignInId = () => {
     return sessionStorage.getItem(clerkCancelledSecondFactorStorageKey) || '';
 };
 
 /**
- * Mengecek apakah attempt TFA saat ini adalah attempt yang sebelumnya dibatalkan.
+ * Menentukan apakah kondisi cancelled clerk faktor kedua step terpenuhi di modul clerk.
+ *
+ * @param {*} [signInId] Nilai sign in id yang diproses oleh function.
+ *
+ * @returns {boolean} Menunjukkan apakah kondisi has cancelled clerk faktor kedua step terpenuhi.
  */
 export const hasCancelledClerkSecondFactorStep = (signInId = '') => {
     const cancelledSignInId = getCancelledClerkSecondFactorSignInId();
 
-    if(!cancelledSignInId)
-        return false;
+    if (!cancelledSignInId) return false;
 
-    if(!signInId)
-        return true;
+    if (!signInId) return true;
 
     return cancelledSignInId === signInId;
 };
 
 /**
- * Menyimpan sign-in id yang dibatalkan agar pending attempt lama tidak tampil lagi setelah refresh.
+ * Menjalankan proses remember cancelled clerk faktor kedua step dan menyinkronkan state hasilnya di modul clerk.
+ *
+ * @param {*} [signInId] Nilai sign in id yang diproses oleh function.
+ *
+ * @returns {void} Function menerapkan efeknya melalui state komponen atau aplikasi.
  */
 export const rememberCancelledClerkSecondFactorStep = (signInId = '') => {
     sessionStorage.setItem(clerkCancelledSecondFactorStorageKey, signInId);
 };
 
 /**
- * Menghapus status pembatalan TFA ketika flow login baru benar-benar dilanjutkan.
+ * Membersihkan cancelled clerk faktor kedua step di modul clerk.
+ *
+ * @returns {void} Function menerapkan efeknya melalui state komponen atau aplikasi.
  */
 export const clearCancelledClerkSecondFactorStep = () => {
     sessionStorage.removeItem(clerkCancelledSecondFactorStorageKey);
 };
 
 /**
- * Menyimpan batas waktu pending TFA agar refresh halaman tidak memperpanjang attempt login.
+ * Menjalankan proses remember clerk faktor kedua expires at dan menyinkronkan state hasilnya di modul clerk.
+ *
+ * @param {*} [expiresAt] Nilai expires at yang diproses oleh function.
+ *
+ * @returns {*} Nilai yang dihasilkan oleh operasi remember clerk faktor kedua expires at.
  */
 export const rememberClerkSecondFactorExpiresAt = (expiresAt = Date.now() + clerkSecondFactorTimeoutMs) => {
     sessionStorage.setItem(clerkSecondFactorExpiresAtStorageKey, String(expiresAt));
@@ -306,7 +359,9 @@ export const rememberClerkSecondFactorExpiresAt = (expiresAt = Date.now() + cler
 };
 
 /**
- * Mengambil batas waktu pending TFA dari session tab aktif.
+ * Mengambil clerk faktor kedua expires at di modul clerk.
+ *
+ * @returns {*} Nilai yang dihasilkan oleh operasi get clerk faktor kedua expires at.
  */
 export const getClerkSecondFactorExpiresAt = () => {
     const expiresAt = Number(sessionStorage.getItem(clerkSecondFactorExpiresAtStorageKey) || 0);
@@ -315,7 +370,9 @@ export const getClerkSecondFactorExpiresAt = () => {
 };
 
 /**
- * Membersihkan batas waktu pending TFA setelah login selesai, dibatalkan, atau kedaluwarsa.
+ * Membersihkan clerk faktor kedua expires at di modul clerk.
+ *
+ * @returns {void} Function menerapkan efeknya melalui state komponen atau aplikasi.
  */
 export const clearClerkSecondFactorExpiresAt = () => {
     sessionStorage.removeItem(clerkSecondFactorExpiresAtStorageKey);
@@ -323,6 +380,10 @@ export const clearClerkSecondFactorExpiresAt = () => {
 
 /**
  * Clerk menyimpan nama dalam firstName dan lastName, sehingga input nama tunggal perlu dipecah.
+ *
+ * @param {*} [name] Nilai name yang diproses oleh function.
+ *
+ * @returns {Object} Object yang telah disiapkan untuk alur saat ini.
  */
 export const splitClerkName = (name = '') => {
     const segments = name.trim().split(/\s+/).filter(Boolean);
@@ -334,84 +395,119 @@ export const splitClerkName = (name = '') => {
 };
 
 /**
- * Mencocokkan payload error Clerk dengan pattern akun yang sudah terdaftar.
+ * Menentukan apakah kondisi clerk already registered payload terpenuhi di modul clerk.
+ *
+ * @param {*} [payload] Data yang dikirim ke operasi store atau backend.
+ *
+ * @returns {boolean} Menunjukkan apakah kondisi has clerk already registered payload terpenuhi.
  */
 const hasClerkAlreadyRegisteredPayload = (payload = '') => {
     const normalizedPayload = String(payload).toLowerCase();
 
-    return clerkAlreadyRegisteredErrorPatterns.some(pattern => normalizedPayload.includes(pattern));
+    return clerkAlreadyRegisteredErrorPatterns.some((pattern) => normalizedPayload.includes(pattern));
 };
 
 /**
- * Mencocokkan payload error Clerk dengan pattern akun yang belum terdaftar.
+ * Menentukan apakah kondisi clerk unknown account payload terpenuhi di modul clerk.
+ *
+ * @param {*} [payload] Data yang dikirim ke operasi store atau backend.
+ *
+ * @returns {boolean} Menunjukkan apakah kondisi has clerk unknown account payload terpenuhi.
  */
 const hasClerkUnknownAccountPayload = (payload = '') => {
     const normalizedPayload = String(payload).toLowerCase();
 
-    return clerkUnknownAccountErrorPatterns.some(pattern => normalizedPayload.includes(pattern));
+    return clerkUnknownAccountErrorPatterns.some((pattern) => normalizedPayload.includes(pattern));
 };
 
 /**
- * Mencocokkan payload error Clerk dengan pattern identifier login yang tidak valid.
+ * Menentukan apakah kondisi clerk invalid identifier payload terpenuhi di modul clerk.
+ *
+ * @param {*} [payload] Data yang dikirim ke operasi store atau backend.
+ *
+ * @returns {boolean} Menunjukkan apakah kondisi has clerk invalid identifier payload terpenuhi.
  */
 const hasClerkInvalidIdentifierPayload = (payload = '') => {
     const normalizedPayload = String(payload).toLowerCase();
 
-    return clerkInvalidIdentifierErrorPatterns.some(pattern => normalizedPayload.includes(pattern));
+    return clerkInvalidIdentifierErrorPatterns.some((pattern) => normalizedPayload.includes(pattern));
 };
 
 /**
- * Mencocokkan payload error Clerk dengan pattern passkey yang tidak terdaftar.
+ * Menentukan apakah kondisi clerk passkey not registered payload terpenuhi di modul clerk.
+ *
+ * @param {*} [payload] Data yang dikirim ke operasi store atau backend.
+ *
+ * @returns {boolean} Menunjukkan apakah kondisi has clerk passkey not registered payload terpenuhi.
  */
 const hasClerkPasskeyNotRegisteredPayload = (payload = '') => {
     const normalizedPayload = String(payload).toLowerCase();
 
-    return clerkPasskeyNotRegisteredErrorPatterns.some(pattern => normalizedPayload.includes(pattern));
+    return clerkPasskeyNotRegisteredErrorPatterns.some((pattern) => normalizedPayload.includes(pattern));
 };
 
 /**
- * Mencocokkan payload error Clerk dengan pattern kode verifikasi TFA/email yang salah.
+ * Menentukan apakah kondisi clerk invalid verification code payload terpenuhi di modul clerk.
+ *
+ * @param {*} [payload] Data yang dikirim ke operasi store atau backend.
+ *
+ * @returns {boolean} Menunjukkan apakah kondisi has clerk invalid verification code payload terpenuhi.
  */
 const hasClerkInvalidVerificationCodePayload = (payload = '') => {
     const normalizedPayload = String(payload).toLowerCase();
 
-    return clerkInvalidVerificationCodeErrorPatterns.some(pattern => normalizedPayload.includes(pattern));
+    return clerkInvalidVerificationCodeErrorPatterns.some((pattern) => normalizedPayload.includes(pattern));
 };
 
 /**
- * Mencocokkan payload error Clerk saat akun OAuth belum memiliki password.
+ * Menentukan apakah kondisi clerk password not created payload terpenuhi di modul clerk.
+ *
+ * @param {*} [payload] Data yang dikirim ke operasi store atau backend.
+ *
+ * @returns {boolean} Menunjukkan apakah kondisi has clerk password not created payload terpenuhi.
  */
 const hasClerkPasswordNotCreatedPayload = (payload = '') => {
     const normalizedPayload = String(payload).toLowerCase();
 
-    return clerkPasswordNotCreatedErrorPatterns.some(pattern => normalizedPayload.includes(pattern));
+    return clerkPasswordNotCreatedErrorPatterns.some((pattern) => normalizedPayload.includes(pattern));
 };
 
 /**
- * Mencocokkan penolakan Clerk ketika email external account berbeda,
- * sementara perubahan email user sudah dinonaktifkan pada instance Clerk.
+ * Menentukan apakah kondisi clerk google link email mismatch payload terpenuhi di modul clerk.
+ *
+ * @param {*} [payload] Data yang dikirim ke operasi store atau backend.
+ *
+ * @returns {boolean} Menunjukkan apakah kondisi has clerk google link email mismatch payload terpenuhi.
  */
 const hasClerkGoogleLinkEmailMismatchPayload = (payload = '') => {
     const normalizedPayload = String(payload).toLowerCase();
 
-    return clerkGoogleLinkEmailMismatchErrorPatterns.some(pattern => normalizedPayload.includes(pattern));
+    return clerkGoogleLinkEmailMismatchErrorPatterns.some((pattern) => normalizedPayload.includes(pattern));
 };
 
 /**
- * Mencocokkan payload OAuth yang berarti user membatalkan flow provider.
+ * Menentukan apakah kondisi clerk cancelled oauth payload terpenuhi di modul clerk.
+ *
+ * @param {*} [payload] Data yang dikirim ke operasi store atau backend.
+ *
+ * @returns {boolean} Menunjukkan apakah kondisi has clerk cancelled oauth payload terpenuhi.
  */
 const hasClerkCancelledOauthPayload = (payload = '') => {
     const normalizedPayload = String(payload).toLowerCase();
 
-    return clerkCancelledOauthErrorPatterns.some(pattern => normalizedPayload.includes(pattern));
+    return clerkCancelledOauthErrorPatterns.some((pattern) => normalizedPayload.includes(pattern));
 };
 
 /**
- * Mengubah URL auth tujuan agar pesan callback bisa tampil setelah redirect selesai.
+ * Menjalankan proses append clerk error authentication to url dan menyinkronkan state hasilnya di modul clerk.
+ *
+ * @param {*} [url] Nilai url yang diproses oleh function.
+ * @param {*} [message] Pesan yang ditampilkan atau disimpan oleh alur saat ini.
+ *
+ * @returns {string} Teks append clerk error authentication to url yang telah diformat atau ditentukan.
  */
 export const appendClerkAuthErrorToUrl = (url = clerkSignInUrl, message = '') => {
-    if(!message)
-        return url;
+    if (!message) return url;
 
     const [pathWithQuery, hash = ''] = String(url).split('#');
     const [path, rawQuery = ''] = pathWithQuery.split('?');
@@ -422,7 +518,11 @@ export const appendClerkAuthErrorToUrl = (url = clerkSignInUrl, message = '') =>
 };
 
 /**
- * Mengambil pesan error auth dari query URL saat halaman auth selesai dimuat.
+ * Menjalankan proses consume clerk error authentication from route dan menyinkronkan state hasilnya di modul clerk.
+ *
+ * @param {*} [route] Record route yang dievaluasi oleh logic navigasi.
+ *
+ * @returns {*} Nilai yang dihasilkan oleh operasi consume clerk error authentication from route.
  */
 export const consumeClerkAuthErrorFromRoute = (route = {}) => {
     const message = route?.query?.[clerkAuthErrorQueryKey] || '';
@@ -431,11 +531,15 @@ export const consumeClerkAuthErrorFromRoute = (route = {}) => {
 };
 
 /**
- * Membersihkan query error auth agar toast tidak muncul berulang saat refresh.
+ * Membersihkan clerk error authentication from route di modul clerk, termasuk state navigasi yang dihasilkan.
+ *
+ * @param {*} [route] Record route yang dievaluasi oleh logic navigasi.
+ * @param {*} [router] Nilai router yang diproses oleh function.
+ *
+ * @returns {void} Function menerapkan efeknya melalui state komponen atau aplikasi.
  */
 export const clearClerkAuthErrorFromRoute = (route = {}, router = null) => {
-    if(!route?.query?.[clerkAuthErrorQueryKey] || !router?.replace)
-        return;
+    if (!route?.query?.[clerkAuthErrorQueryKey] || !router?.replace) return;
 
     const query = { ...route.query };
     delete query[clerkAuthErrorQueryKey];
@@ -444,7 +548,11 @@ export const clearClerkAuthErrorFromRoute = (route = {}, router = null) => {
 };
 
 /**
- * Mengecek error Clerk yang berarti email/account sudah pernah terdaftar.
+ * Menentukan apakah kondisi clerk account already registered error terpenuhi di modul clerk.
+ *
+ * @param {*} [error] Error yang terjadi ketika operasi dijalankan.
+ *
+ * @returns {boolean} Menunjukkan apakah kondisi is clerk account already registered error terpenuhi.
  */
 export const isClerkAccountAlreadyRegisteredError = (error = {}) => {
     const clerkErrors = Array.isArray(error?.errors) ? error.errors : [];
@@ -452,18 +560,21 @@ export const isClerkAccountAlreadyRegisteredError = (error = {}) => {
         error?.code,
         error?.status,
         error?.message,
-        ...clerkErrors.flatMap(item => [
-            item?.code,
-            item?.message,
-            item?.longMessage,
-        ]),
-    ].filter(Boolean).join(' ').toLowerCase();
+        ...clerkErrors.flatMap((item) => [item?.code, item?.message, item?.longMessage]),
+    ]
+        .filter(Boolean)
+        .join(' ')
+        .toLowerCase();
 
     return hasClerkAlreadyRegisteredPayload(errorPayload);
 };
 
 /**
- * Mengecek error Clerk yang berasal dari pembatalan OAuth provider.
+ * Menentukan apakah kondisi clerk oauth cancelled error terpenuhi di modul clerk.
+ *
+ * @param {*} [error] Error yang terjadi ketika operasi dijalankan.
+ *
+ * @returns {boolean} Menunjukkan apakah kondisi is clerk oauth cancelled error terpenuhi.
  */
 export const isClerkOauthCancelledError = (error = {}) => {
     const clerkErrors = Array.isArray(error?.errors) ? error.errors : [];
@@ -471,18 +582,22 @@ export const isClerkOauthCancelledError = (error = {}) => {
         error?.code,
         error?.status,
         error?.message,
-        ...clerkErrors.flatMap(item => [
-            item?.code,
-            item?.message,
-            item?.longMessage,
-        ]),
-    ].filter(Boolean).join(' ').toLowerCase();
+        ...clerkErrors.flatMap((item) => [item?.code, item?.message, item?.longMessage]),
+    ]
+        .filter(Boolean)
+        .join(' ')
+        .toLowerCase();
 
     return hasClerkCancelledOauthPayload(errorPayload);
 };
 
 /**
- * Mengambil pesan error dari callback OAuth yang dikembalikan lewat query/hash.
+ * Mengambil clerk callback error pesan di modul clerk.
+ *
+ * @param {*} params Parameter yang diproses oleh function.
+ * @param {*} [fallbackMessage] Pesan fallback yang diproses oleh function.
+ *
+ * @returns {string} Teks get clerk callback error pesan yang telah diformat atau ditentukan.
  */
 export const getClerkCallbackErrorMessage = (params, fallbackMessage = '') => {
     const errorPayload = [
@@ -490,57 +605,63 @@ export const getClerkCallbackErrorMessage = (params, fallbackMessage = '') => {
         params?.get?.('error_description'),
         params?.get?.('__clerk_status'),
         params?.get?.('status'),
-    ].filter(Boolean).join(' ').toLowerCase();
+    ]
+        .filter(Boolean)
+        .join(' ')
+        .toLowerCase();
 
-    if(hasClerkCancelledOauthPayload(errorPayload))
-        return '';
+    if (hasClerkCancelledOauthPayload(errorPayload)) return '';
 
-    if(hasClerkAlreadyRegisteredPayload(errorPayload))
-        return clerkAccountAlreadyRegisteredMessage;
+    if (hasClerkAlreadyRegisteredPayload(errorPayload)) return clerkAccountAlreadyRegisteredMessage;
 
-    if(hasClerkUnknownAccountPayload(errorPayload))
-        return clerkUnknownAccountMessage;
+    if (hasClerkUnknownAccountPayload(errorPayload)) return clerkUnknownAccountMessage;
 
-    if(hasClerkInvalidIdentifierPayload(errorPayload))
-        return clerkInvalidIdentifierMessage;
+    if (hasClerkInvalidIdentifierPayload(errorPayload)) return clerkInvalidIdentifierMessage;
 
-    if(hasClerkPasskeyNotRegisteredPayload(errorPayload))
-        return clerkPasskeyNotRegisteredMessage;
+    if (hasClerkPasskeyNotRegisteredPayload(errorPayload)) return clerkPasskeyNotRegisteredMessage;
 
     return fallbackMessage;
 };
 
 /**
- * Mengubah error callback khusus hubungkan Google menjadi pesan yang sesuai
- * dengan konteks akun yang sedang aktif di halaman keamanan.
+ * Mengambil clerk callback penautan Google error pesan di modul clerk.
+ *
+ * @param {*} params Parameter yang diproses oleh function.
+ * @param {*} [fallbackMessage] Pesan fallback yang diproses oleh function.
+ *
+ * @returns {*} Nilai yang dihasilkan oleh operasi get clerk callback penautan Google error pesan.
  */
 export const getClerkGoogleLinkCallbackErrorMessage = (
     params,
-    fallbackMessage = 'Akun Google belum berhasil dihubungkan.'
+    fallbackMessage = 'Akun Google belum berhasil dihubungkan.',
 ) => {
     const errorPayload = [
         params?.get?.('error'),
         params?.get?.('error_description'),
         params?.get?.('__clerk_status'),
         params?.get?.('status'),
-    ].filter(Boolean).join(' ').toLowerCase();
+    ]
+        .filter(Boolean)
+        .join(' ')
+        .toLowerCase();
 
-    if(hasClerkGoogleLinkEmailMismatchPayload(errorPayload))
-        return clerkGoogleLinkEmailMismatchMessage;
+    if (hasClerkGoogleLinkEmailMismatchPayload(errorPayload)) return clerkGoogleLinkEmailMismatchMessage;
 
     const message = getClerkCallbackErrorMessage(params, fallbackMessage);
 
-    return message === clerkAccountAlreadyRegisteredMessage
-        ? clerkGoogleLinkAlreadyUsedMessage
-        : message;
+    return message === clerkAccountAlreadyRegisteredMessage ? clerkGoogleLinkAlreadyUsedMessage : message;
 };
 
 /**
- * Mengambil pesan error Clerk yang paling mudah ditampilkan ke user.
+ * Mengambil clerk error pesan di modul clerk.
+ *
+ * @param {*} error Error yang terjadi ketika operasi dijalankan.
+ * @param {*} [fallbackMessage] Pesan fallback yang diproses oleh function.
+ *
+ * @returns {*} Nilai yang dihasilkan oleh operasi get clerk error pesan.
  */
 export const getClerkErrorMessage = (error, fallbackMessage = 'Terjadi kesalahan saat memproses autentikasi.') => {
-    if(isClerkAccountAlreadyRegisteredError(error))
-        return clerkAccountAlreadyRegisteredMessage;
+    if (isClerkAccountAlreadyRegisteredError(error)) return clerkAccountAlreadyRegisteredMessage;
 
     const firstError = error?.errors?.[0];
     const errorPayload = [
@@ -550,39 +671,36 @@ export const getClerkErrorMessage = (error, fallbackMessage = 'Terjadi kesalahan
         firstError?.code,
         firstError?.message,
         firstError?.longMessage,
-    ].filter(Boolean).join(' ').toLowerCase();
+    ]
+        .filter(Boolean)
+        .join(' ')
+        .toLowerCase();
 
-    if(hasClerkUnknownAccountPayload(errorPayload))
-        return clerkUnknownAccountMessage;
+    if (hasClerkUnknownAccountPayload(errorPayload)) return clerkUnknownAccountMessage;
 
-    if(hasClerkInvalidIdentifierPayload(errorPayload))
-        return clerkInvalidIdentifierMessage;
+    if (hasClerkInvalidIdentifierPayload(errorPayload)) return clerkInvalidIdentifierMessage;
 
-    if(hasClerkPasskeyNotRegisteredPayload(errorPayload))
-        return clerkPasskeyNotRegisteredMessage;
+    if (hasClerkPasskeyNotRegisteredPayload(errorPayload)) return clerkPasskeyNotRegisteredMessage;
 
-    if(hasClerkInvalidVerificationCodePayload(errorPayload))
-        return clerkInvalidVerificationCodeMessage;
+    if (hasClerkInvalidVerificationCodePayload(errorPayload)) return clerkInvalidVerificationCodeMessage;
 
-    if(hasClerkPasswordNotCreatedPayload(errorPayload))
-        return clerkPasswordNotCreatedMessage;
+    if (hasClerkPasswordNotCreatedPayload(errorPayload)) return clerkPasswordNotCreatedMessage;
 
     return firstError?.longMessage || firstError?.message || error?.message || fallbackMessage;
 };
 
 /**
- * Mengubah error runtime Clerk khusus hubungkan Google menjadi pesan yang
- * tidak memakai instruksi login milik flow autentikasi biasa.
+ * Mengambil clerk google link error pesan di modul clerk.
+ *
+ * @param {*} error Error yang terjadi ketika operasi dijalankan.
+ * @param {*} [fallbackMessage] Pesan fallback yang diproses oleh function.
+ *
+ * @returns {string} Teks get clerk google link error pesan yang telah diformat atau ditentukan.
  */
-export const getClerkGoogleLinkErrorMessage = (
-    error,
-    fallbackMessage = 'Akun Google belum berhasil dihubungkan.'
-) => {
-    if(isClerkOauthCancelledError(error))
-        return '';
+export const getClerkGoogleLinkErrorMessage = (error, fallbackMessage = 'Akun Google belum berhasil dihubungkan.') => {
+    if (isClerkOauthCancelledError(error)) return '';
 
-    if(isClerkAccountAlreadyRegisteredError(error))
-        return clerkGoogleLinkAlreadyUsedMessage;
+    if (isClerkAccountAlreadyRegisteredError(error)) return clerkGoogleLinkAlreadyUsedMessage;
 
     const firstError = error?.errors?.[0];
     const errorPayload = [
@@ -595,10 +713,12 @@ export const getClerkGoogleLinkErrorMessage = (
         firstError?.message,
         firstError?.longMessage,
         firstError?.long_message,
-    ].filter(Boolean).join(' ').toLowerCase();
+    ]
+        .filter(Boolean)
+        .join(' ')
+        .toLowerCase();
 
-    if(hasClerkGoogleLinkEmailMismatchPayload(errorPayload))
-        return clerkGoogleLinkEmailMismatchMessage;
+    if (hasClerkGoogleLinkEmailMismatchPayload(errorPayload)) return clerkGoogleLinkEmailMismatchMessage;
 
     return getClerkErrorMessage(error, fallbackMessage);
 };

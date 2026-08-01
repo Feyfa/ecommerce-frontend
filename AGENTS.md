@@ -18,10 +18,11 @@ Before changing code or configuration:
 
 Review the relevant documentation before modifying components, routing, state management, API integration, build configuration, or the developer workflow.
 
-Use four spaces for every indentation level in Vue single-file components,
-including `<template>`, `<script>`, and `<style>` blocks. Keep indentation
-consistent throughout each `.vue` file and do not mix two-space and four-space
-indentation in the same component.
+Use four spaces for every indentation level in all Vue and JavaScript source,
+including Vue `<template>`, `<script>`, and `<style>` blocks and repository-level
+JavaScript configuration. Keep indentation consistent throughout each file and
+do not mix tabs, two-space indentation, and four-space indentation. Treat the
+repository Prettier and EditorConfig configuration as authoritative.
 
 When adding, removing, renumbering, or otherwise changing checklist rows in
 `docs/qa/`, review the complete checklist and reorder its IDs numerically before
@@ -34,7 +35,9 @@ The project may include separate backend and deployment repositories. If a task 
 
 ## Code Documentation and Comments
 
-Every named function or method that is added or changed must have a JSDoc block that explains its purpose and contract. This requirement applies to Vue script functions, composables, store actions, API services, helpers, and named event handlers.
+Every existing, added, or changed named function and method must have a JSDoc block that explains its purpose and contract. This requirement applies to Vue lifecycle hooks, data factories, computed properties, watchers, getters and setters, Vue script methods, composables, store actions, API services, helpers, exported functions, and named event handlers.
+
+Write JSDoc, `step start/end` descriptions, and contextual source-code comments in clear Indonesian. English technical terms may remain when they are established project or framework terminology, but the explanatory sentence itself must use Indonesian. Commit messages remain in English as defined by the Git workflow below.
 
 Documentation must be proportional to the function's complexity and, when relevant, explain:
 
@@ -50,23 +53,23 @@ Keep documentation synchronized with the implementation whenever parameters, ret
 
 ### Multi-step Logic
 
-Named functions with multiple distinct stages must use paired `step start/end` comments inside JavaScript logic. Number steps consistently and describe the responsibility of each stage in concise, specific language.
+Named functions with multiple distinct stages must use paired `step start/end` comments inside JavaScript logic. Number steps consistently and describe the responsibility of each stage in concise, specific Indonesian so the format and language remain aligned with the backend repository.
 
 ```javascript
 /**
- * Validates the checkout state and submits the confirmed order.
+ * Memvalidasi state checkout dan mengirim pesanan yang telah dikonfirmasi.
  *
- * @returns {Promise<void>} Resolves after the checkout response has been handled.
+ * @returns {Promise<void>} Promise diselesaikan setelah response checkout diproses.
  */
 const submitCheckout = async () => {
-    // --- step 1 - start - validate the current checkout state
+    // --- step 1 - start - validasi state checkout saat ini
     // ...
-    // --- step 1 - end - validate the current checkout state
+    // --- step 1 - end - validasi state checkout saat ini
 
-    // --- step 2 - start - submit and process the checkout request
+    // --- step 2 - start - kirim dan proses request checkout
     // ...
-    // --- step 2 - end - submit and process the checkout request
-}
+    // --- step 2 - end - kirim dan proses request checkout
+};
 ```
 
 Use this format in `<script>` blocks and JavaScript modules only. Do not add `step start/end` comments to Vue templates or markup. Do not force step comments into a simple function that has no meaningful internal stages.

@@ -27,3 +27,15 @@ npm run dev
 ```sh
 npm run build
 ```
+
+### Format Frontend Source
+
+Vue and JavaScript source uses four-space indentation enforced by Prettier:
+
+```sh
+npm run format
+npm run format:check
+```
+
+Run `format:check` before handing off a change. CI runs the same check before
+the production build.

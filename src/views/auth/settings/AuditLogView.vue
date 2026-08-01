@@ -11,38 +11,36 @@
                         no-match-text="Aktivitas tidak ditemukan"
                         popper-class="audit-event-filter-popper"
                         placeholder="Semua Aktivitas"
-                        @change="handleFilterChange">
+                        @change="handleFilterChange"
+                    >
                         <el-option label="Semua Aktivitas" value="" />
-                        <el-option-group
-                            v-for="group in eventGroups"
-                            :key="group.label"
-                            :label="group.label">
+                        <el-option-group v-for="group in eventGroups" :key="group.label" :label="group.label">
                             <el-option
                                 v-for="option in group.options"
                                 :key="option.value"
                                 :label="option.label"
-                                :value="option.value" />
+                                :value="option.value"
+                            />
                         </el-option-group>
                     </el-select>
                 </div>
 
                 <div class="audit-filter-field">
                     <label for="auditTimeFilter">Rentang Waktu</label>
-                    <el-select
-                        id="auditTimeFilter"
-                        v-model="timeFilter"
-                        @change="handleTimeFilterChange">
+                    <el-select id="auditTimeFilter" v-model="timeFilter" @change="handleTimeFilterChange">
                         <el-option
                             v-for="option in timeOptions"
                             :key="option.value"
                             :label="option.label"
-                            :value="option.value" />
+                            :value="option.value"
+                        />
                     </el-select>
                 </div>
 
                 <div
                     v-if="timeFilter === 'custom'"
-                    class="audit-filter-field audit-date-field audit-desktop-date-field">
+                    class="audit-filter-field audit-date-field audit-desktop-date-field"
+                >
                     <label for="auditDateRange">Rentang Tanggal</label>
                     <el-date-picker
                         id="auditDateRange"
@@ -54,7 +52,8 @@
                         value-format="YYYY-MM-DD"
                         format="DD MMM YYYY"
                         :clearable="false"
-                        @change="handleCustomDateChange" />
+                        @change="handleCustomDateChange"
+                    />
                 </div>
 
                 <div v-if="timeFilter === 'custom'" class="audit-mobile-date-fields">
@@ -68,7 +67,8 @@
                             value-format="YYYY-MM-DD"
                             format="DD MMM YYYY"
                             :clearable="false"
-                            :disabled-date="disableMobileStartDate" />
+                            :disabled-date="disableMobileStartDate"
+                        />
                     </div>
 
                     <div class="audit-filter-field audit-mobile-date-field">
@@ -81,7 +81,8 @@
                             value-format="YYYY-MM-DD"
                             format="DD MMM YYYY"
                             :clearable="false"
-                            :disabled-date="disableMobileEndDate" />
+                            :disabled-date="disableMobileEndDate"
+                        />
                     </div>
                 </div>
             </div>
@@ -92,8 +93,9 @@
                 :disabled="isLoadingInitial"
                 title="Muat ulang audit log"
                 aria-label="Muat ulang audit log"
-                @click="refreshAuditLogs">
-                <i class="fa-solid fa-rotate-right" :class="{'fa-spin': isLoadingInitial}"></i>
+                @click="refreshAuditLogs"
+            >
+                <i class="fa-solid fa-rotate-right" :class="{ 'fa-spin': isLoadingInitial }"></i>
                 <span>Refresh</span>
             </button>
         </section>
@@ -161,8 +163,8 @@
                                     <template v-else-if="audit.product_snapshot">
                                         <span>
                                             {{ formatCurrency(audit.product_snapshot.price) }}
-                                            • Stok {{ audit.product_snapshot.stock }}
-                                            • {{ audit.product_snapshot.image_count }} foto
+                                            • Stok {{ audit.product_snapshot.stock }} •
+                                            {{ audit.product_snapshot.image_count }} foto
                                         </span>
                                     </template>
                                 </div>
@@ -203,7 +205,8 @@
                     type="button"
                     class="audit-load-more-button"
                     :disabled="isLoadingMore"
-                    @click="loadMore">
+                    @click="loadMore"
+                >
                     <i v-if="isLoadingMore" class="fa-solid fa-spinner fa-spin-pulse"></i>
                     {{ isLoadingMore ? 'Memuat...' : 'Muat Aktivitas Lainnya' }}
                 </button>
@@ -223,7 +226,8 @@
                         type="button"
                         class="audit-modal-close"
                         aria-label="Tutup detail aktivitas"
-                        @click="closeDetail">
+                        @click="closeDetail"
+                    >
                         <i class="fa-solid fa-xmark"></i>
                     </button>
                 </div>
@@ -254,10 +258,10 @@
                             <div v-if="productDetailChangeRows(selectedAudit).length" class="audit-change-table-wrap">
                                 <table class="audit-change-table">
                                     <colgroup>
-                                        <col class="audit-change-data-column">
-                                        <col class="audit-change-value-column">
-                                        <col class="audit-change-value-column">
-                                        <col class="audit-change-status-column">
+                                        <col class="audit-change-data-column" />
+                                        <col class="audit-change-value-column" />
+                                        <col class="audit-change-value-column" />
+                                        <col class="audit-change-status-column" />
                                     </colgroup>
                                     <thead>
                                         <tr>
@@ -268,14 +272,18 @@
                                         </tr>
                                     </thead>
                                     <tbody>
-                                        <tr v-for="change in productDetailChangeRows(selectedAudit)" :key="change.field">
+                                        <tr
+                                            v-for="change in productDetailChangeRows(selectedAudit)"
+                                            :key="change.field"
+                                        >
                                             <th>{{ change.label }}</th>
                                             <td>{{ formatProductValue(change.field, change.before) }}</td>
                                             <td>{{ formatProductValue(change.field, change.after) }}</td>
                                             <td>
                                                 <span
                                                     class="audit-change-status"
-                                                    :class="change.changed ? 'is-changed' : 'is-unchanged'">
+                                                    :class="change.changed ? 'is-changed' : 'is-unchanged'"
+                                                >
                                                     {{ change.changed ? 'Berubah' : 'Tetap' }}
                                                 </span>
                                             </td>
@@ -288,7 +296,8 @@
                                 <ul v-if="productImageChangeItems(selectedAudit.image_changes).length">
                                     <li
                                         v-for="item in productImageChangeItems(selectedAudit.image_changes)"
-                                        :key="item">
+                                        :key="item"
+                                    >
                                         {{ item }}
                                     </li>
                                 </ul>
@@ -299,14 +308,18 @@
                         <div v-else-if="selectedAudit.product_snapshot" class="audit-snapshot-table-wrap">
                             <table class="audit-snapshot-table">
                                 <colgroup>
-                                    <col class="audit-snapshot-data-column">
-                                    <col>
+                                    <col class="audit-snapshot-data-column" />
+                                    <col />
                                 </colgroup>
                                 <thead>
                                     <tr>
                                         <th>Data</th>
                                         <th>
-                                            {{ selectedAudit.event === 'product.created' ? 'Nilai awal' : 'Nilai terakhir' }}
+                                            {{
+                                                selectedAudit.event === 'product.created'
+                                                    ? 'Nilai awal'
+                                                    : 'Nilai terakhir'
+                                            }}
                                         </th>
                                     </tr>
                                 </thead>
@@ -345,7 +358,8 @@
                                     type="button"
                                     :title="isIpVisible ? 'Sembunyikan alamat IP' : 'Tampilkan alamat IP'"
                                     :aria-label="isIpVisible ? 'Sembunyikan alamat IP' : 'Tampilkan alamat IP'"
-                                    @click="isIpVisible = !isIpVisible">
+                                    @click="isIpVisible = !isIpVisible"
+                                >
                                     <i :class="isIpVisible ? 'fa-regular fa-eye-slash' : 'fa-regular fa-eye'"></i>
                                 </button>
                             </dd>
@@ -361,7 +375,7 @@
                             <strong>Tidak mengenali aktivitas ini?</strong>
                             <p>Periksa dan keluarkan perangkat lain melalui halaman Keamanan.</p>
                         </div>
-                        <router-link :to="{name: 'settings_security'}" @click="closeDetail">
+                        <router-link :to="{ name: 'settings_security' }" @click="closeDetail">
                             Buka Pengaturan Keamanan
                         </router-link>
                     </div>
@@ -380,31 +394,36 @@ export default {
         Modal,
     },
 
+    /**
+     * Membuat state reaktif yang digunakan komponen untuk halaman audit log.
+     *
+     * @returns {Object} State reaktif yang diinisialisasi untuk komponen.
+     */
     data() {
         return {
             eventGroups: [
                 {
                     label: 'Akun',
                     options: [
-                        {label: 'Register', value: 'auth.registered'},
-                        {label: 'Login', value: 'auth.logged_in'},
-                        {label: 'Logout', value: 'auth.logged_out'},
+                        { label: 'Register', value: 'auth.registered' },
+                        { label: 'Login', value: 'auth.logged_in' },
+                        { label: 'Logout', value: 'auth.logged_out' },
                     ],
                 },
                 {
                     label: 'Produk',
                     options: [
-                        {label: 'Produk Ditambahkan', value: 'product.created'},
-                        {label: 'Produk Diperbarui', value: 'product.updated'},
-                        {label: 'Produk Dihapus', value: 'product.deleted'},
+                        { label: 'Produk Ditambahkan', value: 'product.created' },
+                        { label: 'Produk Diperbarui', value: 'product.updated' },
+                        { label: 'Produk Dihapus', value: 'product.deleted' },
                     ],
                 },
             ],
             timeOptions: [
-                {label: '7 Hari Terakhir', value: '7'},
-                {label: '30 Hari Terakhir', value: '30'},
-                {label: '90 Hari Terakhir', value: '90'},
-                {label: 'Rentang Tanggal', value: 'custom'},
+                { label: '7 Hari Terakhir', value: '7' },
+                { label: '30 Hari Terakhir', value: '30' },
+                { label: '90 Hari Terakhir', value: '90' },
+                { label: 'Rentang Tanggal', value: 'custom' },
             ],
             eventFilter: '',
             timeFilter: '30',
@@ -430,130 +449,181 @@ export default {
     },
 
     computed: {
+        /**
+         * Menentukan apakah kondisi active filter terpenuhi untuk halaman audit log.
+         *
+         * @returns {boolean} Menunjukkan apakah kondisi has active filter terpenuhi.
+         */
         hasActiveFilter() {
             return this.eventFilter !== '' || this.timeFilter !== '30';
         },
 
         mobileCustomStartDate: {
+            /**
+             * Mengembalikan tanggal awal custom versi mobile yang sedang dipilih pada halaman audit log.
+             *
+             * @returns {*} Nilai yang dihasilkan oleh operasi get.
+             */
             get() {
                 return this.customDateRange?.[0] || '';
             },
+            /**
+             * Memperbarui the mobile custom start date value untuk halaman audit log.
+             *
+             * @param {*} value Nilai yang diproses oleh function.
+             *
+             * @returns {void} Function menerapkan efeknya melalui state komponen atau aplikasi.
+             */
             set(value) {
                 this.updateMobileCustomDate(0, value);
             },
         },
 
         mobileCustomEndDate: {
+            /**
+             * Mengembalikan tanggal akhir custom versi mobile yang sedang dipilih pada halaman audit log.
+             *
+             * @returns {*} Nilai yang dihasilkan oleh operasi get.
+             */
             get() {
                 return this.customDateRange?.[1] || '';
             },
+            /**
+             * Memperbarui the mobile custom end date value untuk halaman audit log.
+             *
+             * @param {*} value Nilai yang diproses oleh function.
+             *
+             * @returns {void} Function menerapkan efeknya melalui state komponen atau aplikasi.
+             */
             set(value) {
                 this.updateMobileCustomDate(1, value);
             },
         },
 
+        /**
+         * Mengembalikan displayed detail ip yang dihitung dari state reaktif saat ini untuk halaman audit log.
+         *
+         * @returns {*} Nilai yang dihasilkan oleh operasi displayed detail ip.
+         */
         displayedDetailIp() {
-            if(this.isIpVisible)
-                return this.selectedAudit?.ip_address || '';
+            if (this.isIpVisible) return this.selectedAudit?.ip_address || '';
 
             return this.selectedMaskedIp || this.selectedAudit?.ip_address || '';
         },
     },
 
     watch: {
+        /**
+         * Menjalankan proses modal.detail dan menyinkronkan state hasilnya untuk halaman audit log.
+         *
+         * @param {*} isOpen Nilai is open yang diproses oleh function.
+         *
+         * @returns {void} Function menerapkan efeknya melalui state komponen atau aplikasi.
+         */
         'modal.detail'(isOpen) {
-            if(!isOpen)
-                this.resetDetailState();
+            if (!isOpen) this.resetDetailState();
         },
     },
 
+    /**
+     * Menginisialisasi behavior komponen yang bergantung pada browser setelah mounted untuk halaman audit log.
+     *
+     * @returns {void} Function menerapkan efeknya melalui state komponen atau aplikasi.
+     */
     mounted() {
         this.loadAuditLogs();
     },
 
     methods: {
         /**
-         * Memulai collection baru agar cursor dan response filter lama
-         * tidak tercampur dengan filter yang sedang aktif.
+         * Menangani filter perubahan untuk halaman audit log.
+         *
+         * @returns {void} Function menerapkan efeknya melalui state komponen atau aplikasi.
          */
         handleFilterChange() {
             this.loadAuditLogs();
         },
 
         /**
-         * Mengaktifkan preset tanggal atau menunggu input custom lengkap.
+         * Menangani time filter perubahan untuk halaman audit log.
+         *
+         * @returns {void} Function menerapkan efeknya melalui state komponen atau aplikasi.
          */
         handleTimeFilterChange() {
-            if(this.timeFilter !== 'custom') {
+            if (this.timeFilter !== 'custom') {
                 this.customDateRange = [];
                 this.loadAuditLogs();
             }
         },
 
         /**
-         * Memuat ulang collection setelah dua tanggal custom tersedia.
+         * Menangani custom date perubahan untuk halaman audit log.
+         *
+         * @returns {void} Function menerapkan efeknya melalui state komponen atau aplikasi.
          */
         handleCustomDateChange() {
-            if(this.customDateRange?.length === 2)
-                this.loadAuditLogs();
+            if (this.customDateRange?.length === 2) this.loadAuditLogs();
         },
 
         /**
-         * Menyatukan input tanggal mobile dengan rentang tanggal utama.
+         * Memperbarui mobile custom date untuk halaman audit log.
          *
-         * @param {number} index Posisi tanggal mulai atau selesai.
-         * @param {string} value Tanggal terpilih dalam format YYYY-MM-DD.
+         * @param {*} index Posisi item target dengan indeks yang dimulai dari nol.
+         * @param {*} value Tanggal terpilih yang ditulis ke rentang tanggal versi mobile.
+         *
+         * @returns {void} Function menerapkan efeknya melalui state komponen atau aplikasi.
          */
         updateMobileCustomDate(index, value) {
-            // --- step 1 - start - salin rentang agar perubahan computed tetap reaktif
-            const nextRange = Array.isArray(this.customDateRange)
-                ? [...this.customDateRange]
-                : [];
+            // --- step 1 - start - salin rentang terpilih agar perubahan computed tetap reaktif
+            const nextRange = Array.isArray(this.customDateRange) ? [...this.customDateRange] : [];
             nextRange[index] = value || '';
             this.customDateRange = nextRange;
-            // --- step 1 - end - salin rentang agar perubahan computed tetap reaktif
+            // --- step 1 - end - salin rentang terpilih agar perubahan computed tetap reaktif
 
-            // --- step 2 - start - muat data hanya setelah kedua batas tanggal lengkap
-            if(nextRange[0] && nextRange[1])
-                this.loadAuditLogs();
-            // --- step 2 - end - muat data hanya setelah kedua batas tanggal lengkap
+            // --- step 2 - start - muat data audit hanya setelah kedua batas tanggal tersedia
+            if (nextRange[0] && nextRange[1]) this.loadAuditLogs();
+            // --- step 2 - end - muat data audit hanya setelah kedua batas tanggal tersedia
         },
 
         /**
-         * Mencegah tanggal mulai melewati tanggal selesai yang sudah dipilih.
+         * Mengembalikan disable mobile start date yang ditentukan modul untuk halaman audit log.
          *
-         * @param {Date} date Kandidat tanggal dari date picker.
-         * @returns {boolean}
+         * @param {*} date Tanggal yang diproses oleh function.
+         *
+         * @returns {boolean} Menunjukkan apakah kondisi disable mobile start date terpenuhi.
          */
         disableMobileStartDate(date) {
-            if(!this.mobileCustomEndDate)
-                return false;
+            if (!this.mobileCustomEndDate) return false;
 
             return this.formatDateValue(date) > this.mobileCustomEndDate;
         },
 
         /**
-         * Mencegah tanggal selesai mendahului tanggal mulai yang sudah dipilih.
+         * Mengembalikan disable mobile end date yang ditentukan modul untuk halaman audit log.
          *
-         * @param {Date} date Kandidat tanggal dari date picker.
-         * @returns {boolean}
+         * @param {*} date Tanggal yang diproses oleh function.
+         *
+         * @returns {boolean} Menunjukkan apakah kondisi disable mobile end date terpenuhi.
          */
         disableMobileEndDate(date) {
-            if(!this.mobileCustomStartDate)
-                return false;
+            if (!this.mobileCustomStartDate) return false;
 
             return this.formatDateValue(date) < this.mobileCustomStartDate;
         },
 
         /**
-         * Memuat ulang halaman pertama tanpa mengubah filter aktif.
+         * Menjalankan proses refresh audit logs dan menyinkronkan state hasilnya untuk halaman audit log.
+         *
+         * @returns {void} Function menerapkan efeknya melalui state komponen atau aplikasi.
          */
         refreshAuditLogs() {
             this.loadAuditLogs();
         },
 
         /**
-         * Mengembalikan filter ke default 30 hari dan mengambil data baru.
+         * Mengembalikan filters ke state awal untuk halaman audit log.
+         *
+         * @returns {void} Function menerapkan efeknya melalui state komponen atau aplikasi.
          */
         resetFilters() {
             this.eventFilter = '';
@@ -563,21 +633,21 @@ export default {
         },
 
         /**
-         * Mengambil halaman pertama atau halaman cursor berikutnya.
+         * Memuat audit logs untuk halaman audit log, termasuk penanganan request backend dan response lokal.
          *
-         * @param {Object} options Pengaturan request collection.
-         * @param {boolean} options.append Menentukan replace atau append list.
+         * @param {Object} [options] Opsi pagination untuk request audit log.
+         *
+         * @returns {Promise<void>} Promise diselesaikan setelah alur asynchronous selesai.
          */
-        async loadAuditLogs({append = false} = {}) {
-            // --- step 1 - start - cegah load-more yang tidak diperlukan atau masih berjalan
+        async loadAuditLogs({ append = false } = {}) {
+            // --- step 1 - start - lewati request pagination yang tidak diperlukan atau masih berjalan
             const shouldSkipLoadMore = append && (!this.hasMore || this.isLoadingMore);
-            // --- step 1 - end - cegah load-more yang tidak diperlukan atau masih berjalan
+            // --- step 1 - end - lewati request pagination yang tidak diperlukan atau masih berjalan
 
-            if(shouldSkipLoadMore)
-                return;
+            if (shouldSkipLoadMore) return;
 
-            // --- step 2 - start - siapkan state initial load atau pagination lanjutan
-            if(!append) {
+            // --- step 2 - start - siapkan state untuk pemuatan awal atau request pagination berikutnya
+            if (!append) {
                 this.collectionRequestVersion += 1;
                 this.nextCursor = null;
                 this.hasMore = false;
@@ -588,79 +658,76 @@ export default {
                 this.isLoadingMore = true;
                 this.loadMoreError = '';
             }
-            // --- step 2 - end - siapkan state initial load atau pagination lanjutan
+            // --- step 2 - end - siapkan state untuk pemuatan awal atau request pagination berikutnya
 
             const requestVersion = this.collectionRequestVersion;
 
-            // --- step 3 - start - proses response hanya untuk versi filter yang masih aktif
+            // --- step 3 - start - terapkan response hanya jika versi filternya masih aktif
             try {
                 const response = await axios.get('/audit-logs', {
                     params: this.buildCollectionParams(append),
                 });
 
-                if(requestVersion !== this.collectionRequestVersion)
-                    return;
+                if (requestVersion !== this.collectionRequestVersion) return;
 
                 const nextItems = Array.isArray(response.data?.data) ? response.data.data : [];
                 this.auditLogs = append ? [...this.auditLogs, ...nextItems] : nextItems;
                 this.nextCursor = response.data?.meta?.next_cursor || null;
                 this.hasMore = Boolean(response.data?.meta?.has_more && this.nextCursor);
-            } catch(error) {
-                if(requestVersion !== this.collectionRequestVersion)
-                    return;
+            } catch (error) {
+                if (requestVersion !== this.collectionRequestVersion) return;
 
-                const message = error?.response?.data?.message
-                    || 'Periksa koneksi Anda lalu coba kembali.';
+                const message = error?.response?.data?.message || 'Periksa koneksi Anda lalu coba kembali.';
 
-                if(append)
-                    this.loadMoreError = message;
-                else
-                    this.initialError = message;
+                if (append) this.loadMoreError = message;
+                else this.initialError = message;
             } finally {
-                if(requestVersion === this.collectionRequestVersion) {
+                if (requestVersion === this.collectionRequestVersion) {
                     this.isLoadingInitial = false;
                     this.isLoadingMore = false;
                 }
             }
-            // --- step 3 - end - proses response hanya untuk versi filter yang masih aktif
+            // --- step 3 - end - terapkan response hanya jika versi filternya masih aktif
         },
 
         /**
-         * Meminta cursor berikutnya dan mempertahankan list yang sudah tampil.
+         * Memuat more untuk halaman audit log.
+         *
+         * @returns {void} Function menerapkan efeknya melalui state komponen atau aplikasi.
          */
         loadMore() {
-            this.loadAuditLogs({append: true});
+            this.loadAuditLogs({ append: true });
         },
 
         /**
-         * Membentuk query API dari filter, tanggal, dan cursor aktif.
+         * Menjalankan proses build collection params dan menyinkronkan state hasilnya untuk halaman audit log.
          *
-         * @param {boolean} append Menentukan apakah cursor perlu dikirim.
+         * @param {*} append Nilai append yang diproses oleh function.
+         *
+         * @returns {*} Nilai yang dihasilkan oleh operasi build collection params.
          */
         buildCollectionParams(append) {
             const params = {
                 per_page: 20,
             };
 
-            if(this.eventFilter)
-                params.event = this.eventFilter;
+            if (this.eventFilter) params.event = this.eventFilter;
 
             const dateRange = this.resolveDateRange();
-            if(dateRange.from)
-                params.from = dateRange.from;
-            if(dateRange.to)
-                params.to = dateRange.to;
-            if(append && this.nextCursor)
-                params.cursor = this.nextCursor;
+            if (dateRange.from) params.from = dateRange.from;
+            if (dateRange.to) params.to = dateRange.to;
+            if (append && this.nextCursor) params.cursor = this.nextCursor;
 
             return params;
         },
 
         /**
-         * Mengubah preset hari atau date picker menjadi from/to API.
+         * Menjalankan proses resolve date range dan menyinkronkan state hasilnya untuk halaman audit log.
+         *
+         * @returns {Object} Object resolve date range yang telah disiapkan.
          */
         resolveDateRange() {
-            if(this.timeFilter === 'custom') {
+            if (this.timeFilter === 'custom') {
                 return {
                     from: this.customDateRange?.[0] || '',
                     to: this.customDateRange?.[1] || '',
@@ -676,29 +743,27 @@ export default {
         },
 
         /**
-         * Membentuk tanggal kalender Asia/Jakarta agar preset tidak bergeser
-         * ketika browser memakai timezone yang berbeda dari aplikasi.
+         * Menjalankan proses resolve jakarta date value dan menyinkronkan state hasilnya untuk halaman audit log.
          *
-         * @param {number} offsetDays Selisih hari kalender dari hari ini.
-         * @returns {string}
+         * @param {*} [offsetDays] Nilai offset days yang diproses oleh function.
+         *
+         * @returns {string} Teks resolve jakarta date value yang telah diformat atau ditentukan.
          */
         resolveJakartaDateValue(offsetDays = 0) {
-            // --- step 1 - start - ambil komponen hari ini langsung pada timezone aplikasi
+            // --- step 1 - start - ambil komponen tanggal saat ini dalam timezone aplikasi
             const parts = new Intl.DateTimeFormat('en-CA', {
                 timeZone: 'Asia/Jakarta',
                 year: 'numeric',
                 month: '2-digit',
                 day: '2-digit',
             }).formatToParts(new Date());
-            const values = Object.fromEntries(parts.map(part => [part.type, part.value]));
-            // --- step 1 - end - ambil komponen hari ini langsung pada timezone aplikasi
+            const values = Object.fromEntries(parts.map((part) => [part.type, part.value]));
+            // --- step 1 - end - ambil komponen tanggal saat ini dalam timezone aplikasi
 
             // --- step 2 - start - hitung offset sebagai hari kalender tanpa konversi timezone browser
-            const date = new Date(Date.UTC(
-                Number(values.year),
-                Number(values.month) - 1,
-                Number(values.day) + offsetDays,
-            ));
+            const date = new Date(
+                Date.UTC(Number(values.year), Number(values.month) - 1, Number(values.day) + offsetDays),
+            );
 
             const year = date.getUTCFullYear();
             const month = String(date.getUTCMonth() + 1).padStart(2, '0');
@@ -709,9 +774,11 @@ export default {
         },
 
         /**
-         * Membentuk tanggal lokal YYYY-MM-DD tanpa pergeseran UTC.
+         * Memformat date value untuk ditampilkan untuk halaman audit log.
          *
-         * @param {Date} date Tanggal lokal yang akan dikirim ke API.
+         * @param {*} date Tanggal yang diproses oleh function.
+         *
+         * @returns {string} Teks format date value yang telah diformat atau ditentukan.
          */
         formatDateValue(date) {
             const year = date.getFullYear();
@@ -722,12 +789,14 @@ export default {
         },
 
         /**
-         * Membuka modal dengan data masked lalu mengambil detail owner-scoped.
+         * Membuka detail untuk halaman audit log.
          *
-         * @param {Object} audit Row audit dari collection.
+         * @param {*} audit Nilai audit yang diproses oleh function.
+         *
+         * @returns {Promise<void>} Promise diselesaikan setelah alur asynchronous selesai.
          */
         async openDetail(audit) {
-            this.selectedAudit = {...audit};
+            this.selectedAudit = { ...audit };
             this.selectedMaskedIp = audit.ip_address || '';
             this.isIpVisible = false;
             this.modal.detail = true;
@@ -735,61 +804,66 @@ export default {
         },
 
         /**
-         * Mengambil detail audit yang boleh membawa full IP milik user aktif.
+         * Memuat detail untuk halaman audit log, termasuk penanganan request backend dan response lokal.
+         *
+         * @returns {Promise<void>} Promise diselesaikan setelah alur asynchronous selesai.
          */
         async loadDetail() {
-            // --- step 1 - start - pastikan detail masih memiliki id target yang valid
+            // --- step 1 - start - pastikan request detail masih memiliki id target yang valid
             const auditId = this.selectedAudit?.id || '';
-            // --- step 1 - end - pastikan detail masih memiliki id target yang valid
+            // --- step 1 - end - pastikan request detail masih memiliki id target yang valid
 
-            if(!auditId)
-                return;
+            if (!auditId) return;
 
             const requestVersion = ++this.detailRequestVersion;
             this.isLoadingDetail = true;
             this.detailError = '';
             this.isIpVisible = false;
 
-            // --- step 2 - start - terapkan response hanya jika modal dan target audit masih sama
+            // --- step 2 - start - terapkan response hanya selama modal dan target audit tidak berubah
             try {
                 const response = await axios.get(`/audit-logs/${auditId}`);
 
-                if(this.isCurrentDetailRequest(requestVersion, auditId))
+                if (this.isCurrentDetailRequest(requestVersion, auditId))
                     this.selectedAudit = response.data?.data || this.selectedAudit;
-            } catch(error) {
-                if(this.isCurrentDetailRequest(requestVersion, auditId)) {
-                    this.detailError = error?.response?.data?.message
-                        || 'Detail aktivitas belum bisa dimuat. Coba lagi.';
+            } catch (error) {
+                if (this.isCurrentDetailRequest(requestVersion, auditId)) {
+                    this.detailError =
+                        error?.response?.data?.message || 'Detail aktivitas belum bisa dimuat. Coba lagi.';
                 }
             } finally {
-                if(this.isCurrentDetailRequest(requestVersion, auditId))
-                    this.isLoadingDetail = false;
+                if (this.isCurrentDetailRequest(requestVersion, auditId)) this.isLoadingDetail = false;
             }
-            // --- step 2 - end - terapkan response hanya jika modal dan target audit masih sama
+            // --- step 2 - end - terapkan response hanya selama modal dan target audit tidak berubah
         },
 
         /**
-         * Memastikan response detail masih milik modal dan request terbaru.
+         * Menentukan apakah kondisi current detail request terpenuhi untuk halaman audit log.
          *
-         * @param {number} requestVersion Versi request yang sedang diselesaikan.
-         * @param {string} auditId UUID audit target request.
-         * @returns {boolean}
+         * @param {*} requestVersion Nilai request version yang diproses oleh function.
+         * @param {*} auditId Nilai audit id yang diproses oleh function.
+         *
+         * @returns {boolean} Menunjukkan apakah kondisi is current detail request terpenuhi.
          */
         isCurrentDetailRequest(requestVersion, auditId) {
-            return requestVersion === this.detailRequestVersion
-                && this.modal.detail
-                && this.selectedAudit?.id === auditId;
+            return (
+                requestVersion === this.detailRequestVersion && this.modal.detail && this.selectedAudit?.id === auditId
+            );
         },
 
         /**
-         * Menutup modal melalui state v-model bersama komponen Modal.
+         * Menutup detail untuk halaman audit log.
+         *
+         * @returns {void} Function menerapkan efeknya melalui state komponen atau aplikasi.
          */
         closeDetail() {
             this.modal.detail = false;
         },
 
         /**
-         * Menghapus full IP dan detail sementara ketika modal ditutup.
+         * Mengembalikan detail state ke state awal untuk halaman audit log.
+         *
+         * @returns {void} Function menerapkan efeknya melalui state komponen atau aplikasi.
          */
         resetDetailState() {
             this.detailRequestVersion += 1;
@@ -801,108 +875,111 @@ export default {
         },
 
         /**
-         * Memetakan event API ke icon Font Awesome.
+         * Mengembalikan event icon yang ditentukan modul untuk halaman audit log.
          *
-         * @param {string} event Nama event audit.
+         * @param {*} event Event browser atau komponen yang memicu handler.
+         *
+         * @returns {*} Nilai yang dihasilkan oleh operasi event icon.
          */
         eventIcon(event) {
-            return {
-                'auth.registered': 'fa-solid fa-user-plus',
-                'auth.logged_in': 'fa-solid fa-right-to-bracket',
-                'auth.logged_out': 'fa-solid fa-arrow-right-from-bracket',
-                'product.created': 'fa-solid fa-box-open',
-                'product.updated': 'fa-solid fa-pen-to-square',
-                'product.deleted': 'fa-solid fa-trash-can',
-            }[event] || 'fa-solid fa-clock-rotate-left';
+            return (
+                {
+                    'auth.registered': 'fa-solid fa-user-plus',
+                    'auth.logged_in': 'fa-solid fa-right-to-bracket',
+                    'auth.logged_out': 'fa-solid fa-arrow-right-from-bracket',
+                    'product.created': 'fa-solid fa-box-open',
+                    'product.updated': 'fa-solid fa-pen-to-square',
+                    'product.deleted': 'fa-solid fa-trash-can',
+                }[event] || 'fa-solid fa-clock-rotate-left'
+            );
         },
 
         /**
-         * Memetakan event API ke variant warna icon.
+         * Mengembalikan event class yang ditentukan modul untuk halaman audit log.
          *
-         * @param {string} event Nama event audit.
+         * @param {*} event Event browser atau komponen yang memicu handler.
+         *
+         * @returns {*} Nilai yang dihasilkan oleh operasi event class.
          */
         eventClass(event) {
-            return {
-                'auth.registered': 'is-register',
-                'auth.logged_in': 'is-login',
-                'auth.logged_out': 'is-logout',
-                'product.created': 'is-product-created',
-                'product.updated': 'is-product-updated',
-                'product.deleted': 'is-product-deleted',
-            }[event] || '';
+            return (
+                {
+                    'auth.registered': 'is-register',
+                    'auth.logged_in': 'is-login',
+                    'auth.logged_out': 'is-logout',
+                    'product.created': 'is-product-created',
+                    'product.updated': 'is-product-updated',
+                    'product.deleted': 'is-product-deleted',
+                }[event] || ''
+            );
         },
 
         /**
-         * Membedakan detail produk dari event autentikasi tanpa bergantung pada title.
+         * Menentukan apakah kondisi produk audit terpenuhi untuk halaman audit log.
          *
-         * @param {Object} audit Audit yang akan ditampilkan.
-         * @returns {boolean}
+         * @param {*} audit Nilai audit yang diproses oleh function.
+         *
+         * @returns {boolean} Menunjukkan apakah kondisi is produk audit terpenuhi.
          */
         isProductAudit(audit) {
             return audit?.category === 'product';
         },
 
         /**
-         * Merangkum label field update untuk card tanpa memenuhi timeline dengan tabel.
+         * Menjalankan proses produk perubahan summary dan menyinkronkan state hasilnya untuk halaman audit log.
          *
-         * @param {Object} audit Audit update produk.
-         * @returns {string}
+         * @param {*} audit Nilai audit yang diproses oleh function.
+         *
+         * @returns {string} Teks produk perubahan summary yang telah diformat atau ditentukan.
          */
         productChangeSummary(audit) {
             const labels = Array.isArray(audit?.changes)
-                ? audit.changes.map(change => change.label).filter(Boolean)
+                ? audit.changes.map((change) => change.label).filter(Boolean)
                 : [];
 
-            if(labels.length === 0)
-                return 'Tidak berubah';
-            if(labels.length === 1)
-                return `${labels[0]} berubah`;
-            if(labels.length === 2)
-                return `${labels[0]} dan ${labels[1]} berubah`;
+            if (labels.length === 0) return 'Tidak berubah';
+            if (labels.length === 1) return `${labels[0]} berubah`;
+            if (labels.length === 2) return `${labels[0]} dan ${labels[1]} berubah`;
 
             return `${labels.slice(0, -1).join(', ')}, dan ${labels.at(-1)} berubah`;
         },
 
         /**
-         * Membentuk ringkasan singkat perubahan gambar dalam bentuk teks saja.
+         * Menjalankan proses produk gambar perubahan summary dan menyinkronkan state hasilnya untuk halaman audit log.
          *
-         * @param {Object|null} imageChanges Metadata perubahan gambar.
-         * @returns {string}
+         * @param {*} imageChanges Nilai gambar changes yang diproses oleh function.
+         *
+         * @returns {string} Teks produk gambar perubahan summary yang telah diformat atau ditentukan.
          */
         productImageChangeSummary(imageChanges) {
-            if(!imageChanges)
-                return 'Informasi tidak tersedia';
+            if (!imageChanges) return 'Informasi tidak tersedia';
 
             const parts = [];
-            if(imageChanges.added_count)
-                parts.push(`${imageChanges.added_count} ditambahkan`);
-            if(imageChanges.removed_count)
-                parts.push(`${imageChanges.removed_count} dihapus`);
-            if(imageChanges.cover_changed)
-                parts.push('Foto utama berubah');
-            if(imageChanges.order_changed)
-                parts.push('Urutan berubah');
+            if (imageChanges.added_count) parts.push(`${imageChanges.added_count} ditambahkan`);
+            if (imageChanges.removed_count) parts.push(`${imageChanges.removed_count} dihapus`);
+            if (imageChanges.cover_changed) parts.push('Foto utama berubah');
+            if (imageChanges.order_changed) parts.push('Urutan berubah');
 
             return parts.length > 0 ? parts.join(' • ') : 'Tidak berubah';
         },
 
         /**
-         * Menyatukan perubahan field produk dan jumlah foto dalam tabel perbandingan.
+         * Menjalankan proses produk detail perubahan rows dan menyinkronkan state hasilnya untuk halaman audit log, termasuk penanganan request backend dan response lokal.
          *
-         * @param {Object} audit Audit update produk.
-         * @returns {Array<{field: string, label: string, before: *, after: *, changed: boolean}>}
+         * @param {*} audit Nilai audit yang diproses oleh function.
+         *
+         * @returns {*} Nilai yang dihasilkan oleh operasi produk detail perubahan rows.
          */
         productDetailChangeRows(audit) {
             const changes = new Map(
-                (Array.isArray(audit?.changes) ? audit.changes : [])
-                    .map(change => [change.field, change])
+                (Array.isArray(audit?.changes) ? audit.changes : []).map((change) => [change.field, change]),
             );
             const fields = [
-                {field: 'name', label: 'Nama produk', value: audit?.subject?.name},
-                {field: 'price', label: 'Harga', value: audit?.product_snapshot?.price},
-                {field: 'stock', label: 'Stok', value: audit?.product_snapshot?.stock},
+                { field: 'name', label: 'Nama produk', value: audit?.subject?.name },
+                { field: 'price', label: 'Harga', value: audit?.product_snapshot?.price },
+                { field: 'stock', label: 'Stok', value: audit?.product_snapshot?.stock },
             ];
-            const rows = fields.map(field => {
+            const rows = fields.map((field) => {
                 const change = changes.get(field.field);
 
                 return {
@@ -914,7 +991,7 @@ export default {
                 };
             });
 
-            if(audit?.image_changes) {
+            if (audit?.image_changes) {
                 rows.push({
                     field: 'image_count',
                     label: 'Jumlah foto',
@@ -928,72 +1005,67 @@ export default {
         },
 
         /**
-         * Membentuk tabel nilai awal atau nilai terakhir untuk audit create/delete.
+         * Mengembalikan produk snapshot rows yang ditentukan modul untuk halaman audit log.
          *
-         * @param {Object} audit Audit produk beserta snapshot allow-listed.
-         * @returns {Array<{field: string, label: string, value: *}>}
+         * @param {*} audit Nilai audit yang diproses oleh function.
+         *
+         * @returns {Array<*>} Kumpulan produk snapshot rows yang telah disiapkan.
          */
         productSnapshotRows(audit) {
             return [
-                {field: 'name', label: 'Nama produk', value: audit?.subject?.name},
-                {field: 'price', label: 'Harga', value: audit?.product_snapshot?.price},
-                {field: 'stock', label: 'Stok', value: audit?.product_snapshot?.stock},
-                {field: 'image_count', label: 'Jumlah foto', value: audit?.product_snapshot?.image_count},
+                { field: 'name', label: 'Nama produk', value: audit?.subject?.name },
+                { field: 'price', label: 'Harga', value: audit?.product_snapshot?.price },
+                { field: 'stock', label: 'Stok', value: audit?.product_snapshot?.stock },
+                { field: 'image_count', label: 'Jumlah foto', value: audit?.product_snapshot?.image_count },
             ];
         },
 
         /**
-         * Menampilkan hanya perubahan foto yang benar-benar terjadi agar detail
-         * tidak dipenuhi nilai nol dan status "Tidak".
+         * Menjalankan proses produk gambar perubahan items dan menyinkronkan state hasilnya untuk halaman audit log.
          *
-         * @param {Object} imageChanges Metadata perubahan gambar.
-         * @returns {string[]}
+         * @param {*} [imageChanges] Nilai gambar changes yang diproses oleh function.
+         *
+         * @returns {*} Nilai yang dihasilkan oleh operasi produk gambar perubahan items.
          */
         productImageChangeItems(imageChanges = {}) {
             const items = [];
 
-            if(imageChanges.added_count)
-                items.push(`${imageChanges.added_count} foto ditambahkan`);
-            if(imageChanges.removed_count)
-                items.push(`${imageChanges.removed_count} foto dihapus`);
-            if(imageChanges.cover_changed)
-                items.push('Foto utama berubah');
-            if(imageChanges.order_changed)
-                items.push('Urutan foto berubah');
+            if (imageChanges.added_count) items.push(`${imageChanges.added_count} foto ditambahkan`);
+            if (imageChanges.removed_count) items.push(`${imageChanges.removed_count} foto dihapus`);
+            if (imageChanges.cover_changed) items.push('Foto utama berubah');
+            if (imageChanges.order_changed) items.push('Urutan foto berubah');
 
             return items;
         },
 
         /**
-         * Memformat harga dengan Rupiah dan membiarkan nama/stok tetap natural.
+         * Memformat produk value untuk ditampilkan untuk halaman audit log.
          *
-         * @param {string} field Nama field contract audit.
-         * @param {string|number|null} value Nilai before/after.
-         * @returns {string}
+         * @param {*} field Nilai field yang diproses oleh function.
+         * @param {*} value Nilai yang diproses oleh function.
+         *
+         * @returns {string} Teks format produk value yang telah diformat atau ditentukan.
          */
         formatProductValue(field, value) {
-            if(field === 'price')
-                return this.formatCurrency(value);
-            if(field === 'image_count')
-                return value === null || value === undefined ? '-' : `${value} foto`;
+            if (field === 'price') return this.formatCurrency(value);
+            if (field === 'image_count') return value === null || value === undefined ? '-' : `${value} foto`;
 
             return String(value ?? '-');
         },
 
         /**
-         * Memformat angka harga sesuai locale Indonesia.
+         * Memformat mata uang untuk ditampilkan untuk halaman audit log.
          *
-         * @param {number|string|null} value Harga dari API.
-         * @returns {string}
+         * @param {*} value Nilai yang diproses oleh function.
+         *
+         * @returns {string} Teks format mata uang yang telah diformat atau ditentukan.
          */
         formatCurrency(value) {
-            if(value === null || value === undefined || value === '')
-                return '-';
+            if (value === null || value === undefined || value === '') return '-';
 
             const number = Number(value);
 
-            if(!Number.isFinite(number))
-                return '-';
+            if (!Number.isFinite(number)) return '-';
 
             return new Intl.NumberFormat('id-ID', {
                 style: 'currency',
@@ -1003,28 +1075,28 @@ export default {
         },
 
         /**
-         * Menggabungkan metadata perangkat yang benar-benar tersedia.
+         * Menjalankan proses device summary dan menyinkronkan state hasilnya untuk halaman audit log.
          *
-         * @param {Object} device Metadata perangkat dari backend.
+         * @param {*} [device] Nilai device yang diproses oleh function.
+         *
+         * @returns {*} Nilai yang dihasilkan oleh operasi device summary.
          */
         deviceSummary(device = {}) {
-            return [device.browser, device.operating_system, device.device_type]
-                .filter(Boolean)
-                .join(' • ');
+            return [device.browser, device.operating_system, device.device_type].filter(Boolean).join(' • ');
         },
 
         /**
-         * Menampilkan timestamp API dalam zona Asia/Jakarta.
+         * Memformat occurred at untuk ditampilkan untuk halaman audit log.
          *
-         * @param {string} value Timestamp ISO 8601 dari backend.
+         * @param {*} value Nilai yang diproses oleh function.
+         *
+         * @returns {string} Teks format occurred at yang telah diformat atau ditentukan.
          */
         formatOccurredAt(value) {
-            if(!value)
-                return '-';
+            if (!value) return '-';
 
             const date = new Date(value);
-            if(Number.isNaN(date.getTime()))
-                return '-';
+            if (Number.isNaN(date.getTime())) return '-';
 
             const formatted = new Intl.DateTimeFormat('id-ID', {
                 timeZone: 'Asia/Jakarta',
@@ -1034,7 +1106,9 @@ export default {
                 hour: '2-digit',
                 minute: '2-digit',
                 hourCycle: 'h23',
-            }).format(date).replace(/\./g, ':');
+            })
+                .format(date)
+                .replace(/\./g, ':');
 
             return `${formatted} WIB`;
         },
@@ -1416,7 +1490,9 @@ button:disabled {
 }
 
 @keyframes audit-shimmer {
-    to { background-position: -200% 0; }
+    to {
+        background-position: -200% 0;
+    }
 }
 
 .audit-pagination {
@@ -1572,7 +1648,7 @@ button:disabled {
 }
 
 .audit-snapshot-data-column {
-    /* Keep snapshot values close to the metadata alignment without crowding their labels. */
+    /* Jaga nilai snapshot tetap sejajar dengan metadata tanpa membuat label berhimpitan. */
     width: 152px;
 }
 
@@ -1878,7 +1954,6 @@ button:disabled {
     .audit-detail-list > .audit-ip-row {
         padding: 12px 14px;
     }
-
 }
 
 @media (max-width: 480px) {

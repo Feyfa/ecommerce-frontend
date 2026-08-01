@@ -3,7 +3,8 @@
     <div
         v-if="show.saldo_view"
         class="w-full flex flex-col justify-center mb-8"
-        :class="embedded ? 'px-0' : 'px-4 xl:px-6'">
+        :class="embedded ? 'px-0' : 'px-4 xl:px-6'"
+    >
         <!-- title -->
         <h1 v-if="!embedded" class="text-center text-3xl font-medium flex justify-center items-center">Detail Saldo</h1>
         <!-- title -->
@@ -16,12 +17,12 @@
                     <div class="flex gap-3">
                         <div class="flex justify-center items-center">
                             <span>
-                                <img src="/img/rupiah.png" class="w-10">
+                                <img src="/img/rupiah.png" class="w-10" />
                             </span>
                         </div>
                         <div>
                             <h3 class="text-[0.8rem]">Total Saldo Aktif</h3>
-                            
+
                             <h2 class="text-[1.1rem] font-semibold">
                                 <i v-if="isFetchSaldo" class="ml-1 fas fa-spinner fa-pulse"></i>
                                 <span v-else>Rp{{ saldoTotal.toLocaleString('id-ID') }}</span>
@@ -29,11 +30,12 @@
                         </div>
                     </div>
                     <div class="flex justify-center items-center">
-                        <button 
+                        <button
                             class="saldo-primary-button w-full px-5 h-10"
                             @click="openModalRekening"
                             :disabled="isProcessGetPayment || saldoTotal <= 0"
-                            :class="{'opacity-50': isProcessGetPayment || saldoTotal <= 0}">
+                            :class="{ 'opacity-50': isProcessGetPayment || saldoTotal <= 0 }"
+                        >
                             Tarik Saldo
                             <i v-if="isProcessGetPayment" class="ml-1 fas fa-spinner fa-pulse"></i>
                         </button>
@@ -69,10 +71,11 @@
 
                         <!-- input -->
                         <div class="input-container flex flex-col w-full mb-5">
-                            <label
-                                for="paymentAccount">
+                            <label for="paymentAccount">
                                 Nominal
-                                <small class="text-[0.7rem] text-neutral-400 ml-1">*batas penarikan Rp1-{{ withdrawMaximum.toLocaleString('id-ID') }}</small>
+                                <small class="text-[0.7rem] text-neutral-400 ml-1"
+                                    >*batas penarikan Rp1-{{ withdrawMaximum.toLocaleString('id-ID') }}</small
+                                >
                             </label>
                             <el-input
                                 v-model="wihtdrawPriceString"
@@ -80,22 +83,25 @@
                                 placeholder="Nominal"
                                 size="large"
                                 :clearable="false"
-                                @keydown="restrictInput($event,'integer')"
-                                @keyup="validationMaximumWithdraw">
+                                @keydown="restrictInput($event, 'integer')"
+                                @keyup="validationMaximumWithdraw"
+                            >
                                 <template #prepend>
-                                    <div class="withdraw-currency-prefix">
-                                        Rp
-                                    </div>
+                                    <div class="withdraw-currency-prefix">Rp</div>
                                 </template>
                                 <template #suffix>
-                                    <div class="-tracking-wide font-semibold cursor-pointer text-violet-500" @click="allNominalWithdraw">
+                                    <div
+                                        class="-tracking-wide font-semibold cursor-pointer text-violet-500"
+                                        @click="allNominalWithdraw"
+                                    >
                                         Tarik Semua
                                     </div>
                                 </template>
                             </el-input>
-                            <small 
+                            <small
                                 v-if="error.withdraw"
-                                class="text-[0.7rem] -tracking-normal text-red-500 font-medium mt-0.5">
+                                class="text-[0.7rem] -tracking-normal text-red-500 font-medium mt-0.5"
+                            >
                                 {{ error.withdraw }}
                             </small>
                         </div>
@@ -103,40 +109,47 @@
 
                         <!-- list rekening -->
                         <div class="max-h-[510px] sm:max-h-[612px] overflow-auto">
-                            <div 
-                                v-if="this.payments.length > 0" 
-                                class="flex flex-col gap-5">
+                            <div v-if="this.payments.length > 0" class="flex flex-col gap-5">
                                 <!-- kontent -->
-                                <div 
+                                <div
                                     v-for="(item, index) in payments"
                                     class="withdraw-payment-item cursor-pointer w-full rounded py-3 px-3 flex flex-row justify-between items-center text-[0.8rem]"
                                     :class="{
                                         'is-selected': item.account == paymentAccount,
-                                        'hover:bg-slate-50': item.account != paymentAccount
+                                        'hover:bg-slate-50': item.account != paymentAccount,
                                     }"
-                                    @click="changePayment(item.account)">
+                                    @click="changePayment(item.account)"
+                                >
                                     <div class="flex items-center gap-4 w-[80%] xl:w-[85%]">
-                                        <img 
+                                        <img
                                             :src="getImagePayment(item.slug)"
                                             alt=""
-                                            class="w-14 h-14 sm:w-20 sm:h-20 rounded-md cursor-default">
+                                            class="w-14 h-14 sm:w-20 sm:h-20 rounded-md cursor-default"
+                                        />
                                         <div class="flex flex-col gap-1">
-                                            <h3 class="text-neutral-500 font-normal -tracking-normal">{{ item.name }}</h3>
+                                            <h3 class="text-neutral-500 font-normal -tracking-normal">
+                                                {{ item.name }}
+                                            </h3>
                                             <h3 class="font-semibold">{{ item.account }}</h3>
                                             <h3 class="uppercase">{{ item.username }}</h3>
                                         </div>
                                     </div>
                                     <div class="w-[20%] xl:w-[15%]">
                                         <div class="flex justify-end">
-                                            <input class="accent-violet-500 scale-125 cursor-pointer mr-2" type="radio" name="paymentName" :id="item.account" :value="item.account" v-model="paymentAccount">
+                                            <input
+                                                class="accent-violet-500 scale-125 cursor-pointer mr-2"
+                                                type="radio"
+                                                name="paymentName"
+                                                :id="item.account"
+                                                :value="item.account"
+                                                v-model="paymentAccount"
+                                            />
                                         </div>
                                     </div>
                                 </div>
                                 <!-- kontent -->
                             </div>
-                            <div 
-                                v-else 
-                                class="text-center my-5">
+                            <div v-else class="text-center my-5">
                                 <h5 class="text-[.9rem]">Rekening Kosong</h5>
                             </div>
                         </div>
@@ -144,16 +157,18 @@
 
                         <!-- button -->
                         <div class="withdraw-actions flex flex-col gap-2 mt-3 sms:mt-5 md:flex-row md:gap-4">
-                            <button 
-                                class="account-danger-button w-full py-2 px-8 mt-1.5"
-                                @click="closeModalRekening">
+                            <button class="account-danger-button w-full py-2 px-8 mt-1.5" @click="closeModalRekening">
                                 Cancel
                             </button>
-                            <button 
+                            <button
                                 class="account-primary-button w-full py-2 px-8 mt-1.5"
-                                :class="{'opacity-50': error.withdraw || wihtdrawPrice <= 0 || !paymentAccount || isProcessWithdraw}"
+                                :class="{
+                                    'opacity-50':
+                                        error.withdraw || wihtdrawPrice <= 0 || !paymentAccount || isProcessWithdraw,
+                                }"
                                 :disabled="error.withdraw || wihtdrawPrice <= 0 || !paymentAccount || isProcessWithdraw"
-                                @click="withdrawSaldo">
+                                @click="withdrawSaldo"
+                            >
                                 Tarik Saldo
                                 <i v-if="isProcessWithdraw" class="fa-solid fa-spinner fa-spin-pulse ml-1"></i>
                             </button>
@@ -181,7 +196,8 @@
                             value-format="YYYY-MM-DD"
                             :clearable="false"
                             format="DD MMM YYYY"
-                            @change="changeDateRange" />
+                            @change="changeDateRange"
+                        />
                     </div>
 
                     <div class="saldo-mobile-date-fields">
@@ -195,7 +211,8 @@
                                 value-format="YYYY-MM-DD"
                                 format="DD MMM YYYY"
                                 :clearable="false"
-                                :disabled-date="disableMobileSaldoStartDate" />
+                                :disabled-date="disableMobileSaldoStartDate"
+                            />
                         </div>
 
                         <div class="saldo-mobile-date-field">
@@ -208,7 +225,8 @@
                                 value-format="YYYY-MM-DD"
                                 format="DD MMM YYYY"
                                 :clearable="false"
-                                :disabled-date="disableMobileSaldoEndDate" />
+                                :disabled-date="disableMobileSaldoEndDate"
+                            />
                         </div>
                     </div>
                 </div>
@@ -217,10 +235,11 @@
                 <div class="w-full border-t border-t-slate-200"></div>
 
                 <!-- list riwayat saldo  -->
-                <div 
+                <div
                     class="w-full max-h-[705px] overflow-auto"
                     ref="saldoHistoryContainer"
-                    @scroll="saldoHistoryScroll">
+                    @scroll="saldoHistoryScroll"
+                >
                     <div v-if="isFetchSaldoHistory" class="text-center py-10">
                         <i class="ml-1 fas fa-spinner fa-pulse"></i>
                     </div>
@@ -228,20 +247,26 @@
                         <div v-if="saldoHistory.length == 0" class="py-10 text-center">
                             <p class="text-sm font-medium">History Anda Kosong</p>
                         </div>
-                        <div 
-                            v-else 
-                            v-for="(item, index) in saldoHistory" 
+                        <div
+                            v-else
+                            v-for="(item, index) in saldoHistory"
                             class="saldo-history-item py-3 px-4 text-[0.8rem] flex flex-col justify-center items-start gap-2"
-                            :class="{'border-b border-b-slate-200': index != saldoHistory.length - 1}">
+                            :class="{ 'border-b border-b-slate-200': index != saldoHistory.length - 1 }"
+                        >
                             <h3 class="text-[0.9rem] font-semibold">
                                 {{ item.title }}
                                 <!-- {{ item.id }} -->
                             </h3>
                             <p class="text-neutral-700 text-[0.7rem] tracking-wide">{{ item.date }}</p>
-                            <p class="font-semibold" :class="getColorMoney(item.type)">{{ formatSaldoHistoryPrice(item) }}</p>
+                            <p class="font-semibold" :class="getColorMoney(item.type)">
+                                {{ formatSaldoHistoryPrice(item) }}
+                            </p>
                             <p class="text-neutral-500">{{ item.description }}</p>
                         </div>
-                        <div v-show="this.saldoHistoryContainerLoading" class="w-full h-[4rem] flex justify-center items-center">
+                        <div
+                            v-show="this.saldoHistoryContainerLoading"
+                            class="w-full h-[4rem] flex justify-center items-center"
+                        >
                             <span>
                                 <i class="fas fa-spinner fa-pulse text-xl"></i>
                             </span>
@@ -271,16 +296,21 @@ import Modal from '@/components/partials/ModalView.vue';
 
 export default {
     components: {
-        Modal
+        Modal,
     },
 
     props: {
         embedded: {
             type: Boolean,
-            default: false
-        }
+            default: false,
+        },
     },
 
+    /**
+     * Membuat state reaktif yang digunakan komponen untuk halaman saldo.
+     *
+     * @returns {Object} State reaktif yang diinisialisasi untuk komponen.
+     */
     data() {
         const today = moment();
         const start = today.clone().subtract(3, 'days');
@@ -302,11 +332,11 @@ export default {
             isProcessWithdraw: false,
 
             modal: {
-                rekening: false
+                rekening: false,
             },
 
             error: {
-                withdraw: false
+                withdraw: false,
             },
 
             saldoTotal: 0,
@@ -322,10 +352,15 @@ export default {
 
             show: {
                 saldo_view: false,
-            }
-        }
+            },
+        };
     },
 
+    /**
+     * Menginisialisasi behavior komponen yang bergantung pada browser setelah mounted untuk halaman saldo.
+     *
+     * @returns {void} Function menerapkan efeknya melalui state komponen atau aplikasi.
+     */
     mounted() {
         this.isFetchSaldoHistory = true;
         this.getSaldo();
@@ -333,112 +368,187 @@ export default {
     },
 
     computed: {
-        /**
-         * Menyinkronkan tanggal mulai mobile dengan rentang tanggal utama.
-         */
         mobileSaldoStartDate: {
+            /**
+             * Mengembalikan tanggal awal saldo versi mobile yang sedang dipilih pada halaman saldo.
+             *
+             * @returns {*} Nilai yang dihasilkan oleh operasi get.
+             */
             get() {
                 return this.dateRange?.[0] || '';
             },
+            /**
+             * Memperbarui the mobile saldo start date value untuk halaman saldo.
+             *
+             * @param {*} value Nilai yang diproses oleh function.
+             *
+             * @returns {void} Function menerapkan efeknya melalui state komponen atau aplikasi.
+             */
             set(value) {
                 this.updateMobileSaldoDate(0, value);
-            }
+            },
         },
 
-        /**
-         * Menyinkronkan tanggal selesai mobile dengan rentang tanggal utama.
-         */
         mobileSaldoEndDate: {
+            /**
+             * Mengembalikan tanggal akhir saldo versi mobile yang sedang dipilih pada halaman saldo.
+             *
+             * @returns {*} Nilai yang dihasilkan oleh operasi get.
+             */
             get() {
                 return this.dateRange?.[1] || '';
             },
+            /**
+             * Memperbarui the mobile saldo end date value untuk halaman saldo.
+             *
+             * @param {*} value Nilai yang diproses oleh function.
+             *
+             * @returns {void} Function menerapkan efeknya melalui state komponen atau aplikasi.
+             */
             set(value) {
                 this.updateMobileSaldoDate(1, value);
-            }
-        }
+            },
+        },
     },
 
     watch: {
+        /**
+         * Menjalankan proses wihtdraw price string dan menyinkronkan state hasilnya untuk halaman saldo.
+         *
+         * @param {*} newValue Nilai terbaru yang diberikan oleh watcher reaktif.
+         *
+         * @returns {void} Function menerapkan efeknya melalui state komponen atau aplikasi.
+         */
         wihtdrawPriceString(newValue) {
-            this.wihtdrawPrice = String(newValue).replace(/[.,]/g, "");
+            this.wihtdrawPrice = String(newValue).replace(/[.,]/g, '');
             this.wihtdrawPriceString = Number(this.wihtdrawPrice).toLocaleString('id-ID');
         },
-        'modal.rekening': function(newValue, oldValue) {
-            if(oldValue && !newValue) {
+        /**
+         * Menjalankan proses modal.rekening dan menyinkronkan state hasilnya untuk halaman saldo.
+         *
+         * @param {*} newValue Nilai terbaru yang diberikan oleh watcher reaktif.
+         * @param {*} oldValue Nilai sebelumnya yang diberikan oleh watcher reaktif.
+         *
+         * @returns {void} Function menerapkan efeknya melalui state komponen atau aplikasi.
+         */
+        'modal.rekening': function (newValue, oldValue) {
+            if (oldValue && !newValue) {
                 this.closeModalRekening();
             }
-        }
+        },
     },
 
     methods: {
+        /**
+         * Menjalankan proses withdraw saldo dan menyinkronkan state hasilnya untuk halaman saldo, dengan mendelegasikan pekerjaan backend atau shared state melalui Vuex store.
+         *
+         * @returns {void} Function menerapkan efeknya melalui state komponen atau aplikasi.
+         */
         withdrawSaldo() {
             let isError = false;
-            let message = "";
-            if(this.wihtdrawPrice <= 0) {
+            let message = '';
+            if (this.wihtdrawPrice <= 0) {
                 isError = true;
                 message = `Nominal Uang Harus Di Atas Rp${this.wihtdrawPrice.toLocaleString('id-ID')}`;
-            } else if(this.wihtdrawPrice > this.withdrawMaximum) {
+            } else if (this.wihtdrawPrice > this.withdrawMaximum) {
                 isError = true;
                 message = `Nominal Uang Maximal ${this.withdrawMaximum.toLocaleString('id-ID')}`;
-            } else if(!this.paymentAccount) {
+            } else if (!this.paymentAccount) {
                 isError = true;
                 message = 'Rekening Harus Dipilih';
             }
-            if(isError) {
+            if (isError) {
                 ElNotification({ type: 'error', title: 'Error', message: message });
                 return;
             }
 
             this.isProcessWithdraw = true;
-            this
-            .$store
-            .dispatch('withdrawSaldo', {
-                paymentAccount: this.paymentAccount,
-                wihtdrawPrice: this.wihtdrawPrice
-            })
-            .then(response => {
-                // console.log(response);
+            this.$store
+                .dispatch('withdrawSaldo', {
+                    paymentAccount: this.paymentAccount,
+                    wihtdrawPrice: this.wihtdrawPrice,
+                })
+                .then((response) => {
+                    // console.log(response);
 
-                this.isProcessWithdraw = false;
-                const withdrawPriceString = this.wihtdrawPriceString;
-                if(response.saldoHistory) {
-                    this.saldoHistory = [ response.saldoHistory, ...this.saldoHistory ];
-                }
+                    this.isProcessWithdraw = false;
+                    const withdrawPriceString = this.wihtdrawPriceString;
+                    if (response.saldoHistory) {
+                        this.saldoHistory = [response.saldoHistory, ...this.saldoHistory];
+                    }
 
-                this.getSaldo();
-                this.closeModalRekening();
-                ElNotification({ type: 'success', title: 'Success', message: `Penarikan Sebesar Rp${withdrawPriceString} Berhasil` });
-            })
-            .catch(error => {
-                this.isProcessWithdraw = false;
-                ElNotification({ type: 'error', title: 'Error', message: error?.response?.data?.message ?? 'Something Went Wrong' });
-            })
+                    this.getSaldo();
+                    this.closeModalRekening();
+                    ElNotification({
+                        type: 'success',
+                        title: 'Success',
+                        message: `Penarikan Sebesar Rp${withdrawPriceString} Berhasil`,
+                    });
+                })
+                .catch((error) => {
+                    this.isProcessWithdraw = false;
+                    ElNotification({
+                        type: 'error',
+                        title: 'Error',
+                        message: error?.response?.data?.message ?? 'Something Went Wrong',
+                    });
+                });
         },
 
+        /**
+         * Menjalankan proses validation maximum withdraw dan menyinkronkan state hasilnya untuk halaman saldo.
+         *
+         * @returns {void} Function menerapkan efeknya melalui state komponen atau aplikasi.
+         */
         validationMaximumWithdraw() {
-            this.error.withdraw = (this.wihtdrawPrice > this.withdrawMaximum) ? 
-                                  `Maximal Penarikan Rp${this.withdrawMaximum.toLocaleString('id-ID')}` : 
-                                  '';
+            this.error.withdraw =
+                this.wihtdrawPrice > this.withdrawMaximum
+                    ? `Maximal Penarikan Rp${this.withdrawMaximum.toLocaleString('id-ID')}`
+                    : '';
         },
-        
+
+        /**
+         * Menjalankan proses all nominal withdraw dan menyinkronkan state hasilnya untuk halaman saldo.
+         *
+         * @returns {void} Function menerapkan efeknya melalui state komponen atau aplikasi.
+         */
         allNominalWithdraw() {
-            if(this.saldoTotal > this.withdrawMaximum) {
-                ElNotification({ type: 'error', title: 'Error', message: `Saldo Anda ${this.saldoTotal.toLocaleString('id-ID')} Maximal Penarikan Rp${this.withdrawMaximum.toLocaleString('id-ID')}` });
+            if (this.saldoTotal > this.withdrawMaximum) {
+                ElNotification({
+                    type: 'error',
+                    title: 'Error',
+                    message: `Saldo Anda ${this.saldoTotal.toLocaleString('id-ID')} Maximal Penarikan Rp${this.withdrawMaximum.toLocaleString('id-ID')}`,
+                });
                 return;
             }
             this.wihtdrawPriceString = this.saldoTotal;
         },
 
+        /**
+         * Menerapkan terpilih payment perubahan untuk halaman saldo.
+         *
+         * @param {*} account Nilai akun yang diproses oleh function.
+         *
+         * @returns {void} Function menerapkan efeknya melalui state komponen atau aplikasi.
+         */
         changePayment(account) {
             this.paymentAccount = account;
         },
 
-        restrictInput(event,inputType) {
+        /**
+         * Menjalankan proses restrict input dan menyinkronkan state hasilnya untuk halaman saldo.
+         *
+         * @param {*} event Event browser atau komponen yang memicu handler.
+         * @param {*} inputType Nilai input type yang diproses oleh function.
+         *
+         * @returns {void} Function menerapkan efeknya melalui state komponen atau aplikasi.
+         */
+        restrictInput(event, inputType) {
             const input = event.target.value;
             // Allow backspace, arrow keys, and other non-character keys
             const char = event.key;
             if (['Backspace', 'ArrowLeft', 'ArrowRight', 'Tab'].includes(char)) {
-                return; 
+                return;
             }
 
             if (inputType == 'integer') {
@@ -447,7 +557,7 @@ export default {
                 }
             }
 
-            // Check if the character is not a number
+            // Abaikan karakter yang bukan angka.
             if (!char.match(/[0-9]/) && char !== '.') {
                 event.preventDefault();
             }
@@ -458,47 +568,72 @@ export default {
             }
         },
 
+        /**
+         * Mengambil gambar payment untuk halaman saldo.
+         *
+         * @param {*} slug Slug yang diproses oleh function.
+         *
+         * @returns {string} Teks get gambar payment yang telah diformat atau ditentukan.
+         */
         getImagePayment(slug) {
             return `/img/${slug}.png`;
         },
 
+        /**
+         * Menutup modal rekening untuk halaman saldo.
+         *
+         * @returns {void} Function menerapkan efeknya melalui state komponen atau aplikasi.
+         */
         closeModalRekening() {
             this.wihtdrawPrice = 1;
-            this.wihtdrawPriceString = '1',
-            this.modal.rekening = false;
+            (this.wihtdrawPriceString = '1'), (this.modal.rekening = false);
             this.paymentAccount = '';
             this.payments = [];
         },
 
+        /**
+         * Membuka modal rekening untuk halaman saldo, dengan mendelegasikan pekerjaan backend atau shared state melalui Vuex store.
+         *
+         * @returns {void} Function menerapkan efeknya melalui state komponen atau aplikasi.
+         */
         openModalRekening() {
             this.paymentAccount = '';
             this.isProcessGetPayment = true;
-            this
-            .$store
-            .dispatch('getPayment', {
-                searchPayment: this.searchPayment
-            })
-            .then(response => {
-                // console.log(response);
-                this.isProcessGetPayment = false;
-                
-                this.payments = response.payments;
-                if(this.payments.length == 0) {
-                    this.modal.rekening = false;
-                    ElNotification({ type: 'error', title: 'error', message: 'Anda belum menambahkan rekening. Tambahkan rekening terlebih dahulu sebelum melakukan tarik saldo.' });
-                    return;
-                }
+            this.$store
+                .dispatch('getPayment', {
+                    searchPayment: this.searchPayment,
+                })
+                .then((response) => {
+                    // console.log(response);
+                    this.isProcessGetPayment = false;
 
-                this.modal.rekening = true;
-            })
-            .catch(error => {
-                console.error(error);
-                this.isProcessGetPayment = false;
-                const message = error?.response?.data?.message ?? "Something Went Wrong";
-                ElNotification({ type: 'error', title: 'Error', message: message });
-            })
+                    this.payments = response.payments;
+                    if (this.payments.length == 0) {
+                        this.modal.rekening = false;
+                        ElNotification({
+                            type: 'error',
+                            title: 'error',
+                            message:
+                                'Anda belum menambahkan rekening. Tambahkan rekening terlebih dahulu sebelum melakukan tarik saldo.',
+                        });
+                        return;
+                    }
+
+                    this.modal.rekening = true;
+                })
+                .catch((error) => {
+                    console.error(error);
+                    this.isProcessGetPayment = false;
+                    const message = error?.response?.data?.message ?? 'Something Went Wrong';
+                    ElNotification({ type: 'error', title: 'Error', message: message });
+                });
         },
 
+        /**
+         * Menjalankan proses saldo history scroll dan menyinkronkan state hasilnya untuk halaman saldo.
+         *
+         * @returns {void} Function menerapkan efeknya melalui state komponen atau aplikasi.
+         */
         saldoHistoryScroll() {
             const saldoHistoryContainer = this.$refs.saldoHistoryContainer;
             const tolerant = 2;
@@ -513,19 +648,30 @@ export default {
             //   'this.completeSaldoHistory': this.completeSaldoHistory
             // });
 
-            if((Math.ceil(saldoHistoryContainer.scrollTop + saldoHistoryContainer.clientHeight) >= saldoHistoryContainer.scrollHeight - tolerant) && (!this.saldoHistoryContainerLoading) && (!this.completeSaldoHistory) && (this.saldoHistory.length > 0)) {
+            if (
+                Math.ceil(saldoHistoryContainer.scrollTop + saldoHistoryContainer.clientHeight) >=
+                    saldoHistoryContainer.scrollHeight - tolerant &&
+                !this.saldoHistoryContainerLoading &&
+                !this.completeSaldoHistory &&
+                this.saldoHistory.length > 0
+            ) {
                 this.saldoHistoryContainerLoading = true;
 
                 this.$nextTick(() => {
                     saldoHistoryContainer.scrollTop = saldoHistoryContainer.scrollHeight;
-                    
+
                     this.getSaldoHistory();
                 });
             }
         },
 
+        /**
+         * Menerapkan rentang tanggal terpilih perubahan untuk halaman saldo.
+         *
+         * @returns {void} Function menerapkan efeknya melalui state komponen atau aplikasi.
+         */
         changeDateRange() {
-            if(!this.dateRange || this.dateRange.length != 2) {
+            if (!this.dateRange || this.dateRange.length != 2) {
                 this.dateRange = [this.startDate, this.endDate];
                 return;
             }
@@ -538,54 +684,60 @@ export default {
         },
 
         /**
-         * Menyatukan input tanggal mobile dengan rentang tanggal history saldo.
+         * Memperbarui mobile saldo date untuk halaman saldo.
          *
-         * @param {number} index Posisi tanggal mulai atau selesai.
-         * @param {string} value Tanggal terpilih dalam format YYYY-MM-DD.
+         * @param {*} index Posisi item target dengan indeks yang dimulai dari nol.
+         * @param {*} value Nilai yang diproses oleh function.
+         *
+         * @returns {void} Function menerapkan efeknya melalui state komponen atau aplikasi.
          */
         updateMobileSaldoDate(index, value) {
-            // --- step 1 - start - salin rentang agar perubahan computed tetap reaktif
-            const nextRange = Array.isArray(this.dateRange)
-                ? [...this.dateRange]
-                : [];
+            // --- step 1 - start - salin rentang terpilih agar perubahan computed tetap reaktif
+            const nextRange = Array.isArray(this.dateRange) ? [...this.dateRange] : [];
             nextRange[index] = value || '';
             this.dateRange = nextRange;
-            // --- step 1 - end - salin rentang agar perubahan computed tetap reaktif
+            // --- step 1 - end - salin rentang terpilih agar perubahan computed tetap reaktif
 
-            // --- step 2 - start - muat history hanya setelah kedua batas tanggal lengkap
-            if(nextRange[0] && nextRange[1])
-                this.changeDateRange();
-            // --- step 2 - end - muat history hanya setelah kedua batas tanggal lengkap
+            // --- step 2 - start - muat riwayat saldo hanya setelah kedua batas tanggal tersedia
+            if (nextRange[0] && nextRange[1]) this.changeDateRange();
+            // --- step 2 - end - muat riwayat saldo hanya setelah kedua batas tanggal tersedia
         },
 
         /**
-         * Mencegah tanggal mulai melewati tanggal selesai yang sudah dipilih.
+         * Mengembalikan disable mobile saldo start date yang ditentukan modul untuk halaman saldo.
          *
-         * @param {Date} date Kandidat tanggal dari date picker.
-         * @returns {boolean}
+         * @param {*} date Tanggal yang diproses oleh function.
+         *
+         * @returns {boolean} Menunjukkan apakah kondisi disable mobile saldo start date terpenuhi.
          */
         disableMobileSaldoStartDate(date) {
-            if(!this.mobileSaldoEndDate)
-                return false;
+            if (!this.mobileSaldoEndDate) return false;
 
             return moment(date).format('YYYY-MM-DD') > this.mobileSaldoEndDate;
         },
 
         /**
-         * Mencegah tanggal selesai mendahului tanggal mulai yang sudah dipilih.
+         * Mengembalikan disable mobile saldo end date yang ditentukan modul untuk halaman saldo.
          *
-         * @param {Date} date Kandidat tanggal dari date picker.
-         * @returns {boolean}
+         * @param {*} date Tanggal yang diproses oleh function.
+         *
+         * @returns {boolean} Menunjukkan apakah kondisi disable mobile saldo end date terpenuhi.
          */
         disableMobileSaldoEndDate(date) {
-            if(!this.mobileSaldoStartDate)
-                return false;
+            if (!this.mobileSaldoStartDate) return false;
 
             return moment(date).format('YYYY-MM-DD') < this.mobileSaldoStartDate;
         },
 
+        /**
+         * Mengambil color money untuk halaman saldo.
+         *
+         * @param {*} [type] Jenis operasi atau tampilan yang menentukan behavior yang diperlukan.
+         *
+         * @returns {string} Teks get color money yang telah diformat atau ditentukan.
+         */
         getColorMoney(type = '') {
-            if(type == 'withdrawal') {
+            if (type == 'withdrawal') {
                 return 'text-red-700';
             } else {
                 return 'text-green-700';
@@ -595,6 +747,10 @@ export default {
         /**
          * Tujuan method ini untuk menampilkan nominal history saldo
          * dalam format rupiah walaupun harga dari API masih berupa string.
+         *
+         * @param {*} [item] Item riwayat saldo yang nilainya akan diformat.
+         *
+         * @returns {string} Resolved text value.
          */
         formatSaldoHistoryPrice(item = {}) {
             const prefix = item.type == 'withdrawal' ? '-' : '+';
@@ -603,58 +759,66 @@ export default {
             return `${prefix} Rp${price.toLocaleString('id-ID')}`;
         },
 
+        /**
+         * Mengambil saldo untuk halaman saldo, dengan mendelegasikan pekerjaan backend atau shared state melalui Vuex store.
+         *
+         * @returns {void} Function menerapkan efeknya melalui state komponen atau aplikasi.
+         */
         getSaldo() {
             this.isFetchSaldo = true;
-            this
-            .$store
-            .dispatch('getSaldo')
-            .then(response => {
-                this.isFetchSaldo = false;
-                this.saldoTotal = response?.saldoTotal ?? 0;
-                this.saldoIncome = response?.saldoIncome ?? 0;
-                this.saldoRefund = response?.saldoRefund ?? 0;
-            })
-            .catch(error => {
-                this.isFetchSaldo = false;
-                const message = error?.response?.data?.message ?? "Something Wrong";
-                ElNotification({ type: 'error', title: 'Error', message: message });
-            });
+            this.$store
+                .dispatch('getSaldo')
+                .then((response) => {
+                    this.isFetchSaldo = false;
+                    this.saldoTotal = response?.saldoTotal ?? 0;
+                    this.saldoIncome = response?.saldoIncome ?? 0;
+                    this.saldoRefund = response?.saldoRefund ?? 0;
+                })
+                .catch((error) => {
+                    this.isFetchSaldo = false;
+                    const message = error?.response?.data?.message ?? 'Something Wrong';
+                    ElNotification({ type: 'error', title: 'Error', message: message });
+                });
         },
 
+        /**
+         * Mengambil saldo history untuk halaman saldo, dengan mendelegasikan pekerjaan backend atau shared state melalui Vuex store.
+         *
+         * @returns {void} Function menerapkan efeknya melalui state komponen atau aplikasi.
+         */
         getSaldoHistory() {
             /* GET ALL ID */
-            let saldo_history_current_ids = this.saldoHistory.map(saldo => saldo.id);
+            let saldo_history_current_ids = this.saldoHistory.map((saldo) => saldo.id);
             saldo_history_current_ids = JSON.stringify(saldo_history_current_ids);
             /* GET ALL ID */
 
-            this
-            .$store
-            .dispatch('getSaldoHistory', {
-                startDate: this.startDate,
-                endDate: this.endDate,
-                saldo_history_current_ids: saldo_history_current_ids
-            })
-            .then(response => {
-                this.show.saldo_view = true;
-                this.isFetchSaldoHistory = false;
-                this.saldoHistoryContainerLoading = false;
+            this.$store
+                .dispatch('getSaldoHistory', {
+                    startDate: this.startDate,
+                    endDate: this.endDate,
+                    saldo_history_current_ids: saldo_history_current_ids,
+                })
+                .then((response) => {
+                    this.show.saldo_view = true;
+                    this.isFetchSaldoHistory = false;
+                    this.saldoHistoryContainerLoading = false;
 
-                this.completeSaldoHistory = (response.saldoHistory.length == 0);
+                    this.completeSaldoHistory = response.saldoHistory.length == 0;
 
-                this.saldoHistory = [ ...this.saldoHistory, ...response.saldoHistory ];
+                    this.saldoHistory = [...this.saldoHistory, ...response.saldoHistory];
 
-                // this.saldoHistory = response.saldoHistory;
-            })
-            .catch(error => {
-                this.show.saldo_view = true;
-                this.isFetchSaldoHistory = false;
-                this.saldoHistoryContainerLoading = false;
-                const message = error?.response?.data?.message ?? 'Something Wrong';
-                ElNotification({ type: 'error', title: 'Error', message: message });
-            });
-        }
-    }
-}
+                    // this.saldoHistory = response.saldoHistory;
+                })
+                .catch((error) => {
+                    this.show.saldo_view = true;
+                    this.isFetchSaldoHistory = false;
+                    this.saldoHistoryContainerLoading = false;
+                    const message = error?.response?.data?.message ?? 'Something Wrong';
+                    ElNotification({ type: 'error', title: 'Error', message: message });
+                });
+        },
+    },
+};
 </script>
 
 <style>
@@ -848,7 +1012,9 @@ export default {
 .withdraw-price-input .el-input__wrapper:hover,
 .withdraw-price-input .el-input__wrapper:focus-within {
     border-color: #8b5cf6 !important;
-    box-shadow: 0 0 0 2px #ede9fe, 0 1px 2px rgba(15, 23, 42, 0.05) !important;
+    box-shadow:
+        0 0 0 2px #ede9fe,
+        0 1px 2px rgba(15, 23, 42, 0.05) !important;
 }
 
 input::-webkit-outer-spin-button,

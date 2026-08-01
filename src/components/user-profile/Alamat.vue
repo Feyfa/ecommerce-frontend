@@ -1,11 +1,5 @@
 <template>
-    <div
-        :class="
-            flat
-                ? 'w-full'
-                : 'w-full border bg-neutral-50 border-neutral-400 shadow-md p-5 rounded'
-        "
-    >
+    <div :class="flat ? 'w-full' : 'w-full border bg-neutral-50 border-neutral-400 shadow-md p-5 rounded'">
         <!-- form add alamat -->
         <Modal v-model:show="modal.addAlamatBuyer">
             <div class="alamat-modal flex flex-col gap-3 p-5">
@@ -79,8 +73,7 @@
                 <div class="input-container flex flex-col w-full gap-1">
                     <span class="font-semibold">Pinpoint Alamat</span>
                     <small class="text-slate-500"
-                        >Lokasi wajib berada di Indonesia dan akan diverifikasi
-                        saat disimpan.</small
+                        >Lokasi wajib berada di Indonesia dan akan diverifikasi saat disimpan.</small
                     >
                 </div>
                 <LocationPicker
@@ -107,9 +100,7 @@
                             Tetapkan Sebagai Pilihan
                         </label>
                     </div>
-                    <div
-                        class="flex flex-col gap-2 mt-1 md:flex-row md:gap-20 lg:gap-40"
-                    >
+                    <div class="flex flex-col gap-2 mt-1 md:flex-row md:gap-20 lg:gap-40">
                         <button
                             class="alamat-primary-button w-full border py-2 px-8 mt-1.5"
                             @click="addAlamatBuyer"
@@ -117,10 +108,7 @@
                             :class="{ 'opacity-50': isProcessAddAlamatBuyer }"
                         >
                             Tambah Alamat
-                            <i
-                                v-if="isProcessAddAlamatBuyer"
-                                class="fa-solid fa-spinner fa-spin-pulse ml-1"
-                            ></i>
+                            <i v-if="isProcessAddAlamatBuyer" class="fa-solid fa-spinner fa-spin-pulse ml-1"></i>
                         </button>
                         <button
                             class="alamat-danger-button w-full border py-2 px-8 mt-1.5"
@@ -213,8 +201,7 @@
                 <div class="input-container flex flex-col w-full gap-1">
                     <span class="font-semibold">Pinpoint Alamat</span>
                     <small class="text-slate-500"
-                        >Pilih lokasi Indonesia yang sesuai sebelum menyimpan
-                        perubahan.</small
+                        >Pilih lokasi Indonesia yang sesuai sebelum menyimpan perubahan.</small
                     >
                 </div>
                 <LocationPicker
@@ -224,9 +211,7 @@
                     @detail-input="watchLocationDetailEdit"
                     @unavailable="handleLocationEditUnavailable"
                 />
-                <div
-                    class="flex flex-col gap-2 mt-1 md:flex-row md:gap-20 lg:gap-40"
-                >
+                <div class="flex flex-col gap-2 mt-1 md:flex-row md:gap-20 lg:gap-40">
                     <button
                         @click="editAlamatBuyer"
                         class="alamat-primary-button w-full border py-2 px-8 mt-1.5"
@@ -234,10 +219,7 @@
                         :class="{ 'opacity-50': isProcessEditAlamatBuyer }"
                     >
                         Ubah Alamat
-                        <i
-                            v-if="isProcessEditAlamatBuyer"
-                            class="fa-solid fa-spinner fa-spin-pulse ml-2"
-                        ></i>
+                        <i v-if="isProcessEditAlamatBuyer" class="fa-solid fa-spinner fa-spin-pulse ml-2"></i>
                     </button>
                     <button
                         @click="closeFormEditAlamat"
@@ -259,9 +241,7 @@
         <!-- title -->
 
         <!-- search and button add alamat -->
-        <div
-            class="mb-7 flex flex-col md:flex-row md:justify-between md:items-center gap-3"
-        >
+        <div class="mb-7 flex flex-col md:flex-row md:justify-between md:items-center gap-3">
             <div class="alamat-search-control w-full md:w-[40%] lg:w-[35%]">
                 <input
                     placeholder="Cari Nama Alamat"
@@ -307,17 +287,9 @@
                                 </h4>
                                 <span
                                     class="location-source-badge"
-                                    :class="
-                                        alamat.location_source === 'map'
-                                            ? 'is-map'
-                                            : 'is-unverified'
-                                    "
+                                    :class="alamat.location_source === 'map' ? 'is-map' : 'is-unverified'"
                                 >
-                                    {{
-                                        alamat.location_source === "map"
-                                            ? "Pinpoint"
-                                            : "Perlu Verifikasi"
-                                    }}
+                                    {{ alamat.location_source === 'map' ? 'Pinpoint' : 'Perlu Verifikasi' }}
                                 </span>
                             </div>
                             <h3 class="font-semibold text-[1.1rem]">
@@ -331,56 +303,32 @@
                                     @click="openFormEditAlamat(index)"
                                     class="border-r border-r-neutral-500 pr-3 cursor-pointer"
                                 >
-                                    {{
-                                        alamat.location_source === "map"
-                                            ? "Ubah"
-                                            : "Verifikasi"
-                                    }}
+                                    {{ alamat.location_source === 'map' ? 'Ubah' : 'Verifikasi' }}
                                 </span>
-                                <span
-                                    @click="deleteAlamatBuyer(alamat.id)"
-                                    class="pl-3 cursor-pointer"
-                                >
-                                    Hapus
-                                </span>
+                                <span @click="deleteAlamatBuyer(alamat.id)" class="pl-3 cursor-pointer"> Hapus </span>
                             </div>
                         </div>
                         <div class="w-[20%] xl:w-[15%]">
                             <div
-                                v-if="
-                                    alamat.enable &&
-                                    alamat.location_source === 'map'
-                                "
+                                v-if="alamat.enable && alamat.location_source === 'map'"
                                 class="flex justify-center items-center"
                             >
-                                <i
-                                    class="fas fa-check text-violet-500 text-2xl"
-                                ></i>
+                                <i class="fas fa-check text-violet-500 text-2xl"></i>
                             </div>
                             <div v-else class="flex justify-end">
                                 <button
                                     class="alamat-primary-button text-[.7rem] border py-1.5 w-[100%] sm500:text-[.8rem] sm:text-[.9rem]"
                                     @click="
                                         alamat.location_source === 'map'
-                                            ? setEnableAlamatBuyer(
-                                                  alamat.id,
-                                                  index,
-                                              )
+                                            ? setEnableAlamatBuyer(alamat.id, index)
                                             : openFormEditAlamat(index)
                                     "
-                                    :disabled="
-                                        isProcessEnableAlamatBuyer[index]
-                                    "
+                                    :disabled="isProcessEnableAlamatBuyer[index]"
                                     :class="{
-                                        'opacity-50':
-                                            isProcessEnableAlamatBuyer[index],
+                                        'opacity-50': isProcessEnableAlamatBuyer[index],
                                     }"
                                 >
-                                    {{
-                                        alamat.location_source === "map"
-                                            ? "Pilih"
-                                            : "Verifikasi"
-                                    }}
+                                    {{ alamat.location_source === 'map' ? 'Pilih' : 'Verifikasi' }}
                                     <i
                                         v-if="isProcessEnableAlamatBuyer[index]"
                                         class="fa-solid fa-spinner fa-spin-pulse ml-1"
@@ -401,16 +349,21 @@
 </template>
 
 <script>
-import Modal from "../partials/ModalView.vue";
-import LocationPicker from "../address/LocationPicker.vue";
-import { ElNotification, ElMessageBox } from "element-plus";
+import Modal from '../partials/ModalView.vue';
+import LocationPicker from '../address/LocationPicker.vue';
+import { ElNotification, ElMessageBox } from 'element-plus';
 
+/**
+ * Membuat data location kosong untuk alamat.
+ *
+ * @returns {Object} Object create empty location yang telah disiapkan.
+ */
 const createEmptyLocation = () => ({
     latitude: null,
     longitude: null,
     geoapify_place_id: null,
-    formatted_address: "",
-    address_detail: "",
+    formatted_address: '',
+    address_detail: '',
 });
 
 export default {
@@ -430,41 +383,46 @@ export default {
         },
     },
 
+    /**
+     * Membuat state reaktif yang digunakan komponen untuk alamat.
+     *
+     * @returns {Object} State reaktif yang diinisialisasi untuk komponen.
+     */
     data() {
         return {
             alamats: [],
 
-            place: "",
-            name: "",
-            phone: "",
-            alamat: "",
+            place: '',
+            name: '',
+            phone: '',
+            alamat: '',
             location: createEmptyLocation(),
             enable: false,
 
             errors: {
-                place: "",
-                name: "",
-                phone: "",
-                alamat: "",
-                location: "",
-                addressDetail: "",
+                place: '',
+                name: '',
+                phone: '',
+                alamat: '',
+                location: '',
+                addressDetail: '',
             },
 
-            idEdit: "",
-            placeEdit: "",
-            nameEdit: "",
-            phoneEdit: "",
-            alamatEdit: "",
+            idEdit: '',
+            placeEdit: '',
+            nameEdit: '',
+            phoneEdit: '',
+            alamatEdit: '',
             locationEdit: createEmptyLocation(),
-            legacyAddressEdit: "",
+            legacyAddressEdit: '',
 
             errorsEdit: {
-                place: "",
-                name: "",
-                phone: "",
-                alamat: "",
-                location: "",
-                addressDetail: "",
+                place: '',
+                name: '',
+                phone: '',
+                alamat: '',
+                location: '',
+                addressDetail: '',
             },
 
             isProcessAddAlamatBuyer: false,
@@ -472,7 +430,7 @@ export default {
             isProcessEnableAlamatBuyer: [],
             isProcessGetAlamatBuyer: false,
             rows: 4,
-            searchAlamat: "",
+            searchAlamat: '',
 
             modal: {
                 addAlamatBuyer: false,
@@ -481,6 +439,11 @@ export default {
         };
     },
 
+    /**
+     * Menginisialisasi behavior komponen yang bergantung pada browser setelah mounted untuk alamat.
+     *
+     * @returns {void} Function menerapkan efeknya melalui state komponen atau aplikasi.
+     */
     mounted() {
         this.getAlamatBuyer();
         this.openRequestedAddAddressModal();
@@ -488,12 +451,12 @@ export default {
 
     methods: {
         /**
-         * Membuka form tambah ketika halaman Alamat dituju dari aksi checkout.
-         * Query langsung dibersihkan supaya refresh atau navigasi history tidak
-         * membuka kembali modal yang sebelumnya sudah dikonsumsi.
+         * Membuka requested add alamat modal untuk alamat, termasuk state navigasi yang dihasilkan.
+         *
+         * @returns {void} Function menerapkan efeknya melalui state komponen atau aplikasi.
          */
         openRequestedAddAddressModal() {
-            if (this.$route.query.openAddAddress !== "1") {
+            if (this.$route.query.openAddAddress !== '1') {
                 return;
             }
 
@@ -513,46 +476,75 @@ export default {
         },
 
         /**
-         * Mengubah nama field teknis menjadi label form yang mudah dibaca user.
+         * Mengambil alamat field label untuk alamat.
+         *
+         * @param {*} type Jenis operasi atau tampilan yang menentukan behavior yang diperlukan.
+         *
+         * @returns {*} Nilai yang dihasilkan oleh operasi get alamat field label.
          */
         getAlamatFieldLabel(type) {
             const labels = {
-                place: "Label alamat",
-                name: "Nama penerima",
-                phone: "Nomor telepon",
-                alamat: "Alamat",
+                place: 'Label alamat',
+                name: 'Nama penerima',
+                phone: 'Nomor telepon',
+                alamat: 'Alamat',
             };
 
             return labels[type] ?? type;
         },
 
         /**
-         * Membuat pesan wajib isi yang konsisten untuk form tambah dan ubah alamat.
+         * Mengambil alamat required pesan untuk alamat.
+         *
+         * @param {*} type Jenis operasi atau tampilan yang menentukan behavior yang diperlukan.
+         *
+         * @returns {string} Teks get alamat required pesan yang telah diformat atau ditentukan.
          */
         getAlamatRequiredMessage(type) {
             return `${this.getAlamatFieldLabel(type)} wajib diisi.`;
         },
 
+        /**
+         * Menentukan apakah kondisi map pinpoint invalid terpenuhi untuk alamat.
+         *
+         * @param {*} location Lokasi yang diproses oleh function.
+         *
+         * @returns {boolean} Menunjukkan apakah kondisi is map pinpoint invalid terpenuhi.
+         */
         isMapPinpointInvalid(location) {
             return (
                 !location.formatted_address ||
                 location.latitude === null ||
-                location.latitude === "" ||
+                location.latitude === '' ||
                 location.longitude === null ||
-                location.longitude === "" ||
+                location.longitude === '' ||
                 !Number.isFinite(Number(location.latitude)) ||
                 !Number.isFinite(Number(location.longitude))
             );
         },
 
+        /**
+         * Menentukan apakah kondisi map detail invalid terpenuhi untuk alamat.
+         *
+         * @param {*} location Lokasi yang diproses oleh function.
+         *
+         * @returns {boolean} Menunjukkan apakah kondisi is map detail invalid terpenuhi.
+         */
         isMapDetailInvalid(location) {
             return !location.address_detail?.trim();
         },
 
+        /**
+         * Mengambil location payload untuk alamat.
+         *
+         * @param {*} location Lokasi yang diproses oleh function.
+         *
+         * @returns {Object} Object get location payload yang telah disiapkan.
+         */
         getLocationPayload(location) {
             return {
-                alamat: "",
-                location_source: "map",
+                alamat: '',
+                location_source: 'map',
                 latitude: location.latitude,
                 longitude: location.longitude,
                 geoapify_place_id: location.geoapify_place_id,
@@ -561,126 +553,147 @@ export default {
             };
         },
 
+        /**
+         * Menangani location tidak tersedia untuk alamat.
+         *
+         * @param {*} message Pesan yang ditampilkan atau disimpan oleh alur saat ini.
+         *
+         * @returns {void} Function menerapkan efeknya melalui state komponen atau aplikasi.
+         */
         handleLocationUnavailable(message) {
             ElNotification({
-                type: "warning",
-                title: "Pinpoint Tidak Tersedia",
+                type: 'warning',
+                title: 'Pinpoint Tidak Tersedia',
                 message,
             });
-        },
-
-        handleLocationEditUnavailable(message) {
-            ElNotification({
-                type: "warning",
-                title: "Pinpoint Tidak Tersedia",
-                message,
-            });
-        },
-
-        watchLocationDetail(addressDetail) {
-            this.errors.addressDetail =
-                addressDetail.trim() === "" ? "Detail alamat wajib diisi." : "";
-        },
-
-        watchLocationDetailEdit(addressDetail) {
-            this.errorsEdit.addressDetail =
-                addressDetail.trim() === "" ? "Detail alamat wajib diisi." : "";
-        },
-
-        watchInputEdit(type) {
-            switch (type) {
-                case "place":
-                    this.errorsEdit.place =
-                        this.placeEdit.trim() == ""
-                            ? this.getAlamatRequiredMessage(type)
-                            : "";
-                    break;
-                case "name":
-                    this.errorsEdit.name =
-                        this.nameEdit.trim() == ""
-                            ? this.getAlamatRequiredMessage(type)
-                            : "";
-                    break;
-                case "phone":
-                    this.errorsEdit.phone =
-                        this.phoneEdit.trim() == ""
-                            ? this.getAlamatRequiredMessage(type)
-                            : "";
-                    break;
-                case "alamat":
-                    this.errorsEdit.alamat =
-                        this.alamatEdit.trim() == ""
-                            ? this.getAlamatRequiredMessage(type)
-                            : "";
-                    break;
-            }
-        },
-
-        resetFormEditAlamat() {
-            this.placeEdit = "";
-            this.nameEdit = "";
-            this.phoneEdit = "";
-            this.alamatEdit = "";
-            this.locationEdit = createEmptyLocation();
-            this.legacyAddressEdit = "";
-            this.enableEdit = false;
-
-            this.errorsEdit.place = "";
-            this.errorsEdit.name = "";
-            this.errorsEdit.phone = "";
-            this.errorsEdit.alamat = "";
-            this.errorsEdit.location = "";
-            this.errorsEdit.addressDetail = "";
         },
 
         /**
-         * Validates and submits an address update while keeping loading state recoverable.
+         * Menangani location edit tidak tersedia untuk alamat.
          *
-         * Validation feedback is mapped to the related form fields. Network failures without an
-         * HTTP response use a safe fallback message so the edit action never remains stuck loading.
+         * @param {*} message Pesan yang ditampilkan atau disimpan oleh alur saat ini.
          *
-         * @returns {false|void} False when client validation blocks submission; otherwise returns nothing.
+         * @returns {void} Function menerapkan efeknya melalui state komponen atau aplikasi.
+         */
+        handleLocationEditUnavailable(message) {
+            ElNotification({
+                type: 'warning',
+                title: 'Pinpoint Tidak Tersedia',
+                message,
+            });
+        },
+
+        /**
+         * Memvalidasi and synchronize location detail untuk alamat.
+         *
+         * @param {*} addressDetail Detail rumah, unit, lantai, atau patokan yang dimasukkan user.
+         *
+         * @returns {void} Function menerapkan efeknya melalui state komponen atau aplikasi.
+         */
+        watchLocationDetail(addressDetail) {
+            this.errors.addressDetail = addressDetail.trim() === '' ? 'Detail alamat wajib diisi.' : '';
+        },
+
+        /**
+         * Memvalidasi and synchronize location detail edit untuk alamat.
+         *
+         * @param {*} addressDetail Detail rumah, unit, lantai, atau patokan yang dimasukkan user.
+         *
+         * @returns {void} Function menerapkan efeknya melalui state komponen atau aplikasi.
+         */
+        watchLocationDetailEdit(addressDetail) {
+            this.errorsEdit.addressDetail = addressDetail.trim() === '' ? 'Detail alamat wajib diisi.' : '';
+        },
+
+        /**
+         * Memvalidasi and synchronize input edit untuk alamat.
+         *
+         * @param {*} type Jenis operasi atau tampilan yang menentukan behavior yang diperlukan.
+         *
+         * @returns {void} Function menerapkan efeknya melalui state komponen atau aplikasi.
+         */
+        watchInputEdit(type) {
+            switch (type) {
+                case 'place':
+                    this.errorsEdit.place = this.placeEdit.trim() == '' ? this.getAlamatRequiredMessage(type) : '';
+                    break;
+                case 'name':
+                    this.errorsEdit.name = this.nameEdit.trim() == '' ? this.getAlamatRequiredMessage(type) : '';
+                    break;
+                case 'phone':
+                    this.errorsEdit.phone = this.phoneEdit.trim() == '' ? this.getAlamatRequiredMessage(type) : '';
+                    break;
+                case 'alamat':
+                    this.errorsEdit.alamat = this.alamatEdit.trim() == '' ? this.getAlamatRequiredMessage(type) : '';
+                    break;
+            }
+        },
+
+        /**
+         * Mengembalikan form edit alamat ke state awal untuk alamat.
+         *
+         * @returns {void} Function menerapkan efeknya melalui state komponen atau aplikasi.
+         */
+        resetFormEditAlamat() {
+            this.placeEdit = '';
+            this.nameEdit = '';
+            this.phoneEdit = '';
+            this.alamatEdit = '';
+            this.locationEdit = createEmptyLocation();
+            this.legacyAddressEdit = '';
+            this.enableEdit = false;
+
+            this.errorsEdit.place = '';
+            this.errorsEdit.name = '';
+            this.errorsEdit.phone = '';
+            this.errorsEdit.alamat = '';
+            this.errorsEdit.location = '';
+            this.errorsEdit.addressDetail = '';
+        },
+
+        /**
+         * Memvalidasi dan mengirim perubahan alamat sambil memastikan state loading dapat dipulihkan.
+         *
+         * Feedback validasi dipetakan ke field form terkait. Kegagalan jaringan tanpa response HTTP
+         * menggunakan pesan fallback agar action edit tidak tertahan dalam state loading.
+         *
+         * @returns {false|void} Mengembalikan false ketika validasi client memblokir pengiriman; selain itu tidak mengembalikan nilai.
          */
         editAlamatBuyer() {
-            /* VALIDATION */
-            const mapPinpointInvalid = this.isMapPinpointInvalid(
-                this.locationEdit,
-            );
+            // --- step 1 - start - validasi identitas dan pinpoint alamat sebelum mengirim perubahan
+            const mapPinpointInvalid = this.isMapPinpointInvalid(this.locationEdit);
             const mapDetailInvalid = this.isMapDetailInvalid(this.locationEdit);
             if (
-                this.placeEdit == "" ||
-                this.nameEdit == "" ||
-                this.phoneEdit == "" ||
+                this.placeEdit == '' ||
+                this.nameEdit == '' ||
+                this.phoneEdit == '' ||
                 mapPinpointInvalid ||
                 mapDetailInvalid
             ) {
-                if (this.placeEdit == "") {
-                    this.errorsEdit.place =
-                        this.getAlamatRequiredMessage("place");
+                if (this.placeEdit == '') {
+                    this.errorsEdit.place = this.getAlamatRequiredMessage('place');
                 }
-                if (this.nameEdit == "") {
-                    this.errorsEdit.name =
-                        this.getAlamatRequiredMessage("name");
+                if (this.nameEdit == '') {
+                    this.errorsEdit.name = this.getAlamatRequiredMessage('name');
                 }
-                if (this.phoneEdit == "") {
-                    this.errorsEdit.phone =
-                        this.getAlamatRequiredMessage("phone");
+                if (this.phoneEdit == '') {
+                    this.errorsEdit.phone = this.getAlamatRequiredMessage('phone');
                 }
                 if (mapPinpointInvalid) {
-                    this.errorsEdit.location = "Pilih lokasi pada peta.";
+                    this.errorsEdit.location = 'Pilih lokasi pada peta.';
                 }
                 if (mapDetailInvalid) {
-                    this.errorsEdit.addressDetail =
-                        "Detail alamat wajib diisi.";
+                    this.errorsEdit.addressDetail = 'Detail alamat wajib diisi.';
                 }
                 return false;
             }
-            /* VALIDATION */
+            // --- step 1 - end - validasi identitas dan pinpoint alamat sebelum mengirim perubahan
 
+            // --- step 2 - start - simpan perubahan alamat dan petakan hasil atau error ke form
             this.isProcessEditAlamatBuyer = true;
 
             this.$store
-                .dispatch("editAlamatBuyer", {
+                .dispatch('editAlamatBuyer', {
                     id: this.idEdit,
                     place: this.placeEdit,
                     name: this.nameEdit,
@@ -694,8 +707,8 @@ export default {
                     this.isProcessEditAlamatBuyer = false;
                     this.alamats = response.alamats;
                     ElNotification({
-                        type: "success",
-                        title: "Success",
+                        type: 'success',
+                        title: 'Success',
                         message: response.message,
                     });
                 })
@@ -706,49 +719,56 @@ export default {
                         const message = error.response.data.message;
                         Object.keys(message).forEach((key) => {
                             switch (key) {
-                                case "place":
+                                case 'place':
                                     this.errorsEdit.place = message[key][0];
                                     break;
-                                case "name":
+                                case 'name':
                                     this.errorsEdit.name = message[key][0];
                                     break;
-                                case "phone":
+                                case 'phone':
                                     this.errorsEdit.phone = message[key][0];
                                     break;
-                                case "alamat":
+                                case 'alamat':
                                     this.errorsEdit.alamat = message[key][0];
                                     break;
-                                case "latitude":
-                                case "longitude":
-                                case "formatted_address":
-                                case "location_source":
+                                case 'latitude':
+                                case 'longitude':
+                                case 'formatted_address':
+                                case 'location_source':
                                     this.errorsEdit.location = message[key][0];
                                     break;
-                                case "address_detail":
-                                    this.errorsEdit.addressDetail =
-                                        message[key][0];
+                                case 'address_detail':
+                                    this.errorsEdit.addressDetail = message[key][0];
                                     break;
                             }
                             setTimeout(() => {
                                 ElNotification({
-                                    type: "error",
-                                    title: "Error",
+                                    type: 'error',
+                                    title: 'Error',
                                     message: message[key][0],
                                 });
                             }, 100);
                         });
                     } else {
                         ElNotification({
-                            type: "error",
-                            title: "Error",
+                            type: 'error',
+                            title: 'Error',
                             message:
                                 error.response?.data?.message ||
-                                "Gagal mengubah alamat. Periksa koneksi Anda dan coba lagi.",
+                                'Gagal mengubah alamat. Periksa koneksi Anda dan coba lagi.',
                         });
                     }
                 });
+            // --- step 2 - end - simpan perubahan alamat dan petakan hasil atau error ke form
         },
 
+        /**
+         * Membuka form edit alamat untuk alamat.
+         *
+         * @param {*} index Posisi item target dengan indeks yang dimulai dari nol.
+         *
+         * @returns {void} Function menerapkan efeknya melalui state komponen atau aplikasi.
+         */
         openFormEditAlamat(index) {
             this.resetFormEditAlamat();
 
@@ -757,44 +777,63 @@ export default {
             this.nameEdit = this.alamats[index].name;
             this.phoneEdit = this.alamats[index].phone;
             this.alamatEdit = this.alamats[index].alamat;
-            this.legacyAddressEdit =
-                this.alamats[index].location_source === "map"
-                    ? ""
-                    : this.alamats[index].alamat;
+            this.legacyAddressEdit = this.alamats[index].location_source === 'map' ? '' : this.alamats[index].alamat;
             this.locationEdit = {
                 latitude: this.alamats[index].latitude,
                 longitude: this.alamats[index].longitude,
                 geoapify_place_id: this.alamats[index].geoapify_place_id,
-                formatted_address: this.alamats[index].formatted_address || "",
-                address_detail: this.alamats[index].address_detail || "",
+                formatted_address: this.alamats[index].formatted_address || '',
+                address_detail: this.alamats[index].address_detail || '',
             };
             this.modal.editAlamatBuyer = true;
         },
 
+        /**
+         * Menutup form edit alamat untuk alamat.
+         *
+         * @returns {void} Function menerapkan efeknya melalui state komponen atau aplikasi.
+         */
         closeFormEditAlamat() {
             this.modal.editAlamatBuyer = false;
         },
 
+        /**
+         * Menjalankan proses enter pencarian alamat dan menyinkronkan state hasilnya untuk alamat.
+         *
+         * @returns {void} Function menerapkan efeknya melalui state komponen atau aplikasi.
+         */
         enterSearchAlamat() {
             this.getAlamatBuyer();
         },
 
+        /**
+         * Memvalidasi and synchronize input untuk alamat.
+         *
+         * @param {*} type Jenis operasi atau tampilan yang menentukan behavior yang diperlukan.
+         *
+         * @returns {void} Function menerapkan efeknya melalui state komponen atau aplikasi.
+         */
         watchInput(type) {
             if (!Object.prototype.hasOwnProperty.call(this, type)) return;
 
-            if (this[type].trim() == "") {
+            if (this[type].trim() == '') {
                 this.errors[type] = this.getAlamatRequiredMessage(type);
             } else {
-                this.errors[type] = "";
+                this.errors[type] = '';
             }
         },
 
+        /**
+         * Mengambil alamat buyer untuk alamat, dengan mendelegasikan pekerjaan backend atau shared state melalui Vuex store.
+         *
+         * @returns {void} Function menerapkan efeknya melalui state komponen atau aplikasi.
+         */
         getAlamatBuyer() {
             this.$global.showUserProfileView.alamat = false;
             this.isProcessGetAlamatBuyer = true;
 
             this.$store
-                .dispatch("getAlamatBuyer", {
+                .dispatch('getAlamatBuyer', {
                     searchAlamat: this.searchAlamat,
                 })
                 .then((response) => {
@@ -809,72 +848,82 @@ export default {
                 });
         },
 
+        /**
+         * Mengembalikan form add alamat ke state awal untuk alamat.
+         *
+         * @returns {void} Function menerapkan efeknya melalui state komponen atau aplikasi.
+         */
         resetFormAddAlamat() {
-            this.place = "";
-            this.name = "";
-            this.phone = "";
-            this.alamat = "";
+            this.place = '';
+            this.name = '';
+            this.phone = '';
+            this.alamat = '';
             this.location = createEmptyLocation();
             this.enable = false;
 
-            this.errors.place = "";
-            this.errors.name = "";
-            this.errors.phone = "";
-            this.errors.alamat = "";
-            this.errors.location = "";
-            this.errors.addressDetail = "";
+            this.errors.place = '';
+            this.errors.name = '';
+            this.errors.phone = '';
+            this.errors.alamat = '';
+            this.errors.location = '';
+            this.errors.addressDetail = '';
         },
 
+        /**
+         * Membuka form add alamat untuk alamat.
+         *
+         * @returns {void} Function menerapkan efeknya melalui state komponen atau aplikasi.
+         */
         openFormAddAlamat() {
             this.modal.addAlamatBuyer = true;
         },
 
+        /**
+         * Menutup form add alamat untuk alamat.
+         *
+         * @returns {void} Function menerapkan efeknya melalui state komponen atau aplikasi.
+         */
         closeFormAddAlamat() {
             this.modal.addAlamatBuyer = false;
         },
 
         /**
-         * Validates and submits a new Pinpoint address while keeping loading state recoverable.
+         * Memvalidasi dan mengirim alamat Pinpoint baru sambil memastikan state loading dapat dipulihkan.
          *
-         * Validation feedback is mapped to the related form fields. Network failures without an
-         * HTTP response use a safe fallback message so the add action never remains stuck loading.
+         * Feedback validasi dipetakan ke field form terkait. Kegagalan jaringan tanpa response HTTP
+         * menggunakan pesan fallback agar action tambah tidak tertahan dalam state loading.
          *
-         * @returns {false|void} False when client validation blocks submission; otherwise returns nothing.
+         * @returns {false|void} Mengembalikan false ketika validasi client memblokir pengiriman; selain itu tidak mengembalikan nilai.
          */
         addAlamatBuyer() {
-            /* VALIDATION */
+            // --- step 1 - start - validasi identitas dan pinpoint alamat sebelum membuat alamat baru
             const mapPinpointInvalid = this.isMapPinpointInvalid(this.location);
             const mapDetailInvalid = this.isMapDetailInvalid(this.location);
-            if (
-                this.place == "" ||
-                this.name == "" ||
-                this.phone == "" ||
-                mapPinpointInvalid ||
-                mapDetailInvalid
-            ) {
-                if (this.place == "") {
-                    this.errors.place = this.getAlamatRequiredMessage("place");
+            if (this.place == '' || this.name == '' || this.phone == '' || mapPinpointInvalid || mapDetailInvalid) {
+                if (this.place == '') {
+                    this.errors.place = this.getAlamatRequiredMessage('place');
                 }
-                if (this.name == "") {
-                    this.errors.name = this.getAlamatRequiredMessage("name");
+                if (this.name == '') {
+                    this.errors.name = this.getAlamatRequiredMessage('name');
                 }
-                if (this.phone == "") {
-                    this.errors.phone = this.getAlamatRequiredMessage("phone");
+                if (this.phone == '') {
+                    this.errors.phone = this.getAlamatRequiredMessage('phone');
                 }
                 if (mapPinpointInvalid) {
-                    this.errors.location = "Pilih lokasi pada peta.";
+                    this.errors.location = 'Pilih lokasi pada peta.';
                 }
                 if (mapDetailInvalid) {
-                    this.errors.addressDetail = "Detail alamat wajib diisi.";
+                    this.errors.addressDetail = 'Detail alamat wajib diisi.';
                 }
                 return false;
             }
-            /* VALIDATION */
+            // --- step 1 - end - validasi identitas dan pinpoint alamat sebelum membuat alamat baru
 
+            // --- step 2 - start - simpan alamat baru dan petakan hasil atau error ke form
             this.isProcessAddAlamatBuyer = true;
 
             this.$store
-                .dispatch("addAlamatBuyer", {
+                .dispatch('addAlamatBuyer', {
                     place: this.place,
                     name: this.name,
                     phone: this.phone,
@@ -888,8 +937,8 @@ export default {
                     this.alamats = response.alamats;
                     this.resetFormAddAlamat();
                     ElNotification({
-                        type: "success",
-                        title: "Success",
+                        type: 'success',
+                        title: 'Success',
                         message: response.message,
                     });
                 })
@@ -900,61 +949,69 @@ export default {
                         const message = error.response.data.message;
                         Object.keys(message).forEach((key) => {
                             switch (key) {
-                                case "place":
+                                case 'place':
                                     this.errors.place = message[key][0];
                                     break;
-                                case "name":
+                                case 'name':
                                     this.errors.name = message[key][0];
                                     break;
-                                case "phone":
+                                case 'phone':
                                     this.errors.phone = message[key][0];
                                     break;
-                                case "alamat":
+                                case 'alamat':
                                     this.errors.alamat = message[key][0];
                                     break;
-                                case "latitude":
-                                case "longitude":
-                                case "formatted_address":
-                                case "location_source":
+                                case 'latitude':
+                                case 'longitude':
+                                case 'formatted_address':
+                                case 'location_source':
                                     this.errors.location = message[key][0];
                                     break;
-                                case "address_detail":
+                                case 'address_detail':
                                     this.errors.addressDetail = message[key][0];
                                     break;
                             }
                             setTimeout(() => {
                                 ElNotification({
-                                    type: "error",
-                                    title: "Error",
+                                    type: 'error',
+                                    title: 'Error',
                                     message: message[key][0],
                                 });
                             }, 100);
                         });
                     } else {
                         ElNotification({
-                            type: "error",
-                            title: "Error",
+                            type: 'error',
+                            title: 'Error',
                             message:
                                 error.response?.data?.message ||
-                                "Gagal menambah alamat. Periksa koneksi Anda dan coba lagi.",
+                                'Gagal menambah alamat. Periksa koneksi Anda dan coba lagi.',
                         });
                     }
                 });
+            // --- step 2 - end - simpan alamat baru dan petakan hasil atau error ke form
         },
 
+        /**
+         * Menghapus alamat buyer untuk alamat, dengan mendelegasikan pekerjaan backend atau shared state melalui Vuex store.
+         *
+         * @param {*} id Identifier record target.
+         *
+         * @returns {boolean} Menunjukkan apakah kondisi delete alamat buyer terpenuhi.
+         */
         deleteAlamatBuyer(id) {
-            if (id == "") {
+            if (id == '') {
                 return false;
             }
 
-            ElMessageBox.confirm("Anda Yakin Ingin Hapus Alamat?", "Warning", {
-                confirmButtonText: "OK",
-                cancelButtonText: "Cancel",
-                type: "warning",
+            ElMessageBox.confirm('Anda Yakin Ingin Hapus Alamat?', 'Warning', {
+                confirmButtonText: 'OK',
+                cancelButtonText: 'Cancel',
+                type: 'warning',
             })
                 .then(() => {
                     this.$store
-                        .dispatch("deleteAlamatBuyer", {
+                        .dispatch('deleteAlamatBuyer', {
                             id: id,
                             searchAlamat: this.searchAlamat,
                         })
@@ -962,16 +1019,16 @@ export default {
                             // console.log(response);
                             this.alamats = response.alamats;
                             ElNotification({
-                                type: "success",
-                                title: "Success",
+                                type: 'success',
+                                title: 'Success',
                                 message: response.message,
                             });
                         })
                         .catch((error) => {
                             console.error(error);
                             ElNotification({
-                                type: "error",
-                                title: "Error",
+                                type: 'error',
+                                title: 'Error',
                                 message: error.message,
                             });
                         });
@@ -979,15 +1036,23 @@ export default {
                 .catch(() => {});
         },
 
+        /**
+         * Memperbarui enable alamat buyer untuk alamat, dengan mendelegasikan pekerjaan backend atau shared state melalui Vuex store.
+         *
+         * @param {*} id Identifier record target.
+         * @param {*} index Posisi item target dengan indeks yang dimulai dari nol.
+         *
+         * @returns {boolean} Menunjukkan apakah kondisi set enable alamat buyer terpenuhi.
+         */
         setEnableAlamatBuyer(id, index) {
-            if (id == "") {
+            if (id == '') {
                 return false;
             }
 
             this.isProcessEnableAlamatBuyer[index] = true;
 
             this.$store
-                .dispatch("setEnableAlamatBuyer", {
+                .dispatch('setEnableAlamatBuyer', {
                     id: id,
                     searchAlamat: this.searchAlamat,
                 })
@@ -996,8 +1061,8 @@ export default {
                     this.isProcessEnableAlamatBuyer[index] = false;
                     this.alamats = response.alamats;
                     ElNotification({
-                        type: "success",
-                        title: "Success",
+                        type: 'success',
+                        title: 'Success',
                         message: response.message,
                     });
                 })
@@ -1005,54 +1070,87 @@ export default {
                     console.error(error);
                     this.isProcessEnableAlamatBuyer[index] = false;
                     ElNotification({
-                        type: "error",
-                        title: "Error",
+                        type: 'error',
+                        title: 'Error',
                         message:
                             error.response?.data?.message ||
-                            "Gagal memilih alamat. Periksa koneksi Anda dan coba lagi.",
+                            'Gagal memilih alamat. Periksa koneksi Anda dan coba lagi.',
                     });
                 });
         },
     },
 
     watch: {
+        /**
+         * Menjalankan proses alamats dan menyinkronkan state hasilnya untuk alamat.
+         *
+         * @param {*} newValue Nilai terbaru yang diberikan oleh watcher reaktif.
+         *
+         * @returns {void} Function menerapkan efeknya melalui state komponen atau aplikasi.
+         */
         alamats(newValue) {
-            this.isProcessEnableAlamatBuyer = Array(newValue.length).fill(
-                false,
-            );
+            this.isProcessEnableAlamatBuyer = Array(newValue.length).fill(false);
         },
 
         location: {
             deep: true,
+            /**
+             * Menyinkronkan state komponen ketika location berubah untuk alamat.
+             *
+             * @param {*} newValue Nilai terbaru yang diberikan oleh watcher reaktif.
+             *
+             * @returns {void} Function menerapkan efeknya melalui state komponen atau aplikasi.
+             */
             handler(newValue) {
                 if (!this.isMapPinpointInvalid(newValue)) {
-                    this.errors.location = "";
+                    this.errors.location = '';
                 }
                 if (!this.isMapDetailInvalid(newValue)) {
-                    this.errors.addressDetail = "";
+                    this.errors.addressDetail = '';
                 }
             },
         },
 
         locationEdit: {
             deep: true,
+            /**
+             * Menyinkronkan state komponen ketika location edit berubah untuk alamat.
+             *
+             * @param {*} newValue Nilai terbaru yang diberikan oleh watcher reaktif.
+             *
+             * @returns {void} Function menerapkan efeknya melalui state komponen atau aplikasi.
+             */
             handler(newValue) {
                 if (!this.isMapPinpointInvalid(newValue)) {
-                    this.errorsEdit.location = "";
+                    this.errorsEdit.location = '';
                 }
                 if (!this.isMapDetailInvalid(newValue)) {
-                    this.errorsEdit.addressDetail = "";
+                    this.errorsEdit.addressDetail = '';
                 }
             },
         },
 
-        "modal.addAlamatBuyer": function (newValue) {
+        /**
+         * Menjalankan proses modal.add alamat buyer dan menyinkronkan state hasilnya untuk alamat.
+         *
+         * @param {*} newValue Nilai terbaru yang diberikan oleh watcher reaktif.
+         *
+         * @returns {void} Function menerapkan efeknya melalui state komponen atau aplikasi.
+         */
+        'modal.addAlamatBuyer': function (newValue) {
             if (!newValue) {
                 this.resetFormAddAlamat();
             }
         },
 
-        "modal.editAlamatBuyer": function (newValue) {
+        /**
+         * Menjalankan proses modal.edit alamat buyer dan menyinkronkan state hasilnya untuk alamat.
+         *
+         * @param {*} newValue Nilai terbaru yang diberikan oleh watcher reaktif.
+         *
+         * @returns {void} Function menerapkan efeknya melalui state komponen atau aplikasi.
+         */
+        'modal.editAlamatBuyer': function (newValue) {
             if (!newValue) {
                 this.resetFormEditAlamat();
             }
@@ -1072,14 +1170,14 @@ export default {
     font-weight: 700;
 }
 
-.alamat-modal input:not([type="checkbox"]),
+.alamat-modal input:not([type='checkbox']),
 .alamat-modal textarea {
     border: 1px solid #cbd5e1 !important;
     border-radius: 6px;
     box-shadow: 0 1px 2px rgba(15, 23, 42, 0.05) !important;
 }
 
-.alamat-modal input:not([type="checkbox"]):focus,
+.alamat-modal input:not([type='checkbox']):focus,
 .alamat-modal textarea:focus {
     border-color: #8b5cf6 !important;
     box-shadow:
