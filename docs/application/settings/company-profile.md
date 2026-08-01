@@ -18,6 +18,9 @@ The store profile settings page lets a seller update company identity, contact i
 - `src/components/company-profile/CompanySetting.vue`
   Owns the editable company form, validation state, and save behavior.
 
+- `src/components/address/LocationPicker.vue`
+  Provides the same pinpoint workflow used by buyer addresses.
+
 - `src/components/company-profile/ImagePreview.vue`
   Owns company image preview, upload, zoom, and delete confirmation.
 
@@ -27,7 +30,7 @@ Current field order:
 
 ```text
 Name -> email -> Phone
-Alamat
+Lokasi Toko (Pinpoint)
 Deskripsi
 ```
 
@@ -36,11 +39,16 @@ Required fields:
 - `name`
 - `email`
 - `phone`
-- `alamat`
+- a confirmed pinpoint and address detail
 
 Optional fields:
 
 - `deskripsi`
+
+## QA Coverage
+
+- [TOK-8 Pinpoint Address QA](../../qa/tok-8-pinpoint-address.md) tracks
+  store-location UI verification.
 
 ## Behavior
 
@@ -50,6 +58,10 @@ Optional fields:
 - The save button visually appears disabled when any frontend validation error exists.
 - The save button is disabled while the update request is processing.
 - Frontend validation blocks submit when required fields are empty.
+- The shared map picker renders directly in the form, so the seller can search, move the marker, and enter address details without opening another modal.
+- A legacy manual store address remains visible as a verification notice until it is replaced on the same row with a verified pinpoint.
+- Geoapify failures preserve company fields, restore the marker to the last
+  verified coordinate, and block saving until verification is available.
 
 ## Validation
 
@@ -81,5 +93,10 @@ Keep backend field names unchanged when building payloads:
 - `name`
 - `email`
 - `phone`
-- `alamat`
+- `location_source`
+- `latitude`
+- `longitude`
+- `geoapify_place_id`
+- `formatted_address`
+- `address_detail`
 - `deskripsi`

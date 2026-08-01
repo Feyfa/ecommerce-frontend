@@ -16,7 +16,7 @@ Current supported actions:
 - Select or unselect all available items in one request.
 - Increase, decrease, or type item quantity.
 - Delete a cart item after confirmation.
-- See sold-out item state.
+- See deleted, sold-out, or seller-location-unverified item states without losing quantity.
 - See checked-item total price.
 - Validate cart state before navigating to checkout.
 
@@ -49,8 +49,9 @@ Computed values:
 
 - `keranjangGroups`: array version of the grouped backend response.
 - `hasKeranjang`: whether the cart has at least one seller group.
-- `availableKeranjangCount`: count of items with `p_stock > 0`.
+- `availableKeranjangCount`: count of items with `is_selectable = true`.
 - `selectedKeranjangCount`: count of available checked items.
+- `cartReviewCount`: count of quantity issues and sold-out products that need buyer review.
 - `hasQuantityProcessing`: true when any quantity request is still pending.
 
 ## UI Behavior
@@ -64,20 +65,25 @@ When `hasKeranjang` is false, the page shows an empty cart message and a `Mulai 
 The backend response is grouped by seller id. The page renders each group as one seller section with:
 
 - seller checkbox
-- seller name
+- public store name, with the seller account name only as a backend fallback
 - one row per product
 
 Each product row shows:
 
-- item checkbox when stock is available
+- item checkbox when `is_purchasable` is true
 - product image
 - product name
 - formatted price
 - stock badge
 - delete button
-- quantity controls when stock is available
+- quantity controls when the item is purchasable
+- stored quantity as read-only text when the item is unavailable
 
-Sold-out rows show a sold-out overlay and cannot be checked.
+Unavailable rows show the backend reason label and cannot be checked or edited. Supported labels are `Produk Sudah Tidak Tersedia`, `Stok Habis`, and `Lokasi Toko Belum Diverifikasi`; their stored quantity remains visible as read-only text without `+`, `-`, or an editable input and remains unchanged.
+
+When saved quantity exceeds a positive stock value, the product remains purchasable but becomes non-selectable. Its row is highlighted, shows the current stock and saved quantity, keeps the minus/input/plus controls, and provides a dynamic `Sesuaikan ke {stock}` action. The quantity is never reduced silently and the buyer must select the item again after fixing it. Sold-out rows keep the read-only quantity UI and never show `Sesuaikan ke 0`.
+
+The cart shows one persistent `{N} produk perlu diperiksa` banner for positive-stock quantity issues and sold-out rows.
 
 ### Select One Item
 
@@ -93,7 +99,7 @@ After success:
 
 Seller checkbox changes dispatch `checkedKeranjangGroup`.
 
-The UI treats a seller group as checked only when the group has available products and all available products are checked.
+The UI treats a seller group as checked only when the group has purchasable products and all purchasable products are checked.
 
 ### Select All
 
@@ -105,7 +111,7 @@ The frontend now sends one request:
 POST /api/keranjang/checked/all
 ```
 
-The backend handles stock filtering. This avoids the previous behavior where the frontend sent one request per seller.
+The backend handles complete availability filtering. This avoids the previous behavior where the frontend sent one request per seller.
 
 ### Quantity Controls
 
@@ -146,7 +152,11 @@ Checkout sends:
 
 On success, the page routes to `buyer_checkout`.
 
-On failure, the cart syncs from the backend response when `keranjangs` and `totalPrice` are present, then shows an error notification.
+On `CART_STOCK_CHANGED`, the cart syncs from the backend response, shows one warning notification, and scrolls to the first affected row. Invalid products become unselected while valid selected products remain checked, so a second checkout attempt can continue with only the valid products.
+
+On `BUYER_ADDRESS_REQUIRED`, the page shows an `Alamat Pengiriman Belum Tersedia` modal. Its `Tambah Alamat` action routes to `settings_addresses` and automatically opens the existing add-address modal. The one-time route intent is removed after it is consumed so refreshing Address Settings does not reopen the modal. Dismissing the checkout modal keeps the buyer on the cart without changing the selection.
+
+On `SELLER_ADDRESS_REQUIRES_VERIFICATION`, the cart syncs the read-repaired state, keeps the buyer on the cart, and shows one `Lokasi Toko Belum Diverifikasi` warning notification. The affected item becomes unselected and retains its persistent unavailable label, so no confirmation dialog or redirect is needed on this page.
 
 ## API Calls
 
@@ -184,7 +194,10 @@ Expected syncable error responses include:
 - missing product
 - stale checkout checked state
 - invalid checkout quantity
-- sold-out checkout state
+- structured `CART_STOCK_CHANGED` responses
+- actionable `BUYER_ADDRESS_REQUIRED` responses
+- seller-specific `SELLER_ADDRESS_REQUIRES_VERIFICATION` responses
+- deleted, sold-out, or seller-location-unverified state
 
 ## UI Notes
 
@@ -210,6 +223,8 @@ The current behavior was verified in the browser:
 - Reject checkout when checked state in the UI is stale.
 - Recover when a cart row is deleted after the page has already loaded.
 
+The stock review banner, inline issue detail, dynamic adjustment action, multi-seller retry, and missing-address modal are browser-verified in the TOK-8 QA checklist.
+
 After edge testing, the cart was restored to:
 
 - 4 products.
@@ -223,3 +238,8 @@ After edge testing, the cart was restored to:
 - The backend is the source of truth for checked state and `totalPrice`.
 - Checkout is disabled while quantity requests are pending to reduce stale quantity risk.
 - Error responses with cart state are preferred over forcing a full page reload.
+
+## QA Coverage
+
+- [TOK-8 Pinpoint Address QA](../../qa/tok-8-pinpoint-address.md) tracks
+  cart-to-checkout guard and recovery verification.

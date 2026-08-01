@@ -336,3 +336,8 @@ The current scope does not include:
 - administrator audit access;
 - historical backfill;
 - retention controls.
+
+## QA Coverage
+
+- [TOK-16 Product Audit Log QA](../../qa/tok-16-product-audit-log.md) tracks
+  product audit UI verification.

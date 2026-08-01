@@ -1,13 +1,15 @@
 <template>
     <div
         v-if="show"
-        @click.self="closeModal" 
-        class="fixed inset-0 bg-[rgba(15,23,42,.64)] z-[60] flex justify-center items-center px-4">
+        @click.self="closeModal"
+        class="fixed inset-0 bg-[rgba(15,23,42,.64)] z-[60] flex justify-center items-center px-4"
+    >
         <div
-        :class="[
-            'modal-panel mx-auto w-[95%] sm:w-[80%] md:w-[75%] lg:w-[65%] xl:w-[55%] min-h-[150px] bg-white',
-            panelClass,
-        ]">
+            :class="[
+                'modal-panel mx-auto w-[95%] sm:w-[80%] md:w-[75%] lg:w-[65%] xl:w-[55%] min-h-[150px] bg-white',
+                panelClass,
+            ]"
+        >
             <slot></slot>
         </div>
     </div>
@@ -23,15 +25,20 @@ export default {
         panelClass: {
             type: [String, Array, Object],
             default: '',
-        }
+        },
     },
 
     methods: {
+        /**
+         * Menutup modal untuk halaman modal.
+         *
+         * @returns {void} Function menerapkan efeknya melalui state komponen atau aplikasi.
+         */
         closeModal() {
             this.$emit('update:show', false);
-        }   
-    }
-}
+        },
+    },
+};
 </script>
 
 <style scoped>

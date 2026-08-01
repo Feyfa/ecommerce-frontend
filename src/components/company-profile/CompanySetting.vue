@@ -10,116 +10,109 @@
         <div class="mt-5">
             <div class="grid grid-cols-1 md:grid-cols-3 items-start gap-y-4 gap-x-4 lg:gap-x-6">
                 <div class="input-container flex flex-col w-full">
-                    <label
-                        for="name">
+                    <label for="name">
                         Name
                         <span class="required-mark" aria-hidden="true">*</span>
                     </label>
                     <input
-                        placeholder="name" 
-                        id="name" 
-                        type="text" 
-                        class="border w-full border-neutral-500 rounded outline-none h-12 px-2.5 shadow" 
+                        placeholder="name"
+                        id="name"
+                        type="text"
+                        class="border w-full border-neutral-500 rounded outline-none h-12 px-2.5 shadow"
                         required
                         aria-required="true"
                         v-model="name"
-                        :class="{'is-error-field border border-red-500': errors.name}"
-                        @input="watchInputName">
-                    <small 
-                        v-if="errors.name"
-                        class="text-red-500">
+                        :class="{
+                            'is-error-field border border-red-500': errors.name,
+                        }"
+                        @input="watchInputName"
+                    />
+                    <small v-if="errors.name" class="text-red-500">
                         {{ errors.name }}
                     </small>
                 </div>
 
                 <div class="input-container flex flex-col w-full">
-                    <label 
-                        for="email">
+                    <label for="email">
                         email
                         <span class="required-mark" aria-hidden="true">*</span>
                     </label>
                     <input
-                        placeholder="email" 
-                        id="email" 
-                        type="text" 
-                        class="border w-full border-neutral-500 rounded outline-none h-12 px-2.5 shadow" 
+                        placeholder="email"
+                        id="email"
+                        type="text"
+                        class="border w-full border-neutral-500 rounded outline-none h-12 px-2.5 shadow"
                         required
                         aria-required="true"
                         v-model="email"
-                        :class="{'is-error-field border border-red-500': errors.email}"
-                        @input="watchInputEmail">
-                    <small 
-                        v-if="errors.email"
-                        class="text-red-500">
+                        :class="{
+                            'is-error-field border border-red-500': errors.email,
+                        }"
+                        @input="watchInputEmail"
+                    />
+                    <small v-if="errors.email" class="text-red-500">
                         {{ errors.email }}
                     </small>
                 </div>
 
                 <div class="input-container flex flex-col w-full">
-                    <label 
-                        for="phone">
+                    <label for="phone">
                         Phone
                         <span class="required-mark" aria-hidden="true">*</span>
                     </label>
-                    <input 
-                        placeholder="phone" 
-                        type="text" 
+                    <input
+                        placeholder="phone"
+                        type="text"
                         id="phone"
                         class="border w-full border-neutral-500 rounded outline-none h-12 px-2.5 shadow"
                         required
                         aria-required="true"
                         v-model="phone"
                         @keypress="validatePhone"
-                        :class="{'is-error-field border border-red-500': errors.phone}"
-                        @input="watchInputPhone">
-                    <small 
-                        v-if="errors.phone"
-                        class="text-red-500">
+                        :class="{
+                            'is-error-field border border-red-500': errors.phone,
+                        }"
+                        @input="watchInputPhone"
+                    />
+                    <small v-if="errors.phone" class="text-red-500">
                         {{ errors.phone }}
                     </small>
                 </div>
             </div>
 
             <div class="mt-4 grid grid-cols-1 items-start gap-y-4">
-                <div class="input-container flex flex-col w-full">
-                    <label 
-                        for="alamat">
-                        Alamat
-                        <span class="required-mark" aria-hidden="true">*</span>
-                    </label>
-                    <textarea 
-                        id="alamat"
-                        :rows="rows.alamat"
-                        placeholder="Alamat"
-                        class="border w-full border-neutral-500 rounded outline-none py-1 px-2.5 shadow"
-                        required
-                        aria-required="true"
-                        v-model="alamat"
-                        :class="{'is-error-field border border-red-500': errors.alamat}"
-                        @input="watchInputAlamat">
-                    </textarea>
-                    <small 
-                        v-if="errors.alamat"
-                        class="text-red-500">
-                        {{ errors.alamat }}
-                    </small>
+                <div class="input-container flex flex-col w-full gap-2">
+                    <span>Lokasi Toko <span class="required-mark" aria-hidden="true">*</span></span>
+                    <div v-if="legacyAddress" class="legacy-address-notice">
+                        <strong>Lokasi toko perlu diverifikasi.</strong>
+                        <span>Alamat lama: {{ legacyAddress }}</span>
+                    </div>
+                    <small class="text-slate-500"
+                        >Lokasi wajib berada di Indonesia dan diverifikasi saat profil disimpan.</small
+                    >
+                    <div class="location-source-content">
+                        <LocationPicker
+                            v-model="location"
+                            :location-error="errors.location"
+                            :detail-error="errors.addressDetail"
+                            @detail-input="watchLocationDetail"
+                            @unavailable="handleLocationUnavailable"
+                        />
+                    </div>
                 </div>
 
                 <div class="input-container flex flex-col w-full">
-                    <label 
-                        for="description">
-                        Deskripsi
-                    </label>
-                    <textarea 
+                    <label for="description"> Deskripsi </label>
+                    <textarea
                         id="description"
                         :rows="rows.description"
                         placeholder="Deskripsi"
                         class="border w-full border-neutral-500 rounded outline-none py-1 px-2.5 shadow"
-                        v-model="description">
+                        v-model="description"
+                    >
                     </textarea>
-                </div>    
+                </div>
             </div>
-
         </div>
         <!-- input -->
 
@@ -129,26 +122,60 @@
                 type="button"
                 class="setting-primary-button"
                 :disabled="isProcessUpdate"
-                :class="{'is-invalid': errors.name || errors.email || errors.phone || errors.alamat, 'opacity-50': isProcessUpdate}"
-                @click="updateInput">
+                :class="{
+                    'is-invalid':
+                        errors.name ||
+                        errors.email ||
+                        errors.phone ||
+                        errors.alamat ||
+                        errors.location ||
+                        errors.addressDetail,
+                    'opacity-50': isProcessUpdate,
+                }"
+                @click="updateInput"
+            >
                 Simpan
             </button>
         </div>
         <!-- action -->
-
     </div>
 </template>
 
 <script>
 import { ElNotification } from 'element-plus';
+import LocationPicker from '../address/LocationPicker.vue';
+
+/**
+ * Membuat data location kosong untuk company setting.
+ *
+ * @returns {Object} Object create empty location yang telah disiapkan.
+ */
+const createEmptyLocation = () => ({
+    latitude: null,
+    longitude: null,
+    geoapify_place_id: null,
+    formatted_address: '',
+    address_detail: '',
+});
 
 export default {
+    components: {
+        LocationPicker,
+    },
+
+    /**
+     * Membuat state reaktif yang digunakan komponen untuk company setting.
+     *
+     * @returns {Object} State reaktif yang diinisialisasi untuk komponen.
+     */
     data() {
         return {
             name: '',
             email: '',
             phone: '081388992799',
             alamat: '',
+            location: createEmptyLocation(),
+            legacyAddress: '',
             description: '',
 
             isProcessUpdate: false,
@@ -157,32 +184,49 @@ export default {
                 name: '',
                 email: '',
                 phone: '',
-                alamat: ''
+                alamat: '',
+                location: '',
+                addressDetail: '',
             },
 
             rows: {
                 alamat: 3,
                 description: 3,
-            }
-        }
+            },
+        };
     },
 
+    /**
+     * Menginisialisasi behavior komponen yang bergantung pada browser setelah mounted untuk company setting.
+     *
+     * @returns {void} Function menerapkan efeknya melalui state komponen atau aplikasi.
+     */
     mounted() {
         this.getCompany();
         this.setRowsTextAreaBasedOnScreenSize();
         window.addEventListener('resize', this.setRowsTextAreaBasedOnScreenSize);
     },
 
+    /**
+     * Melepaskan resource komponen dan pekerjaan tertunda sebelum unmount untuk company setting.
+     *
+     * @returns {void} Function menerapkan efeknya melalui state komponen atau aplikasi.
+     */
     beforeUnmount() {
         window.removeEventListener('resize', this.setRowsTextAreaBasedOnScreenSize);
     },
 
     methods: {
+        /**
+         * Memperbarui rows text area based on screen size untuk company setting.
+         *
+         * @returns {void} Function menerapkan efeknya melalui state komponen atau aplikasi.
+         */
         setRowsTextAreaBasedOnScreenSize() {
-            if(window.innerWidth < 500) {
+            if (window.innerWidth < 500) {
                 this.rows.alamat = 4;
                 this.rows.description = 4;
-            } else if(window.innerWidth < 600) {
+            } else if (window.innerWidth < 600) {
                 this.rows.description = 3;
                 this.rows.alamat = 3;
             } else {
@@ -191,22 +235,48 @@ export default {
             }
         },
 
+        /**
+         * Menyinkronkan form dengan payload company yang menjadi sumber data utama.
+         *
+         * Penggunaan ulang proses ini setelah load dan save mencegah pemberitahuan alamat lama
+         * serta metadata lokasi hasil normalisasi provider menjadi stale.
+         *
+         * @param {*} company Nilai company yang diproses oleh function.
+         *
+         * @returns {void} Memperbarui state komponen atau aplikasi tanpa mengembalikan nilai.
+         */
+        applyCompanyState(company) {
+            this.name = company.name;
+            this.email = company.email;
+            this.phone = company.phone;
+            this.description = company.description;
+            this.alamat = company.alamat;
+            this.legacyAddress = company.location_source === 'map' ? '' : company.alamat;
+            this.location = {
+                latitude: company.latitude,
+                longitude: company.longitude,
+                geoapify_place_id: company.geoapify_place_id,
+                formatted_address: company.formatted_address || '',
+                address_detail: company.address_detail || '',
+            };
+        },
+
+        /**
+         * Mengambil company untuk company setting, dengan mendelegasikan pekerjaan backend atau shared state melalui Vuex store.
+         *
+         * @returns {void} Function menerapkan efeknya melalui state komponen atau aplikasi.
+         */
         getCompany() {
             this.$global.showCompanyProfileView.companySetting = false;
             this.$store
                 .dispatch('getCompany')
-                .then(response => {
+                .then((response) => {
                     localStorage.setItem('company', JSON.stringify(response.company));
-                    
-                    this.name = response.company.name;
-                    this.email = response.company.email;
-                    this.phone = response.company.phone;
-                    this.description = response.company.description;    
-                    this.alamat = response.company.alamat;
-                    
+                    this.applyCompanyState(response.company);
+
                     this.$global.showCompanyProfileView.companySetting = true;
                 })
-                .catch(error => {
+                .catch((error) => {
                     ElNotification({
                         type: 'error',
                         title: 'Gagal Memuat Data',
@@ -217,6 +287,11 @@ export default {
                 });
         },
 
+        /**
+         * Memperbarui input untuk company setting, dengan mendelegasikan pekerjaan backend atau shared state melalui Vuex store.
+         *
+         * @returns {void} Function menerapkan efeknya melalui state komponen atau aplikasi.
+         */
         updateInput() {
             /* VALIDATION */
             this.watchInputName();
@@ -224,107 +299,276 @@ export default {
             this.watchInputPhone();
             this.watchInputAlamat();
 
-            if(this.errors.name || this.errors.email || this.errors.phone || this.errors.alamat) {
+            if (
+                this.errors.name ||
+                this.errors.email ||
+                this.errors.phone ||
+                this.errors.alamat ||
+                this.errors.location ||
+                this.errors.addressDetail
+            ) {
                 return;
             }
             /* VALIDATION */
 
-            if(!this.isProcessUpdate) {
+            if (!this.isProcessUpdate) {
                 this.isProcessUpdate = true;
-        
-                this
-                .$store
-                .dispatch('updateCompany', {
-                    name: this.name,
-                    email: this.email,
-                    phone: this.phone,
-                    description: this.description,
-                    alamat: this.alamat,
-                })
-                .then(response => {
-                    // console.log(response);
-            
-                    this.isProcessUpdate = false;
-            
-                    if(response.status == 'success') {
-                        ElNotification({ type: 'success', title: 'Success', message: response.message });
-            
-                        localStorage.setItem('company', JSON.stringify(response.company));
-            
-                        /* UPDATE PENGAMBILAN DARI LOCALSTORAGE */
-                        this.$store.dispatch('fetchUserFromLocalStorage');
-                        this.$store.dispatch('fetchCompanyFromLocalStorage');
-                        /* UPDATE PENGAMBILAN DARI LOCALSTORAGE */
-                    }
-        
-                })
-                .catch(error => {
-                    // console.error(error);
 
-                    this.isProcessUpdate = false;
-            
-                    if(error.response.status == 422) {
-                        const message = error.response.data.message;
-                        
-                        Object.keys(message).forEach(key => {
-                            switch(key) {
-                                case 'name' : 
-                                    setTimeout(() => { ElNotification({ type: 'error', title: 'Error', message: message[key][0]  }) }, 1);
-                                    this.errors.name = message[key][0];
-                                    break;
-                                case 'email' : 
-                                    setTimeout(() => { ElNotification({ type: 'error', title: 'Error', message: message[key][0]  }) }, 1);
-                                    this.errors.email = message[key][0];
-                                    break;
-                                case 'phone' : 
-                                    setTimeout(() => { ElNotification({ type: 'error', title: 'Error', message: message[key][0]  }) }, 1);
-                                    this.errors.phone = message[key][0];
-                                    break;
-                                case 'alamat' : 
-                                    setTimeout(() => { ElNotification({ type: 'error', title: 'Error', message: message[key][0]  }) }, 1);
-                                    this.errors.alamat = message[key][0];
-                                    break;
-                            }
-                        });
-                    }
-                })
-        
+                this.$store
+                    .dispatch('updateCompany', {
+                        name: this.name,
+                        email: this.email,
+                        phone: this.phone,
+                        description: this.description,
+                        alamat: this.alamat,
+                        ...this.getLocationPayload(),
+                    })
+                    .then((response) => {
+                        // console.log(response);
+
+                        this.isProcessUpdate = false;
+
+                        if (response.status == 'success') {
+                            localStorage.setItem('company', JSON.stringify(response.company));
+                            this.applyCompanyState(response.company);
+
+                            ElNotification({
+                                type: 'success',
+                                title: 'Success',
+                                message: response.message,
+                            });
+
+                            /* UPDATE PENGAMBILAN DARI LOCALSTORAGE */
+                            this.$store.dispatch('fetchUserFromLocalStorage');
+                            this.$store.dispatch('fetchCompanyFromLocalStorage');
+                            /* UPDATE PENGAMBILAN DARI LOCALSTORAGE */
+                        }
+                    })
+                    .catch((error) => {
+                        // console.error(error);
+
+                        this.isProcessUpdate = false;
+
+                        if (error.response?.status == 422) {
+                            const message = error.response.data.message;
+
+                            Object.keys(message).forEach((key) => {
+                                switch (key) {
+                                    case 'name':
+                                        setTimeout(() => {
+                                            ElNotification({
+                                                type: 'error',
+                                                title: 'Error',
+                                                message: message[key][0],
+                                            });
+                                        }, 1);
+                                        this.errors.name = message[key][0];
+                                        break;
+                                    case 'email':
+                                        setTimeout(() => {
+                                            ElNotification({
+                                                type: 'error',
+                                                title: 'Error',
+                                                message: message[key][0],
+                                            });
+                                        }, 1);
+                                        this.errors.email = message[key][0];
+                                        break;
+                                    case 'phone':
+                                        setTimeout(() => {
+                                            ElNotification({
+                                                type: 'error',
+                                                title: 'Error',
+                                                message: message[key][0],
+                                            });
+                                        }, 1);
+                                        this.errors.phone = message[key][0];
+                                        break;
+                                    case 'alamat':
+                                        setTimeout(() => {
+                                            ElNotification({
+                                                type: 'error',
+                                                title: 'Error',
+                                                message: message[key][0],
+                                            });
+                                        }, 1);
+                                        this.errors.alamat = message[key][0];
+                                        break;
+                                    case 'latitude':
+                                    case 'longitude':
+                                    case 'formatted_address':
+                                    case 'location_source':
+                                        this.errors.location = message[key][0];
+                                        break;
+                                    case 'address_detail':
+                                        this.errors.addressDetail = message[key][0];
+                                        break;
+                                }
+                            });
+                        } else {
+                            ElNotification({
+                                type: 'error',
+                                title: 'Lokasi Belum Tersimpan',
+                                message:
+                                    error.response?.data?.message ||
+                                    'Lokasi belum dapat diverifikasi. Silakan coba lagi.',
+                            });
+                        }
+                    });
             }
         },
 
+        /**
+         * Memvalidasi and synchronize input name untuk company setting.
+         *
+         * @returns {void} Function menerapkan efeknya melalui state komponen atau aplikasi.
+         */
         watchInputName() {
-            if(!this.name || this.name.trim() === '') {
+            if (!this.name || this.name.trim() === '') {
                 this.errors.name = 'name is required';
             } else {
                 this.errors.name = '';
             }
         },
 
+        /**
+         * Memvalidasi and synchronize input email untuk company setting.
+         *
+         * @returns {void} Function menerapkan efeknya melalui state komponen atau aplikasi.
+         */
         watchInputEmail() {
-            if(!this.email || this.email.trim() === '') {
+            if (!this.email || this.email.trim() === '') {
                 this.errors.email = 'email is required';
             } else {
                 this.errors.email = '';
             }
         },
 
+        /**
+         * Memvalidasi and synchronize input phone untuk company setting.
+         *
+         * @returns {void} Function menerapkan efeknya melalui state komponen atau aplikasi.
+         */
         watchInputPhone() {
-            if(!this.phone || this.phone.trim() === '') {
+            if (!this.phone || this.phone.trim() === '') {
                 this.errors.phone = 'phone is required';
             } else {
                 this.errors.phone = '';
             }
         },
 
+        /**
+         * Memvalidasi and synchronize input alamat untuk company setting.
+         *
+         * @returns {void} Function menerapkan efeknya melalui state komponen atau aplikasi.
+         */
         watchInputAlamat() {
-            if(!this.alamat || this.alamat.trim() === '') {
-                this.errors.alamat = 'alamat is required';
-            } else {
-                this.errors.alamat = '';
+            this.errors.location = '';
+            this.errors.addressDetail = '';
+            if (this.isMapPinpointInvalid(this.location)) {
+                this.errors.location = 'Pilih lokasi toko pada peta.';
             }
-        }
-    }
-}
+            if (this.isMapDetailInvalid(this.location)) {
+                this.errors.addressDetail = 'Detail alamat toko wajib diisi.';
+            }
+            this.errors.alamat = '';
+        },
+
+        /**
+         * Menentukan apakah kondisi map pinpoint invalid terpenuhi untuk company setting.
+         *
+         * @param {*} location Lokasi yang diproses oleh function.
+         *
+         * @returns {boolean} Menunjukkan apakah kondisi is map pinpoint invalid terpenuhi.
+         */
+        isMapPinpointInvalid(location) {
+            return (
+                !location.formatted_address ||
+                location.latitude === null ||
+                location.latitude === '' ||
+                location.longitude === null ||
+                location.longitude === '' ||
+                !Number.isFinite(Number(location.latitude)) ||
+                !Number.isFinite(Number(location.longitude))
+            );
+        },
+
+        /**
+         * Menentukan apakah kondisi map detail invalid terpenuhi untuk company setting.
+         *
+         * @param {*} location Lokasi yang diproses oleh function.
+         *
+         * @returns {boolean} Menunjukkan apakah kondisi is map detail invalid terpenuhi.
+         */
+        isMapDetailInvalid(location) {
+            return !location.address_detail?.trim();
+        },
+
+        /**
+         * Memvalidasi and synchronize location detail untuk company setting.
+         *
+         * @param {*} addressDetail Detail rumah, unit, lantai, atau patokan yang dimasukkan user.
+         *
+         * @returns {void} Function menerapkan efeknya melalui state komponen atau aplikasi.
+         */
+        watchLocationDetail(addressDetail) {
+            this.errors.addressDetail = addressDetail.trim() === '' ? 'Detail alamat toko wajib diisi.' : '';
+        },
+
+        /**
+         * Mengambil location payload untuk company setting.
+         *
+         * @returns {Object} Object get location payload yang telah disiapkan.
+         */
+        getLocationPayload() {
+            return {
+                location_source: 'map',
+                alamat: '',
+                latitude: this.location.latitude,
+                longitude: this.location.longitude,
+                geoapify_place_id: this.location.geoapify_place_id,
+                formatted_address: this.location.formatted_address,
+                address_detail: this.location.address_detail,
+            };
+        },
+
+        /**
+         * Menangani location tidak tersedia untuk company setting.
+         *
+         * @param {*} message Pesan yang ditampilkan atau disimpan oleh alur saat ini.
+         *
+         * @returns {void} Function menerapkan efeknya melalui state komponen atau aplikasi.
+         */
+        handleLocationUnavailable(message) {
+            ElNotification({
+                type: 'warning',
+                title: 'Pinpoint Tidak Tersedia',
+                message,
+            });
+        },
+    },
+
+    watch: {
+        location: {
+            deep: true,
+            /**
+             * Menyinkronkan state komponen ketika location berubah untuk company setting.
+             *
+             * @param {*} newValue Nilai terbaru yang diberikan oleh watcher reaktif.
+             *
+             * @returns {void} Function menerapkan efeknya melalui state komponen atau aplikasi.
+             */
+            handler(newValue) {
+                if (!this.isMapPinpointInvalid(newValue)) {
+                    this.errors.location = '';
+                }
+                if (!this.isMapDetailInvalid(newValue)) {
+                    this.errors.addressDetail = '';
+                }
+            },
+        },
+    },
+};
 </script>
 
 <style scoped>
@@ -385,12 +629,69 @@ export default {
     opacity: 0.55;
 }
 
+.setting-secondary-button {
+    min-height: 40px;
+    min-width: 116px;
+    border: 1px solid #cbd5e1;
+    border-radius: 7px;
+    padding: 0 16px;
+    color: #475569;
+    font-weight: 700;
+}
+
+.location-source-toggle {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 8px;
+}
+
+.location-source-toggle button {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+    border: 1px solid #cbd5e1;
+    border-radius: 6px;
+    padding: 9px 12px;
+    color: #64748b;
+    font-weight: 600;
+}
+
+.location-source-toggle button.active {
+    border-color: #8b5cf6;
+    background: #f5f3ff;
+    color: #7c3aed;
+}
+
+.location-source-content {
+    margin-top: 8px;
+}
+
+.legacy-address-notice {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    border: 1px solid #f59e0b;
+    border-radius: 7px;
+    background: #fffbeb;
+    padding: 10px 12px;
+    color: #92400e;
+    font-size: 0.82rem;
+}
+
 .input-container input.is-error-field,
 .input-container textarea.is-error-field,
 .input-container input.is-error-field:focus,
 .input-container textarea.is-error-field:focus {
     border-color: #ef4444 !important;
-    box-shadow: 0 0 0 2px #fee2e2, 0 1px 2px rgba(15, 23, 42, 0.05) !important;
+    box-shadow:
+        0 0 0 2px #fee2e2,
+        0 1px 2px rgba(15, 23, 42, 0.05) !important;
 }
 
+@media (max-width: 640px) {
+    .location-source-toggle {
+        grid-template-columns: 1fr;
+    }
+}
 </style>
