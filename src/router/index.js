@@ -275,7 +275,7 @@ const routes = [
                 meta: {
                     public: false,
                     settingsTitle: 'Audit Log',
-                    settingsDescription: 'Pantau aktivitas akun dan pengelolaan produk penting Anda.',
+                    settingsDescription: 'Pantau aktivitas penting di akun Anda.',
                 },
             },
             {

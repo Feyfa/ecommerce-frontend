@@ -72,8 +72,11 @@
 
                 <main class="settings-content">
                     <div class="settings-content-header">
-                        <h2>{{ currentSettingsTitle }}</h2>
-                        <p>{{ currentSettingsDescription }}</p>
+                        <div class="settings-content-header-copy">
+                            <h2>{{ currentSettingsTitle }}</h2>
+                            <p>{{ currentSettingsDescription }}</p>
+                        </div>
+                        <div id="settings-content-header-actions" class="settings-content-header-actions"></div>
                         <div class="settings-title-divider" aria-hidden="true"></div>
                     </div>
 
@@ -364,7 +367,35 @@ export default {
 }
 
 .settings-content-header {
+    container-name: settings-header;
+    container-type: inline-size;
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    gap: 10px 16px;
     margin-bottom: 16px;
+}
+
+.settings-content-header-copy {
+    min-width: 0;
+}
+
+.settings-content-header-actions {
+    min-width: 0;
+    margin-left: auto;
+}
+
+@container settings-header (max-width: 1024px) {
+    .settings-content-header-actions {
+        width: 100%;
+        margin-left: 0;
+    }
+
+    .settings-content-header.has-audit-log-actions .settings-content-header-actions {
+        width: auto;
+        margin-left: auto;
+    }
 }
 
 .settings-content-header h2 {
@@ -381,9 +412,10 @@ export default {
 }
 
 .settings-title-divider {
+    flex: 0 0 auto;
     width: 100%;
     height: 1px;
-    margin-top: 14px;
+    margin-top: 4px;
     background: #e2e8f0;
 }
 
@@ -605,6 +637,11 @@ export default {
 }
 
 @media (max-width: 1024px) {
+    .settings-content-header-actions {
+        width: 100%;
+        margin-left: 0;
+    }
+
     .settings-mobile-menu {
         display: block;
         position: relative;
@@ -727,6 +764,18 @@ export default {
     }
 }
 
+@media (min-width: 641px) {
+    .settings-content-header.has-audit-log-actions {
+        align-items: flex-end;
+        flex-direction: row;
+    }
+
+    .settings-content-header.has-audit-log-actions .settings-content-header-actions {
+        width: auto;
+        margin-left: auto;
+    }
+}
+
 @media (max-width: 640px) {
     .settings-page {
         height: calc(100dvh - 3.5rem);
@@ -753,6 +802,16 @@ export default {
 
     .settings-content-header {
         margin-bottom: 12px;
+    }
+
+    .settings-content-header.has-audit-log-actions {
+        flex-direction: column;
+    }
+
+    .settings-content-header-actions,
+    .settings-content-header.has-audit-log-actions .settings-content-header-actions {
+        width: 100%;
+        margin-left: 0;
     }
 
     .settings-content-header h2 {

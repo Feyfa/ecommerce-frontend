@@ -42,7 +42,7 @@
             </div>
 
             <div
-                class="mt-3 grid grid-cols-1 gap-3 lg:grid-cols-[minmax(14rem,27rem)_1fr_12rem_14rem_10.5rem] lg:items-end"
+                class="mt-3 grid grid-cols-1 gap-3 lg:grid-cols-[minmax(14rem,27rem)_1fr_12rem_12rem_3rem] lg:items-end"
             >
                 <div class="flex min-w-0 flex-col gap-1.5">
                     <label for="search-product" class="text-xs font-semibold text-slate-600">Cari Produk</label>
@@ -104,12 +104,13 @@
 
                 <button
                     type="button"
-                    class="inline-flex h-11 w-full items-center justify-center gap-2 rounded-md border border-slate-300 bg-white px-4 text-sm font-semibold text-slate-600 shadow-sm transition hover:border-violet-200 hover:bg-violet-50 hover:text-violet-700 active:scale-95 disabled:cursor-not-allowed disabled:opacity-50"
+                    class="inline-flex h-11 w-11 shrink-0 items-center justify-center rounded-md border border-slate-300 bg-white px-0 text-sm font-semibold text-slate-600 shadow-sm transition hover:border-violet-200 hover:bg-violet-50 hover:text-violet-700 active:scale-95 disabled:cursor-not-allowed disabled:opacity-50"
                     :disabled="!hasActiveProductFilter"
+                    title="Reset filter"
+                    aria-label="Reset filter"
                     @click="resetProductFilters"
                 >
-                    <i class="fa-solid fa-rotate-left text-xs"></i>
-                    Reset Filter
+                    <i class="fa-solid fa-rotate-left text-xs" aria-hidden="true"></i>
                 </button>
 
                 <button
