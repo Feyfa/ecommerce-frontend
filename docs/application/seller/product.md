@@ -172,7 +172,7 @@ Authenticated requests use the current Clerk session token attached by the share
 - Add and edit price inputs use an `Rp` prefix and Indonesian thousands separators, but submit raw numeric values to the backend.
 - The product toolbar uses permanently labeled `Kondisi Stok` and `Urutkan Produk` Element Plus selects so their different purposes remain clear.
 - Stock-condition options include status icons and explicit thresholds: `Stok Aman (>5)`, `Stok Menipis (1–5)`, and `Stok Habis (0)`.
-- The desktop toolbar caps the search width on wide screens and keeps stock filter, sort, and reset controls grouped on the right.
+- The desktop toolbar caps the search width on wide screens and keeps stock filter, sort, and the compact icon-only reset control grouped on the right. The stock-condition and sort selects use the same width, and the reset control keeps the accessible label and tooltip `Reset filter`.
 - The add/edit product UI is a right-side drawer below the top navbar.
 - Image zoom uses Element Plus image viewer.
 - Empty states are different for no search result and truly empty seller products.

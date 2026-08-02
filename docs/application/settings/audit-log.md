@@ -28,12 +28,12 @@ Produk Dihapus
 
 Rules:
 
-- a completed registration displays `Akun Berhasil Dibuat` only;
-- the first session after registration does not display a redundant login item;
-- only successful activity is displayed;
-- login method wording is shown only when the backend provides a verified method;
-- the generic title is `Login` when no verified method is available;
-- activity before feature deployment is not shown because no backfill is planned.
+-   a completed registration displays `Akun Berhasil Dibuat` only;
+-   the first session after registration does not display a redundant login item;
+-   only successful activity is displayed;
+-   login method wording is shown only when the backend provides a verified method;
+-   the generic title is `Login` when no verified method is available;
+-   activity before feature deployment is not shown because no backfill is planned.
 
 ## Route and Component
 
@@ -45,38 +45,45 @@ The existing route remains:
 
 The route renders `src/views/auth/settings/AuditLogView.vue`. The implementation follows the existing settings shell, responsive layout, Axios instance, Clerk-backed authentication handling, and Element Plus visual conventions.
 
-## Desktop Layout
+## Responsive Layout
 
-The desktop page uses an activity timeline/list rather than a wide data table:
+The Settings shell owns the `Audit Log` title and description. Audit Log places its filter controls in the same header area instead of rendering a standalone full-width filter card:
+
+```text
+Audit Log                         [Semua Aktivitas] [30 Hari] [↺ disabled]
+Pantau aktivitas penting di akun Anda.
+```
+
+On wide desktop layouts, the activity and time controls remain inline with the page header. When the available settings-header area reaches compact width, those controls move into a purple `Filter` popover. On every non-mobile layout, the compact trigger stays right-aligned on the same row as `Pantau aktivitas penting di akun Anda.`; only mobile places the full-width trigger below that description. The `Rentang Waktu` select stays visible after `Rentang Tanggal` is selected, allowing users to switch directly back to the 7, 30, or 90-day presets. Selecting or reselecting `Rentang Tanggal` opens its calendar close below the same control without adding another visible header input. Duplicate select events are coalesced so the calendar is not immediately dismissed inside the compact popover. The calendar remains below its control instead of flipping upward across the filter interface. After both dates are selected, the closed select displays a compact value such as `28–29 Agu 2026`, while its dropdown option remains named `Rentang Tanggal`. Closing the calendar before completing a range restores the previously applied preset; if the previous applied state was also custom, the safe fallback is 30 days. Reset is visible but disabled while filters are at their defaults, then becomes active after a filter changes. It retains an accessible label and tooltip.
+
+At compact laptop and tablet widths, the trigger and reset action remain right-aligned beside the header copy:
 
 ```text
 Audit Log
-Pantau aktivitas login dan keamanan penting pada akun Anda.
-
-[Semua Aktivitas] [30 Hari Terakhir]                 [Refresh]
-
-+--------------------------------------------------------------+
-| Login                                                        |
-| Akun Anda berhasil login.                                    |
-| Chrome - macOS - Desktop                                     |
-| IP 103.10.xxx.xxx                                            |
-| 14 Juli 2026, 07:30 WIB                           [Detail]   |
-+--------------------------------------------------------------+
-
-+--------------------------------------------------------------+
-| Logout                                                       |
-| Anda keluar dari akun pada perangkat ini.                    |
-| Chrome - macOS - Desktop                                     |
-| IP 103.10.xxx.xxx                                            |
-| 13 Juli 2026, 22:15 WIB                           [Detail]   |
-+--------------------------------------------------------------+
-
-                    [Muat Aktivitas Lainnya]
+Pantau aktivitas penting di akun Anda.         [Filter] [↺ disabled]
 ```
 
-The mobile page keeps the same information in a single-column compact card/list. The Detail action remains aligned to the top-right of the activity summary instead of separating the description from its metadata. Important content must not depend on hover.
+At 640px and below, the full-width `Filter` trigger sits below the description and opens a bounded panel containing the activity and time controls. The panel has a small inset from the viewport edges, a pointer, enough width for its labels, and closes when the user interacts outside it. The time select and hidden calendar anchor suppress the software text keyboard because neither accepts free-form text. The custom calendar opens below the time control, follows the available width on small phones, and remains capped and horizontally centered on tablet-sized viewports instead of stretching across or drifting to one side of the content area. When a custom range is cancelled from the compact panel, the first outside interaction closes only the calendar and restores the applied preset; a subsequent outside interaction closes the Filter panel. Filter changes keep the existing immediate reload behavior, so no additional Apply step is introduced.
 
-The filter toolbar remains sticky at the top of the scrollable Settings content on viewports wider than 768px, so filters and Refresh stay accessible while reviewing long activity lists. At 768px and below, the toolbar keeps its normal document position because the stacked controls, especially a custom date range, would otherwise consume too much of the mobile viewport.
+Changing or resetting a filter reloads the collection while keeping current cards visible. If that request fails, the existing collection remains available with an inline retry action. The header target is resolved before filter controls are teleported, and leaving Audit Log invalidates pending responses so they cannot interfere with the destination settings page.
+
+The activity collection remains a single-column timeline/list rather than a wide data table. Each row uses the same three visual lines for authentication and product events:
+
+```text
++--------------------------------------------------------------+
+| Login                                            [Detail]    |
+| Akun Anda berhasil login.                                    |
+| Chrome - macOS - Desktop • IP 103.10.xxx.xxx • 14 Juli 2026 |
++--------------------------------------------------------------+
+
++--------------------------------------------------------------+
+| Produk Diperbarui                                [Detail]    |
+| Aneka Ragam Pakaian • Stok berubah.                         |
+| Chrome - macOS - Desktop • IP 103.10.xxx.xxx • 14 Juli 2026 |
++--------------------------------------------------------------+
+```
+
+The mobile page keeps the same information in a single-column compact card/list. Important content must not depend on hover. The filter panel is revealed only when requested, so it does not permanently consume a full row of the activity viewport.
 
 ## Filters
 
@@ -107,14 +114,15 @@ Rentang Tanggal
 
 The implemented default is 30 days.
 
-The custom range uses a two-calendar range picker on desktop. On mobile it uses separate `Tanggal mulai` and `Tanggal selesai` inputs with one calendar each, preventing the calendar panel from overflowing narrow screens while preserving the same filter state and API parameters.
+The custom range uses a two-calendar range picker anchored below the unchanged `Rentang Waktu` select. On narrower viewports, the calendar panel is constrained to the viewport and its month sections stack vertically when required. The selected range preserves the same filter state and API parameters without rendering separate date inputs in the header or filter panel.
 
 Changing any filter must:
 
 1. discard the previous cursor;
-2. clear or replace the current activity collection;
-3. request the first page for the new filter;
-4. ignore stale responses from the previous filter state.
+2. keep the current activity collection visible while the replacement request is loading;
+3. request the first page for the new filter and replace the collection only after that request succeeds;
+4. keep the current collection with an inline retry message if the replacement request fails;
+5. ignore stale responses from the previous filter state.
 
 ## Cursor Pagination
 
@@ -122,13 +130,13 @@ Changing any filter must:
 
 Rules:
 
-- load 20 activities initially;
-- request the next page using the API `next_cursor`;
-- append new items instead of replacing existing items;
-- hide the button when `has_more` is false;
-- disable duplicate requests while the next page is loading;
-- keep already-loaded activity visible if the next-page request fails;
-- allow retry without resetting the successful list.
+-   load 20 activities initially;
+-   request the next page using the API `next_cursor`;
+-   append new items instead of replacing existing items;
+-   hide the button when `has_more` is false;
+-   disable duplicate requests while the next page is loading;
+-   keep already-loaded activity visible if the next-page request fails;
+-   allow retry without resetting the successful list.
 
 The client must treat a cursor as belonging to the active filter set. A cursor from one event or date filter must never be reused after filters change.
 
@@ -136,24 +144,25 @@ The client must treat a cursor as belonging to the active filter set. A cursor f
 
 Each item may display:
 
-- event icon and title;
-- safe event description;
-- verified authentication method when available;
-- browser;
-- operating system;
-- device type;
-- masked IP address;
-- activity time in Asia/Jakarta;
-- detail action.
+-   event icon and title;
+-   safe event description;
+-   verified authentication method when available;
+-   browser;
+-   operating system;
+-   device type;
+-   masked IP address;
+-   activity time in Asia/Jakarta;
+-   detail action.
 
 The interface must not guess device or authentication values. Missing data should be omitted or represented by neutral wording.
 
 ### Product Activity Cards
 
-- Create and delete cards show the product name, price, stock, and photo count from the safe snapshot.
-- Update cards show the product name, changed field labels, and a text summary of photo changes.
-- Product events use distinct icons and colors, but labels remain the primary meaning.
-- Image changes are metadata only. The UI never expects or renders historical photo previews.
+-   Product collection rows use the same three visual lines as authentication rows: activity title, one combined product/outcome description, and compact device/IP/time metadata.
+-   Create and delete cards show the product name followed by one compact price, stock, and photo-count summary from the safe snapshot.
+-   Update cards show the product name followed by one concise summary of data and photo changes. Verbose field-by-field values remain in Detail.
+-   Product events use distinct icons and colors, but labels remain the primary meaning.
+-   Image changes are metadata only. The UI never expects or renders historical photo previews.
 
 ## Detail Panel
 
@@ -186,10 +195,10 @@ Do not add a non-functional report action.
 
 For product events, Detail additionally shows:
 
-- create: a two-column `Data`/`Nilai awal` table containing the product name, price, stock, and photo count;
-- update: a stable `Data`/`Sebelum`/`Sesudah`/`Status` table containing name, price, stock, and photo count, including unchanged values marked `Tetap`;
-- update image metadata: a separate `Perubahan foto` card that lists only actual additions, removals, cover changes, or order changes, with neutral wording when nothing changed;
-- delete: a two-column `Data`/`Nilai terakhir` table and an explanation that the product has been deleted.
+-   create: a two-column `Data`/`Nilai awal` table containing the product name, price, stock, and photo count;
+-   update: a stable `Data`/`Sebelum`/`Sesudah`/`Status` table containing name, price, stock, and photo count, including unchanged values marked `Tetap`;
+-   update image metadata: a separate `Perubahan foto` card that lists only actual additions, removals, cover changes, or order changes, with neutral wording when nothing changed;
+-   delete: a two-column `Data`/`Nilai terakhir` table and an explanation that the product has been deleted.
 
 An identical successful update keeps the historical values visible and marks them `Tetap` instead of inventing changes. Product details end after their metadata/status content; the login/security-device warning and Security link remain limited to authentication events.
 
@@ -211,13 +220,13 @@ Alamat IP    103.10.20.30    [hide icon]
 
 Rules:
 
-- keep IP masked by default;
-- reveal only after an explicit user action;
-- reset to masked when the detail panel closes;
-- provide `Tampilkan alamat IP` and `Sembunyikan alamat IP` tooltips;
-- provide equivalent `aria-label` values;
-- make the control keyboard accessible;
-- do not store the full IP in persistent frontend storage.
+-   keep IP masked by default;
+-   reveal only after an explicit user action;
+-   reset to masked when the detail panel closes;
+-   provide `Tampilkan alamat IP` and `Sembunyikan alamat IP` tooltips;
+-   provide equivalent `aria-label` values;
+-   make the control keyboard accessible;
+-   do not store the full IP in persistent frontend storage.
 
 ## Authentication Method
 
@@ -225,9 +234,9 @@ The frontend displays a method such as Google, email/password, or passkey only w
 
 If no verified method is available:
 
-- render `Login`;
-- omit the method row;
-- do not infer a method from route state, button choice, local storage, or user-agent data.
+-   render `Login`;
+-   omit the method row;
+-   do not infer a method from route state, button choice, local storage, or user-agent data.
 
 ## Logout Integration
 
@@ -272,7 +281,7 @@ No filter result:
 ```text
 Aktivitas tidak ditemukan
 
-Tidak ada aktivitas yang sesuai dengan filter dan rentang tanggal.
+Tidak ada aktivitas yang sesuai dengan filter dan rentang tanggal yang dipilih.
 
 [Reset Filter]
 ```
@@ -295,12 +304,12 @@ Global `401` behavior remains owned by the shared Axios/auth session interceptor
 
 ## Accessibility
 
-- Use semantic buttons for filters, refresh, detail, IP reveal, retry, and load-more actions.
-- Give icon-only buttons accessible names and visible tooltips.
-- Maintain visible keyboard focus.
-- Do not encode event meaning through color alone.
-- Make dialog or drawer focus behavior consistent with the project's Element Plus components.
-- Keep mobile controls large enough for touch interaction.
+-   Use semantic buttons for the compact filter trigger, reset, detail, IP reveal, retry, and load-more actions.
+-   Give icon-only buttons accessible names and visible tooltips.
+-   Maintain visible keyboard focus.
+-   Do not encode event meaning through color alone.
+-   Make dialog or drawer focus behavior consistent with the project's Element Plus components.
+-   Keep mobile controls large enough for touch interaction.
 
 ## API Integration
 
@@ -327,17 +336,17 @@ The collection response supplies masked IP data and pagination metadata. Product
 
 The current scope does not include:
 
-- failed authentication attempts;
-- geolocation from IP;
-- numbered pagination;
-- export or download;
-- full-text search;
-- profile, address, bank account, checkout, transaction, or financial audit events;
-- administrator audit access;
-- historical backfill;
-- retention controls.
+-   failed authentication attempts;
+-   geolocation from IP;
+-   numbered pagination;
+-   export or download;
+-   full-text search;
+-   profile, address, bank account, checkout, transaction, or financial audit events;
+-   administrator audit access;
+-   historical backfill;
+-   retention controls.
 
 ## QA Coverage
 
-- [TOK-16 Product Audit Log QA](../../qa/tok-16-product-audit-log.md) tracks
-  product audit UI verification.
+-   [TOK-16 Product Audit Log QA](../../qa/tok-16-product-audit-log.md) tracks
+    product audit UI verification.
