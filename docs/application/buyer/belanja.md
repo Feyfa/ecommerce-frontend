@@ -110,7 +110,7 @@ Authenticated requests use the current Clerk session token attached by the share
 ## UI Notes
 
 - The page follows the same visual direction as seller product: white toolbar, light page background, white cards, soft border, and soft shadow.
-- The toolbar uses a responsive grid: the labeled search and sort controls remain clear on mobile, while sort and reset stay grouped on the right on wide screens.
+- The toolbar uses a responsive grid: the labeled search and sort controls remain clear on mobile, while sort and the compact icon-only reset control stay grouped on the right on wide screens. The reset control keeps the accessible label and tooltip `Reset filter`.
 - Active search and non-default sorting are shown as violet chips below the toolbar.
 - Buyer cards include the public store name, so they use `h-[18.5rem]` instead of the seller product card height.
 - Product images use `object-contain` so the full product is visible.
