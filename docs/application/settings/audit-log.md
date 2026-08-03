@@ -244,6 +244,10 @@ An identical successful update keeps every historical value visible and marks ea
 
 The detail response is owner-scoped, so it carries the full recipient name, phone number, and address detail that the collection response masks or omits. Coordinates are never present in either response.
 
+The product and address change tables share one stylesheet. Their `Data` column must stay wide enough for the longest label of every audited domain, because labels do not wrap and would otherwise overflow into the `Sebelum` column. A new audited domain with longer labels widens that shared column for all domains rather than introducing its own table style.
+
+Widening a column must not raise the table minimum width past the space the detail modal actually offers, which is the panel width minus the modal and card padding. The horizontal scroll under the change table exists for narrow screens; if it appears on a full-size desktop panel, the minimum width is too large rather than the modal too narrow.
+
 ## IP Reveal Behavior
 
 The collection API supplies masked IP values. The full value is requested only through the authenticated detail flow for an event owned by the current user.

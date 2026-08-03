@@ -2400,6 +2400,8 @@ button:disabled {
 
 .audit-change-table {
     width: 100%;
+    /* Tetap di bawah lebar isi modal desktop agar scroll horizontal hanya menyala
+       pada layar sempit, bukan pada panel detail berukuran penuh. */
     min-width: 620px;
     border-collapse: collapse;
     table-layout: fixed;
@@ -2407,7 +2409,9 @@ button:disabled {
 }
 
 .audit-change-data-column {
-    width: 110px;
+    /* Cukup untuk label terpanjang seluruh domain audit, yang sebelumnya meluber ke
+       kolom nilai karena label tidak pernah wrap. */
+    width: 144px;
 }
 
 .audit-change-value-column {
