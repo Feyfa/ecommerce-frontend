@@ -181,11 +181,7 @@
                         <div class="audit-card-heading">
                             <div>
                                 <h3>{{ audit.title }}</h3>
-                                <p>
-                                    {{
-                                        isProductAudit(audit) ? productCollectionDescription(audit) : audit.description
-                                    }}
-                                </p>
+                                <p>{{ collectionDescription(audit) }}</p>
                             </div>
 
                             <button type="button" class="audit-detail-button" @click="openDetail(audit)">
@@ -263,7 +259,7 @@
                 <template v-else-if="selectedAudit">
                     <p class="audit-detail-description">{{ selectedAudit.description }}</p>
 
-                    <section v-if="isProductAudit(selectedAudit)" class="audit-product-detail">
+                    <section v-if="isAuditCategory(selectedAudit, 'product')" class="audit-product-detail">
                         <div class="audit-product-detail-heading">
                             <span>Produk</span>
                             <h4>{{ selectedAudit.subject?.name || 'Produk' }}</h4>
@@ -351,6 +347,141 @@
                         </div>
                     </section>
 
+                    <section v-if="isAuditCategory(selectedAudit, 'address')" class="audit-address-detail">
+                        <div class="audit-address-detail-heading">
+                            <span>Alamat</span>
+                            <h4>{{ selectedAudit.subject?.name || 'Alamat' }}</h4>
+                            <p v-if="selectedAudit.event === 'address.deleted'">
+                                Alamat sudah dihapus. Data berikut adalah kondisi terakhir sebelum penghapusan.
+                            </p>
+                        </div>
+
+                        <template v-if="selectedAudit.event === 'address.updated'">
+                            <div v-if="addressDetailChangeRows(selectedAudit).length" class="audit-change-table-wrap">
+                                <table class="audit-change-table">
+                                    <colgroup>
+                                        <col class="audit-change-data-column" />
+                                        <col class="audit-change-value-column" />
+                                        <col class="audit-change-value-column" />
+                                        <col class="audit-change-status-column" />
+                                    </colgroup>
+                                    <thead>
+                                        <tr>
+                                            <th>Data</th>
+                                            <th>Sebelum</th>
+                                            <th>Sesudah</th>
+                                            <th>Status</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <tr
+                                            v-for="change in addressDetailChangeRows(selectedAudit)"
+                                            :key="change.field"
+                                        >
+                                            <th>{{ change.label }}</th>
+                                            <td>
+                                                {{
+                                                    change.field === 'phone'
+                                                        ? displayedAddressPhone(change.before)
+                                                        : formatAddressValue(change.before)
+                                                }}
+                                            </td>
+                                            <td v-if="change.field === 'phone'">
+                                                <span class="audit-address-sensitive-value">
+                                                    <span>{{ displayedAddressPhone(change.after) }}</span>
+                                                    <button
+                                                        type="button"
+                                                        :title="
+                                                            isPhoneVisible
+                                                                ? 'Sembunyikan nomor telepon'
+                                                                : 'Tampilkan nomor telepon'
+                                                        "
+                                                        :aria-label="
+                                                            isPhoneVisible
+                                                                ? 'Sembunyikan nomor telepon'
+                                                                : 'Tampilkan nomor telepon'
+                                                        "
+                                                        @click="isPhoneVisible = !isPhoneVisible"
+                                                    >
+                                                        <i
+                                                            :class="
+                                                                isPhoneVisible
+                                                                    ? 'fa-regular fa-eye-slash'
+                                                                    : 'fa-regular fa-eye'
+                                                            "
+                                                        ></i>
+                                                    </button>
+                                                </span>
+                                            </td>
+                                            <td v-else>{{ formatAddressValue(change.after) }}</td>
+                                            <td>
+                                                <span
+                                                    class="audit-change-status"
+                                                    :class="change.changed ? 'is-changed' : 'is-unchanged'"
+                                                >
+                                                    {{ change.changed ? 'Berubah' : 'Tetap' }}
+                                                </span>
+                                            </td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                        </template>
+
+                        <div v-else-if="selectedAudit.address_snapshot" class="audit-snapshot-table-wrap">
+                            <table class="audit-snapshot-table">
+                                <colgroup>
+                                    <col class="audit-snapshot-data-column" />
+                                    <col />
+                                </colgroup>
+                                <thead>
+                                    <tr>
+                                        <th>Data</th>
+                                        <th>{{ addressSnapshotHeading(selectedAudit) }}</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr v-for="row in addressSnapshotRows(selectedAudit)" :key="row.field">
+                                        <th>{{ row.label }}</th>
+                                        <td v-if="row.sensitive" class="audit-address-sensitive-value">
+                                            <span>{{ displayedAddressPhone(row.value) }}</span>
+                                            <button
+                                                type="button"
+                                                :title="
+                                                    isPhoneVisible
+                                                        ? 'Sembunyikan nomor telepon'
+                                                        : 'Tampilkan nomor telepon'
+                                                "
+                                                :aria-label="
+                                                    isPhoneVisible
+                                                        ? 'Sembunyikan nomor telepon'
+                                                        : 'Tampilkan nomor telepon'
+                                                "
+                                                @click="isPhoneVisible = !isPhoneVisible"
+                                            >
+                                                <i
+                                                    :class="
+                                                        isPhoneVisible ? 'fa-regular fa-eye-slash' : 'fa-regular fa-eye'
+                                                    "
+                                                ></i>
+                                            </button>
+                                        </td>
+                                        <td v-else>{{ formatAddressValue(row.value) }}</td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+
+                        <p v-if="selectedAudit.previous_address" class="audit-address-reference">
+                            Sebelumnya: {{ selectedAudit.previous_address.place }} —
+                            {{ formatAddressValue(selectedAudit.previous_address.recipient_name) }}
+                        </p>
+                        <p v-if="selectedAudit.replacement_address" class="audit-address-reference">
+                            Alamat utama dialihkan ke: {{ selectedAudit.replacement_address.place }} —
+                            {{ formatAddressValue(selectedAudit.replacement_address.recipient_name) }}
+                        </p>
+                    </section>
+
                     <dl class="audit-detail-list">
                         <div v-if="selectedAudit.auth_method">
                             <dt>Metode login</dt>
@@ -388,7 +519,7 @@
                         </div>
                     </dl>
 
-                    <div v-if="!isProductAudit(selectedAudit)" class="audit-security-note">
+                    <div v-if="isAuditCategory(selectedAudit, 'authentication')" class="audit-security-note">
                         <div>
                             <strong>Tidak mengenali aktivitas ini?</strong>
                             <p>Periksa dan keluarkan perangkat lain melalui halaman Keamanan.</p>
@@ -434,6 +565,15 @@ export default {
                         { label: 'Produk Ditambahkan', value: 'product.created' },
                         { label: 'Produk Diperbarui', value: 'product.updated' },
                         { label: 'Produk Dihapus', value: 'product.deleted' },
+                    ],
+                },
+                {
+                    label: 'Alamat',
+                    options: [
+                        { label: 'Alamat Ditambahkan', value: 'address.created' },
+                        { label: 'Alamat Diperbarui', value: 'address.updated' },
+                        { label: 'Alamat Dihapus', value: 'address.deleted' },
+                        { label: 'Alamat Dipilih', value: 'address.selected' },
                     ],
                 },
             ],
@@ -487,6 +627,7 @@ export default {
             selectedAudit: null,
             selectedMaskedIp: '',
             isIpVisible: false,
+            isPhoneVisible: false,
             isFilterPanelOpen: false,
             headerActionsTarget: null,
             modal: {
@@ -942,6 +1083,7 @@ export default {
             this.selectedAudit = { ...audit };
             this.selectedMaskedIp = audit.ip_address || '';
             this.isIpVisible = false;
+            this.isPhoneVisible = false;
             this.modal.detail = true;
             await this.loadDetail();
         },
@@ -962,6 +1104,7 @@ export default {
             this.isLoadingDetail = true;
             this.detailError = '';
             this.isIpVisible = false;
+            this.isPhoneVisible = false;
 
             // --- step 2 - start - terapkan response hanya selama modal dan target audit tidak berubah
             try {
@@ -1013,6 +1156,7 @@ export default {
             this.selectedAudit = null;
             this.selectedMaskedIp = '';
             this.isIpVisible = false;
+            this.isPhoneVisible = false;
             this.detailError = '';
             this.isLoadingDetail = false;
         },
@@ -1033,6 +1177,10 @@ export default {
                     'product.created': 'fa-solid fa-box-open',
                     'product.updated': 'fa-solid fa-pen-to-square',
                     'product.deleted': 'fa-solid fa-trash-can',
+                    'address.created': 'fa-solid fa-house-circle-check',
+                    'address.updated': 'fa-solid fa-house-chimney-crack',
+                    'address.deleted': 'fa-solid fa-house-circle-xmark',
+                    'address.selected': 'fa-solid fa-map-location-dot',
                 }[event] || 'fa-solid fa-clock-rotate-left'
             );
         },
@@ -1053,19 +1201,49 @@ export default {
                     'product.created': 'is-product-created',
                     'product.updated': 'is-product-updated',
                     'product.deleted': 'is-product-deleted',
+                    'address.created': 'is-address-created',
+                    'address.updated': 'is-address-updated',
+                    'address.deleted': 'is-address-deleted',
+                    'address.selected': 'is-address-selected',
                 }[event] || ''
             );
         },
 
         /**
-         * Menentukan apakah kondisi produk audit terpenuhi untuk halaman audit log.
+         * Menentukan apakah sebuah event audit berasal dari kategori tertentu.
+         *
+         * Pemeriksaan kategori dibuat generik agar penambahan domain audit berikutnya cukup memakai
+         * kategori barunya tanpa menambah predikat khusus per domain.
          *
          * @param {*} audit Nilai audit yang diproses oleh function.
+         * @param {string} category Kategori audit yang dibandingkan, misalnya 'product' atau 'address'.
          *
-         * @returns {boolean} Menunjukkan apakah kondisi is produk audit terpenuhi.
+         * @returns {boolean} Menunjukkan apakah audit berada pada kategori yang diminta.
          */
-        isProductAudit(audit) {
-            return audit?.category === 'product';
+        isAuditCategory(audit, category) {
+            return audit?.category === category;
+        },
+
+        /**
+         * Memilih deskripsi baris kedua kartu audit sesuai kategori eventnya.
+         *
+         * Setiap kartu audit wajib memiliki tiga baris visual, sehingga function ini selalu
+         * mengembalikan teks: ringkasan khusus domain bila tersedia, atau deskripsi event sebagai
+         * fallback yang aman.
+         *
+         * @param {*} audit Event audit yang akan diringkas pada koleksi.
+         *
+         * @returns {string} Deskripsi baris kedua untuk kartu audit tersebut.
+         */
+        collectionDescription(audit) {
+            switch (audit?.category) {
+                case 'product':
+                    return this.productCollectionDescription(audit);
+                case 'address':
+                    return this.addressCollectionDescription(audit);
+                default:
+                    return audit?.description || '';
+            }
         },
 
         /**
@@ -1249,6 +1427,176 @@ export default {
             if (field === 'image_count') return value === null || value === undefined ? '-' : `${value} foto`;
 
             return String(value ?? '-');
+        },
+
+        /**
+         * Menggabungkan label alamat dan ringkasan aktivitasnya menjadi satu baris deskripsi koleksi.
+         *
+         * Ringkasan dirakit dari field snapshot yang sudah terstruktur, bukan dari hasil mengurai teks
+         * alamat, sehingga tampilan tidak bergantung pada format alamat provider peta. Ketika snapshot
+         * tidak tersedia, deskripsi event dipakai agar kartu tetap memiliki tiga baris visual.
+         *
+         * @param {*} audit Event audit alamat yang akan diringkas pada koleksi.
+         *
+         * @returns {string} Deskripsi singkat alamat dan hasil aktivitasnya.
+         */
+        addressCollectionDescription(audit) {
+            const addressLabel = audit?.subject?.name || 'Alamat';
+
+            if (audit?.event === 'address.updated') {
+                return `${addressLabel} • ${this.addressUpdateSummary(audit)}`;
+            }
+
+            const snapshot = audit?.address_snapshot;
+            if (!snapshot) return audit?.description || addressLabel;
+
+            const snapshotSummary = [
+                snapshot.recipient_name || '',
+                audit?.event === 'address.selected' ? 'Jadi alamat utama' : snapshot.phone || '',
+            ].filter(Boolean);
+
+            return [addressLabel, ...snapshotSummary].join(' • ');
+        },
+
+        /**
+         * Merangkum field alamat yang berubah pada satu event update.
+         *
+         * Update yang tidak mengubah nilai apa pun tetap menghasilkan teks eksplisit agar baris kedua
+         * kartu tidak pernah kosong dan tidak mengarang perubahan.
+         *
+         * @param {*} audit Event audit alamat yang sedang diringkas.
+         *
+         * @returns {string} Ringkasan perubahan alamat untuk baris kedua kartu.
+         */
+        addressUpdateSummary(audit) {
+            const labels = Array.isArray(audit?.changes)
+                ? audit.changes.map((change) => change.label).filter(Boolean)
+                : [];
+
+            if (labels.length === 0) return 'Tidak ada perubahan';
+            if (labels.length === 1) return `${labels[0]} berubah`;
+            if (labels.length === 2) return `${labels[0]} dan ${labels[1]} berubah`;
+
+            return `${labels.slice(0, -1).join(', ')}, dan ${labels.at(-1)} berubah`;
+        },
+
+        /**
+         * Menyusun baris before/after untuk modal detail event update alamat.
+         *
+         * Seluruh field alamat selalu ditampilkan, sama seperti detail update produk, sehingga nilai
+         * yang tidak berubah tetap terbaca dan ditandai `Tetap`. Nilai before diambil dari daftar
+         * perubahan, sedangkan field yang tidak berubah memakai nilai snapshot untuk kedua kolomnya.
+         *
+         * @param {*} audit Event audit alamat yang sedang dibuka pada modal detail.
+         *
+         * @returns {Array<Object>} Kumpulan baris perubahan alamat yang siap dirender.
+         */
+        addressDetailChangeRows(audit) {
+            const changes = new Map(
+                (Array.isArray(audit?.changes) ? audit.changes : []).map((change) => [change.field, change]),
+            );
+            const snapshot = audit?.address_snapshot || {};
+            const fields = [
+                { field: 'place', label: 'Label Alamat', value: snapshot.place },
+                { field: 'recipient_name', label: 'Nama Penerima', value: snapshot.recipient_name },
+                { field: 'phone', label: 'Nomor Telepon', value: snapshot.phone },
+                { field: 'formatted_address', label: 'Lokasi', value: snapshot.formatted_address },
+                { field: 'address_detail', label: 'Detail Alamat', value: snapshot.address_detail },
+            ];
+
+            return fields.map((field) => {
+                const change = changes.get(field.field);
+
+                return {
+                    field: field.field,
+                    label: field.label,
+                    before: change?.before ?? field.value,
+                    after: change?.after ?? field.value,
+                    changed: Boolean(change),
+                };
+            });
+        },
+
+        /**
+         * Menentukan judul kolom nilai pada tabel snapshot alamat.
+         *
+         * Judul dibedakan per event agar pengguna tidak salah membaca konteks: alamat yang baru
+         * dipilih masih berlaku, sedangkan alamat yang dihapus hanya menyisakan kondisi terakhirnya.
+         *
+         * @param {*} audit Event audit alamat yang sedang dibuka pada modal detail.
+         *
+         * @returns {string} Judul kolom nilai yang sesuai dengan event tersebut.
+         */
+        addressSnapshotHeading(audit) {
+            switch (audit?.event) {
+                case 'address.created':
+                    return 'Nilai awal';
+                case 'address.selected':
+                    return 'Nilai saat ini';
+                default:
+                    return 'Nilai terakhir';
+            }
+        },
+
+        /**
+         * Menyusun baris snapshot alamat untuk modal detail.
+         *
+         * Nomor telepon ditandai sebagai field sensitif agar template dapat menyamarkannya sampai
+         * pengguna memilih untuk menampilkannya, mengikuti perlakuan yang sama dengan alamat IP.
+         *
+         * @param {*} audit Event audit alamat yang sedang dibuka pada modal detail.
+         *
+         * @returns {Array<Object>} Kumpulan baris snapshot alamat yang siap dirender.
+         */
+        addressSnapshotRows(audit) {
+            const snapshot = audit?.address_snapshot || {};
+
+            return [
+                { field: 'place', label: 'Label Alamat', value: snapshot.place, sensitive: false },
+                { field: 'recipient_name', label: 'Nama Penerima', value: snapshot.recipient_name, sensitive: false },
+                { field: 'phone', label: 'Nomor Telepon', value: snapshot.phone, sensitive: true },
+                { field: 'formatted_address', label: 'Lokasi', value: snapshot.formatted_address, sensitive: false },
+                { field: 'address_detail', label: 'Detail Alamat', value: snapshot.address_detail, sensitive: false },
+                {
+                    field: 'enable',
+                    label: 'Status',
+                    value: snapshot.enable ? 'Alamat utama' : 'Bukan alamat utama',
+                    sensitive: false,
+                },
+            ];
+        },
+
+        /**
+         * Memformat nilai alamat untuk ditampilkan pada modal detail.
+         *
+         * @param {*} value Nilai field alamat yang akan ditampilkan.
+         *
+         * @returns {string} Teks nilai alamat yang telah dinormalisasi.
+         */
+        formatAddressValue(value) {
+            if (value === null || value === undefined || value === '') return '-';
+
+            return String(value);
+        },
+
+        /**
+         * Menyamarkan nomor telepon ketika pengguna belum memilih untuk menampilkannya.
+         *
+         * Frontend hanya menyamarkan nilai yang sudah diterima dari endpoint detail owner-scoped dan
+         * tidak pernah menjadi satu-satunya lapis perlindungan data pribadi.
+         *
+         * @param {*} phone Nomor telepon dari snapshot alamat.
+         *
+         * @returns {string} Nomor telepon penuh atau versi yang telah disamarkan.
+         */
+        displayedAddressPhone(phone) {
+            const value = String(phone ?? '').trim();
+
+            if (value === '') return '-';
+            if (this.isPhoneVisible) return value;
+            if (value.length <= 7) return '*'.repeat(value.length);
+
+            return `${value.slice(0, 4)}****${value.slice(-3)}`;
         },
 
         /**
@@ -1568,6 +1916,26 @@ button:disabled {
 .audit-event-icon.is-product-deleted {
     background: #fef2f2;
     color: #dc2626;
+}
+
+.audit-event-icon.is-address-created {
+    background: #ecfdf5;
+    color: #047857;
+}
+
+.audit-event-icon.is-address-updated {
+    background: #eff6ff;
+    color: #2563eb;
+}
+
+.audit-event-icon.is-address-deleted {
+    background: #fef2f2;
+    color: #dc2626;
+}
+
+.audit-event-icon.is-address-selected {
+    background: #f5f3ff;
+    color: #7c3aed;
 }
 
 .audit-card-content {
@@ -1918,6 +2286,58 @@ button:disabled {
     color: #64748b;
     font-size: 12px;
     line-height: 1.55;
+}
+
+.audit-address-detail {
+    margin-top: 18px;
+    border: 1px solid #dbeafe;
+    border-radius: 9px;
+    background: #f8fbff;
+    padding: 14px;
+}
+
+.audit-address-detail-heading > span {
+    color: #2563eb;
+    font-size: 10px;
+    font-weight: 800;
+    letter-spacing: 0.05em;
+    text-transform: uppercase;
+}
+
+.audit-address-detail-heading h4 {
+    margin-top: 2px;
+    color: #1e293b;
+    font-size: 15px;
+    font-weight: 750;
+}
+
+.audit-address-detail-heading p,
+.audit-address-reference {
+    margin-top: 5px;
+    color: #64748b;
+    font-size: 12px;
+    line-height: 1.55;
+}
+
+.audit-address-sensitive-value {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+}
+
+.audit-address-sensitive-value button {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 24px;
+    height: 24px;
+    flex: 0 0 24px;
+    border-radius: 6px;
+    color: #7c3aed;
+}
+
+.audit-address-sensitive-value button:hover {
+    background: #f5f3ff;
 }
 
 .audit-snapshot-table-wrap {
