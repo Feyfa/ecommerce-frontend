@@ -1,6 +1,6 @@
 # Audit Log
 
-This document explains the frontend Audit Log foundation from `TOK-1` and the product activity extension under `TOK-16`.
+This document explains the frontend Audit Log foundation from `TOK-1`, the product activity extension under `TOK-16`, and the buyer address activity extension under `TOK-21`.
 
 ## Status
 
@@ -8,7 +8,7 @@ Implemented. `/settings/audit-log` renders the dedicated authenticated audit tim
 
 ## Purpose
 
-Audit Log lets an authenticated buyer or seller review important activity on the shared account. It displays successful Register, Login, user-initiated Logout, and seller product create/update/delete activity.
+Audit Log lets an authenticated buyer or seller review important activity on the shared account. It displays successful Register, Login, user-initiated Logout, seller product create/update/delete, and buyer address create/update/delete/select activity.
 
 The page is a global settings route. It must remain available without requiring the user to change buyer or seller mode.
 
@@ -24,6 +24,10 @@ Logout
 Produk Ditambahkan
 Produk Diperbarui
 Produk Dihapus
+Alamat Ditambahkan
+Alamat Diperbarui
+Alamat Dihapus
+Alamat Dipilih
 ```
 
 Rules:
@@ -99,6 +103,11 @@ Produk
   Produk Ditambahkan
   Produk Diperbarui
   Produk Dihapus
+Alamat
+  Alamat Ditambahkan
+  Alamat Diperbarui
+  Alamat Dihapus
+  Alamat Dipilih
 ```
 
 The event select is searchable by its user-facing label. Its dropdown uses a viewport-aware maximum height and keeps scrolling available as more event groups are added.
@@ -164,6 +173,26 @@ The interface must not guess device or authentication values. Missing data shoul
 -   Product events use distinct icons and colors, but labels remain the primary meaning.
 -   Image changes are metadata only. The UI never expects or renders historical photo previews.
 
+### Address Activity Cards
+
+-   Address collection rows use the same three visual lines as authentication and product rows: activity title, one combined address/outcome description, and compact device/IP/time metadata.
+-   Create and delete cards show the address label followed by the recipient name and the masked phone number from the safe snapshot.
+-   Select cards show the address label, the recipient name, and `Jadi alamat utama`.
+-   Update cards show the address label followed by one concise summary of the fields that changed. Verbose before/after values remain in Detail.
+-   The second line is always assembled from structured snapshot fields. The UI never parses the formatted address string to derive a city or region, because that string is produced by the map provider and may change.
+-   When a snapshot is missing, the card falls back to the event description so the three-line layout is preserved.
+
+### Category Dispatch
+
+The card description and the detail sections are selected by event category rather than by a chain of product-specific conditions:
+
+```text
+collectionDescription(audit) -> product | address | event description
+isAuditCategory(audit, category) -> section visibility
+```
+
+A newly audited domain adds one branch and its own formatter instead of extending shared conditions. The security note that offers to sign out other devices is shown only for the `authentication` category.
+
 ## Detail Panel
 
 Opening Detail shows one owner-scoped audit event:
@@ -202,6 +231,23 @@ For product events, Detail additionally shows:
 
 An identical successful update keeps the historical values visible and marks them `Tetap` instead of inventing changes. Product details end after their metadata/status content; the login/security-device warning and Security link remain limited to authentication events.
 
+For buyer address events, Detail additionally shows:
+
+-   create: a two-column `Data`/`Nilai awal` table containing the address label, recipient name, phone, location, address detail, and main-address status;
+-   update: a stable `Data`/`Sebelum`/`Sesudah`/`Status` table containing the address label, recipient name, phone, location, and address detail, including unchanged values marked `Tetap`;
+-   delete: a two-column `Data`/`Nilai terakhir` table, an explanation that the address has been deleted, and the replacement address when the system promoted one;
+-   select: a `Data`/`Nilai saat ini` table plus the previous main address.
+
+The value-column heading follows the event so the reader is not misled about whether the address still applies: `Nilai awal` for create, `Nilai saat ini` for select, and `Nilai terakhir` for delete.
+
+An identical successful update keeps every historical value visible and marks each row `Tetap` instead of hiding rows or inventing changes, matching the product update table. The backend still records only the fields that really changed; the unchanged rows are filled from the stored snapshot at display time.
+
+The detail response is owner-scoped, so it carries the full recipient name, phone number, and address detail that the collection response masks or omits. Coordinates are never present in either response.
+
+The product and address change tables share one stylesheet. Their `Data` column must stay wide enough for the longest label of every audited domain, because labels do not wrap and would otherwise overflow into the `Sebelum` column. A new audited domain with longer labels widens that shared column for all domains rather than introducing its own table style.
+
+Widening a column must not raise the table minimum width past the space the detail modal actually offers, which is the panel width minus the modal and card padding. The horizontal scroll under the change table exists for narrow screens; if it appears on a full-size desktop panel, the minimum width is too large rather than the modal too narrow.
+
 ## IP Reveal Behavior
 
 The collection API supplies masked IP values. The full value is requested only through the authenticated detail flow for an event owned by the current user.
@@ -217,6 +263,19 @@ After explicit reveal:
 ```text
 Alamat IP    103.10.20.30    [hide icon]
 ```
+
+## Phone Reveal Behavior
+
+Address details reuse the IP reveal pattern for the recipient phone number, including its inline eye control rather than a separate wide button:
+
+```text
+Nomor Telepon    0918****282     [show icon]
+Nomor Telepon    091818828282    [hide icon]
+```
+
+The control always sits next to the phone value itself: in the value column of the snapshot table, and in the `Sesudah` column of the update table. Keeping it out of the label column prevents it from overflowing the fixed-width `Data` column. One reveal state covers every phone value in the open detail panel. The reveal state resets whenever a detail panel is opened, reloaded, or closed, so a revealed number never carries over to the next event.
+
+Address detail panels reuse the product detail palette so audited domains remain visually consistent instead of introducing a separate color per domain.
 
 Rules:
 

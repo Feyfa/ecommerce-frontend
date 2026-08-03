@@ -107,7 +107,16 @@ Keep backend field names unchanged when building payloads:
 - `address_detail`
 - selected/default flag field used by the existing backend contract.
 
+## Audit Side Effects
+
+Adding, editing, deleting, and selecting a buyer address each produce one entry
+in [Audit Log](audit-log.md). The address UI itself does not record those
+events; the backend derives them from the successful mutation. Reads are not
+audited, and coordinates never appear in the audit timeline.
+
 ## QA Coverage
 
 - [TOK-8 Pinpoint Address QA](../../qa/tok-8-pinpoint-address.md) tracks
   buyer-address UI verification.
+- [TOK-21 Address Audit Log QA](../../qa/tok-21-address-audit-log.md) tracks how
+  those address activities appear in Audit Log.
