@@ -60,6 +60,9 @@ alias path as inline code for a file owned by another repository.
 - [TOK-16 Product Audit Log QA](qa/tok-16-product-audit-log.md)
   Tracks the frontend manual QA status for product audit cards, details, filters, pagination, privacy presentation, and responsive behavior.
 
+- [TOK-21 Address Audit Log QA](qa/tok-21-address-audit-log.md)
+  Tracks the frontend manual QA status for buyer address audit cards, detail tables, phone reveal, filters, and privacy presentation.
+
 - [Commit Guidelines](development/commit-guidelines.md)
   Explains how to keep commits focused on one purpose and separate unrelated changes.
 
