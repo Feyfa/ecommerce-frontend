@@ -8,7 +8,7 @@ Implemented. `/settings/audit-log` renders the dedicated authenticated audit tim
 
 ## Purpose
 
-Audit Log lets an authenticated buyer or seller review important activity on the shared account. It displays successful Register, Login, user-initiated Logout, seller product create/update/delete, and buyer address create/update/delete/select activity.
+Audit Log lets an authenticated buyer or seller review important activity on the shared account. It displays successful Register, Login, user-initiated Logout, seller product create/update/delete, buyer address create/update/delete/select, Pengaturan Pengguna update, and profile photo activity.
 
 The page is a global settings route. It must remain available without requiring the user to change buyer or seller mode.
 
@@ -28,6 +28,9 @@ Alamat Ditambahkan
 Alamat Diperbarui
 Alamat Dihapus
 Alamat Dipilih
+Pengaturan Pengguna Diperbarui
+Foto Profil Diperbarui
+Foto Profil Dihapus
 ```
 
 Rules:
@@ -108,6 +111,10 @@ Alamat
   Alamat Diperbarui
   Alamat Dihapus
   Alamat Dipilih
+Profil
+  Pengaturan Pengguna Diperbarui
+  Foto Profil Diperbarui
+  Foto Profil Dihapus
 ```
 
 The event select is searchable by its user-facing label. Its dropdown uses a viewport-aware maximum height and keeps scrolling available as more event groups are added.
@@ -400,7 +407,7 @@ The current scope does not include:
 -   numbered pagination;
 -   export or download;
 -   full-text search;
--   profile, address, bank account, checkout, transaction, or financial audit events;
+-   bank account, checkout, transaction, or financial audit events;
 -   administrator audit access;
 -   historical backfill;
 -   retention controls.
