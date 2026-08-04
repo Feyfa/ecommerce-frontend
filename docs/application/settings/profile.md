@@ -16,7 +16,7 @@ The profile settings page lets a user update personal account information and ma
   Owns buyer profile layout and image preview placement.
 
 - `src/components/user-profile/UserSetting.vue`
-  Owns the buyer profile form, validation state, and save behavior.
+  Owns the buyer Pengaturan Pengguna form, validation state, and save behavior.
 
 - `src/components/user-profile/ImagePreview.vue`
   Owns profile image preview, upload, zoom, and delete confirmation.
@@ -54,6 +54,7 @@ Read-only fields:
 - The save button visually appears disabled when any frontend validation error exists.
 - The save button is disabled while the update request is processing.
 - Frontend validation blocks submit when required fields are empty.
+- The section heading is `Pengaturan Pengguna`.
 
 ## Validation
 

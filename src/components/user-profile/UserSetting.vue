@@ -2,7 +2,7 @@
     <div class="setting-card w-full border bg-neutral-50 border-neutral-400 shadow-md p-5 rounded">
         <!-- title -->
         <div class="setting-card-header relative">
-            <h3 class="text-xl text-center">User Setting</h3>
+            <h3 class="text-xl text-center">Pengaturan Pengguna</h3>
         </div>
         <!-- title -->
 
