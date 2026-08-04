@@ -482,6 +482,91 @@
                         </p>
                     </section>
 
+                    <section v-if="isAuditCategory(selectedAudit, 'profile')" class="audit-profile-detail">
+                        <div class="audit-profile-detail-heading">
+                            <span>{{ selectedAudit.event === 'profile.updated' ? 'Pengaturan Pengguna' : 'Foto Profil' }}</span>
+                            <h4>{{ selectedAudit.subject?.name || 'Profil Pengguna' }}</h4>
+                        </div>
+
+                        <div
+                            v-if="selectedAudit.event === 'profile.updated'"
+                            class="audit-change-table-wrap"
+                        >
+                            <table class="audit-change-table">
+                                <colgroup>
+                                    <col class="audit-change-data-column" />
+                                    <col class="audit-change-value-column" />
+                                    <col class="audit-change-value-column" />
+                                    <col class="audit-change-status-column" />
+                                </colgroup>
+                                <thead>
+                                    <tr>
+                                        <th>Data</th>
+                                        <th>Sebelum</th>
+                                        <th>Sesudah</th>
+                                        <th>Status</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr v-for="change in profileDetailChangeRows(selectedAudit)" :key="change.field">
+                                        <th>{{ change.label }}</th>
+                                        <td>
+                                            {{
+                                                change.field === 'phone'
+                                                    ? displayedProfilePhone(change.before)
+                                                    : formatProfileValue(change.field, change.before)
+                                            }}
+                                        </td>
+                                        <td v-if="change.field === 'phone'">
+                                            <span class="audit-profile-sensitive-value">
+                                                <span>{{ displayedProfilePhone(change.after) }}</span>
+                                                <button
+                                                    type="button"
+                                                    :title="
+                                                        isPhoneVisible
+                                                            ? 'Sembunyikan nomor telepon'
+                                                            : 'Tampilkan nomor telepon'
+                                                    "
+                                                    :aria-label="
+                                                        isPhoneVisible
+                                                            ? 'Sembunyikan nomor telepon'
+                                                            : 'Tampilkan nomor telepon'
+                                                    "
+                                                    @click="isPhoneVisible = !isPhoneVisible"
+                                                >
+                                                    <i
+                                                        :class="
+                                                            isPhoneVisible
+                                                                ? 'fa-regular fa-eye-slash'
+                                                                : 'fa-regular fa-eye'
+                                                        "
+                                                    ></i>
+                                                </button>
+                                            </span>
+                                        </td>
+                                        <td v-else>{{ formatProfileValue(change.field, change.after) }}</td>
+                                        <td>
+                                            <span
+                                                class="audit-change-status"
+                                                :class="change.changed ? 'is-changed' : 'is-unchanged'"
+                                            >
+                                                {{ change.changed ? 'Berubah' : 'Tetap' }}
+                                            </span>
+                                        </td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+
+                        <p v-else class="audit-profile-image-summary">
+                            {{
+                                selectedAudit.profile_snapshot?.has_profile_image
+                                    ? 'Foto profil berhasil diperbarui.'
+                                    : 'Foto profil berhasil dihapus.'
+                            }}
+                        </p>
+                    </section>
+
                     <dl class="audit-detail-list">
                         <div v-if="selectedAudit.auth_method">
                             <dt>Metode login</dt>
@@ -574,6 +659,14 @@ export default {
                         { label: 'Alamat Diperbarui', value: 'address.updated' },
                         { label: 'Alamat Dihapus', value: 'address.deleted' },
                         { label: 'Alamat Dipilih', value: 'address.selected' },
+                    ],
+                },
+                {
+                    label: 'Profil',
+                    options: [
+                        { label: 'Pengaturan Pengguna Diperbarui', value: 'profile.updated' },
+                        { label: 'Foto Profil Diperbarui', value: 'profile.image_uploaded' },
+                        { label: 'Foto Profil Dihapus', value: 'profile.image_deleted' },
                     ],
                 },
             ],
@@ -1181,6 +1274,9 @@ export default {
                     'address.updated': 'fa-solid fa-house-chimney-crack',
                     'address.deleted': 'fa-solid fa-house-circle-xmark',
                     'address.selected': 'fa-solid fa-map-location-dot',
+                    'profile.updated': 'fa-solid fa-user-pen',
+                    'profile.image_uploaded': 'fa-solid fa-image',
+                    'profile.image_deleted': 'fa-solid fa-image',
                 }[event] || 'fa-solid fa-clock-rotate-left'
             );
         },
@@ -1205,6 +1301,9 @@ export default {
                     'address.updated': 'is-address-updated',
                     'address.deleted': 'is-address-deleted',
                     'address.selected': 'is-address-selected',
+                    'profile.updated': 'is-profile-updated',
+                    'profile.image_uploaded': 'is-profile-image-uploaded',
+                    'profile.image_deleted': 'is-profile-image-deleted',
                 }[event] || ''
             );
         },
@@ -1241,6 +1340,8 @@ export default {
                     return this.productCollectionDescription(audit);
                 case 'address':
                     return this.addressCollectionDescription(audit);
+                case 'profile':
+                    return this.profileCollectionDescription(audit);
                 default:
                     return audit?.description || '';
             }
@@ -1478,6 +1579,99 @@ export default {
             if (labels.length === 2) return `${labels[0]} dan ${labels[1]} berubah`;
 
             return `${labels.slice(0, -1).join(', ')}, dan ${labels.at(-1)} berubah`;
+        },
+
+        /**
+         * Merangkum aktivitas profil agar kartu koleksi menjelaskan perubahan tanpa memuat data sensitif.
+         *
+         * @param {*} audit Event audit profil yang akan diringkas.
+         *
+         * @returns {string} Ringkasan aman untuk baris kedua kartu audit profil.
+         */
+        profileCollectionDescription(audit) {
+            if (audit?.event === 'profile.updated') {
+                const labels = Array.isArray(audit?.changes)
+                    ? audit.changes.map((change) => change.label).filter(Boolean)
+                    : [];
+
+                if (labels.length === 0) return 'Tidak ada perubahan';
+                if (labels.length === 1) return `${labels[0]} berubah`;
+                if (labels.length === 2) return `${labels[0]} dan ${labels[1]} berubah`;
+
+                return `${labels.slice(0, -1).join(', ')}, dan ${labels.at(-1)} berubah`;
+            }
+
+            return audit?.description || '';
+        },
+
+        /**
+         * Menyusun semua field Pengaturan Pengguna untuk tabel detail perubahan.
+         *
+         * Field yang tidak muncul dalam changes menggunakan snapshot akhir pada kedua kolom agar
+         * detail update identik tetap menjelaskan nilai yang tersimpan dengan status Tetap.
+         *
+         * @param {*} audit Event audit profil yang sedang dibuka.
+         *
+         * @returns {Array<Object>} Baris detail Pengaturan Pengguna.
+         */
+        profileDetailChangeRows(audit) {
+            const changes = new Map(
+                (Array.isArray(audit?.changes) ? audit.changes : []).map((change) => [change.field, change]),
+            );
+            const snapshot = audit?.profile_snapshot || {};
+            const fields = [
+                { field: 'phone', label: 'Nomor Telepon', value: snapshot.phone },
+                { field: 'tanggal_lahir', label: 'Tanggal Lahir', value: snapshot.tanggal_lahir },
+                { field: 'jenis_kelamin', label: 'Jenis Kelamin', value: snapshot.jenis_kelamin },
+            ];
+
+            return fields.map((field) => {
+                const change = changes.get(field.field);
+
+                return {
+                    field: field.field,
+                    label: field.label,
+                    // Jangan gunakan nullish fallback: null adalah nilai before/after yang valid
+                    // dan harus tampil sebagai "-" ketika field baru pertama kali diisi.
+                    before: change ? change.before : field.value,
+                    after: change ? change.after : field.value,
+                    changed: Boolean(change),
+                };
+            });
+        },
+
+        /**
+         * Memformat nilai Pengaturan Pengguna untuk tabel detail.
+         *
+         * @param {string} field Nama field profil yang ditampilkan.
+         * @param {*} value Nilai field dari snapshot atau perubahan audit.
+         *
+         * @returns {string} Nilai yang aman dan mudah dibaca pada tabel detail.
+         */
+        formatProfileValue(field, value) {
+            if (value === null || value === undefined || value === '') return '-';
+            if (field !== 'tanggal_lahir') return String(value);
+
+            const date = new Date(`${value}T00:00:00`);
+
+            return Number.isNaN(date.getTime())
+                ? String(value)
+                : new Intl.DateTimeFormat('id-ID', {
+                      day: '2-digit',
+                      month: 'long',
+                      year: 'numeric',
+                  }).format(date);
+        },
+
+        /**
+         * Menyamarkan nomor telepon profil sampai pemilik memilih kontrol reveal pada detail.
+         *
+         * @param {*} phone Nomor telepon dari detail audit owner-scoped.
+         *
+         * @returns {string} Nomor penuh setelah reveal atau versi tersamarkan secara default.
+         */
+        displayedProfilePhone(phone) {
+            return this.displayedAddressPhone(phone);
         },
 
         /**
@@ -1938,6 +2132,21 @@ button:disabled {
     color: #7c3aed;
 }
 
+.audit-event-icon.is-profile-updated {
+    background: #eff6ff;
+    color: #2563eb;
+}
+
+.audit-event-icon.is-profile-image-uploaded {
+    background: #ecfdf5;
+    color: #047857;
+}
+
+.audit-event-icon.is-profile-image-deleted {
+    background: #fef2f2;
+    color: #dc2626;
+}
+
 .audit-card-content {
     min-width: 0;
     flex: 1;
@@ -2337,6 +2546,57 @@ button:disabled {
 }
 
 .audit-address-sensitive-value button:hover {
+    background: #f5f3ff;
+}
+
+.audit-profile-detail {
+    margin-top: 18px;
+    border: 1px solid #dbeafe;
+    border-radius: 9px;
+    background: #f8fbff;
+    padding: 14px;
+}
+
+.audit-profile-detail-heading > span {
+    color: #2563eb;
+    font-size: 10px;
+    font-weight: 800;
+    letter-spacing: 0.05em;
+    text-transform: uppercase;
+}
+
+.audit-profile-detail-heading h4 {
+    margin-top: 2px;
+    color: #1e293b;
+    font-size: 15px;
+    font-weight: 750;
+}
+
+.audit-profile-image-summary {
+    margin-top: 5px;
+    color: #64748b;
+    font-size: 12px;
+    line-height: 1.55;
+}
+
+.audit-profile-sensitive-value {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+}
+
+.audit-profile-sensitive-value button {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 24px;
+    height: 24px;
+    flex: 0 0 24px;
+    border-radius: 6px;
+    color: #7c3aed;
+}
+
+.audit-profile-sensitive-value button:hover {
     background: #f5f3ff;
 }
 
