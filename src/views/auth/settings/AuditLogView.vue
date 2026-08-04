@@ -484,14 +484,13 @@
 
                     <section v-if="isAuditCategory(selectedAudit, 'profile')" class="audit-profile-detail">
                         <div class="audit-profile-detail-heading">
-                            <span>{{ selectedAudit.event === 'profile.updated' ? 'Pengaturan Pengguna' : 'Foto Profil' }}</span>
+                            <span>{{
+                                selectedAudit.event === 'profile.updated' ? 'Pengaturan Pengguna' : 'Foto Profil'
+                            }}</span>
                             <h4>{{ selectedAudit.subject?.name || 'Profil Pengguna' }}</h4>
                         </div>
 
-                        <div
-                            v-if="selectedAudit.event === 'profile.updated'"
-                            class="audit-change-table-wrap"
-                        >
+                        <div v-if="selectedAudit.event === 'profile.updated'" class="audit-change-table-wrap">
                             <table class="audit-change-table">
                                 <colgroup>
                                     <col class="audit-change-data-column" />
