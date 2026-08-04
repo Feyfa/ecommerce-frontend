@@ -2137,8 +2137,8 @@ button:disabled {
 }
 
 .audit-event-icon.is-profile-image-uploaded {
-    background: #ecfdf5;
-    color: #047857;
+    background: #eff6ff;
+    color: #2563eb;
 }
 
 .audit-event-icon.is-profile-image-deleted {
