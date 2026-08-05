@@ -49,6 +49,8 @@ Optional fields:
 
 - [TOK-8 Pinpoint Address QA](../../qa/tok-8-pinpoint-address.md) tracks
   store-location UI verification.
+- [TOK-23 Company Audit Log QA](../../qa/tok-23-company-audit-log.md) tracks
+  Profil Toko audit UI verification.
 
 ## Behavior
 
@@ -83,6 +85,17 @@ The company image preview supports:
 - delete image with Element Plus confirmation UI.
 
 The zoom behavior should stay close to the product image preview pattern.
+
+Successful image upload and deletion are audited by the backend as
+`company.image_uploaded` and `company.image_deleted`. The frontend does not
+create audit rows itself.
+
+## Audit Log
+
+Successful Profil Toko saves are recorded by the backend as `company.updated`.
+The Audit Log page displays those events under the `Toko` filter group. See
+[Audit Log](./audit-log.md) and
+[TOK-23 Company Audit Log QA](../../qa/tok-23-company-audit-log.md).
 
 ## Store/API Usage
 

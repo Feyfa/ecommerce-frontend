@@ -1,6 +1,6 @@
 # Audit Log
 
-This document explains the frontend Audit Log foundation from `TOK-1`, the product activity extension under `TOK-16`, and the buyer address activity extension under `TOK-21`.
+This document explains the frontend Audit Log foundation from `TOK-1`, the product activity extension under `TOK-16`, the buyer address activity extension under `TOK-21`, the Pengaturan Pengguna extension under `TOK-22`, and the Profil Toko extension under `TOK-23`.
 
 ## Status
 
@@ -8,7 +8,7 @@ Implemented. `/settings/audit-log` renders the dedicated authenticated audit tim
 
 ## Purpose
 
-Audit Log lets an authenticated buyer or seller review important activity on the shared account. It displays successful Register, Login, user-initiated Logout, seller product create/update/delete, buyer address create/update/delete/select, Pengaturan Pengguna update, and profile photo activity.
+Audit Log lets an authenticated buyer or seller review important activity on the shared account. It displays successful Register, Login, user-initiated Logout, seller product create/update/delete, buyer address create/update/delete/select, Pengaturan Pengguna update, profile photo activity, Profil Toko update, and store photo activity.
 
 The page is a global settings route. It must remain available without requiring the user to change buyer or seller mode.
 
@@ -31,6 +31,9 @@ Alamat Dipilih
 Pengaturan Pengguna Diperbarui
 Foto Profil Diperbarui
 Foto Profil Dihapus
+Profil Toko Diperbarui
+Foto Toko Diperbarui
+Foto Toko Dihapus
 ```
 
 Rules:
@@ -115,6 +118,10 @@ Profil
   Pengaturan Pengguna Diperbarui
   Foto Profil Diperbarui
   Foto Profil Dihapus
+Toko
+  Profil Toko Diperbarui
+  Foto Toko Diperbarui
+  Foto Toko Dihapus
 ```
 
 The event select is searchable by its user-facing label. Its dropdown uses a viewport-aware maximum height and keeps scrolling available as more event groups are added.
@@ -189,12 +196,18 @@ The interface must not guess device or authentication values. Missing data shoul
 -   The second line is always assembled from structured snapshot fields. The UI never parses the formatted address string to derive a city or region, because that string is produced by the map provider and may change.
 -   When a snapshot is missing, the card falls back to the event description so the three-line layout is preserved.
 
+### Company Activity Cards
+
+-   Company collection rows use the same three visual lines as other domains: activity title, one combined outcome description, and compact device/IP/time metadata.
+-   Update cards summarize changed field labels such as `Nama Toko berubah` or `Tidak ada perubahan` when the save was identical.
+-   Image upload and delete cards use the backend event description. The UI never expects or renders historical store photo previews, paths, or URLs.
+
 ### Category Dispatch
 
 The card description and the detail sections are selected by event category rather than by a chain of product-specific conditions:
 
 ```text
-collectionDescription(audit) -> product | address | event description
+collectionDescription(audit) -> product | address | profile | company | event description
 isAuditCategory(audit, category) -> section visibility
 ```
 
@@ -250,6 +263,13 @@ The value-column heading follows the event so the reader is not misled about whe
 An identical successful update keeps every historical value visible and marks each row `Tetap` instead of hiding rows or inventing changes, matching the product update table. The backend still records only the fields that really changed; the unchanged rows are filled from the stored snapshot at display time.
 
 The detail response is owner-scoped, so it carries the full recipient name, phone number, and address detail that the collection response masks or omits. Coordinates are never present in either response.
+
+For Profil Toko events, Detail additionally shows:
+
+-   update: a stable `Data`/`Sebelum`/`Sesudah`/`Status` table containing nama toko, email, phone, deskripsi, lokasi, and detail alamat, including unchanged values marked `Tetap`;
+-   image upload or delete: a short text summary only, driven by `has_company_image`, never a historical image preview, path, or URL.
+
+Company phone values reuse the address/profile reveal control. Collection responses keep the phone masked; owner detail starts masked and reveals the full number only after an explicit eye action.
 
 The product and address change tables share one stylesheet. Their `Data` column must stay wide enough for the longest label of every audited domain, because labels do not wrap and would otherwise overflow into the `Sebelum` column. A new audited domain with longer labels widens that shared column for all domains rather than introducing its own table style.
 
@@ -416,3 +436,5 @@ The current scope does not include:
 
 -   [TOK-16 Product Audit Log QA](../../qa/tok-16-product-audit-log.md) tracks
     product audit UI verification.
+-   [TOK-23 Company Audit Log QA](../../qa/tok-23-company-audit-log.md) tracks
+    Profil Toko audit UI verification.
