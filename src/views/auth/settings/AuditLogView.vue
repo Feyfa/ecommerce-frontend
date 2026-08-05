@@ -568,9 +568,7 @@
 
                     <section v-if="isAuditCategory(selectedAudit, 'company')" class="audit-company-detail">
                         <div class="audit-company-detail-heading">
-                            <span>{{
-                                selectedAudit.event === 'company.updated' ? 'Profil Toko' : 'Foto Toko'
-                            }}</span>
+                            <span>{{ selectedAudit.event === 'company.updated' ? 'Profil Toko' : 'Foto Toko' }}</span>
                             <h4>{{ selectedAudit.subject?.name || 'Profil Toko' }}</h4>
                         </div>
 
