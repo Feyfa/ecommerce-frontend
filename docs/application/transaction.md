@@ -88,7 +88,8 @@ On wide desktop screens, the transaction toolbar keeps the capped search input o
 
 ## Buyer Transaction Page
 
-The buyer page defaults to paid transaction history.
+The buyer page defaults to paid transaction history. A `status` route query matching a known filter value
+overrides that default on load; any other value falls back to the paid default.
 
 Buyer status filters:
 
@@ -102,6 +103,15 @@ Important buyer behavior:
 - Pending invoices are intentionally not mixed into the paid history list by default.
 - When pending payments exist and the buyer is not already on `Belum Dibayar`, the page shows a `Menunggu Pembayaran` notice.
 - Clicking the notice switches the page to `pending_payment`.
+- After a successful checkout the page receives `status=pending_payment` and `invoice=<id>` as route query,
+  highlights every loaded transaction belonging to that invoice, scrolls the first one into view, and then
+  clears the query so refresh and back navigation do not highlight anything again. A checkout covering
+  multiple sellers produces several transactions for the same invoice and all of them are highlighted, so
+  the behavior is identical for one store and for many. No modal is opened automatically.
+- The highlight persists while the buyer stays on the page and is dropped as soon as the status filter,
+  date range, sort order, search term, or page changes.
+- Matching runs only against the already loaded, buyer-scoped list, so an unknown, foreign, or already paid
+  invoice simply opens the page with nothing highlighted.
 - The pending-payment tab does not show pagination because it is an action queue, not history browsing.
 - Pending payment cards focus on payment method, virtual account number, expiry date, total payment, and copy action.
 - Paid transaction cards focus on product summary, seller display name, total price, and detail action.
@@ -137,6 +147,10 @@ Display rules:
 - Seller totals use `Total Pendapatan`.
 - The total block is capped rather than fixed in width, and the label wraps before the amount does, so large
   amounts stay inside the card instead of overflowing it.
+- The optional `highlighted` prop adds an accent ring and a `Baru Saja Dibuat` chip next to the status badge.
+  It defaults to `false`, so the seller page is unaffected. The ring pulses three times on appearance and then
+  settles into a static ring, because the highlight persists until a filter changes and a continuous animation
+  would distract while the card is being read. The pulse is suppressed under `prefers-reduced-motion`.
 
 Status mapping in the card:
 
