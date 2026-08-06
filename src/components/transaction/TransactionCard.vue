@@ -67,10 +67,10 @@
             </div>
 
             <div class="flex flex-col gap-3 lg:items-end">
-                <div class="flex w-full flex-col gap-3 sm:w-[230px]">
-                    <div class="flex items-center justify-between gap-5">
-                        <span class="whitespace-nowrap text-sm text-neutral-500">{{ totalLabel }}</span>
-                        <span class="whitespace-nowrap text-base font-bold text-neutral-950">{{
+                <div class="flex w-full flex-col gap-3 sm:max-w-[300px]">
+                    <div class="flex items-start justify-between gap-3">
+                        <span class="min-w-0 text-sm text-neutral-500">{{ totalLabel }}</span>
+                        <span class="shrink-0 whitespace-nowrap text-base font-bold text-neutral-950">{{
                             formatCurrency(role == 'seller' ? item.product_price : item.total_price)
                         }}</span>
                     </div>

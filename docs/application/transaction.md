@@ -135,6 +135,8 @@ Display rules:
 - Buyer pending totals use `Total Pembayaran`.
 - Buyer paid totals use `Total Harga`.
 - Seller totals use `Total Pendapatan`.
+- The total block is capped rather than fixed in width, and the label wraps before the amount does, so large
+  amounts stay inside the card instead of overflowing it.
 
 Status mapping in the card:
 
