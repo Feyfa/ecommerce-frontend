@@ -141,7 +141,22 @@ export default {
          * @returns {*} Nilai yang dihasilkan oleh operasi nama tampilan.
          */
         displayName() {
+            if (this.showPendingInvoice) return `Pesanan dari ${this.packageCount} toko`;
+
             return this.role == 'buyer' ? this.item.seller_name : this.item.buyer_name;
+        },
+
+        /**
+         * Mengembalikan jumlah paket toko pada invoice pending buyer.
+         *
+         * Response pending buyer dikelompokkan per invoice, sedangkan status lain tetap membawa satu
+         * transaksi seller. Fallback satu paket menjaga card lama tetap aman ketika membaca response
+         * transaksi yang bukan invoice gabungan.
+         *
+         * @returns {number} Jumlah toko atau paket yang tercakup oleh item transaksi.
+         */
+        packageCount() {
+            return this.item.packages?.length ?? 1;
         },
 
         /**
@@ -246,6 +261,15 @@ export default {
          */
         showPaymentCard() {
             return this.role == 'buyer' && this.item.invoice_status == 'pending';
+        },
+
+        /**
+         * Menentukan apakah card mewakili satu invoice pending dengan beberapa toko.
+         *
+         * @returns {boolean} True jika item memiliki paket transaksi per toko pada invoice pending buyer.
+         */
+        showPendingInvoice() {
+            return this.showPaymentCard && Array.isArray(this.item.packages);
         },
 
         /**
