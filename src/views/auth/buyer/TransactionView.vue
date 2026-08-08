@@ -110,7 +110,7 @@
             </Transition>
 
             <div class="w-full">
-                <Transition name="transaction-list" mode="out-in">
+                <Transition name="transaction-list" mode="out-in" @after-enter="scrollToHighlightedTransaction">
                     <div
                         v-if="show.listLoading"
                         key="loading"
@@ -163,10 +163,12 @@
                         <TransactionCard
                             v-for="item in transactions"
                             :key="item.id"
+                            ref="transactionCards"
                             role="buyer"
                             :item="item"
                             :backend-base-url="APP_BACKEND_BASE_URL"
                             :symlink-folder="SYMLINK_FOLDER"
+                            :highlighted="isHighlightedTransaction(item)"
                             @view-detail="openDetail"
                             @copy-payment="copyText($event, 'Nomor Virtual Account Berhasil Disalin')"
                         />
@@ -214,9 +216,18 @@ export default {
     /**
      * Membuat state reaktif yang digunakan komponen untuk halaman transaksi.
      *
+     * Filter status dan invoice yang disorot dapat berasal dari query route, misalnya setelah checkout
+     * berhasil. Nilai status dibatasi pada daftar filter yang dikenal supaya query sembarang tidak
+     * membentuk request status di luar kontrak backend. Satu checkout dapat menghasilkan beberapa
+     * transaksi seller pada invoice yang sama, sehingga sorotan disimpan sebagai id invoice, bukan
+     * id transaksi.
+     *
      * @returns {Object} State reaktif yang diinisialisasi untuk komponen.
      */
     data() {
+        const queryStatus = this.$route.query.status ?? '';
+        const isKnownStatus = ['paid', 'pending_payment', 'waiting_seller', 'done'].includes(queryStatus);
+
         return {
             APP_BACKEND_BASE_URL: import.meta.env.VITE_APP_BACKEND_BASE_URL,
             SYMLINK_FOLDER: import.meta.env.VITE_SYMLINK_FOLDER,
@@ -226,7 +237,9 @@ export default {
                 listLoading: false,
             },
 
-            selectedFilter: 'paid',
+            highlightedInvoiceId: this.$route.query.invoice ?? '',
+            pendingHighlightScroll: false,
+            selectedFilter: isKnownStatus ? queryStatus : 'paid',
             searchKeyword: '',
             sortOrder: 'newest',
             dateRange: [],
@@ -338,6 +351,8 @@ export default {
                     this.setTransactionResponse(response);
                     this.show.loading = false;
                     this.show.listLoading = false;
+
+                    if (isInitialLoad) this.consumeCheckoutQuery();
                 })
                 .catch((error) => {
                     if (requestVersion !== this.transactionRequestVersion) return;
@@ -373,6 +388,72 @@ export default {
         },
 
         /**
+         * Menentukan apakah sebuah transaksi termasuk hasil checkout yang sedang disorot.
+         *
+         * @param {*} transaction Transaksi yang diproses oleh function.
+         *
+         * @returns {boolean} Bernilai true ketika transaksi berasal dari invoice yang sedang disorot.
+         */
+        isHighlightedTransaction(transaction) {
+            if (!this.highlightedInvoiceId) return false;
+
+            return transaction.invoice_id == this.highlightedInvoiceId;
+        },
+
+        /**
+         * Menyorot transaksi hasil checkout yang ditunjuk query invoice setelah daftar awal dimuat.
+         *
+         * Pencocokan hanya dilakukan terhadap transaksi yang sudah dimuat, dan daftar tersebut telah
+         * dibatasi backend pada buyer yang sedang login, sehingga invoice milik user lain tidak pernah
+         * ditemukan. Checkout dari beberapa toko menghasilkan beberapa transaksi pada invoice yang sama,
+         * dan seluruhnya ikut disorot supaya perilakunya sama untuk satu maupun banyak toko.
+         *
+         * @returns {void} Membersihkan query route lalu menjadwalkan geser layar ke transaksi tersorot.
+         */
+        consumeCheckoutQuery() {
+            if (!this.highlightedInvoiceId) return;
+
+            // --- step 1 - start - batalkan sorotan bila invoice tidak ada pada daftar yang dimuat
+            if (!this.transactions.some((item) => this.isHighlightedTransaction(item))) {
+                this.highlightedInvoiceId = '';
+                return;
+            }
+            // --- step 1 - end - batalkan sorotan bila invoice tidak ada pada daftar yang dimuat
+
+            // --- step 2 - start - bersihkan query supaya refresh dan tombol back tidak menyorot ulang
+            this.$router.replace({ name: 'buyer_transaction' });
+            // --- step 2 - end - bersihkan query supaya refresh dan tombol back tidak menyorot ulang
+
+            // --- step 3 - start - jadwalkan geser layar setelah daftar kartu benar benar terpasang
+            this.pendingHighlightScroll = true;
+            // --- step 3 - end - jadwalkan geser layar setelah daftar kartu benar benar terpasang
+        },
+
+        /**
+         * Menggeser kartu tersorot pertama ke layar setelah daftar transaksi selesai dianimasikan.
+         *
+         * Daftar kartu berada di dalam Transition bermode out-in, sehingga konten baru baru dipasang
+         * setelah konten lama selesai keluar. Pemanggilan pada nextTick karena itu masih menemukan ref
+         * kosong, dan geser layar dijalankan dari hook after-enter Transition supaya kartu dijamin
+         * sudah ada di DOM.
+         *
+         * @returns {void} Function menerapkan efeknya melalui state komponen atau aplikasi.
+         */
+        scrollToHighlightedTransaction() {
+            if (!this.pendingHighlightScroll) return;
+
+            this.pendingHighlightScroll = false;
+
+            // Ref di dalam v-for tidak dijamin berurutan seperti data, sehingga kartu dicari lewat
+            // prop item-nya, bukan lewat index daftar transaksi.
+            const highlightedCard = (this.$refs.transactionCards ?? []).find((card) =>
+                this.isHighlightedTransaction(card.item),
+            );
+
+            highlightedCard?.$el?.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        },
+
+        /**
          * Menerapkan filter terpilih perubahan untuk halaman transaksi.
          *
          * @param {*} filter Filter yang diproses oleh function.
@@ -380,6 +461,7 @@ export default {
          * @returns {void} Function menerapkan efeknya melalui state komponen atau aplikasi.
          */
         changeFilter(filter) {
+            this.highlightedInvoiceId = '';
             this.selectedFilter = filter;
             this.page = 1;
             this.getTransactions();
@@ -391,6 +473,7 @@ export default {
          * @returns {void} Function menerapkan efeknya melalui state komponen atau aplikasi.
          */
         changeSort() {
+            this.highlightedInvoiceId = '';
             this.page = 1;
             this.getTransactions();
         },
@@ -403,6 +486,7 @@ export default {
         changeDateRange() {
             if (!this.dateRange) this.dateRange = [];
 
+            this.highlightedInvoiceId = '';
             this.page = 1;
             this.getTransactions();
         },
@@ -417,6 +501,7 @@ export default {
         changePage(page) {
             if (page < 1 || page > this.pagination.last_page) return;
 
+            this.highlightedInvoiceId = '';
             this.page = page;
             this.getTransactions();
         },
@@ -429,6 +514,7 @@ export default {
         searchTransactions() {
             clearTimeout(this.searchTimeout);
             this.searchTimeout = setTimeout(() => {
+                this.highlightedInvoiceId = '';
                 this.page = 1;
                 this.getTransactions();
             }, 400);
