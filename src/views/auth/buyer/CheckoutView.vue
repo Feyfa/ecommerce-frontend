@@ -678,8 +678,20 @@ export default {
                         message: response.message,
                     });
 
+                    // Identitas invoice dibawa sebagai query supaya halaman transaksi dapat langsung
+                    // membuka filter belum dibayar dan detail pesanan ini. Response backend lama yang
+                    // belum mengirim id tetap diarahkan seperti sebelumnya.
+                    const transactionInvoiceId = response.transaction_invoice_id ?? '';
+
                     setTimeout(() => {
-                        this.$router.push({ name: 'buyer_transaction' });
+                        this.$router.push(
+                            transactionInvoiceId
+                                ? {
+                                      name: 'buyer_transaction',
+                                      query: { status: 'pending_payment', invoice: transactionInvoiceId },
+                                  }
+                                : { name: 'buyer_transaction' },
+                        );
                     }, 500);
                 })
                 .catch((error) => {

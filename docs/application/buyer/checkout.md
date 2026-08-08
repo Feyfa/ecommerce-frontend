@@ -186,6 +186,11 @@ On success:
 - a success notification is shown;
 - the page routes to `buyer_transaction`.
 
+When the response contains `transaction_invoice_id`, the redirect carries `status=pending_payment` and
+`invoice=<transaction_invoice_id>` as route query. The transaction page consumes that context on load to
+open the pending-payment filter and highlight every transaction created by that checkout, then clears the
+query. A response without `transaction_invoice_id` still routes to `buyer_transaction` without query.
+
 ## API Calls
 
 The frontend uses these backend API actions through `src/store.js`:
