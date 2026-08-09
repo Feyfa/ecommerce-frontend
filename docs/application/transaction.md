@@ -94,7 +94,7 @@ overrides that default on load; any other value falls back to the paid default.
 Buyer status filters:
 
 - `Semua`: paid transaction history only.
-- `Belum Dibayar`: pending invoices.
+- `Belum Dibayar`: pending invoices. A multi-store invoice uses one card per invoice, while a single-store invoice keeps the regular transaction card.
 - `Menunggu Penjual`: paid transactions waiting for seller approval.
 - `Selesai`: completed transactions.
 
@@ -104,17 +104,19 @@ Important buyer behavior:
 - When pending payments exist and the buyer is not already on `Belum Dibayar`, the page shows a `Menunggu Pembayaran` notice.
 - Clicking the notice switches the page to `pending_payment`.
 - After a successful checkout the page receives `status=pending_payment` and `invoice=<id>` as route query,
-  highlights every loaded transaction belonging to that invoice, scrolls the first one into view, and then
-  clears the query so refresh and back navigation do not highlight anything again. A checkout covering
-  multiple sellers produces several transactions for the same invoice and all of them are highlighted, so
-  the behavior is identical for one store and for many. No modal is opened automatically.
+  highlights the loaded invoice card, scrolls it into view, and then clears the query so refresh and back
+  navigation do not highlight anything again. A checkout covering several sellers still produces one pending
+  card because the buyer has one payment obligation and one virtual account. No modal is opened automatically.
 - The highlight persists while the buyer stays on the page and is dropped as soon as the status filter,
   date range, sort order, search term, or page changes.
 - Matching runs only against the already loaded, buyer-scoped list, so an unknown, foreign, or already paid
   invoice simply opens the page with nothing highlighted.
 - The pending-payment tab does not show pagination because it is an action queue, not history browsing.
-- Pending payment cards focus on payment method, virtual account number, expiry date, total payment, and copy action.
-- Paid transaction cards focus on product summary, seller display name, total price, and detail action.
+- Pending payment cards focus on payment method, virtual account number, expiry date, total payment, store count,
+  and copy action when an invoice covers several stores. A single-store pending card keeps its regular transaction
+  presentation. In the grouped detail modal, the shipping address is shown once beneath the invoice because it belongs
+  to the checkout, while every store package shows its own products, courier, shipping price, and seller note.
+- Paid transaction cards focus on product summary, seller display name, each store's product subtotal plus shipping price, and detail action.
 
 ## Seller Transaction Page
 
@@ -140,7 +142,8 @@ Display rules:
 
 - Buyer cards display `seller_name`.
 - Seller cards display `buyer_name`.
-- Buyer pending cards show payment details instead of product images.
+- Buyer pending cards show payment details instead of product images. A multi-store pending card uses the label
+  `Pesanan dari N toko` and shows the invoice total only once.
 - Non-pending cards show the first product, quantity, price, and `+n produk lainnya` when more products exist.
 - Buyer pending totals use `Total Pembayaran`.
 - Buyer paid totals use `Total Harga`.
@@ -182,6 +185,13 @@ The modal includes:
 - payment method, virtual account, and expiry date;
 - price summary;
 - seller approval action when applicable.
+
+For buyer pending invoices covering several stores, the detail modal keeps the payment and combined price summary in
+the right column. The left column shows the invoice, one shared shipping address, and separately labelled store
+packages. Each package separates its shipping details from `Catatan untuk <nama toko>` so the note is not presented as
+a shipping attribute. Every package uses one outer card with divider-separated product, shipping, and note areas.
+Regular buyer and seller transaction details use the same visual hierarchy in one `Detail Pesanan` card, and the seller
+sees the label `Catatan dari Pembeli`.
 
 The modal is intentionally used instead of expanding long details inline. This keeps the list scannable and leaves room for future transaction details to grow.
 
