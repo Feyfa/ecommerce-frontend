@@ -15,7 +15,8 @@
                     </div>
                     <h2 class="text-xl font-semibold text-neutral-950">Detail Transaksi</h2>
                     <p class="mt-1 text-sm text-neutral-500">
-                        {{ role == 'buyer' ? 'Penjual' : 'Pembeli' }}: {{ displayName }}
+                        {{ showPendingInvoicePackages ? 'Ringkasan' : role == 'buyer' ? 'Penjual' : 'Pembeli' }}:
+                        {{ displayName }}
                     </p>
                 </div>
 
@@ -46,48 +47,114 @@
                             <p class="break-all text-sm font-semibold text-neutral-900">{{ item.invoice_id ?? '-' }}</p>
                         </section>
 
-                        <section class="rounded-lg border border-neutral-200 p-4">
-                            <h3 class="mb-3 text-base font-semibold text-neutral-900">Produk ({{ productCount }})</h3>
-                            <div class="flex flex-col gap-3">
-                                <div
-                                    v-for="(product, index) in item.products"
-                                    :key="`${product.name}-${index}`"
-                                    class="flex min-w-0 gap-3 rounded-md bg-neutral-50 p-3"
-                                >
+                        <section v-if="showPendingInvoicePackages" class="rounded-lg border border-neutral-200 p-4">
+                            <h3 class="mb-3 text-base font-semibold text-neutral-900">Alamat Pengiriman</h3>
+                            <p class="text-sm font-semibold text-neutral-900">{{ item.alamat_buyer || '-' }}</p>
+                        </section>
+
+                        <section v-if="showPendingInvoicePackages" class="flex flex-col gap-4">
+                            <section
+                                v-for="packageItem in item.packages"
+                                :key="packageItem.id"
+                                class="rounded-lg border border-neutral-200 p-4"
+                            >
+                                <h3 class="mb-3 text-base font-semibold text-neutral-900">
+                                    {{ packageItem.seller_name }}
+                                </h3>
+                                <h4 class="mb-3 text-sm font-semibold text-neutral-900">
+                                    Produk ({{ packageItem.products?.length ?? 0 }})
+                                </h4>
+                                <div class="flex flex-col gap-3">
                                     <div
-                                        class="h-16 w-16 shrink-0 rounded-md bg-neutral-100 bg-cover bg-center bg-no-repeat"
-                                        :style="{
-                                            backgroundImage: `url(${backendBaseUrl}/${symlinkFolder}/${product.img})`,
-                                        }"
-                                    ></div>
-                                    <div class="min-w-0 flex-1">
-                                        <h4 class="truncate text-sm font-semibold text-neutral-900">
-                                            {{ product.name }}
-                                        </h4>
-                                        <p class="mt-1 text-sm text-neutral-600">
-                                            {{ product.total }} x {{ formatCurrency(product.price) }}
-                                        </p>
-                                    </div>
-                                    <div class="shrink-0 text-right text-sm font-semibold text-neutral-900">
-                                        {{ formatCurrency(productSubtotal(product)) }}
+                                        v-for="(product, index) in packageItem.products"
+                                        :key="`${packageItem.id}-${product.name}-${index}`"
+                                        class="flex min-w-0 gap-3 rounded-md bg-neutral-50 p-3"
+                                    >
+                                        <div
+                                            class="h-16 w-16 shrink-0 rounded-md bg-neutral-100 bg-cover bg-center bg-no-repeat"
+                                            :style="{
+                                                backgroundImage: `url(${backendBaseUrl}/${symlinkFolder}/${product.img})`,
+                                            }"
+                                        ></div>
+                                        <div class="min-w-0 flex-1">
+                                            <h4 class="truncate text-sm font-semibold text-neutral-900">
+                                                {{ product.name }}
+                                            </h4>
+                                            <p class="mt-1 text-sm text-neutral-600">
+                                                {{ product.total }} x {{ formatCurrency(product.price) }}
+                                            </p>
+                                        </div>
+                                        <div class="shrink-0 text-right text-sm font-semibold text-neutral-900">
+                                            {{ formatCurrency(productSubtotal(product)) }}
+                                        </div>
                                     </div>
                                 </div>
-                            </div>
+
+                                <div class="mt-4 border-t border-neutral-200 pt-4">
+                                    <h4 class="mb-3 text-sm font-semibold text-neutral-900">Pengiriman</h4>
+                                    <div class="grid gap-3 text-sm sm:grid-cols-2">
+                                        <InfoRow label="Kurir" :value="packageItem.kurir_type" />
+                                        <InfoRow label="Estimasi" :value="packageItem.kurir_estimate" />
+                                        <InfoRow label="Ongkir" :value="formatCurrency(packageItem.kurir_price)" />
+                                    </div>
+                                </div>
+
+                                <div class="mt-4 border-t border-neutral-200 pt-4">
+                                    <h4 class="mb-2 text-sm font-semibold text-neutral-900">
+                                        Catatan untuk {{ packageItem.seller_name }}
+                                    </h4>
+                                    <p class="text-sm text-neutral-900">{{ packageItem.noted || '-' }}</p>
+                                </div>
+                            </section>
                         </section>
 
-                        <section class="rounded-lg border border-neutral-200 p-4">
-                            <h3 class="mb-3 text-base font-semibold text-neutral-900">Pengiriman</h3>
-                            <div class="grid gap-3 text-sm sm:grid-cols-2">
-                                <InfoRow label="Kurir" :value="item.kurir_type" />
-                                <InfoRow label="Estimasi" :value="item.kurir_estimate" />
-                                <InfoRow class="sm:col-span-2" label="Alamat" :value="item.alamat_buyer" />
-                            </div>
-                        </section>
+                        <template v-else>
+                            <section class="rounded-lg border border-neutral-200 p-4">
+                                <h3 class="mb-4 text-base font-semibold text-neutral-900">Detail Pesanan</h3>
+                                <h4 class="mb-3 text-sm font-semibold text-neutral-900">Produk ({{ productCount }})</h4>
+                                <div class="flex flex-col gap-3">
+                                    <div
+                                        v-for="(product, index) in item.products"
+                                        :key="`${product.name}-${index}`"
+                                        class="flex min-w-0 gap-3 rounded-md bg-neutral-50 p-3"
+                                    >
+                                        <div
+                                            class="h-16 w-16 shrink-0 rounded-md bg-neutral-100 bg-cover bg-center bg-no-repeat"
+                                            :style="{
+                                                backgroundImage: `url(${backendBaseUrl}/${symlinkFolder}/${product.img})`,
+                                            }"
+                                        ></div>
+                                        <div class="min-w-0 flex-1">
+                                            <h4 class="truncate text-sm font-semibold text-neutral-900">
+                                                {{ product.name }}
+                                            </h4>
+                                            <p class="mt-1 text-sm text-neutral-600">
+                                                {{ product.total }} x {{ formatCurrency(product.price) }}
+                                            </p>
+                                        </div>
+                                        <div class="shrink-0 text-right text-sm font-semibold text-neutral-900">
+                                            {{ formatCurrency(productSubtotal(product)) }}
+                                        </div>
+                                    </div>
+                                </div>
 
-                        <section class="rounded-lg border border-neutral-200 p-4">
-                            <h3 class="mb-3 text-base font-semibold text-neutral-900">Catatan</h3>
-                            <p class="text-sm font-semibold text-neutral-900">{{ item.noted || '-' }}</p>
-                        </section>
+                                <div class="mt-4 border-t border-neutral-200 pt-4">
+                                    <h4 class="mb-3 text-sm font-semibold text-neutral-900">Pengiriman</h4>
+                                    <div class="grid gap-3 text-sm sm:grid-cols-2">
+                                        <InfoRow label="Kurir" :value="item.kurir_type" />
+                                        <InfoRow label="Estimasi" :value="item.kurir_estimate" />
+                                        <InfoRow class="sm:col-span-2" label="Alamat" :value="item.alamat_buyer" />
+                                    </div>
+                                </div>
+
+                                <div class="mt-4 border-t border-neutral-200 pt-4">
+                                    <h4 class="mb-2 text-sm font-semibold text-neutral-900">
+                                        {{ noteLabel }}
+                                    </h4>
+                                    <p class="text-sm text-neutral-900">{{ item.noted || '-' }}</p>
+                                </div>
+                            </section>
+                        </template>
                     </div>
 
                     <aside class="flex min-w-0 flex-col gap-4">
@@ -125,13 +192,13 @@
                                 <div class="flex items-center justify-between gap-4">
                                     <span class="text-neutral-600">Barang</span>
                                     <span class="font-semibold text-neutral-900">{{
-                                        formatCurrency(item.product_price)
+                                        formatCurrency(productPrice)
                                     }}</span>
                                 </div>
                                 <div class="flex items-center justify-between gap-4">
                                     <span class="text-neutral-600">Ongkir</span>
                                     <span class="font-semibold text-neutral-900">{{
-                                        formatCurrency(item.kurir_price)
+                                        formatCurrency(shippingPrice)
                                     }}</span>
                                 </div>
                                 <div class="flex items-center justify-between gap-4 border-t border-neutral-200 pt-3">
@@ -199,7 +266,18 @@ export default {
          * @returns {*} Nilai yang dihasilkan oleh operasi nama tampilan.
          */
         displayName() {
+            if (this.showPendingInvoicePackages) return `Pesanan dari ${this.packageCount} toko`;
+
             return this.role == 'buyer' ? this.item.seller_name : this.item.buyer_name;
+        },
+
+        /**
+         * Mengembalikan jumlah paket toko yang tercakup pada invoice pending buyer.
+         *
+         * @returns {number} Jumlah paket toko dalam item detail saat ini.
+         */
+        packageCount() {
+            return this.item.packages?.length ?? 1;
         },
 
         /**
@@ -208,7 +286,55 @@ export default {
          * @returns {*} Nilai yang dihasilkan oleh operasi produk jumlah.
          */
         productCount() {
+            if (this.showPendingInvoicePackages) {
+                return this.item.packages.reduce(
+                    (total, packageItem) => total + (packageItem.products?.length ?? 0),
+                    0,
+                );
+            }
+
             return this.item.products?.length ?? 0;
+        },
+
+        /**
+         * Menentukan apakah modal harus merender rincian beberapa paket toko pada satu invoice pending.
+         *
+         * @returns {boolean} True apabila item pending buyer membawa array packages dari API.
+         */
+        showPendingInvoicePackages() {
+            return this.role == 'buyer' && this.item.invoice_status == 'pending' && Array.isArray(this.item.packages);
+        },
+
+        /**
+         * Menghitung subtotal produk untuk invoice gabungan atau transaksi tunggal.
+         *
+         * @returns {number} Total harga produk yang dapat ditampilkan pada rincian harga.
+         */
+        productPrice() {
+            if (this.showPendingInvoicePackages) {
+                return this.item.packages.reduce(
+                    (total, packageItem) => total + Number(packageItem.product_price || 0),
+                    0,
+                );
+            }
+
+            return Number(this.item.product_price || 0);
+        },
+
+        /**
+         * Menghitung total ongkir untuk invoice gabungan atau transaksi tunggal.
+         *
+         * @returns {number} Total ongkir yang dapat ditampilkan pada rincian harga.
+         */
+        shippingPrice() {
+            if (this.showPendingInvoicePackages) {
+                return this.item.packages.reduce(
+                    (total, packageItem) => total + Number(packageItem.kurir_price || 0),
+                    0,
+                );
+            }
+
+            return Number(this.item.kurir_price || 0);
         },
 
         /**
@@ -275,6 +401,17 @@ export default {
             if ((this.item.payment_name ?? '').toLowerCase().includes('bca')) return '/img/bca.png';
 
             return '';
+        },
+
+        /**
+         * Menentukan label catatan sesuai perspektif pengguna yang membuka detail transaksi.
+         *
+         * @returns {string} Label catatan untuk buyer atau seller.
+         */
+        noteLabel() {
+            if (this.role == 'seller') return 'Catatan dari Pembeli';
+
+            return `Catatan untuk ${this.item.seller_name}`;
         },
 
         /**
