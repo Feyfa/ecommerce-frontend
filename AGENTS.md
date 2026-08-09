@@ -14,7 +14,8 @@ Before changing code or configuration:
 2. Search for and read the relevant documentation in `docs/`. Do not read every document unless the task requires it.
 3. Inspect the related implementation, configuration, dependencies, and tests to verify that the documentation still reflects the current codebase.
 4. Follow the architecture, patterns, and coding style already used in this repository.
-5. Update the relevant documentation when a change affects behavior, API integration, configuration, the build process, or the developer workflow.
+5. Preserve the existing writing and coding style, including whitespace and formatting. Do not reformat or change style unless the task explicitly requests it or the change is required for correctness.
+6. Update the relevant documentation when a change affects behavior, API integration, configuration, the build process, or the developer workflow.
 
 Review the relevant documentation before modifying components, routing, state management, API integration, build configuration, or the developer workflow.
 
@@ -189,6 +190,10 @@ Preserve other valid trailers and do not add a duplicate Codex trailer. Separate
 Before presenting or creating the commit message, verify that the repository and staged scope are correct, every major UI or subsystem behavior in scope is represented, each claim is supported by the diff or executed validation, English grammar is sound, no empty section remains, relevant limitations are disclosed, and footers and trailers are correctly ordered.
 
 For multi-line commit messages, use real newline characters. Do not place literal `\n` sequences inside `git commit -m` arguments. Prefer `git commit -F -` with a heredoc or another method that preserves the intended line breaks.
+
+Hard-wrap commit-message prose at 72 characters per line. Keep the subject at
+72 characters or fewer. Do not wrap commands, URLs, paths, hashes, code
+identifiers, or trailers because their exact text must remain easy to copy.
 
 After creating a commit, run:
 
