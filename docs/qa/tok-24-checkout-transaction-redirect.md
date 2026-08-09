@@ -19,7 +19,7 @@ browser; do not mark a row from code reading alone.
 | TOK-24-FE-02 | ✅ | Read the address bar right after landing. | The URL is `/buyer/transaction` with no `status` or `invoice` query left behind. |
 | TOK-24-FE-03 | ✅ | Watch the viewport on landing when the highlighted card sits below the fold. | The highlighted card is scrolled into view. |
 | TOK-24-FE-04 | ✅ | Look at how the highlighted card differs from the others. | The card carries the `Baru Saja Dibuat` chip, not colour alone. |
-| TOK-24-FE-05 | ✅ | Complete a checkout containing products from two different stores. | Both new transactions are highlighted and no modal opens. |
+| TOK-24-FE-05 | ✅ | Complete a checkout containing products from two different stores. | One grouped pending invoice card is highlighted and no modal opens. |
 | TOK-24-FE-06 | ✅ | Confirm no modal appears at any point of the flow above. | No detail modal is opened automatically. |
 | TOK-24-FE-07 | ✅ | After landing, change the status filter, then the date range, sort, search, and page. | The highlight is dropped on the first of these changes and does not come back. |
 | TOK-24-FE-08 | ✅ | Reload the page, then navigate away and press browser back. | Nothing is highlighted and the console reports no error. |
@@ -81,13 +81,12 @@ correctly when several pending rows exist. No modal opened at any point. The add
 to `/buyer/transaction`, which re-confirms TOK-24-FE-02 through the real checkout flow rather than a pasted
 link. The console reported `No errors`.
 
-TOK-24-FE-05 was verified through a supplied screenshot sequence after a second store was added to the
-catalogue. A cart holding two products from `Spacex` and two from `Aneka Makanan` was checked out as one
-order. The checkout page grouped it into two packages, `process` returned `200`, and the transaction page
-landed on `Belum Dibayar` with the count rising from five to seven. Both resulting cards carried the accent
-ring and the `Baru Saja Dibuat` chip, the five older pending cards stayed unmarked, and no modal opened. This
-is the scenario that motivated dropping the auto-opening modal, and the highlight behaves identically here to
-the single-store case.
+TOK-24-FE-05 was reverified as part of TOK-25 after a second store was added to the catalogue. A cart holding
+products from `Spacex` and `Aneka Makanan` was checked out as one order. The checkout page grouped it into two
+packages, `process` returned `200`, and the transaction page landed on `Belum Dibayar` with one new grouped
+invoice card, labelled `Pesanan dari 2 toko`, carrying the accent ring and the `Baru Saja Dibuat` chip. No
+modal opened. The buyer has one payment obligation, so the multi-store checkout now highlights one invoice card
+rather than two seller rows.
 
 A multi-product variant of TOK-24-FE-01 was also run: a single-store cart holding two different products
 produced exactly one transaction, not one per product. The `Belum Dibayar` count rose from four to five, the
@@ -209,20 +208,8 @@ the `AxiosError` raised at `CheckoutView.vue:698` — and no unhandled error.
 Automated backend coverage for the response contract is recorded in
 `backend/docs/qa/tok-24-checkout-transaction-redirect.md`.
 
-## Findings Outside This Task
+## Superseded Finding
 
-Observed while running TOK-24-FE-05, not caused by TOK-24 and deliberately not fixed here.
-
-In a multi-store checkout every card belonging to the invoice shows the same `Total Pembayaran`, namely the
-whole invoice amount rather than that store's share. In the run above both cards showed `Rp 327.000`, while
-the actual split was `Rp 300.000` for one store and `Rp 27.000` for the other. Reading the list top to bottom
-suggests a total of `Rp 654.000`.
-
-The cause is in `TransactionService::getTransactions()`, which selects `transaction_invoices.price` as
-`total_price`. The value is invoice-level, so every seller row repeats it. The shared virtual account number
-repeating across those cards is correct by contrast: one invoice has one virtual account and the buyer pays
-once for the whole order.
-
-This predates the task. It became visible now only because both cards are highlighted at the same time and so
-get compared directly. Fixing it means deciding what a per-store total should include, which is a product
-decision rather than a display tweak, and belongs in its own ticket.
+The multi-store pending-card duplication and its repeated invoice total, originally observed during TOK-24-FE-05,
+were fixed in TOK-25. Pending invoices covering several stores now render once with the invoice total; after
+payment, buyer rows return to one per store and use that store's product subtotal plus shipping price.
