@@ -13,7 +13,7 @@ Current supported actions:
 - View product list from other sellers.
 - Search products by product name or store name.
 - Sort products by update date, price, or name.
-- Reset active search and sorting.
+- Clear an active product search or reset sorting.
 - Load more products through infinite scroll.
 - Add an available product to the cart.
 - See only active products with stock whose seller location is verified.
@@ -65,12 +65,12 @@ Infinite scroll is driven by the global scroll event. When the global container 
 
 ### Sort Products
 
-1. The buyer changes the sort dropdown.
+1. The buyer changes the labeled sort select.
 2. `applyBelanjaFilters()` clears the current list and resets infinite-scroll completion state.
 3. `getBelanja()` reloads products from the first batch using the selected sort value.
 4. New products are appended to `products`.
 
-The reset button is disabled while search and sorting are in their default state. Clicking it clears search, restores `Terbaru`, then reloads the product list.
+The reset button appears only when the sort select is not `Terbaru`. Clicking it restores `Terbaru`, reloads the product list, and keeps any active search keyword.
 
 ### Search Products
 
@@ -110,7 +110,8 @@ Authenticated requests use the current Clerk session token attached by the share
 ## UI Notes
 
 - The page follows the same visual direction as seller product: white toolbar, light page background, white cards, soft border, and soft shadow.
-- The toolbar uses a responsive grid: the labeled search and sort controls remain clear on mobile, while sort and the compact icon-only reset control stay grouped on the right on wide screens. The reset control keeps the accessible label and tooltip `Reset filter`.
+- The toolbar uses a responsive layout: below `640px`, search remains full-width while the labeled sort select and reset button share one row. From `640px`, search stays on the left while sort and reset remain grouped on the right. The search field uses a maximum width of `18rem`.
+- The sort select uses the same control width as its option list. Its reset button appears only for a non-default order and restores only the default sort while keeping any active search keyword.
 - Active search and non-default sorting are shown as violet chips below the toolbar.
 - Buyer cards include the public store name, so they use `h-[18.5rem]` instead of the seller product card height.
 - Product images use `object-contain` so the full product is visible.
