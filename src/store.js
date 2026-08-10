@@ -893,6 +893,9 @@ export default createStore({
                         params: {
                             products_current_id: data.products_current_id,
                             search_product: data.search_product,
+                            min_price: data.min_price,
+                            max_price: data.max_price,
+                            added_within: data.added_within,
                             sort_product: data.sort_product,
                         },
                     })
