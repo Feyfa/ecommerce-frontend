@@ -26,50 +26,238 @@
                     />
                 </div>
 
-                <div class="flex min-w-0 flex-col gap-1.5 sm:w-[13rem]">
-                    <label for="buyer-product-sort" class="text-xs font-semibold text-slate-600">Urutkan</label>
-                    <div
-                        class="belanja-sort-control flex items-center"
-                        :class="{ 'belanja-sort-control--with-reset': sortProduct !== defaultProductSort }"
-                    >
-                        <el-select
-                            id="buyer-product-sort"
-                            aria-label="Urutkan produk belanja"
-                            v-model="sortProduct"
-                            class="product-sort-filter min-w-0 flex-1 !w-auto"
-                            popper-class="product-filter-popper"
-                            @change="applyBelanjaFilters"
+                <div class="grid grid-cols-[minmax(0,1fr)_auto] items-end gap-3 sm:flex sm:w-auto">
+                    <div class="flex min-w-0 flex-col gap-1.5 sm:w-[13rem]">
+                        <label for="buyer-product-sort" class="text-xs font-semibold text-slate-600">Urutkan</label>
+                        <div
+                            class="belanja-sort-control flex items-center"
+                            :class="{ 'belanja-sort-control--with-reset': sortProduct !== defaultProductSort }"
                         >
-                            <el-option
-                                v-for="option in sortProductOptions"
-                                :key="option.value"
-                                :label="option.label"
-                                :value="option.value"
-                            />
-                        </el-select>
+                            <el-select
+                                id="buyer-product-sort"
+                                aria-label="Urutkan produk belanja"
+                                v-model="sortProduct"
+                                class="product-sort-filter min-w-0 flex-1 !w-auto"
+                                popper-class="product-filter-popper"
+                                @change="reloadBelanjaProducts"
+                            >
+                                <el-option
+                                    v-for="option in sortProductOptions"
+                                    :key="option.value"
+                                    :label="option.label"
+                                    :value="option.value"
+                                />
+                            </el-select>
 
+                            <button
+                                v-if="sortProduct !== defaultProductSort"
+                                type="button"
+                                class="inline-flex h-11 w-11 shrink-0 items-center justify-center rounded-l-none rounded-r-md border border-slate-300 bg-white px-0 text-sm font-semibold text-slate-600 shadow-sm transition hover:border-violet-200 hover:bg-violet-50 hover:text-violet-700 active:scale-95 disabled:cursor-not-allowed disabled:opacity-50"
+                                title="Reset urutan"
+                                aria-label="Reset urutan"
+                                @click="resetBelanjaSort"
+                            >
+                                <i class="fa-solid fa-rotate-left text-xs" aria-hidden="true"></i>
+                            </button>
+                        </div>
+                    </div>
+
+                    <div
+                        ref="belanjaFilterControls"
+                        class="relative flex flex-col gap-1.5"
+                        @keydown.esc="closeBelanjaFilter"
+                    >
+                        <span class="text-xs font-semibold text-slate-600">Filter</span>
                         <button
-                            v-if="sortProduct !== defaultProductSort"
+                            id="buyer-product-filter"
                             type="button"
-                            class="inline-flex h-11 w-11 shrink-0 items-center justify-center rounded-l-none rounded-r-md border border-slate-300 bg-white px-0 text-sm font-semibold text-slate-600 shadow-sm transition hover:border-violet-200 hover:bg-violet-50 hover:text-violet-700 active:scale-95 disabled:cursor-not-allowed disabled:opacity-50"
-                            title="Reset urutan"
-                            aria-label="Reset urutan"
-                            @click="resetBelanjaSort"
+                            class="inline-flex h-11 shrink-0 items-center justify-center gap-2 rounded-md border border-slate-300 bg-white px-3 text-sm font-semibold text-slate-700 shadow-sm transition hover:border-violet-200 hover:bg-violet-50 hover:text-violet-700 active:scale-95"
+                            :aria-expanded="isBelanjaFilterOpen"
+                            aria-controls="buyerProductFilterPanel"
+                            @click="toggleBelanjaFilter"
                         >
-                            <i class="fa-solid fa-rotate-left text-xs" aria-hidden="true"></i>
+                            <i class="fa-solid fa-filter text-xs" aria-hidden="true"></i>
+                            <span>{{
+                                activeBelanjaFilterCount > 0 ? `Filter (${activeBelanjaFilterCount})` : 'Filter'
+                            }}</span>
                         </button>
+
+                        <section
+                            id="buyerProductFilterPanel"
+                            class="belanja-filter-panel"
+                            :class="{ 'is-open': isBelanjaFilterOpen }"
+                            role="dialog"
+                            aria-labelledby="buyerProductFilterTitle"
+                        >
+                            <div class="flex items-center justify-between border-b border-slate-200 px-4 py-3">
+                                <h2 id="buyerProductFilterTitle" class="text-base font-semibold text-slate-950">
+                                    Filter
+                                </h2>
+                                <button
+                                    type="button"
+                                    class="inline-flex h-8 w-8 items-center justify-center rounded-md text-slate-500 transition hover:bg-slate-100 hover:text-slate-800"
+                                    aria-label="Tutup filter"
+                                    @click="closeBelanjaFilter"
+                                >
+                                    <i class="fa-solid fa-xmark" aria-hidden="true"></i>
+                                </button>
+                            </div>
+
+                            <div class="divide-y divide-slate-200">
+                                <div>
+                                    <button
+                                        type="button"
+                                        class="flex w-full items-center justify-between px-4 py-3 text-left text-sm font-semibold text-slate-900 transition hover:bg-slate-50"
+                                        :aria-expanded="isPriceFilterSectionOpen"
+                                        aria-controls="buyerProductPriceFilter"
+                                        @click="toggleBelanjaFilterSection('price')"
+                                    >
+                                        Harga
+                                        <i
+                                            class="fa-solid fa-chevron-down text-xs text-slate-500 transition-transform"
+                                            :class="{ 'rotate-180': isPriceFilterSectionOpen }"
+                                            aria-hidden="true"
+                                        ></i>
+                                    </button>
+
+                                    <div
+                                        v-show="isPriceFilterSectionOpen"
+                                        id="buyerProductPriceFilter"
+                                        class="px-4 pb-4"
+                                    >
+                                        <div class="flex flex-col gap-3">
+                                            <label class="flex flex-col gap-1.5 text-sm font-medium text-slate-700">
+                                                Harga minimum
+                                                <span
+                                                    class="flex h-11 w-full overflow-hidden rounded-md border border-slate-300 bg-white text-base text-slate-900 shadow-sm focus-within:border-violet-500 focus-within:ring-2 focus-within:ring-violet-100"
+                                                >
+                                                    <span
+                                                        class="flex w-12 shrink-0 items-center justify-center border-r border-slate-300 bg-slate-50 text-sm font-semibold text-slate-500"
+                                                    >
+                                                        Rp
+                                                    </span>
+                                                    <input
+                                                        v-model="draftMinPrice"
+                                                        type="text"
+                                                        inputmode="numeric"
+                                                        class="h-full min-w-0 flex-1 px-3 text-base text-slate-900 outline-none placeholder:text-slate-400"
+                                                        placeholder="50.000"
+                                                        @input="onBelanjaPriceInput('draftMinPrice')"
+                                                    />
+                                                </span>
+                                            </label>
+
+                                            <label class="flex flex-col gap-1.5 text-sm font-medium text-slate-700">
+                                                Harga maksimum
+                                                <span
+                                                    class="flex h-11 w-full overflow-hidden rounded-md border border-slate-300 bg-white text-base text-slate-900 shadow-sm focus-within:border-violet-500 focus-within:ring-2 focus-within:ring-violet-100"
+                                                >
+                                                    <span
+                                                        class="flex w-12 shrink-0 items-center justify-center border-r border-slate-300 bg-slate-50 text-sm font-semibold text-slate-500"
+                                                    >
+                                                        Rp
+                                                    </span>
+                                                    <input
+                                                        v-model="draftMaxPrice"
+                                                        type="text"
+                                                        inputmode="numeric"
+                                                        class="h-full min-w-0 flex-1 px-3 text-base text-slate-900 outline-none placeholder:text-slate-400"
+                                                        placeholder="50.000"
+                                                        @input="onBelanjaPriceInput('draftMaxPrice')"
+                                                    />
+                                                </span>
+                                            </label>
+                                        </div>
+
+                                        <p
+                                            v-if="filterPriceError"
+                                            class="mt-3 text-xs font-medium leading-5 text-red-600"
+                                        >
+                                            {{ filterPriceError }}
+                                        </p>
+                                    </div>
+                                </div>
+
+                                <div>
+                                    <button
+                                        type="button"
+                                        class="flex w-full items-center justify-between px-4 py-3 text-left text-sm font-semibold text-slate-900 transition hover:bg-slate-50"
+                                        :aria-expanded="isRecentlyAddedFilterSectionOpen"
+                                        aria-controls="buyerProductRecentlyAddedFilter"
+                                        @click="toggleBelanjaFilterSection('recently-added')"
+                                    >
+                                        Terakhir Ditambahkan
+                                        <i
+                                            class="fa-solid fa-chevron-down text-xs text-slate-500 transition-transform"
+                                            :class="{ 'rotate-180': isRecentlyAddedFilterSectionOpen }"
+                                            aria-hidden="true"
+                                        ></i>
+                                    </button>
+
+                                    <div
+                                        v-show="isRecentlyAddedFilterSectionOpen"
+                                        id="buyerProductRecentlyAddedFilter"
+                                        class="px-4 pb-4"
+                                    >
+                                        <div
+                                            class="flex flex-wrap gap-2"
+                                            role="group"
+                                            aria-label="Rentang terakhir ditambahkan"
+                                        >
+                                            <button
+                                                v-for="option in recentlyAddedFilterOptions"
+                                                :key="option.value"
+                                                type="button"
+                                                class="inline-flex h-9 items-center rounded-md border px-3 text-sm font-semibold transition"
+                                                :class="
+                                                    draftAddedWithin === option.value
+                                                        ? 'border-violet-600 bg-violet-600 text-white'
+                                                        : 'border-slate-300 bg-white text-slate-700 hover:border-violet-300 hover:bg-violet-50 hover:text-violet-700'
+                                                "
+                                                :aria-pressed="draftAddedWithin === option.value"
+                                                @click="draftAddedWithin = option.value"
+                                            >
+                                                {{ option.label }}
+                                            </button>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="flex items-center justify-end gap-3 border-t border-slate-200 px-4 py-3">
+                                <button
+                                    type="button"
+                                    class="inline-flex h-9 items-center justify-center rounded-md px-3 text-sm font-semibold text-slate-600 transition hover:bg-slate-100 hover:text-slate-900 disabled:cursor-not-allowed disabled:opacity-50"
+                                    :disabled="activeBelanjaFilterCount === 0"
+                                    @click="resetBelanjaFilters"
+                                >
+                                    Reset Filter
+                                </button>
+                                <button
+                                    type="button"
+                                    class="inline-flex h-9 items-center justify-center rounded-md bg-violet-600 px-4 text-sm font-semibold text-white shadow-sm transition hover:bg-violet-700 active:scale-95"
+                                    @click="applyBelanjaFilters"
+                                >
+                                    Terapkan
+                                </button>
+                            </div>
+                        </section>
                     </div>
                 </div>
             </div>
 
             <div v-if="activeBelanjaFilterChips.length > 0" class="mt-3 flex flex-wrap items-center gap-2">
-                <span
+                <button
                     v-for="chip in activeBelanjaFilterChips"
                     :key="chip.key"
+                    type="button"
                     class="inline-flex h-8 items-center rounded-full bg-violet-50 px-3 text-xs font-semibold text-violet-700 ring-1 ring-violet-100"
+                    :aria-label="`Hapus filter ${chip.label}`"
+                    @click="removeBelanjaFilter(chip.key)"
                 >
                     {{ chip.label }}
-                </span>
+                    <i class="fa-solid fa-xmark ml-2 text-[.65rem]" aria-hidden="true"></i>
+                </button>
             </div>
         </div>
 
@@ -196,9 +384,25 @@ export default {
             activeSearchProduct: '',
             sortProduct: DEFAULT_PRODUCT_SORT,
             defaultProductSort: DEFAULT_PRODUCT_SORT,
+            minPrice: null,
+            maxPrice: null,
+            addedWithin: null,
+            draftMinPrice: '',
+            draftMaxPrice: '',
+            draftAddedWithin: null,
+            isBelanjaFilterOpen: false,
+            isPriceFilterSectionOpen: true,
+            isRecentlyAddedFilterSectionOpen: false,
+            filterPriceError: '',
             productRequestVersion: 0,
             belanjaHeaderStuck: false,
             sortProductOptions: PRODUCT_SORT_OPTIONS,
+            recentlyAddedFilterOptions: [
+                { value: '7', label: '7 Hari' },
+                { value: '14', label: '14 Hari' },
+                { value: '30', label: '1 Bulan' },
+                { value: '90', label: '3 Bulan' },
+            ],
             completeProduct: false,
 
             show: {
@@ -211,35 +415,61 @@ export default {
 
     computed: {
         /**
-         * Mengembalikan has active belanja filter yang dihitung dari state reaktif saat ini untuk halaman belanja.
+         * Menentukan apakah pencarian atau filter katalog aktif sedang membatasi hasil katalog buyer.
          *
-         * @returns {boolean} Menunjukkan apakah kondisi has active belanja filter terpenuhi.
+         * Sort tidak dihitung sebagai filter karena hanya mengubah urutan hasil, bukan jumlah produk yang tersedia.
+         *
+         * @returns {boolean} Menunjukkan apakah katalog sedang dibatasi oleh pencarian atau filter.
          */
         hasActiveBelanjaFilter() {
-            return this.activeSearchProduct.length > 0 || this.sortProduct !== DEFAULT_PRODUCT_SORT;
+            return this.activeSearchProduct.length > 0 || this.activeBelanjaFilterCount > 0;
         },
 
         /**
-         * Mengembalikan active belanja filter chips yang dihitung dari state reaktif saat ini untuk halaman belanja.
+         * Menghitung jumlah kriteria katalog aktif untuk label tombol Filter.
          *
-         * @returns {*} Nilai yang dihasilkan oleh operasi active belanja filter chips.
+         * Setiap batas harga dan rentang terakhir ditambahkan dihitung terpisah agar count dan chip selalu
+         * mencerminkan kriteria yang dapat dihapus satu per satu.
+         *
+         * @returns {number} Jumlah kriteria filter yang sedang diterapkan pada katalog.
+         */
+        activeBelanjaFilterCount() {
+            return [this.minPrice, this.maxPrice, this.addedWithin].filter((value) => value !== null).length;
+        },
+
+        /**
+         * Membentuk chip untuk setiap kriteria buyer yang sudah diterapkan.
+         *
+         * Sort sengaja tidak dimasukkan karena kontrol tersebut berdiri sendiri dari filter katalog.
+         *
+         * @returns {Array<{key: string, label: string}>} Kumpulan chip filter yang dapat dihapus mandiri.
          */
         activeBelanjaFilterChips() {
             const chips = [];
-            const activeSortProduct = this.sortProductOptions.find((option) => option.value === this.sortProduct);
 
-            if (this.activeSearchProduct.length > 0) {
+            if (this.minPrice !== null) {
                 chips.push({
-                    key: 'search',
-                    label: `Pencarian: ${this.activeSearchProduct}`,
+                    key: 'min',
+                    label: `Harga ≥ ${this.formatRupiah(this.minPrice)}`,
                 });
             }
 
-            if (activeSortProduct && activeSortProduct.value !== DEFAULT_PRODUCT_SORT) {
+            if (this.maxPrice !== null) {
                 chips.push({
-                    key: 'sort',
-                    label: `Urutkan: ${activeSortProduct.label}`,
+                    key: 'max',
+                    label: `Harga ≤ ${this.formatRupiah(this.maxPrice)}`,
                 });
+            }
+
+            if (this.addedWithin !== null) {
+                const option = this.recentlyAddedFilterOptions.find((item) => item.value === this.addedWithin);
+
+                if (option) {
+                    chips.push({
+                        key: 'added-within',
+                        label: `Ditambahkan ${option.label} terakhir`,
+                    });
+                }
             }
 
             return chips;
@@ -288,6 +518,7 @@ export default {
 
         this.show.belanja_view = false;
         this.show.loading = true;
+        document.addEventListener('pointerdown', this.handleBelanjaFilterDocumentPointerDown);
 
         this.getBelanja();
     },
@@ -299,6 +530,7 @@ export default {
      */
     beforeUnmount() {
         eventBus.off('scrollGlobal');
+        document.removeEventListener('pointerdown', this.handleBelanjaFilterDocumentPointerDown);
     },
 
     methods: {
@@ -309,11 +541,7 @@ export default {
          */
         enterSearchProduct() {
             this.activeSearchProduct = this.searchProduct.trim();
-            this.show.loading_search_product = true;
-            this.completeProduct = false;
-            this.products = [];
-
-            this.getBelanja();
+            this.reloadBelanjaProducts();
         },
 
         /**
@@ -327,19 +555,214 @@ export default {
             }
 
             this.activeSearchProduct = '';
-            this.show.loading_search_product = true;
-            this.completeProduct = false;
-            this.products = [];
-
-            this.getBelanja();
+            this.reloadBelanjaProducts();
         },
 
         /**
-         * Menjalankan proses apply belanja filters dan menyinkronkan state hasilnya untuk halaman belanja.
+         * Membuka atau menutup panel filter sambil menyinkronkan draft dengan kriteria yang diterapkan.
          *
-         * @returns {void} Function menerapkan efeknya melalui state komponen atau aplikasi.
+         * Menutup panel tanpa menerapkan perubahan mengembalikan draft ke nilai filter aktif agar input yang belum
+         * disimpan tidak memengaruhi daftar produk.
+         *
+         * @returns {void} Memperbarui visibilitas panel dan state draft filter.
+         */
+        toggleBelanjaFilter() {
+            if (this.isBelanjaFilterOpen) {
+                this.closeBelanjaFilter();
+                return;
+            }
+
+            this.draftMinPrice = this.minPrice !== null ? this.minPrice.toLocaleString('id-ID') : '';
+            this.draftMaxPrice = this.maxPrice !== null ? this.maxPrice.toLocaleString('id-ID') : '';
+            this.draftAddedWithin = this.addedWithin;
+            this.filterPriceError = '';
+            this.isPriceFilterSectionOpen = true;
+            this.isRecentlyAddedFilterSectionOpen = false;
+            this.isBelanjaFilterOpen = true;
+        },
+
+        /**
+         * Menutup panel filter dan membatalkan perubahan draft yang belum diterapkan.
+         *
+         * Nilai applied tetap menjadi sumber data katalog sehingga penutupan melalui klik di luar panel atau tombol
+         * close tidak dapat mengubah hasil produk secara tidak sengaja.
+         *
+         * @returns {void} Menutup panel serta menyamakan draft dengan filter aktif.
+         */
+        closeBelanjaFilter() {
+            this.draftMinPrice = this.minPrice !== null ? this.minPrice.toLocaleString('id-ID') : '';
+            this.draftMaxPrice = this.maxPrice !== null ? this.maxPrice.toLocaleString('id-ID') : '';
+            this.draftAddedWithin = this.addedWithin;
+            this.filterPriceError = '';
+            this.isBelanjaFilterOpen = false;
+        },
+
+        /**
+         * Menutup panel Filter ketika pointer berada di luar kontrol toolbar belanja.
+         *
+         * Listener dokumen menyamakan perilaku panel ter-anchored ini dengan Filter Audit Log tanpa backdrop
+         * penuh layar, sehingga daftar katalog tetap terasa ringan pada layar mobile maupun desktop.
+         *
+         * @param {PointerEvent} event Event pointer dari dokumen browser.
+         *
+         * @returns {void} Menutup panel bila target klik berada di luar kontrol Filter.
+         */
+        handleBelanjaFilterDocumentPointerDown(event) {
+            if (!this.isBelanjaFilterOpen || this.$refs.belanjaFilterControls?.contains(event.target)) {
+                return;
+            }
+
+            this.closeBelanjaFilter();
+        },
+
+        /**
+         * Membuka atau menutup satu section accordion di dalam panel Filter.
+         *
+         * Setiap section menyimpan statusnya sendiri agar buyer dapat membandingkan atau mengisi beberapa jenis
+         * filter tanpa section lain tertutup secara otomatis.
+         *
+         * @param {'price'|'recently-added'} section Identitas section filter yang dipilih buyer.
+         *
+         * @returns {void} Memperbarui section accordion yang sedang terbuka.
+         */
+        toggleBelanjaFilterSection(section) {
+            if (section === 'price') {
+                this.isPriceFilterSectionOpen = !this.isPriceFilterSectionOpen;
+                return;
+            }
+
+            this.isRecentlyAddedFilterSectionOpen = !this.isRecentlyAddedFilterSectionOpen;
+        },
+
+        /**
+         * Menerapkan rentang harga dan terakhir ditambahkan setelah memastikan nominal serta urutan batas valid.
+         *
+         * Request katalog hanya dibuat ketika nilai applied berubah sehingga menekan Terapkan tanpa perubahan cukup
+         * menutup panel dan tidak memuat ulang daftar tanpa alasan.
+         *
+         * @returns {void} Memperbarui filter aktif atau menampilkan pesan validasi di panel.
          */
         applyBelanjaFilters() {
+            // --- step 1 - start - normalisasi dan validasi nominal draft
+            const minPrice = this.parseBelanjaPrice(this.draftMinPrice, 'Harga minimum');
+            const maxPrice = this.parseBelanjaPrice(this.draftMaxPrice, 'Harga maksimum');
+
+            if (minPrice === false || maxPrice === false) {
+                return;
+            }
+
+            if (minPrice !== null && maxPrice !== null && minPrice > maxPrice) {
+                this.filterPriceError = 'Harga minimum tidak boleh lebih besar dari harga maksimum.';
+                return;
+            }
+            // --- step 1 - end - normalisasi dan validasi nominal draft
+
+            // --- step 2 - start - terapkan filter aktif dan muat ulang bila berubah
+            const hasChanged =
+                this.minPrice !== minPrice || this.maxPrice !== maxPrice || this.addedWithin !== this.draftAddedWithin;
+            this.minPrice = minPrice;
+            this.maxPrice = maxPrice;
+            this.addedWithin = this.draftAddedWithin;
+            this.closeBelanjaFilter();
+
+            if (hasChanged) {
+                this.reloadBelanjaProducts();
+            }
+            // --- step 2 - end - terapkan filter aktif dan muat ulang bila berubah
+        },
+
+        /**
+         * Mengubah input nominal filter menjadi angka bulat atau nilai kosong yang aman untuk query katalog.
+         *
+         * @param {string|number|null} value Nilai draft yang dimasukkan buyer pada field harga.
+         * @param {string} label Nama field yang digunakan pada pesan validasi.
+         *
+         * @returns {number|null|false} Nominal valid, null untuk field kosong, atau false ketika input tidak valid.
+         */
+        parseBelanjaPrice(value, label) {
+            if (value === '' || value === null) {
+                return null;
+            }
+
+            const price = Number(String(value).replace(/\D/g, ''));
+
+            if (!Number.isInteger(price) || price < 0) {
+                this.filterPriceError = `${label} harus berupa angka bulat Rp0 atau lebih.`;
+                return false;
+            }
+
+            return price;
+        },
+
+        /**
+         * Menormalkan nominal yang diketik buyer agar memakai pemisah ribuan Indonesia seperti input harga Produk.
+         *
+         * @param {'draftMinPrice'|'draftMaxPrice'} field State draft harga yang sedang diubah buyer.
+         *
+         * @returns {void} Menyimpan kembali teks nominal terformat pada state draft yang dipilih.
+         */
+        onBelanjaPriceInput(field) {
+            const normalizedValue = String(this[field] ?? '').replace(/\D/g, '');
+
+            this[field] = normalizedValue ? Number(normalizedValue).toLocaleString('id-ID') : '';
+            this.filterPriceError = '';
+        },
+
+        /**
+         * Menghapus seluruh filter aktif tanpa mengubah pencarian atau urutan katalog.
+         *
+         * Reset memiliki efek langsung agar daftar produk segera kembali ke hasil tanpa batas harga setelah buyer
+         * menekan tombolnya di panel.
+         *
+         * @returns {void} Mengosongkan filter dan memuat ulang katalog bila filter sebelumnya aktif.
+         */
+        resetBelanjaFilters() {
+            const hasActiveFilter = this.activeBelanjaFilterCount > 0;
+            this.minPrice = null;
+            this.maxPrice = null;
+            this.addedWithin = null;
+            this.closeBelanjaFilter();
+
+            if (hasActiveFilter) {
+                this.reloadBelanjaProducts();
+            }
+        },
+
+        /**
+         * Menghapus satu kriteria melalui chip filter yang dipilih buyer.
+         *
+         * @param {'min'|'max'|'added-within'} filterKey Identitas kriteria yang harus dilepas dari filter aktif.
+         *
+         * @returns {void} Menghapus satu kriteria dan memuat ulang katalog bila nilainya berubah.
+         */
+        removeBelanjaFilter(filterKey) {
+            if (filterKey === 'min' && this.minPrice !== null) {
+                this.minPrice = null;
+                this.reloadBelanjaProducts();
+                return;
+            }
+
+            if (filterKey === 'max' && this.maxPrice !== null) {
+                this.maxPrice = null;
+                this.reloadBelanjaProducts();
+                return;
+            }
+
+            if (filterKey === 'added-within' && this.addedWithin !== null) {
+                this.addedWithin = null;
+                this.reloadBelanjaProducts();
+            }
+        },
+
+        /**
+         * Mengosongkan daftar produk dan memuat batch pertama sesuai pencarian, filter, dan sort aktif.
+         *
+         * Setiap perubahan kriteria menggunakan jalur ini agar infinite scroll dimulai ulang dan response dari
+         * request lama tidak dapat menimpa hasil katalog yang lebih baru.
+         *
+         * @returns {void} Menyiapkan state reload lalu meminta katalog buyer terbaru.
+         */
+        reloadBelanjaProducts() {
             this.show.loading_search_product = true;
             this.completeProduct = false;
             this.products = [];
@@ -359,7 +782,7 @@ export default {
             }
 
             this.sortProduct = DEFAULT_PRODUCT_SORT;
-            this.applyBelanjaFilters();
+            this.reloadBelanjaProducts();
         },
 
         /**
@@ -457,6 +880,9 @@ export default {
                 .dispatch('getBelanja', {
                     products_current_id: products_current_id,
                     search_product: requestSearchProduct,
+                    min_price: this.minPrice,
+                    max_price: this.maxPrice,
+                    added_within: this.addedWithin,
                     sort_product: this.sortProduct,
                 })
                 .then((response) => {
@@ -510,6 +936,44 @@ export default {
     border-top-right-radius: 0;
     border-bottom-right-radius: 0;
     border-right-width: 0;
+}
+
+.belanja-filter-panel {
+    position: absolute;
+    top: calc(100% + 8px);
+    right: 0;
+    z-index: 30;
+    display: none;
+    box-sizing: border-box;
+    width: min(22rem, calc(100vw - 2rem));
+    overflow: visible;
+    border: 1px solid #e2e8f0;
+    border-radius: 10px;
+    background: #ffffff;
+    box-shadow: 0 18px 45px rgba(15, 23, 42, 0.16);
+}
+
+.belanja-filter-panel::before {
+    position: absolute;
+    top: -7px;
+    right: 22px;
+    width: 12px;
+    height: 12px;
+    border-top: 1px solid #e2e8f0;
+    border-left: 1px solid #e2e8f0;
+    background: #ffffff;
+    content: '';
+    transform: rotate(45deg);
+}
+
+.belanja-filter-panel.is-open {
+    display: block;
+}
+
+@media (max-width: 640px) {
+    .belanja-filter-panel::before {
+        right: 20px;
+    }
 }
 
 @media (min-width: 1920px) {
