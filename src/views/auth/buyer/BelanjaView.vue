@@ -12,9 +12,9 @@
                 <h1 class="text-3xl font-medium text-slate-950">Barang Belanja</h1>
             </div>
 
-            <div class="mt-3 grid grid-cols-1 gap-3 lg:grid-cols-[minmax(14rem,27rem)_1fr_14rem_3rem] lg:items-end">
-                <div class="flex min-w-0 flex-col gap-1.5">
-                    <label for="search-product" class="text-xs font-semibold text-slate-600">Cari Produk</label>
+            <div class="mt-3 flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
+                <div class="flex min-w-0 flex-col gap-1.5 sm:flex-1 sm:max-w-[18rem]">
+                    <label for="search-product" class="text-xs font-semibold text-slate-600">Cari</label>
                     <input
                         placeholder="Search produk"
                         id="search-product"
@@ -26,37 +26,40 @@
                     />
                 </div>
 
-                <div class="hidden lg:block"></div>
-
-                <div class="flex min-w-0 flex-col gap-1.5">
-                    <label for="buyer-product-sort" class="text-xs font-semibold text-slate-600">Urutkan Produk</label>
-                    <el-select
-                        id="buyer-product-sort"
-                        aria-label="Urutkan produk belanja"
-                        v-model="sortProduct"
-                        class="product-sort-filter !w-full"
-                        popper-class="product-filter-popper"
-                        @change="applyBelanjaFilters"
+                <div class="flex min-w-0 flex-col gap-1.5 sm:w-[13rem]">
+                    <label for="buyer-product-sort" class="text-xs font-semibold text-slate-600">Urutkan</label>
+                    <div
+                        class="belanja-sort-control flex items-center"
+                        :class="{ 'belanja-sort-control--with-reset': sortProduct !== defaultProductSort }"
                     >
-                        <el-option
-                            v-for="option in sortProductOptions"
-                            :key="option.value"
-                            :label="option.label"
-                            :value="option.value"
-                        />
-                    </el-select>
-                </div>
+                        <el-select
+                            id="buyer-product-sort"
+                            aria-label="Urutkan produk belanja"
+                            v-model="sortProduct"
+                            class="product-sort-filter min-w-0 flex-1 !w-auto"
+                            popper-class="product-filter-popper"
+                            @change="applyBelanjaFilters"
+                        >
+                            <el-option
+                                v-for="option in sortProductOptions"
+                                :key="option.value"
+                                :label="option.label"
+                                :value="option.value"
+                            />
+                        </el-select>
 
-                <button
-                    type="button"
-                    class="inline-flex h-11 w-11 shrink-0 items-center justify-center rounded-md border border-slate-300 bg-white px-0 text-sm font-semibold text-slate-600 shadow-sm transition hover:border-violet-200 hover:bg-violet-50 hover:text-violet-700 active:scale-95 disabled:cursor-not-allowed disabled:opacity-50"
-                    :disabled="!hasActiveBelanjaFilter"
-                    title="Reset filter"
-                    aria-label="Reset filter"
-                    @click="resetBelanjaFilters"
-                >
-                    <i class="fa-solid fa-rotate-left text-xs" aria-hidden="true"></i>
-                </button>
+                        <button
+                            v-if="sortProduct !== defaultProductSort"
+                            type="button"
+                            class="inline-flex h-11 w-11 shrink-0 items-center justify-center rounded-l-none rounded-r-md border border-slate-300 bg-white px-0 text-sm font-semibold text-slate-600 shadow-sm transition hover:border-violet-200 hover:bg-violet-50 hover:text-violet-700 active:scale-95 disabled:cursor-not-allowed disabled:opacity-50"
+                            title="Reset urutan"
+                            aria-label="Reset urutan"
+                            @click="resetBelanjaSort"
+                        >
+                            <i class="fa-solid fa-rotate-left text-xs" aria-hidden="true"></i>
+                        </button>
+                    </div>
+                </div>
             </div>
 
             <div v-if="activeBelanjaFilterChips.length > 0" class="mt-3 flex flex-wrap items-center gap-2">
@@ -192,6 +195,7 @@ export default {
             searchProduct: '',
             activeSearchProduct: '',
             sortProduct: DEFAULT_PRODUCT_SORT,
+            defaultProductSort: DEFAULT_PRODUCT_SORT,
             productRequestVersion: 0,
             belanjaHeaderStuck: false,
             sortProductOptions: PRODUCT_SORT_OPTIONS,
@@ -344,23 +348,18 @@ export default {
         },
 
         /**
-         * Mengembalikan belanja filters ke state awal untuk halaman belanja.
+         * Mengembalikan urutan katalog ke nilai bawaan tanpa menghapus
+         * pencarian aktif pengguna.
          *
          * @returns {void} Function menerapkan efeknya melalui state komponen atau aplikasi.
          */
-        resetBelanjaFilters() {
-            if (!this.hasActiveBelanjaFilter) {
+        resetBelanjaSort() {
+            if (this.sortProduct === DEFAULT_PRODUCT_SORT) {
                 return;
             }
 
-            this.searchProduct = '';
-            this.activeSearchProduct = '';
             this.sortProduct = DEFAULT_PRODUCT_SORT;
-            this.show.loading_search_product = true;
-            this.completeProduct = false;
-            this.products = [];
-
-            this.getBelanja();
+            this.applyBelanjaFilters();
         },
 
         /**
@@ -507,6 +506,12 @@ export default {
 </script>
 
 <style scoped>
+.belanja-sort-control--with-reset :deep(.el-select__wrapper) {
+    border-top-right-radius: 0;
+    border-bottom-right-radius: 0;
+    border-right-width: 0;
+}
+
 @media (min-width: 1920px) {
     .belanja-list-grid {
         grid-template-columns: repeat(auto-fill, minmax(15rem, 15rem));
