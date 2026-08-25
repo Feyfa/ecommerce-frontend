@@ -12,12 +12,11 @@ QA record date: August 25, 2026.
 Revision under review:
 
 - branch: `task/jd-tok-29`;
-- base commit: `187021ec34e5c442d9643649419a23cd570ce084`;
-- TOK-29 changes: uncommitted working tree at the time this record was created.
+- final task commit: `9a9d34801c7e056f0bdb522c322d416ef0d8c270`;
+- staging merge commit: `47158a321`.
 
-Replace the working-tree note with the final commit after the reviewed changes
-are committed. Do not mark browser or staging rows as verified until those
-scenarios have actually been executed.
+Statuses below distinguish local, staging, and production evidence. Production
+must not be inferred from successful local or staging verification.
 
 Status legend: ✅ verified, ⬜ not verified yet.
 
@@ -54,8 +53,9 @@ a separate `Evidence Notes` section; update the matching row instead.
 | ID | Status | Verification | Expected Result | Evidence |
 | --- | --- | --- | --- | --- |
 | TOK-29-FE-16 | ✅ | Run the matching backend contract and real-Meilisearch checks for the revision being released. | Frontend fields and backend response metadata remain compatible. | During the final audit on August 25, 2026, the backend standard suite passed with 182 tests and 985 assertions; the combined real-Meilisearch and reindex integration files passed with 5 tests and 37 assertions, including deterministic ties, `limit_reached`, and a result after position 1,000. |
-| TOK-29-FE-17 | ⬜ | Deploy the frontend, backend, worker, Redis, and Meilisearch changes to staging, then execute the browser scenarios above. | The deployed buyer catalog works through the real API and search infrastructure with no console or network-contract regression. | Pending commit, push, staging integration, and deployment. |
+| TOK-29-FE-17 | ✅ | Deploy the frontend, backend, worker, Redis, and Meilisearch changes to staging, then execute the browser scenarios above. | The deployed buyer catalog works through the real API and search infrastructure with no console or network-contract regression. | Staging browser QA passed on August 25, 2026 after backend PR #99 and frontend PR #105 were merged and deployed. The initial catalog, exact and typo searches (`Sepatu`/`spatu` and `Keyboard`/`Kyboard`), relevance default, clearing relevance back to `latest`, genuine empty state, price-lowest/highest sorts, inclusive price boundaries, minimum-price filtering, and the 90-day recently-added filter all returned `200` with the expected cards, chips, request parameters, and no console errors. The deployed catalog contained only four eligible products, so the default `per_page=24` UI could not produce a populated second page; authenticated read-only requests with `per_page=1` verified sequential page 1/page 2 products and the correct `has_more` transition without fixture injection. Full 25-product browser pagination remains covered by FE-08 locally. |
 | TOK-29-FE-18 | ⬜ | Reach or simulate the configured Meilisearch result boundary in staging. | Infinite scroll stops, existing cards remain visible, and an inline panel below the grid asks the buyer to use search or filters; no toast or normal-exhaustion message is shown. | Pending staging browser QA with a response containing `has_more: false` and `limit_reached: true`. |
+| TOK-29-FE-19 | ✅ | Stop the staging Meilisearch service, request the buyer catalog, restore the service, and retry. | The deployed UI distinguishes temporary search unavailability from an empty result and recovers without losing authentication or duplicating cards. | Controlled staging failure-and-recovery QA passed on August 25, 2026. While Meilisearch alone was stopped, `/api/belanja` returned `503` with `BUYER_PRODUCT_SEARCH_UNAVAILABLE`; the UI displayed the dedicated **Pencarian produk tidak tersedia** panel, retry action, and notification rather than **Produk tidak ditemukan**. After Meilisearch returned healthy, retrying produced `200`, restored the two visible buyer cards once, and left no console error or stuck loading state. Production was not touched. |
 
 ## Not Covered
 
@@ -63,5 +63,9 @@ a separate `Evidence Notes` section; update the matching row instead.
   the backend TOK-29 QA record.
 - Production verification is not part of this local QA record and must not be
   inferred from a successful local build or staging test.
+- The configured 10,000-result boundary remains pending under TOK-29-FE-18;
+  shared staging did not receive disposable bulk fixtures solely for this test.
+- The extra terminal request observed in Seller Product pagination is outside
+  the buyer catalog contract and is tracked separately in Jira TOK-32.
 - The historical TOK-30 checklist remains evidence for its original filter UI
   revision; it is not evidence that the TOK-29 pagination migration passed.
