@@ -879,19 +879,23 @@ export default createStore({
         },
 
         /**
-         * Mengambil belanja di modul store, termasuk penanganan request backend dan response lokal.
+         * Mengambil satu halaman katalog buyer menggunakan pagination, pencarian, filter, dan sorting aktif.
+         *
+         * Action meneruskan seluruh kontrak query ke endpoint belanja agar infinite scroll dapat
+         * meminta halaman berikutnya tanpa mengulang hasil halaman pertama.
          *
          * @param {*} context Context action Vuex untuk operasi store saat ini.
-         * @param {*} data Payload yang digunakan oleh operasi saat ini.
+         * @param {*} data Payload katalog yang memuat pagination, pencarian, filter, dan sorting aktif.
          *
-         * @returns {*} Nilai yang dihasilkan oleh operasi get belanja.
+         * @returns {Promise<*>} Promise yang menghasilkan response katalog dari backend.
          */
         getBelanja(context, data) {
             return new Promise((resolve, reject) => {
                 axios
                     .get(`/belanja`, {
                         params: {
-                            products_current_id: data.products_current_id,
+                            page: data.page,
+                            per_page: data.per_page,
                             search_product: data.search_product,
                             min_price: data.min_price,
                             max_price: data.max_price,
