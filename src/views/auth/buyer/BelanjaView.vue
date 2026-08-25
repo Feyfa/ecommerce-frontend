@@ -21,7 +21,6 @@
                         type="text"
                         class="h-11 w-full rounded-md border border-slate-300 px-3 text-base text-slate-900 outline-none shadow-sm placeholder:text-slate-400 focus:border-violet-500 focus:ring-2 focus:ring-violet-100"
                         v-model="searchProduct"
-                        @input="onSearchProductInput"
                         @keyup.enter="enterSearchProduct"
                     />
                 </div>
@@ -31,7 +30,7 @@
                         <label for="buyer-product-sort" class="text-xs font-semibold text-slate-600">Urutkan</label>
                         <div
                             class="belanja-sort-control flex items-center"
-                            :class="{ 'belanja-sort-control--with-reset': sortProduct !== defaultProductSort }"
+                            :class="{ 'belanja-sort-control--with-reset': sortProduct !== activeDefaultProductSort }"
                         >
                             <el-select
                                 id="buyer-product-sort"
@@ -42,7 +41,7 @@
                                 @change="reloadBelanjaProducts"
                             >
                                 <el-option
-                                    v-for="option in sortProductOptions"
+                                    v-for="option in buyerSortProductOptions"
                                     :key="option.value"
                                     :label="option.label"
                                     :value="option.value"
@@ -50,7 +49,7 @@
                             </el-select>
 
                             <button
-                                v-if="sortProduct !== defaultProductSort"
+                                v-if="sortProduct !== activeDefaultProductSort"
                                 type="button"
                                 class="inline-flex h-11 w-11 shrink-0 items-center justify-center rounded-l-none rounded-r-md border border-slate-300 bg-white px-0 text-sm font-semibold text-slate-600 shadow-sm transition hover:border-violet-200 hover:bg-violet-50 hover:text-violet-700 active:scale-95 disabled:cursor-not-allowed disabled:opacity-50"
                                 title="Reset urutan"
@@ -268,7 +267,45 @@
                 </span>
             </div>
 
-            <div v-if="!show.loading_search_product && products.length === 0" class="px-3 py-6 sm:p-6">
+            <div
+                v-if="!show.loading_search_product && catalogLoadError && products.length === 0"
+                class="px-3 py-6 sm:p-6"
+            >
+                <div
+                    class="mx-auto flex min-h-[18rem] max-w-xl flex-col items-center justify-center rounded-md border border-dashed border-red-200 bg-white px-6 py-10 text-center shadow-sm"
+                    role="alert"
+                >
+                    <div class="flex h-14 w-14 items-center justify-center rounded-full bg-red-50 text-red-600">
+                        <i class="fa-solid fa-triangle-exclamation text-xl" aria-hidden="true"></i>
+                    </div>
+
+                    <h2 class="mt-4 text-lg font-semibold text-slate-950">
+                        {{
+                            catalogLoadError === 'search_unavailable'
+                                ? 'Pencarian produk tidak tersedia'
+                                : 'Daftar produk gagal dimuat'
+                        }}
+                    </h2>
+
+                    <p class="mt-2 max-w-sm text-sm leading-6 text-slate-500">
+                        {{
+                            catalogLoadError === 'search_unavailable'
+                                ? 'Layanan pencarian sedang mengalami gangguan. Silakan coba lagi beberapa saat lagi.'
+                                : 'Terjadi kesalahan saat memuat katalog. Silakan coba kembali.'
+                        }}
+                    </p>
+
+                    <button
+                        type="button"
+                        class="mt-5 inline-flex h-10 items-center justify-center rounded-md bg-violet-600 px-4 text-sm font-semibold text-white shadow-sm transition hover:bg-violet-700 active:scale-95"
+                        @click="reloadBelanjaProducts"
+                    >
+                        Coba Lagi
+                    </button>
+                </div>
+            </div>
+
+            <div v-else-if="!show.loading_search_product && products.length === 0" class="px-3 py-6 sm:p-6">
                 <div
                     class="mx-auto flex min-h-[18rem] max-w-xl flex-col items-center justify-center rounded-md border border-dashed border-slate-300 bg-white px-6 py-10 text-center shadow-sm"
                 >
@@ -349,6 +386,24 @@
                     </div>
                 </div>
             </div>
+
+            <div ref="paginationSentinel" class="h-px w-full" aria-hidden="true"></div>
+
+            <div
+                v-if="!show.loading_search_product && products.length > 0 && paginationLimitReached"
+                class="px-4 pb-6 sm:px-5 lg:px-6"
+            >
+                <div
+                    class="flex min-h-10 w-full items-center justify-center gap-2 border-t border-violet-200 pt-4 text-center text-sm leading-5 text-slate-600"
+                    role="status"
+                >
+                    <i class="fa-solid fa-circle-info shrink-0 text-violet-600" aria-hidden="true"></i>
+                    <p>
+                        <span class="font-semibold text-slate-950">Batas hasil telah tercapai.</span>
+                        Gunakan pencarian atau filter untuk menemukan produk lainnya.
+                    </p>
+                </div>
+            </div>
         </div>
     </div>
     <!-- belanja view -->
@@ -394,7 +449,13 @@ export default {
             isPriceFilterSectionOpen: true,
             isRecentlyAddedFilterSectionOpen: false,
             filterPriceError: '',
+            catalogLoadError: null,
             productRequestVersion: 0,
+            currentPage: 1,
+            perPage: 24,
+            hasMoreProducts: true,
+            paginationLimitReached: false,
+            paginationObserver: null,
             belanjaHeaderStuck: false,
             sortProductOptions: PRODUCT_SORT_OPTIONS,
             recentlyAddedFilterOptions: [
@@ -423,6 +484,31 @@ export default {
          */
         hasActiveBelanjaFilter() {
             return this.activeSearchProduct.length > 0 || this.activeBelanjaFilterCount > 0;
+        },
+
+        /**
+         * Menentukan pilihan urutan yang tersedia sesuai ada atau tidaknya keyword aktif.
+         *
+         * Relevance hanya bermakna ketika Meilisearch menerima keyword, sehingga pilihan ini
+         * disembunyikan untuk katalog tanpa pencarian yang tetap memakai urutan terbaru.
+         *
+         * @returns {Array<{value: string, label: string}>} Pilihan sort yang aman untuk state katalog saat ini.
+         */
+        buyerSortProductOptions() {
+            if (this.activeSearchProduct.length === 0) {
+                return this.sortProductOptions;
+            }
+
+            return [{ value: 'relevance', label: 'Paling Sesuai' }, ...this.sortProductOptions];
+        },
+
+        /**
+         * Menentukan sort default yang sesuai dengan konteks keyword aktif.
+         *
+         * @returns {string} Nilai sort yang dipakai ketika buyer mereset urutan katalog.
+         */
+        activeDefaultProductSort() {
+            return this.activeSearchProduct.length > 0 ? 'relevance' : this.defaultProductSort;
         },
 
         /**
@@ -485,34 +571,7 @@ export default {
         /* EVENT BUS FOR SCROLL GLOBAL */
         eventBus.on('scrollGlobal', () => {
             const globalContainer = this.$global.globalContainer.ref;
-            const tolerant = 2;
             this.belanjaHeaderStuck = globalContainer.scrollTop > 8;
-
-            // console.log({
-            //   'scrollTop': globalContainer.scrollTop,
-            //   'clientHeight': globalContainer.clientHeight,
-            //   'scrollHeight': globalContainer.scrollHeight,
-            //   'total_ceil': Math.ceil(globalContainer.scrollTop + globalContainer.clientHeight),
-            //   'tolerant': tolerant,
-            //   'this.$global.globalContainer.loading': this.$global.globalContainer.loading,
-            //   'this.completeProduct': this.completeProduct
-            // });
-
-            if (
-                Math.ceil(globalContainer.scrollTop + globalContainer.clientHeight) >=
-                    globalContainer.scrollHeight - tolerant &&
-                !this.$global.globalContainer.loading &&
-                !this.completeProduct &&
-                this.products.length > 0
-            ) {
-                this.$global.globalContainer.loading = true;
-
-                this.$nextTick(() => {
-                    globalContainer.scrollTop = globalContainer.scrollHeight;
-
-                    this.getBelanja();
-                });
-            }
         });
         /* EVENT BUS FOR SCROLL GLOBAL */
 
@@ -520,6 +579,7 @@ export default {
         this.show.loading = true;
         document.addEventListener('pointerdown', this.handleBelanjaFilterDocumentPointerDown);
 
+        this.$nextTick(() => this.initializePaginationObserver());
         this.getBelanja();
     },
 
@@ -531,9 +591,95 @@ export default {
     beforeUnmount() {
         eventBus.off('scrollGlobal');
         document.removeEventListener('pointerdown', this.handleBelanjaFilterDocumentPointerDown);
+        this.paginationObserver?.disconnect();
+        this.paginationObserver = null;
     },
 
     methods: {
+        /**
+         * Mengamati sentinel di bawah grid terhadap container scroll utama untuk memicu pagination katalog.
+         *
+         * Observer bekerja tanpa bergantung pada keberadaan scrollbar, sehingga viewport besar dapat memuat halaman
+         * lanjutan sampai sentinel keluar dari layar atau seluruh hasil sudah selesai.
+         *
+         * @returns {void} Menyimpan observer aktif dan mulai mengamati sentinel pagination.
+         */
+        initializePaginationObserver() {
+            const globalContainer = this.$global.globalContainer.ref;
+            const sentinel = this.$refs.paginationSentinel;
+
+            if (!globalContainer || !sentinel || typeof IntersectionObserver === 'undefined') {
+                return;
+            }
+
+            this.paginationObserver = new IntersectionObserver(
+                (entries) => {
+                    if (entries.some((entry) => entry.isIntersecting)) {
+                        this.loadNextPageFromSentinel();
+                    }
+                },
+                {
+                    root: globalContainer,
+                    threshold: 0,
+                },
+            );
+            this.paginationObserver.observe(sentinel);
+        },
+
+        /**
+         * Memuat halaman katalog berikutnya ketika sentinel terlihat dan seluruh guard pagination mengizinkannya.
+         *
+         * Guard loading bersama mencegah observer membuat request ganda ketika perubahan layout dan scroll terjadi
+         * berdekatan, sedangkan status hasil memastikan observer berhenti setelah boundary tercapai.
+         *
+         * @returns {void} Memulai request halaman berikutnya atau keluar tanpa efek ketika pagination belum aman.
+         */
+        loadNextPageFromSentinel() {
+            if (
+                this.show.loading ||
+                this.show.loading_search_product ||
+                this.$global.globalContainer.loading ||
+                this.completeProduct ||
+                !this.hasMoreProducts ||
+                this.products.length === 0
+            ) {
+                return;
+            }
+
+            this.$global.globalContainer.loading = true;
+            this.getBelanja();
+        },
+
+        /**
+         * Mengaktifkan ulang pengamatan setelah grid berubah agar sentinel yang tetap terlihat dapat memuat halaman lagi.
+         *
+         * Re-observe diperlukan ketika satu batch tambahan masih belum membuat konten melampaui tinggi viewport.
+         * Observer dilepas ketika backend menyatakan tidak ada halaman berikutnya.
+         *
+         * @returns {void} Menyegarkan pengamatan sentinel sesuai status pagination terbaru.
+         */
+        refreshPaginationObserver() {
+            const sentinel = this.$refs.paginationSentinel;
+
+            if (!this.paginationObserver || !sentinel) {
+                return;
+            }
+
+            this.paginationObserver.unobserve(sentinel);
+
+            if (this.completeProduct || !this.hasMoreProducts) {
+                return;
+            }
+
+            this.$nextTick(() => {
+                const currentSentinel = this.$refs.paginationSentinel;
+
+                if (this.paginationObserver && currentSentinel && !this.completeProduct && this.hasMoreProducts) {
+                    this.paginationObserver.observe(currentSentinel);
+                }
+            });
+        },
+
         /**
          * Menjalankan proses enter pencarian produk dan menyinkronkan state hasilnya untuk halaman belanja.
          *
@@ -541,20 +687,13 @@ export default {
          */
         enterSearchProduct() {
             this.activeSearchProduct = this.searchProduct.trim();
-            this.reloadBelanjaProducts();
-        },
 
-        /**
-         * Menjalankan proses on pencarian produk input dan menyinkronkan state hasilnya untuk halaman belanja.
-         *
-         * @returns {void} Function menerapkan efeknya melalui state komponen atau aplikasi.
-         */
-        onSearchProductInput() {
-            if (this.searchProduct.trim().length > 0 || this.activeSearchProduct.length === 0) {
-                return;
+            if (this.activeSearchProduct.length > 0) {
+                this.sortProduct = 'relevance';
+            } else if (this.sortProduct === 'relevance') {
+                this.sortProduct = this.defaultProductSort;
             }
 
-            this.activeSearchProduct = '';
             this.reloadBelanjaProducts();
         },
 
@@ -764,8 +903,12 @@ export default {
          */
         reloadBelanjaProducts() {
             this.show.loading_search_product = true;
+            this.catalogLoadError = null;
             this.completeProduct = false;
             this.products = [];
+            this.currentPage = 1;
+            this.hasMoreProducts = true;
+            this.paginationLimitReached = false;
 
             this.getBelanja();
         },
@@ -777,11 +920,11 @@ export default {
          * @returns {void} Function menerapkan efeknya melalui state komponen atau aplikasi.
          */
         resetBelanjaSort() {
-            if (this.sortProduct === DEFAULT_PRODUCT_SORT) {
+            if (this.sortProduct === this.activeDefaultProductSort) {
                 return;
             }
 
-            this.sortProduct = DEFAULT_PRODUCT_SORT;
+            this.sortProduct = this.activeDefaultProductSort;
             this.reloadBelanjaProducts();
         },
 
@@ -862,23 +1005,22 @@ export default {
         },
 
         /**
-         * Mengambil belanja untuk halaman belanja, dengan mendelegasikan pekerjaan backend atau shared state melalui Vuex store.
+         * Mengambil satu halaman katalog buyer dan menyimpan boundary hasil Meilisearch untuk infinite scroll.
          *
          * @returns {void} Function menerapkan efeknya melalui state komponen atau aplikasi.
          */
         getBelanja() {
-            // --- step 1 - start - siapkan versi request dan id produk yang sudah dimuat
+            // --- step 1 - start - siapkan versi request serta halaman katalog yang akan dimuat
             const requestVersion = ++this.productRequestVersion;
             const requestSearchProduct = this.activeSearchProduct;
-
-            let products_current_id = this.products.map((product) => product.p_id);
-            products_current_id = JSON.stringify(products_current_id);
-            // --- step 1 - end - siapkan versi request dan id produk yang sudah dimuat
+            const requestPage = this.currentPage;
+            // --- step 1 - end - siapkan versi request serta halaman katalog yang akan dimuat
 
             // --- step 2 - start - muat produk dan abaikan response dari versi filter yang sudah tidak aktif
             this.$store
                 .dispatch('getBelanja', {
-                    products_current_id: products_current_id,
+                    page: requestPage,
+                    per_page: this.perPage,
                     search_product: requestSearchProduct,
                     min_price: this.minPrice,
                     max_price: this.maxPrice,
@@ -895,13 +1037,23 @@ export default {
                     this.show.loading_search_product = false;
                     this.show.belanja_view = true;
                     this.show.loading = false;
+                    this.catalogLoadError = null;
 
                     this.$global.globalContainer.loading = false;
-                    if (response.data.products.length == 0) {
-                        this.completeProduct = true;
+                    const receivedProducts = response.data.products ?? [];
+                    const existingProductIds = new Set(this.products.map((product) => product.p_id));
+                    const uniqueProducts = receivedProducts.filter((product) => !existingProductIds.has(product.p_id));
+
+                    this.products = [...this.products, ...uniqueProducts];
+                    this.hasMoreProducts = Boolean(response.data.has_more);
+                    this.paginationLimitReached = Boolean(response.data.limit_reached);
+                    this.completeProduct = !this.hasMoreProducts;
+
+                    if (this.hasMoreProducts) {
+                        this.currentPage = requestPage + 1;
                     }
 
-                    this.products = [...this.products, ...response.data.products];
+                    this.refreshPaginationObserver();
 
                     // console.log({
                     //   'this.products': this.products
@@ -918,11 +1070,16 @@ export default {
                     this.show.loading = false;
                     this.show.loading_search_product = false;
                     this.$global.globalContainer.loading = false;
+                    this.catalogLoadError =
+                        error.response?.status === 503 ? 'search_unavailable' : 'generic_load_error';
 
                     ElNotification({
                         type: 'error',
                         title: 'Error',
-                        message: 'Daftar produk gagal dimuat. Silakan coba lagi.',
+                        message:
+                            error.response?.status === 503
+                                ? 'Pencarian produk sedang tidak tersedia. Silakan coba lagi beberapa saat lagi.'
+                                : 'Daftar produk gagal dimuat. Silakan coba lagi.',
                     });
                 });
             // --- step 2 - end - muat produk dan abaikan response dari versi filter yang sudah tidak aktif
@@ -978,7 +1135,7 @@ export default {
 
 @media (min-width: 1920px) {
     .belanja-list-grid {
-        grid-template-columns: repeat(auto-fill, minmax(15rem, 15rem));
+        grid-template-columns: repeat(auto-fill, minmax(15rem, 1fr));
         align-items: start;
     }
 }

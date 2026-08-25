@@ -63,6 +63,9 @@ alias path as inline code for a file owned by another repository.
 - [TOK-21 Address Audit Log QA](qa/tok-21-address-audit-log.md)
   Tracks the frontend manual QA status for buyer address audit cards, detail tables, phone reveal, filters, and privacy presentation.
 
+- [TOK-29 Buyer Catalog Search QA](qa/tok-29-buyer-catalog-search.md)
+  Tracks automated, local-browser, cross-repository, and staging verification for the Meilisearch buyer catalog migration.
+
 - [Commit Guidelines](development/commit-guidelines.md)
   Explains how to keep commits focused on one purpose and separate unrelated changes.
 
@@ -79,6 +82,9 @@ Write documents for humans first:
 - Prefer clear sections over long paragraphs.
 - Include file paths when they help future maintenance.
 - Update the relevant document whenever a frontend feature changes its flow, state, UI behavior, or API usage.
+- Give every table in a new or substantially revised frontend QA document an
+  `Evidence` column. Keep verification evidence in its matching row instead of
+  adding a separate `Evidence Notes` section.
 
 ## Documentation Structure
 
@@ -112,6 +118,8 @@ docs/
     tok-6-product-images.md
     tok-8-pinpoint-address.md
     tok-16-product-audit-log.md
+    tok-21-address-audit-log.md
+    tok-29-buyer-catalog-search.md
 
   development/
     commit-guidelines.md

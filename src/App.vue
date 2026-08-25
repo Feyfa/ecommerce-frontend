@@ -99,12 +99,15 @@ export default {
     },
 
     /**
-     * Menginisialisasi behavior komponen yang bergantung pada browser setelah mounted untuk app.
+     * Menyiapkan state loading dan referensi container scroll utama setelah aplikasi selesai dipasang.
      *
-     * @returns {void} Function menerapkan efeknya melalui state komponen atau aplikasi.
+     * Referensi disimpan sebelum interaksi scroll pertama agar child view dapat memasang observer pagination pada
+     * container yang benar, termasuk ketika konten awal belum menghasilkan scrollbar.
+     *
+     * @returns {void} Menyimpan container scroll utama dan mereset status loading global.
      */
     mounted() {
-        // reset loading global container
+        this.$global.globalContainer.ref = this.$refs.globalContainer;
         this.$global.globalContainer.loading = false;
     },
 
