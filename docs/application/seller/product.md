@@ -77,7 +77,7 @@ Current supported actions:
 4. The backend returns the next product batch.
 5. New products are appended to `products`.
 
-Infinite scroll is driven by the global scroll event. When the global container reaches the bottom, `getProducts()` loads the next batch unless `completeProduct` is already true.
+Infinite scroll observes a transparent sentinel below the grid against the shared scroll container. When the sentinel is visible, `getProducts()` loads the next batch unless `completeProduct` is already true. This also fills large viewports where the first batch does not create a scrollbar; the observer is re-armed after each appended batch and disconnected when the view unmounts.
 
 ### Search Products
 

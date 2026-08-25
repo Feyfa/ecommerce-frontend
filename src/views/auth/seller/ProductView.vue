@@ -268,6 +268,8 @@
                     </div>
                 </div>
             </div>
+
+            <div ref="paginationSentinel" class="h-px w-full" aria-hidden="true"></div>
         </div>
     </div>
     <!-- Product View -->
@@ -330,6 +332,7 @@ export default {
             sortProductOptions: PRODUCT_SORT_OPTIONS,
 
             completeProduct: false,
+            paginationObserver: null,
 
             show: {
                 product_view: false,
@@ -395,34 +398,7 @@ export default {
         /* EVENT BUS FOR SCROLL GLOBAL */
         eventBus.on('scrollGlobal', () => {
             const globalContainer = this.$global.globalContainer.ref;
-            const tolerant = 2;
             this.productHeaderStuck = globalContainer.scrollTop > 8;
-
-            // console.log({
-            //   'scrollTop': globalContainer.scrollTop,
-            //   'clientHeight': globalContainer.clientHeight,
-            //   'scrollHeight': globalContainer.scrollHeight,
-            //   'total_ceil': Math.ceil(globalContainer.scrollTop + globalContainer.clientHeight),
-            //   'tolerant': tolerant,
-            //   'this.$global.globalContainer.loading': this.$global.globalContainer.loading,
-            //   'this.completeProduct': this.completeProduct
-            // });
-
-            if (
-                Math.ceil(globalContainer.scrollTop + globalContainer.clientHeight) >=
-                    globalContainer.scrollHeight - tolerant &&
-                !this.$global.globalContainer.loading &&
-                !this.completeProduct &&
-                this.products.length > 0
-            ) {
-                this.$global.globalContainer.loading = true;
-
-                this.$nextTick(() => {
-                    globalContainer.scrollTop = globalContainer.scrollHeight;
-
-                    this.getProducts();
-                });
-            }
         });
         /* EVENT BUS FOR SCROLL GLOBAL */
 
@@ -430,6 +406,7 @@ export default {
         this.show.product_view = false;
         this.show.not_connected_account = false;
 
+        this.$nextTick(() => this.initializePaginationObserver());
         this.getProducts();
     },
 
@@ -440,9 +417,94 @@ export default {
      */
     beforeUnmount() {
         eventBus.off('scrollGlobal');
+        this.paginationObserver?.disconnect();
+        this.paginationObserver = null;
     },
 
     methods: {
+        /**
+         * Mengamati sentinel di bawah grid seller terhadap container scroll utama untuk memicu pagination produk.
+         *
+         * Observer memungkinkan halaman seller meminta batch lanjutan ketika kartu awal belum menghasilkan scrollbar,
+         * sekaligus tetap menunggu sentinel terlihat pada viewport yang lebih kecil.
+         *
+         * @returns {void} Menyimpan observer aktif dan mulai mengamati sentinel pagination.
+         */
+        initializePaginationObserver() {
+            const globalContainer = this.$global.globalContainer.ref;
+            const sentinel = this.$refs.paginationSentinel;
+
+            if (!globalContainer || !sentinel || typeof IntersectionObserver === 'undefined') {
+                return;
+            }
+
+            this.paginationObserver = new IntersectionObserver(
+                (entries) => {
+                    if (entries.some((entry) => entry.isIntersecting)) {
+                        this.loadNextPageFromSentinel();
+                    }
+                },
+                {
+                    root: globalContainer,
+                    threshold: 0,
+                },
+            );
+            this.paginationObserver.observe(sentinel);
+        },
+
+        /**
+         * Memuat batch produk seller berikutnya ketika sentinel terlihat dan request pagination sedang aman dijalankan.
+         *
+         * Status loading bersama dan `completeProduct` mencegah request paralel maupun request tambahan setelah backend
+         * mengembalikan batch kosong sebagai penanda seluruh produk telah selesai.
+         *
+         * @returns {void} Memulai request batch berikutnya atau keluar tanpa efek ketika guard belum terpenuhi.
+         */
+        loadNextPageFromSentinel() {
+            if (
+                this.show.loading ||
+                this.show.loading_search_product ||
+                this.$global.globalContainer.loading ||
+                this.completeProduct ||
+                this.products.length === 0
+            ) {
+                return;
+            }
+
+            this.$global.globalContainer.loading = true;
+            this.getProducts();
+        },
+
+        /**
+         * Mengaktifkan ulang pengamatan setelah grid seller berubah agar batch berikutnya dapat dimuat bila masih terlihat.
+         *
+         * Pengamatan dihentikan ketika backend mengembalikan batch kosong. Jika viewport masih belum terisi, re-observe
+         * memicu batch berikutnya tanpa memerlukan scroll buatan.
+         *
+         * @returns {void} Menyegarkan pengamatan sentinel sesuai status pagination seller terbaru.
+         */
+        refreshPaginationObserver() {
+            const sentinel = this.$refs.paginationSentinel;
+
+            if (!this.paginationObserver || !sentinel) {
+                return;
+            }
+
+            this.paginationObserver.unobserve(sentinel);
+
+            if (this.completeProduct) {
+                return;
+            }
+
+            this.$nextTick(() => {
+                const currentSentinel = this.$refs.paginationSentinel;
+
+                if (this.paginationObserver && currentSentinel && !this.completeProduct) {
+                    this.paginationObserver.observe(currentSentinel);
+                }
+            });
+        },
+
         /**
          * Menjalankan proses enter pencarian produk dan menyinkronkan state hasilnya untuk halaman produk.
          *
@@ -690,6 +752,7 @@ export default {
                     }
 
                     this.products = [...this.products, ...response.data.products];
+                    this.refreshPaginationObserver();
 
                     // console.log({
                     //   'length_products': this.products.length

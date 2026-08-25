@@ -1,163 +1,267 @@
 # Buyer Belanja
 
-This document explains the current buyer belanja feature from the frontend side.
+This document explains the current buyer catalog from the frontend side. It
+maps the UI, state, request flow, pagination behavior, and frontend-owned
+decisions without duplicating backend operational documentation.
 
-The goal is to keep a lightweight map of the feature so future work can understand the main UI, state, and API usage without reading the whole page first.
+## Purpose and ownership
 
-## Purpose
+Buyer Belanja lets an authenticated buyer discover purchasable products from
+other sellers and add an available product to the cart.
 
-The buyer belanja feature lets a buyer browse products sold by other users and add available products to their cart.
+The page supports:
 
-Current supported actions:
+- typo-tolerant product and displayed-store search;
+- relevance, update-date, price, and product-name sorting;
+- inclusive minimum and maximum price filters;
+- recently-added filters for 7, 14, 30, or 90 days;
+- independent search, sort, and filter reset behavior;
+- numbered infinite-scroll pagination with a 10,000-result browsing boundary;
+- responsive product cards and distinct empty, unavailable, and boundary
+  states; and
+- add-to-cart submission with stale-availability recovery.
 
-- View product list from other sellers.
-- Search products by product name or store name.
-- Sort products by update date, price, or name.
-- Filter products by an inclusive minimum and/or maximum price.
-- Filter products by when they were added: 7 days, 14 days, 1 month, or 3 months.
-- Clear an active product search, reset sorting, or reset filtering independently.
-- Load more products through infinite scroll.
-- Add an available product to the cart.
-- See only active products with stock whose seller location is verified.
-- See an empty state when the active search or catalog filters return no results.
+Meilisearch is the direct read model for this buyer-facing catalog. PostgreSQL
+remains the source of truth for product mutations, carts, and checkout. The
+seller Product management page intentionally reads PostgreSQL instead of this
+buyer projection.
 
-## Main Files
+## Main files
 
-- `src/views/auth/buyer/BelanjaView.vue`
-  Main buyer shopping page. It owns the product list, search keyword, sort option, filter chips, empty state, add-to-cart action, price formatting, and infinite-scroll product loading.
+- `src/views/auth/buyer/BelanjaView.vue` owns the catalog UI, local filter and
+  pagination state, response guards, sentinel observer, and add-to-cart
+  feedback.
+- `src/store.js` forwards the catalog and cart payloads to the backend through
+  the shared Axios client.
+- `src/App.vue` owns the shared scrolling container observed by the catalog
+  sentinel and the global incremental-loading indicator.
+- `src/utils/productFilters.js` supplies the shared explicit product-sort
+  options and default sort value.
+- `src/components/app/SidebarComponent.vue` exposes the buyer navigation entry.
 
-- `src/store.js`
-  Vuex actions for buyer belanja and cart API calls.
+## State and derived state
 
-- `src/components/app/SidebarComponent.vue`
-  Buyer navigation entry for the belanja page.
+`BelanjaView.vue` keeps the following catalog state:
 
-## Important State
+- `products`: unique cards appended from accepted API responses.
+- `searchProduct`: current search input text.
+- `activeSearchProduct`: trimmed keyword used by the current request.
+- `sortProduct` and `defaultProductSort`: active and non-keyword default sort.
+- `minPrice`, `maxPrice`, and `addedWithin`: applied catalog filters.
+- `draftMinPrice`, `draftMaxPrice`, and `draftAddedWithin`: unapplied values in
+  the filter panel.
+- `isBelanjaFilterOpen` and the two filter-section flags: panel and accordion
+  visibility.
+- `filterPriceError`: local price-validation feedback.
+- `currentPage` and `perPage`: next numbered page and the 24-card page size.
+- `hasMoreProducts` and `completeProduct`: infinite-scroll completion guards.
+- `paginationLimitReached`: distinguishes the engine boundary from genuine
+  result exhaustion.
+- `productRequestVersion`: rejects responses from superseded query criteria.
+- `paginationObserver`: active `IntersectionObserver` for the transparent
+  sentinel below the grid.
+- `catalogLoadError`: distinguishes a search-service outage from another list
+  failure.
+- `show.loading` and `show.loading_search_product`: initial and catalog-reload
+  loading states.
 
-`BelanjaView.vue`:
+Computed state keeps UI decisions synchronized:
 
-- `products`: currently loaded buyer product cards.
-- `searchProduct`: current input value in the search field.
-- `activeSearchProduct`: keyword that is actually used by the current belanja query.
-- `sortProduct`: selected buyer sort option. Supported values are `latest`, `oldest`, `price_lowest`, `price_highest`, `name_asc`, and `name_desc`.
-- `minPrice` and `maxPrice`: optional Rupiah whole-number boundaries applied to the current catalog query.
-- `addedWithin`: optional recently-added period applied to `products.created_at` in the catalog query.
-- `draftMinPrice`, `draftMaxPrice`, and `draftAddedWithin`: temporary values edited inside the Filter panel before `Terapkan`.
-- `isBelanjaFilterOpen`: controls the compact Filter panel anchored below the Filter button.
-- `sortProductOptions`: sort options shown in the toolbar.
-- `productRequestVersion`: internal request guard so stale list/search responses do not overwrite newer product state.
-- Failed current requests stop both page and filter loading states so the toolbar cannot remain stuck after an API error.
-- `completeProduct`: marks that the backend has no more products to return.
-- `show.loading`: initial page loading state.
-- `show.loading_search_product`: search/list reload loading state.
+- `hasActiveBelanjaFilter` is true for an applied keyword or catalog filter;
+  sort alone does not narrow results.
+- `buyerSortProductOptions` adds **Paling Sesuai** only while a keyword is
+  active.
+- `activeDefaultProductSort` is `relevance` for an active keyword and `latest`
+  otherwise.
+- `activeBelanjaFilterCount` counts the two price boundaries and recently-added
+  period independently.
+- `activeBelanjaFilterChips` creates one removable chip per applied criterion.
 
-Computed state:
+## Catalog flows
 
-- `hasActiveBelanjaFilter`: true when search or an applied catalog filter narrows the catalog.
-- `activeBelanjaFilterCount`: number of active price and recently-added criteria displayed by the Filter trigger.
-- `activeBelanjaFilterChips`: removable labels for every active price boundary and recently-added criterion.
+### Initial load and query reset
 
-## Flows
+When the component mounts, it observes the transparent pagination sentinel and
+requests page 1. `App.vue` exposes the shared scroll-container reference before
+the observer is initialized, including when the first page does not create a
+scrollbar.
 
-### List Products
+Search, sort, and applied-filter changes call `reloadBelanjaProducts()`. A
+reload clears the cards and error state, resets pagination to page 1, restores
+`hasMoreProducts`, clears the boundary flag, and starts a new request version.
 
-1. `BelanjaView.vue` mounts.
-2. It calls `getBelanja()`.
-3. The current product ids are sent as `products_current_id`.
-4. The active search keyword, price boundaries, recently-added period, and sort option are sent with the request.
-5. The backend returns the next product batch.
-6. New products are appended to `products`.
+Only the latest request version may update the UI. This prevents a slow response
+for old search or filter criteria from appending cards or advancing the current
+page after a newer request has completed.
 
-Infinite scroll is driven by the global scroll event. When the global container reaches the bottom, `getBelanja()` loads the next batch unless `completeProduct` is already true.
+### Search and sort
 
-### Sort Products
+Search is Enter-only. Pressing Enter copies the trimmed input into
+`activeSearchProduct` and restarts the catalog. Merely editing or clearing the
+input does not issue a request until Enter is pressed.
 
-1. The buyer changes the labeled sort select.
-2. `reloadBelanjaProducts()` clears the current list and resets infinite-scroll completion state.
-3. `getBelanja()` reloads products from the first batch using the selected sort value.
-4. New products are appended to `products`.
+An active keyword automatically selects `relevance`, displayed as **Paling
+Sesuai**. Relevance remains a Meilisearch ranking decision and does not send an
+explicit sort expression. The explicit choices remain available:
 
-The reset button appears only when the sort select is not `Terbaru`. Clicking it restores `Terbaru`, reloads the product list, and keeps any active search keyword.
+- `latest` and `oldest`;
+- `price_lowest` and `price_highest`; and
+- `name_asc` and `name_desc`.
 
-### Filter Products
+Clearing the keyword and pressing Enter returns relevance to `latest`. The sort
+reset restores the context-sensitive default without clearing search or catalog
+filters.
 
-1. The buyer opens the dedicated `Filter` control.
-2. Every viewport uses the same compact panel anchored below the button, with an upward pointer like the Audit Log filter.
-3. Each filter section can be opened or closed independently. `Harga` opens first and `Terakhir Ditambahkan` provides 7 Hari, 14 Hari, 1 Bulan, and 3 Bulan choices.
-4. Minimum and maximum price inputs are vertical, full-width Rupiah controls styled like the seller Product price field. They format thousands with Indonesian separators while typing.
-5. `Terapkan` validates the price draft. Negative, non-integer, or inverted ranges stay in the panel and do not send a request.
-6. A valid filter reloads the catalog from its first batch with the applied boundaries and/or recently-added period.
-7. Each active criterion is shown as a removable chip below the toolbar. Removing one criterion preserves the others, search, and sort.
-8. `Reset Filter` clears every filter criterion immediately and reloads the catalog without changing sort or search.
+### Filter behavior
 
-Closing the panel through its close button, Escape, or an outside click discards draft edits that have not been applied.
+The Filter button opens a compact anchored panel. Price and recently-added
+sections can open independently. Draft values remain separate from applied
+criteria until the buyer presses **Terapkan**.
 
-### Search Products
+Price input removes non-digits and displays Indonesian thousands separators.
+Blank values become `null`; valid values must be non-negative whole Rupiah
+amounts. An inverted range keeps the panel open, shows
+`Harga minimum tidak boleh lebih besar dari harga maksimum.`, and sends no
+request.
 
-1. The buyer types in the search input.
-2. Pressing Enter copies the trimmed input into `activeSearchProduct`.
-3. The product list is cleared and fetched again with the active keyword.
-4. If no product matches the active search and sorting, the empty state shows `Produk tidak ditemukan`.
-5. When the input is cleared after a search, `activeSearchProduct` is reset and all products are fetched again.
+Applying changed criteria closes the panel and restarts the catalog. Closing
+through the close button, Escape, or an outside pointer discards unapplied
+drafts. Each chip removes only its own criterion, while **Reset Filter** clears
+all catalog filters without changing the current keyword or sort.
 
-`hasActiveBelanjaFilter` exists so the empty state can distinguish between "the active search or filter returned no result" and "there are no products available for the buyer".
+### Numbered infinite scroll
 
-### Add To Cart
+Every request sends `page` and `per_page=24`. An accepted response appends only
+cards whose `p_id` is not already present. `has_more` controls completion, and
+the next page advances only when another page exists.
 
-1. The buyer clicks the cart icon on an available product card.
-2. `BelanjaView.vue` dispatches `addKeranjang`.
-3. The request sends `user_id_buyer`, `user_id_seller`, and `product_id`.
-4. On success, Element Plus notification shows the backend message.
-5. If availability changed after listing, a warning is shown and the stale product card is removed from the current catalog.
+A transparent one-pixel sentinel follows the product grid. Its
+`IntersectionObserver` uses the shared scroll container as its root:
 
-The backend excludes soft-deleted, sold-out, and unverified-seller products from this list. Add-to-cart and cart validation still protect against changes after the list response.
+- on a large viewport, a visible sentinel automatically loads more pages until
+  it moves below the viewport or `has_more` becomes false;
+- on a smaller viewport, it remains below the fold and loads the next page when
+  the buyer scrolls near the bottom; and
+- loading, completion, and non-empty-list guards prevent duplicate or premature
+  requests.
 
-## API Calls
+The observer is re-armed after each appended page so an unusually large
+viewport may load more than one additional page. It is disconnected when the
+component unmounts. The global scroll event remains responsible only for the
+sticky toolbar state; it does not drive pagination.
 
-The frontend uses these backend API actions through `src/store.js`:
+The backend exposes at most 10,000 results for one broad browse query. Reaching
+that boundary returns `has_more: false` and `limit_reached: true`. Existing
+cards remain visible, infinite scroll stops, and a compact inline status asks
+the buyer to use search or filters. Normal exhaustion adds no end-of-list
+message.
 
-- `GET /api/belanja`
-- `POST /api/keranjang`
+### Add to cart
 
-Authenticated requests use the current Clerk session token attached by the shared Axios interceptor.
+The cart button dispatches `addKeranjang` with `user_id_buyer`,
+`user_id_seller`, and `product_id`.
+
+- A successful response shows a success notification.
+- HTTP `409` shows an availability warning and removes the stale card from the
+  current projection.
+- A validation response containing `stock_maximum` shows the backend message.
+
+Catalog data can be briefly stale while the asynchronous search projection
+converges. The cart and checkout paths revalidate PostgreSQL, so a displayed
+card is never the final authority for stock or purchasability.
+
+## API contract and response decisions
+
+The Vuex store uses these authenticated endpoints through the shared Axios
+client:
+
+```text
+GET  /api/belanja
+POST /api/keranjang
+```
 
 `GET /api/belanja` sends:
 
-- `products_current_id`
-- `search_product`
-- `min_price`
-- `max_price`
-- `added_within`
-- `sort_product`
+- `page` and `per_page`;
+- `search_product`;
+- `min_price` and `max_price`;
+- `added_within`; and
+- `sort_product`.
 
-## UI Notes
+The relevant response shape is:
 
-- The page follows the same visual direction as seller product: white toolbar, light page background, white cards, soft border, and soft shadow.
-- The toolbar uses a responsive layout: below `640px`, search remains full-width while the labeled sort and Filter controls share one row. From `640px`, search stays on the left while sort and Filter remain grouped on the right. The search field uses a maximum width of `18rem`.
-- The sort select uses the same control width as its option list. Its reset button appears only for a non-default order and restores only the default sort while keeping any active search keyword.
-- Filter is a dedicated control, not a sort select. It opens the same compact anchored panel on mobile, tablet, and desktop.
-- The Filter trigger shows the number of applied price and recently-added criteria only when at least one is active. Filter chips are violet and individually removable.
-- Buyer cards include the public store name, so they use `h-[18.5rem]` instead of the seller product card height.
-- Product images use `object-contain` so the full product is visible.
-- Prices are formatted with Indonesian thousands separators, for example `Rp 12.000.000`.
-- Stock is shown as a badge and every returned product satisfies all backend purchase rules.
-- Empty state is different for no search result and truly unavailable products.
-- The mobile layout is supported and should be checked when changing toolbar, grid, card, or empty-state layout.
+```json
+{
+  "status": 200,
+  "products": [],
+  "page": 1,
+  "per_page": 24,
+  "has_more": false,
+  "limit_reached": false
+}
+```
 
-## Known Decisions
+Cards contain `p_id`, `p_img`, `p_name`, `p_price`, `p_stock`, `u_id`, and
+`u_name`. The frontend does not send the retired `products_current_id`
+parameter and does not hydrate Meilisearch IDs through another PostgreSQL list
+query.
 
-- Buyer belanja does not show the buyer's own seller products.
-- Product search is executed on Enter, not on every keystroke.
-- Clearing the search input after a search reloads the full product list.
-- Sort changes reload the product list immediately.
-- Price and recently-added changes are staged inside the Filter panel and reload the product list only after `Terapkan` is pressed.
-- Sort and catalog filtering are independent: resetting either one never changes the other.
-- Stock condition is intentionally not exposed as a buyer control; the backend only returns products that can be purchased.
-- Product pagination uses `products_current_id` instead of a page number.
-- Buyer card UI is similar to seller product but not identical because buyer cards include the public store name and cart action instead of edit/delete actions.
-- The backend prioritizes the seller company/store name and only falls back to the seller account name for a legacy or incomplete company profile.
+HTTP `503` maps to the dedicated `search_unavailable` state, an unavailable
+panel, and a safe notification. Other request failures use the generic catalog
+error state. **Coba Lagi** restarts the current query. A genuine empty response
+instead renders **Produk tidak ditemukan** for active criteria or **Produk
+belum tersedia** for an unrestricted catalog.
 
-## QA Coverage
+There is intentionally no frontend or backend PostgreSQL search fallback for
+`GET /api/belanja`. If Meilisearch is unavailable, the catalog reports the
+temporary failure instead of silently changing search semantics.
 
+## UI and responsive behavior
+
+- The sticky toolbar contains Enter-only search on the left and grouped sort
+  and Filter controls on the right at wider breakpoints. On mobile, search is
+  full-width and sort shares a row with Filter.
+- The anchored Filter panel uses the same interaction at mobile, tablet, and
+  desktop widths; applied criteria appear as individually removable violet
+  chips.
+- The catalog uses two columns on mobile, three on small screens, and expands
+  through the larger breakpoints. At 1920 pixels and wider, flexible columns
+  retain a 15-rem minimum while distributing remaining horizontal space.
+- Cards display the public store name, product name, formatted Rupiah price,
+  stock badge, contained product image, and cart action.
+- The product grid stays visible during normal infinite-scroll completion. A
+  service outage, genuine empty result, and 10,000-result boundary each use a
+  distinct presentation.
+- The boundary notice is a compact icon-and-text status row rather than a toast
+  or a large panel.
+
+## Decisions and invariants
+
+- Buyer catalog reads directly from the rebuildable Meilisearch projection;
+  seller product management continues to read PostgreSQL.
+- PostgreSQL remains authoritative for product mutations, carts, checkout,
+  price, stock, and final availability validation.
+- Only active, in-stock products from sellers with verified locations are
+  eligible for the buyer index, and the requesting buyer's own seller products
+  are excluded by the backend.
+- Search executes on Enter, while sort changes and applied filter changes reload
+  immediately.
+- Search, sort, and filter reset independently so one control does not silently
+  discard another control's criteria.
+- Numbered offset pagination relies on backend deterministic ordering with
+  product ID as the final tie-breaker.
+- The 10,000 setting is a browsing boundary, not a maximum PostgreSQL catalog
+  size; narrower search or filters can expose products outside a broad result
+  window.
+
+## Related documentation and QA
+
+- [TOK-29 Buyer Catalog Search QA](../../qa/tok-29-buyer-catalog-search.md)
+  covers Meilisearch search, numbered pagination, error recovery, and responsive
+  regression scenarios.
 - [TOK-30 Buyer Catalog Filters QA](../../qa/tok-30-buyer-catalog-filters.md)
-  tracks manual Filter UI and responsive behavior verification.
+  covers the filter panel, validation, chip, reset, and combined-query behavior.
+- `backend-repo:/docs/application/buyer/belanja.md` owns the backend API,
+  indexing, synchronization, and access rules.
+- `backend-repo:/docs/architecture/meilisearch.md` owns Meilisearch settings,
+  operational checks, and recovery guidance.
