@@ -80,6 +80,23 @@ Three store tests verify forwarding sizes 50, 20, and an omitted value to Axios.
 - Existing Browserslist and large-chunk warnings remain.
 - No additional browser QA was performed for this request-contract change.
 
+## Pull Request Unit Test Check
+
+The frontend CI workflow now runs `npm run test:unit` after formatting and
+before the production build in the existing `Build Vue frontend` job.
+Pull requests targeting `main` or `staging` use this sequence, including PRs
+from `task/jd-tok-32` and `task/jd-tok-32-staging` respectively.
+The test step uses the normal failure behavior; failed tests stop the job
+before the build. Branch creation or pushes without an open PR do not trigger
+this workflow.
+
+Local validation: `npm run test:unit` passed all 22 tests on Node.js 22.22.0.
+The workflow YAML was parsed and its target branches and command order checked.
+
+GitHub Actions execution remains unverified until a PR run completes. Earlier
+local test results are not evidence of a successful GitHub Actions run.
+Required-check enforcement in branch rules has not been verified.
+
 ## Remaining Limitations
 
 - Product-card images still load eagerly; TOK-33 owns lazy-loading work.
