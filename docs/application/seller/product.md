@@ -53,7 +53,7 @@ Current supported actions:
 - `sortProductOptions`: available sort choices shown in the product toolbar.
 - `productRequestVersion`: internal request guard so stale list/search responses do not overwrite newer product state.
 - Failed current requests stop page/filter loading and restore the product view instead of leaving the toolbar stuck.
-- `completeProduct`: marks that the backend has no more products to return.
+- `completeProduct`: marks that the backend has no more products to return based on `has_more`.
 - `editProductId`: selected product id for the edit drawer.
 - `sellerLocationVerified`: controls the store-location warning and add-product availability.
 - `show.loading`: initial page loading state.
@@ -73,11 +73,17 @@ Current supported actions:
 
 1. `ProductView.vue` mounts.
 2. It calls `getProducts()`.
-3. The current product ids are sent as `products_current_id`.
-4. The backend returns the next product batch.
-5. New products are appended to `products`.
+3. The current product ids are sent as `products_current_id`, with `per_page`
+   from the component's `perPage` state (50 by default).
+4. The backend returns the next product batch and explicit `has_more` metadata.
+5. New products are appended to `products`, and pagination stops immediately when `has_more` is false.
 
 Infinite scroll observes a transparent sentinel below the grid against the shared scroll container. When the sentinel is visible, `getProducts()` loads the next batch unless `completeProduct` is already true. This also fills large viewports where the first batch does not create a scrollbar; the observer is re-armed after each appended batch and disconnected when the view unmounts.
+
+For deployment compatibility, a response without `has_more` temporarily falls
+back to the previous empty-batch completion rule. Once the backend contract is
+available, a terminal batch containing up to 50 products completes without a
+second request solely to receive an empty array.
 
 ### Search Products
 
@@ -161,6 +167,10 @@ The frontend uses these backend API actions through `src/store.js`:
 
 Authenticated requests use the current Clerk session token attached by the shared Axios interceptor.
 
+The Seller Product list response includes boolean `has_more`. The request keeps
+using `products_current_id`; the metadata only removes the extra terminal
+request and does not replace seller pagination with numbered pages.
+
 ## UI Notes
 
 - Product cards use a light page background and white cards so adjacent products do not blend together.
@@ -187,6 +197,11 @@ Authenticated requests use the current Clerk session token attached by the share
 - `Semua Kondisi` is the default so a seller always sees the complete catalog before narrowing by stock condition.
 - Stock-based sorting is intentionally excluded because stock is represented only as a condition filter.
 - Product pagination uses `products_current_id` instead of a page number.
+- Seller requests use `per_page=50` and `has_more` as the explicit completion signal.
+- The store forwards `per_page` to the API. Requests omitting it use
+  `SELLER_PRODUCT_PER_PAGE`; values above `SELLER_PRODUCT_MAX_PER_PAGE` return
+  HTTP 422. Both backend settings default to 50. Keep the configured maximum
+  at least as large as the frontend request size.
 
 ## QA Coverage
 

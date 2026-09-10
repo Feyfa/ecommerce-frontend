@@ -53,7 +53,7 @@ buyer projection.
 - `isBelanjaFilterOpen` and the two filter-section flags: panel and accordion
   visibility.
 - `filterPriceError`: local price-validation feedback.
-- `currentPage` and `perPage`: next numbered page and the 24-card page size.
+- `currentPage` and `perPage`: next numbered page and the 50-card page size.
 - `hasMoreProducts` and `completeProduct`: infinite-scroll completion guards.
 - `paginationLimitReached`: distinguishes the engine boundary from genuine
   result exhaustion.
@@ -112,6 +112,19 @@ Clearing the keyword and pressing Enter returns relevance to `latest`. The sort
 reset restores the context-sensitive default without clearing search or catalog
 filters.
 
+Applied search appears as a removable **Pencarian: …** chip. Draft input does
+not change the chip until Enter is pressed. Removing it clears both the input
+and active keyword; relevance returns to **Terbaru**, while an explicit sort
+and price/time filters remain selected.
+
+A removable **Urutkan: …** chip appears only when sorting differs from the
+context default: **Terbaru** without a keyword, **Paling Sesuai** with a keyword.
+Removing it uses the existing sort reset and preserves search and filters.
+Both chip actions reload page 1 with `per_page=50` and retain stale-response
+protection. The Filter button count still includes only price/time criteria.
+Long chip labels truncate to fit the container, with the full label available
+through the title and accessible button name.
+
 ### Filter behavior
 
 The Filter button opens a compact anchored panel. Price and recently-added
@@ -131,7 +144,7 @@ all catalog filters without changing the current keyword or sort.
 
 ### Numbered infinite scroll
 
-Every request sends `page` and `per_page=24`. An accepted response appends only
+Every request sends `page` and `per_page=50`. An accepted response appends only
 cards whose `p_id` is not already present. `has_more` controls completion, and
 the next page advances only when another page exists.
 
@@ -195,7 +208,7 @@ The relevant response shape is:
   "status": 200,
   "products": [],
   "page": 1,
-  "per_page": 24,
+  "per_page": 50,
   "has_more": false,
   "limit_reached": false
 }

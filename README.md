@@ -37,5 +37,19 @@ npm run format
 npm run format:check
 ```
 
-Run `format:check` before handing off a change. CI runs the same check before
-the production build.
+Run `format:check` before handing off a change. For pull requests targeting
+`main` or `staging`, CI installs dependencies with `npm ci`, then runs
+`format:check`, `test:unit`, and the production build in that order.
+
+### Run Unit Tests
+
+Vitest and Vue Test Utils run component behavior in jsdom:
+
+```sh
+npm run test:unit
+```
+
+Use `npm run test:unit:watch` while developing a focused unit test.
+
+CI uses `test:unit` in non-watch mode. A failing unit test fails the existing
+`Build Vue frontend` job and prevents its build step from running.
