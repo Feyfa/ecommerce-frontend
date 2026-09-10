@@ -201,6 +201,8 @@ describe('Seller Product pagination', () => {
         await nextTick();
 
         expect(dispatch).toHaveBeenCalledTimes(2);
+        expect(dispatch.mock.calls[0][1].per_page).toBe(50);
+        expect(dispatch.mock.calls[1][1].per_page).toBe(50);
         expect(dispatch.mock.calls[1][1].products_current_id).toBe(JSON.stringify(['product-1']));
         expect(wrapper.vm.products.map((product) => product.id)).toEqual(['product-1', 'product-2']);
         expect(wrapper.vm.completeProduct).toBe(true);
@@ -237,7 +239,9 @@ describe('Seller Product pagination', () => {
         const wrapper = mountSellerProduct(dispatch);
 
         wrapper.vm.searchProduct = 'baru';
+        wrapper.vm.perPage = 20;
         wrapper.vm.enterSearchProduct();
+        expect(dispatch.mock.calls[1][1].per_page).toBe(20);
         newRequest.resolve(sellerResponse([{ id: 'new-product' }], false));
         await flushPromises();
 

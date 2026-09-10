@@ -73,7 +73,8 @@ Current supported actions:
 
 1. `ProductView.vue` mounts.
 2. It calls `getProducts()`.
-3. The current product ids are sent as `products_current_id`.
+3. The current product ids are sent as `products_current_id`, with `per_page`
+   from the component's `perPage` state (50 by default).
 4. The backend returns the next product batch and explicit `has_more` metadata.
 5. New products are appended to `products`, and pagination stops immediately when `has_more` is false.
 
@@ -196,7 +197,11 @@ request and does not replace seller pagination with numbered pages.
 - `Semua Kondisi` is the default so a seller always sees the complete catalog before narrowing by stock condition.
 - Stock-based sorting is intentionally excluded because stock is represented only as a condition filter.
 - Product pagination uses `products_current_id` instead of a page number.
-- Seller list batches contain at most 50 products and use `has_more` as the explicit completion signal.
+- Seller requests use `per_page=50` and `has_more` as the explicit completion signal.
+- The store forwards `per_page` to the API. Requests omitting it use
+  `SELLER_PRODUCT_PER_PAGE`; values above `SELLER_PRODUCT_MAX_PER_PAGE` return
+  HTTP 422. Both backend settings default to 50. Keep the configured maximum
+  at least as large as the frontend request size.
 
 ## QA Coverage
 

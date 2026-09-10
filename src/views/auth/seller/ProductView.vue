@@ -319,6 +319,7 @@ export default {
             SYMLINK_FOLDER: import.meta.env.VITE_SYMLINK_FOLDER,
             SoldOutImage: '/img/sold-out.png',
             products: [],
+            perPage: 50,
             sellerLocationVerified: true,
 
             editProductId: '',
@@ -724,6 +725,7 @@ export default {
 
         /**
          * Mengambil produk untuk halaman produk, dengan mendelegasikan pekerjaan backend atau shared state melalui Vuex store.
+         * Ukuran batch dikirim bersama ID yang sudah dimuat; backend memvalidasinya terhadap batas seller.
          *
          * @returns {void} Function menerapkan efeknya melalui state komponen atau aplikasi.
          */
@@ -741,6 +743,7 @@ export default {
                 .dispatch('getProducts', {
                     user_id_seller: this.$store.getters.user.id,
                     products_current_id: products_current_id,
+                    per_page: this.perPage,
                     search_product: requestSearchProduct,
                     stock_filter: this.stockFilter,
                     sort_product: this.sortProduct,

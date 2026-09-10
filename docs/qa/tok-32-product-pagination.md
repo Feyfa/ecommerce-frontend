@@ -69,7 +69,18 @@ Filter (3) and a rendered product card. Mobile chip layout and long-label
 truncation remain unverified in a real browser. TOK-32 scope and acceptance
 criteria now include the buyer search/sort chips.
 
-## Limitations
+## Configurable Seller Batch Size
+
+Seller now sends `per_page` from component state (default 50). Component tests
+verify the initial and subsequent batch payloads and a changed size after search.
+Three store tests verify forwarding sizes 50, 20, and an omitted value to Axios.
+
+- `npm run test:unit`: **22 tests passed**.
+- `npm run format:check` and `npm run build`: passed.
+- Existing Browserslist and large-chunk warnings remain.
+- No additional browser QA was performed for this request-contract change.
+
+## Remaining Limitations
 
 - Product-card images still load eagerly; TOK-33 owns lazy-loading work.
 - Historical TOK-29 evidence remains unchanged because it accurately records

@@ -982,7 +982,8 @@ export default createStore({
          * @param {*} context Context action Vuex untuk operasi store saat ini.
          * @param {*} data Payload yang digunakan oleh operasi saat ini.
          *
-         * @returns {*} Nilai yang dihasilkan oleh operasi get produk.
+         * @returns {Promise<Object>} Response daftar seller atau rejection dari request backend; ukuran
+         * batch opsional diteruskan sebagai per_page, dengan fallback konfigurasi ditangani backend.
          */
         getProducts(context, data) {
             return new Promise((resolve, reject) => {
@@ -990,6 +991,7 @@ export default createStore({
                     .get(`/product/${data.user_id_seller}`, {
                         params: {
                             products_current_id: data.products_current_id,
+                            per_page: data.per_page,
                             search_product: data.search_product,
                             stock_filter: data.stock_filter,
                             sort_product: data.sort_product,
