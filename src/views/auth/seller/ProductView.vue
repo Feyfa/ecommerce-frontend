@@ -319,6 +319,7 @@ export default {
             SYMLINK_FOLDER: import.meta.env.VITE_SYMLINK_FOLDER,
             SoldOutImage: '/img/sold-out.png',
             products: [],
+            perPage: 50,
             sellerLocationVerified: true,
 
             editProductId: '',
@@ -411,14 +412,25 @@ export default {
     },
 
     /**
-     * Melepaskan resource komponen dan pekerjaan tertunda sebelum unmount untuk halaman produk.
+     * Menonaktifkan request dan pagination sebelum melepas resource halaman produk.
      *
-     * @returns {void} Function menerapkan efeknya melalui state komponen atau aplikasi.
+     * Response sukses maupun gagal yang terlambat diabaikan melalui versi request agar tidak
+     * mengubah loading bersama atau menampilkan notifikasi setelah pengguna pindah halaman.
+     *
+     * @returns {void} Request lama dibuat tidak berlaku, loading dilepas, dan observer dihentikan.
      */
     beforeUnmount() {
+        // --- step 1 - start - hentikan pagination dan invalidasi request halaman yang ditinggalkan
+        this.productRequestVersion++;
+        this.completeProduct = true;
+        this.$global.globalContainer.loading = false;
+        // --- step 1 - end - hentikan pagination dan invalidasi request halaman yang ditinggalkan
+
+        // --- step 2 - start - lepaskan listener dan observer halaman
         eventBus.off('scrollGlobal');
         this.paginationObserver?.disconnect();
         this.paginationObserver = null;
+        // --- step 2 - end - lepaskan listener dan observer halaman
     },
 
     methods: {
@@ -456,7 +468,7 @@ export default {
          * Memuat batch produk seller berikutnya ketika sentinel terlihat dan request pagination sedang aman dijalankan.
          *
          * Status loading bersama dan `completeProduct` mencegah request paralel maupun request tambahan setelah backend
-         * mengembalikan batch kosong sebagai penanda seluruh produk telah selesai.
+         * menyatakan seluruh produk telah selesai melalui metadata pagination.
          *
          * @returns {void} Memulai request batch berikutnya atau keluar tanpa efek ketika guard belum terpenuhi.
          */
@@ -478,8 +490,8 @@ export default {
         /**
          * Mengaktifkan ulang pengamatan setelah grid seller berubah agar batch berikutnya dapat dimuat bila masih terlihat.
          *
-         * Pengamatan dihentikan ketika backend mengembalikan batch kosong. Jika viewport masih belum terisi, re-observe
-         * memicu batch berikutnya tanpa memerlukan scroll buatan.
+         * Pengamatan dihentikan ketika backend menyatakan tidak ada batch berikutnya. Jika viewport masih belum terisi,
+         * re-observe memicu batch berikutnya tanpa memerlukan scroll buatan.
          *
          * @returns {void} Menyegarkan pengamatan sentinel sesuai status pagination seller terbaru.
          */
@@ -713,6 +725,7 @@ export default {
 
         /**
          * Mengambil produk untuk halaman produk, dengan mendelegasikan pekerjaan backend atau shared state melalui Vuex store.
+         * Ukuran batch dikirim bersama ID yang sudah dimuat; backend memvalidasinya terhadap batas seller.
          *
          * @returns {void} Function menerapkan efeknya melalui state komponen atau aplikasi.
          */
@@ -730,6 +743,7 @@ export default {
                 .dispatch('getProducts', {
                     user_id_seller: this.$store.getters.user.id,
                     products_current_id: products_current_id,
+                    per_page: this.perPage,
                     search_product: requestSearchProduct,
                     stock_filter: this.stockFilter,
                     sort_product: this.sortProduct,
@@ -747,9 +761,12 @@ export default {
                     this.sellerLocationVerified = response.data.seller_location_verified === true;
 
                     this.$global.globalContainer.loading = false;
-                    if (response.data.products.length == 0) {
-                        this.completeProduct = true;
-                    }
+
+                    // Fallback batch kosong menjaga kompatibilitas jika frontend lebih dahulu dirilis daripada backend.
+                    this.completeProduct =
+                        typeof response.data.has_more === 'boolean'
+                            ? !response.data.has_more
+                            : response.data.products.length === 0;
 
                     this.products = [...this.products, ...response.data.products];
                     this.refreshPaginationObserver();

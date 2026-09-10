@@ -250,12 +250,13 @@
                     v-for="chip in activeBelanjaFilterChips"
                     :key="chip.key"
                     type="button"
-                    class="inline-flex h-8 items-center rounded-full bg-violet-50 px-3 text-xs font-semibold text-violet-700 ring-1 ring-violet-100"
-                    :aria-label="`Hapus filter ${chip.label}`"
+                    class="inline-flex h-8 max-w-full items-center rounded-full bg-violet-50 px-3 text-xs font-semibold text-violet-700 ring-1 ring-violet-100"
+                    :aria-label="`Hapus ${chip.label}`"
+                    :title="chip.label"
                     @click="removeBelanjaFilter(chip.key)"
                 >
-                    {{ chip.label }}
-                    <i class="fa-solid fa-xmark ml-2 text-[.65rem]" aria-hidden="true"></i>
+                    <span class="min-w-0 truncate">{{ chip.label }}</span>
+                    <i class="fa-solid fa-xmark ml-2 shrink-0 text-[.65rem]" aria-hidden="true"></i>
                 </button>
             </div>
         </div>
@@ -452,7 +453,7 @@ export default {
             catalogLoadError: null,
             productRequestVersion: 0,
             currentPage: 1,
-            perPage: 24,
+            perPage: 50,
             hasMoreProducts: true,
             paginationLimitReached: false,
             paginationObserver: null,
@@ -526,12 +527,25 @@ export default {
         /**
          * Membentuk chip untuk setiap kriteria buyer yang sudah diterapkan.
          *
-         * Sort sengaja tidak dimasukkan karena kontrol tersebut berdiri sendiri dari filter katalog.
+         * Pencarian memakai keyword aktif, bukan draft input. Urutan hanya ditampilkan ketika berbeda
+         * dari default konteks; hitungan pada tombol Filter tetap hanya mencakup harga dan waktu.
          *
          * @returns {Array<{key: string, label: string}>} Kumpulan chip filter yang dapat dihapus mandiri.
          */
         activeBelanjaFilterChips() {
             const chips = [];
+
+            if (this.activeSearchProduct.length > 0) {
+                chips.push({ key: 'search', label: `Pencarian: ${this.activeSearchProduct}` });
+            }
+
+            if (this.sortProduct !== this.activeDefaultProductSort) {
+                const sort = this.buyerSortProductOptions.find((option) => option.value === this.sortProduct);
+
+                if (sort) {
+                    chips.push({ key: 'sort', label: `Urutkan: ${sort.label}` });
+                }
+            }
 
             if (this.minPrice !== null) {
                 chips.push({
@@ -584,15 +598,26 @@ export default {
     },
 
     /**
-     * Melepaskan resource komponen dan pekerjaan tertunda sebelum unmount untuk halaman belanja.
+     * Menonaktifkan request dan pagination sebelum melepas resource halaman belanja.
      *
-     * @returns {void} Function menerapkan efeknya melalui state komponen atau aplikasi.
+     * Response sukses maupun gagal yang terlambat diabaikan melalui versi request agar tidak
+     * mengubah loading bersama atau menampilkan notifikasi setelah pengguna pindah halaman.
+     *
+     * @returns {void} Request lama dibuat tidak berlaku, loading dilepas, dan observer dihentikan.
      */
     beforeUnmount() {
+        // --- step 1 - start - hentikan pagination dan invalidasi request halaman yang ditinggalkan
+        this.productRequestVersion++;
+        this.completeProduct = true;
+        this.$global.globalContainer.loading = false;
+        // --- step 1 - end - hentikan pagination dan invalidasi request halaman yang ditinggalkan
+
+        // --- step 2 - start - lepaskan listener dan observer halaman
         eventBus.off('scrollGlobal');
         document.removeEventListener('pointerdown', this.handleBelanjaFilterDocumentPointerDown);
         this.paginationObserver?.disconnect();
         this.paginationObserver = null;
+        // --- step 2 - end - lepaskan listener dan observer halaman
     },
 
     methods: {
@@ -870,11 +895,26 @@ export default {
         /**
          * Menghapus satu kriteria melalui chip filter yang dipilih buyer.
          *
-         * @param {'min'|'max'|'added-within'} filterKey Identitas kriteria yang harus dilepas dari filter aktif.
+         * Menghapus pencarian mengikuti alur Enter dengan input kosong, sehingga relevance kembali
+         * ke Terbaru dan urutan eksplisit tetap dipertahankan. Chip urutan memakai reset sesuai konteks.
+         * Filter lain tetap aktif dan setiap perubahan memuat ulang pagination dari halaman pertama.
+         *
+         * @param {'search'|'sort'|'min'|'max'|'added-within'} filterKey Identitas kriteria yang harus dilepas.
          *
          * @returns {void} Menghapus satu kriteria dan memuat ulang katalog bila nilainya berubah.
          */
         removeBelanjaFilter(filterKey) {
+            if (filterKey === 'search' && this.activeSearchProduct.length > 0) {
+                this.searchProduct = '';
+                this.enterSearchProduct();
+                return;
+            }
+
+            if (filterKey === 'sort') {
+                this.resetBelanjaSort();
+                return;
+            }
+
             if (filterKey === 'min' && this.minPrice !== null) {
                 this.minPrice = null;
                 this.reloadBelanjaProducts();
@@ -1060,11 +1100,11 @@ export default {
                     // });
                 })
                 .catch((error) => {
-                    console.error(error);
-
                     if (requestVersion !== this.productRequestVersion) {
                         return;
                     }
+
+                    console.error(error);
 
                     this.show.belanja_view = true;
                     this.show.loading = false;
