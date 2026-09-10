@@ -39,3 +39,13 @@ npm run format:check
 
 Run `format:check` before handing off a change. CI runs the same check before
 the production build.
+
+### Run Unit Tests
+
+Vitest and Vue Test Utils run component behavior in jsdom:
+
+```sh
+npm run test:unit
+```
+
+Use `npm run test:unit:watch` while developing a focused unit test.

@@ -208,6 +208,7 @@ Run the frontend:
 ```bash
 cd "/Users/muhammadjidan/Documents/CODE LARAVEL10 AND VUEJS 3 VSC/Ecommerce/frontend"
 npm run format:check
+npm run test:unit
 npm run dev
 ```
 

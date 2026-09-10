@@ -66,6 +66,9 @@ alias path as inline code for a file owned by another repository.
 - [TOK-29 Buyer Catalog Search QA](qa/tok-29-buyer-catalog-search.md)
   Tracks automated, local-browser, cross-repository, and staging verification for the Meilisearch buyer catalog migration.
 
+- [TOK-32 Product Pagination QA](qa/tok-32-product-pagination.md)
+  Tracks seller completion metadata, the 50-card buyer page size, frontend unit tests, and browser verification.
+
 - [Commit Guidelines](development/commit-guidelines.md)
   Explains how to keep commits focused on one purpose and separate unrelated changes.
 
@@ -120,6 +123,7 @@ docs/
     tok-16-product-audit-log.md
     tok-21-address-audit-log.md
     tok-29-buyer-catalog-search.md
+    tok-32-product-pagination.md
 
   development/
     commit-guidelines.md
