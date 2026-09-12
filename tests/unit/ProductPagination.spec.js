@@ -291,6 +291,59 @@ describe('Buyer Belanja pagination', () => {
     });
 });
 
+describe('Lazy loading gambar kartu produk', () => {
+    it('menandai gambar utama kartu Seller Product untuk native lazy loading', async () => {
+        const dispatch = vi.fn().mockResolvedValue(
+            sellerResponse(
+                [
+                    {
+                        id: 'product-1',
+                        name: 'Produk Seller',
+                        img: 'products/seller-product.webp',
+                        price: 10000,
+                        stock: 10,
+                    },
+                ],
+                false,
+            ),
+        );
+        const wrapper = mountSellerProduct(dispatch);
+
+        await flushPromises();
+
+        const image = wrapper.get('.product-list-image > img');
+        expect(image.attributes('loading')).toBe('lazy');
+        expect(image.attributes('alt')).toBe('Produk Seller');
+        expect(image.classes()).toContain('object-contain');
+    });
+
+    it('menandai gambar utama kartu Buyer Belanja untuk native lazy loading', async () => {
+        const dispatch = vi.fn().mockResolvedValue(
+            buyerResponse(
+                [
+                    {
+                        p_id: 'product-1',
+                        p_name: 'Produk Buyer',
+                        p_img: 'products/buyer-product.webp',
+                        p_price: 10000,
+                        p_stock: 10,
+                        u_name: 'Toko Buyer',
+                    },
+                ],
+                false,
+            ),
+        );
+        const wrapper = mountBuyerCatalog(dispatch);
+
+        await flushPromises();
+
+        const image = wrapper.get('.belanja-list-image > img');
+        expect(image.attributes('loading')).toBe('lazy');
+        expect(image.attributes('alt')).toBe('Produk Buyer');
+        expect(image.classes()).toContain('object-contain');
+    });
+});
+
 describe('Chip pencarian dan urutan Buyer Belanja', () => {
     it('menampilkan keyword aktif dan urutan non-default tanpa menambah hitungan Filter', async () => {
         const dispatch = vi.fn().mockResolvedValue(buyerResponse([], false));
