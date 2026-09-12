@@ -344,6 +344,7 @@
                     >
                         <img
                             class="h-full w-full object-contain"
+                            loading="lazy"
                             :src="`${APP_BACKEND_BASE_URL}/${SYMLINK_FOLDER}/${product.p_img}`"
                             :alt="product.p_name"
                         />
