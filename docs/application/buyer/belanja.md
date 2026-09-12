@@ -234,6 +234,9 @@ temporary failure instead of silently changing search semantics.
 - The sticky toolbar contains Enter-only search on the left and grouped sort
   and Filter controls on the right at wider breakpoints. On mobile, search is
   full-width and sort shares a row with Filter.
+- Product-card images use native browser lazy loading so below-the-fold images
+  can be deferred while preserving their existing URL, dimensions, and
+  `object-contain` presentation.
 - The anchored Filter panel uses the same interaction at mobile, tablet, and
   desktop widths; applied criteria appear as individually removable violet
   chips.

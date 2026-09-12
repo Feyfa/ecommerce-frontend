@@ -99,6 +99,7 @@ Required-check enforcement in branch rules has not been verified.
 
 ## Remaining Limitations
 
-- Product-card images still load eagerly; TOK-33 owns lazy-loading work.
+- Product-card native lazy loading was implemented and verified separately by
+  TOK-33 after this pagination QA was completed.
 - Historical TOK-29 evidence remains unchanged because it accurately records
   the 24-card contract tested for that earlier revision.

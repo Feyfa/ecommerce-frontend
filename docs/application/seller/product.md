@@ -178,6 +178,8 @@ request and does not replace seller pagination with numbered pages.
 - Each image is limited to 1 MB. Closing or cancelling the drawer removes unsaved local previews without uploading them.
 - Add and edit keep the form open when an upload fails. A proxy `413`, request timeout, or network failure is reported with an actionable notification instead of leaving the submit request as an unexplained cancellation.
 - Product images use `object-contain` so the full product is visible.
+- Product-card images use native browser lazy loading so images below the
+  viewport can be deferred without changing their URL, dimensions, or fit.
 - Prices are formatted with Indonesian thousands separators, for example `Rp 12.000.000`.
 - Add and edit price inputs use an `Rp` prefix and Indonesian thousands separators, but submit raw numeric values to the backend.
 - The product toolbar uses permanently labeled `Kondisi Stok` and `Urutkan Produk` Element Plus selects so their different purposes remain clear.
