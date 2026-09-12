@@ -37,9 +37,10 @@ npm run format
 npm run format:check
 ```
 
-Run `format:check` before handing off a change. For pull requests targeting
-`main` or `staging`, CI installs dependencies with `npm ci`, then runs
-`format:check`, `test:unit`, and the production build in that order.
+Run `format:check` before handing off a change. CI runs for Jira task branch
+pushes and for pull requests targeting `main` or `staging`. It installs
+dependencies with `npm ci`, then runs `format:check`, `test:unit`, and the
+production build in that order.
 
 ### Run Unit Tests
 
