@@ -59,14 +59,16 @@ const createDeferred = () => {
  * Membentuk response daftar seller dengan metadata pagination dan status lokasi yang valid.
  *
  * @param {Array<Object>} products Produk seller yang dikembalikan pada batch aktif.
- * @param {boolean|undefined} hasMore Metadata keberadaan batch berikutnya atau undefined untuk backend lama.
+ * @param {boolean} hasMore Metadata keberadaan batch berikutnya.
+ * @param {string|null} nextCursor Cursor opaque untuk batch berikutnya atau null pada batch terminal.
  *
  * @returns {Object} Response menyerupai hasil Axios untuk action Seller Product.
  */
-const sellerResponse = (products, hasMore) => ({
+const sellerResponse = (products, hasMore, nextCursor = hasMore ? 'cursor-next' : null) => ({
     data: {
         products,
         has_more: hasMore,
+        next_cursor: nextCursor,
         seller_location_verified: true,
     },
 });
@@ -203,7 +205,9 @@ describe('Seller Product pagination', () => {
         expect(dispatch).toHaveBeenCalledTimes(2);
         expect(dispatch.mock.calls[0][1].per_page).toBe(50);
         expect(dispatch.mock.calls[1][1].per_page).toBe(50);
-        expect(dispatch.mock.calls[1][1].products_current_id).toBe(JSON.stringify(['product-1']));
+        expect(dispatch.mock.calls[0][1].cursor).toBeNull();
+        expect(dispatch.mock.calls[0][1]).not.toHaveProperty('products_current_id');
+        expect(dispatch.mock.calls[1][1].cursor).toBe('cursor-next');
         expect(wrapper.vm.products.map((product) => product.id)).toEqual(['product-1', 'product-2']);
         expect(wrapper.vm.completeProduct).toBe(true);
 
@@ -211,25 +215,6 @@ describe('Seller Product pagination', () => {
         await flushPromises();
 
         expect(dispatch).toHaveBeenCalledTimes(2);
-    });
-
-    it('mempertahankan fallback batch kosong untuk response backend tanpa has_more', async () => {
-        const dispatch = vi
-            .fn()
-            .mockResolvedValueOnce(sellerResponse([{ id: 'product-1' }], undefined))
-            .mockResolvedValueOnce(sellerResponse([], undefined));
-        const wrapper = mountSellerProduct(dispatch);
-
-        await flushPromises();
-        await nextTick();
-
-        expect(wrapper.vm.completeProduct).toBe(false);
-
-        observerInstances[0].callback([{ isIntersecting: true }]);
-        await flushPromises();
-
-        expect(dispatch).toHaveBeenCalledTimes(2);
-        expect(wrapper.vm.completeProduct).toBe(true);
     });
 
     it('mengabaikan response lama setelah pencarian membuat versi request baru', async () => {
@@ -240,8 +225,10 @@ describe('Seller Product pagination', () => {
 
         wrapper.vm.searchProduct = 'baru';
         wrapper.vm.perPage = 20;
+        wrapper.vm.nextCursor = 'cursor-lama';
         wrapper.vm.enterSearchProduct();
         expect(dispatch.mock.calls[1][1].per_page).toBe(20);
+        expect(dispatch.mock.calls[1][1].cursor).toBeNull();
         newRequest.resolve(sellerResponse([{ id: 'new-product' }], false));
         await flushPromises();
 
@@ -249,7 +236,31 @@ describe('Seller Product pagination', () => {
         await flushPromises();
 
         expect(wrapper.vm.products.map((product) => product.id)).toEqual(['new-product']);
+        expect(wrapper.vm.nextCursor).toBeNull();
         expect(wrapper.vm.completeProduct).toBe(true);
+    });
+
+    it('mereset cursor ketika filter atau sorting berubah dan mempertahankannya ketika request gagal', async () => {
+        const dispatch = vi
+            .fn()
+            .mockResolvedValueOnce(sellerResponse([{ id: 'product-1' }], true, 'cursor-1'))
+            .mockRejectedValueOnce(new Error('network'))
+            .mockResolvedValueOnce(sellerResponse([{ id: 'product-2' }], false));
+        const wrapper = mountSellerProduct(dispatch);
+
+        await flushPromises();
+        expect(wrapper.vm.nextCursor).toBe('cursor-1');
+
+        observerInstances[0].callback([{ isIntersecting: true }]);
+        await flushPromises();
+        expect(dispatch.mock.calls[1][1].cursor).toBe('cursor-1');
+        expect(wrapper.vm.nextCursor).toBe('cursor-1');
+
+        wrapper.vm.stockFilter = 'low';
+        wrapper.vm.applyProductFilters();
+        expect(dispatch.mock.calls[2][1].cursor).toBeNull();
+        await flushPromises();
+        expect(wrapper.vm.nextCursor).toBeNull();
     });
 });
 

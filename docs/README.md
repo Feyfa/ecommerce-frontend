@@ -69,6 +69,9 @@ alias path as inline code for a file owned by another repository.
 - [TOK-32 Product Pagination QA](qa/tok-32-product-pagination.md)
   Tracks seller completion metadata, the 50-card buyer page size, frontend unit tests, and browser verification.
 
+- [TOK-34 Seller Cursor Pagination QA](qa/tok-34-seller-cursor-pagination.md)
+  Tracks Seller Product cursor requests, criteria resets, terminal behavior, and coordinated staging verification.
+
 - [Commit Guidelines](development/commit-guidelines.md)
   Explains how to keep commits focused on one purpose and separate unrelated changes.
 
@@ -124,6 +127,7 @@ docs/
     tok-21-address-audit-log.md
     tok-29-buyer-catalog-search.md
     tok-32-product-pagination.md
+    tok-34-seller-cursor-pagination.md
 
   development/
     commit-guidelines.md

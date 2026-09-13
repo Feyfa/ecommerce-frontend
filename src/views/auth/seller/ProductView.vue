@@ -329,6 +329,7 @@ export default {
             stockFilter: 'all',
             sortProduct: DEFAULT_PRODUCT_SORT,
             productRequestVersion: 0,
+            nextCursor: null,
             productHeaderStuck: false,
             stockFilterOptions: SELLER_STOCK_FILTER_OPTIONS,
             sortProductOptions: PRODUCT_SORT_OPTIONS,
@@ -528,6 +529,7 @@ export default {
             this.show.loading_search_product = true;
             this.completeProduct = false;
             this.products = [];
+            this.nextCursor = null;
 
             this.getProducts();
         },
@@ -546,6 +548,7 @@ export default {
             this.show.loading_search_product = true;
             this.completeProduct = false;
             this.products = [];
+            this.nextCursor = null;
 
             this.getProducts();
         },
@@ -559,6 +562,7 @@ export default {
             this.show.loading_search_product = true;
             this.completeProduct = false;
             this.products = [];
+            this.nextCursor = null;
 
             this.getProducts();
         },
@@ -580,6 +584,7 @@ export default {
             this.show.loading_search_product = true;
             this.completeProduct = false;
             this.products = [];
+            this.nextCursor = null;
 
             this.getProducts();
         },
@@ -726,24 +731,23 @@ export default {
 
         /**
          * Mengambil produk untuk halaman produk, dengan mendelegasikan pekerjaan backend atau shared state melalui Vuex store.
-         * Ukuran batch dikirim bersama ID yang sudah dimuat; backend memvalidasinya terhadap batas seller.
+         * Request pertama tidak memakai cursor, sedangkan batch berikutnya hanya mengirim posisi opaque
+         * dari response terakhir yang masih sesuai dengan search, filter, dan sorting aktif.
          *
          * @returns {void} Function menerapkan efeknya melalui state komponen atau aplikasi.
          */
         getProducts() {
-            // --- step 1 - start - siapkan versi request dan id produk yang sudah dimuat
+            // --- step 1 - start - siapkan versi request dan cursor batch saat ini
             const requestVersion = ++this.productRequestVersion;
             const requestSearchProduct = this.activeSearchProduct;
-
-            let products_current_id = this.products.map((product) => product.id);
-            products_current_id = JSON.stringify(products_current_id);
-            // --- step 1 - end - siapkan versi request dan id produk yang sudah dimuat
+            const requestCursor = this.nextCursor;
+            // --- step 1 - end - siapkan versi request dan cursor batch saat ini
 
             // --- step 2 - start - muat produk seller dan abaikan response dari versi filter yang sudah tidak aktif
             this.$store
                 .dispatch('getProducts', {
                     user_id_seller: this.$store.getters.user.id,
-                    products_current_id: products_current_id,
+                    cursor: requestCursor,
                     per_page: this.perPage,
                     search_product: requestSearchProduct,
                     stock_filter: this.stockFilter,
@@ -763,11 +767,8 @@ export default {
 
                     this.$global.globalContainer.loading = false;
 
-                    // Fallback batch kosong menjaga kompatibilitas jika frontend lebih dahulu dirilis daripada backend.
-                    this.completeProduct =
-                        typeof response.data.has_more === 'boolean'
-                            ? !response.data.has_more
-                            : response.data.products.length === 0;
+                    this.nextCursor = response.data.next_cursor || null;
+                    this.completeProduct = !response.data.has_more || this.nextCursor === null;
 
                     this.products = [...this.products, ...response.data.products];
                     this.refreshPaginationObserver();

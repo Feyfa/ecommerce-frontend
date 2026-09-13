@@ -11,7 +11,7 @@ describe('Request ukuran batch Seller Product', () => {
 
         const result = await store.dispatch('getProducts', {
             user_id_seller: 'seller-1',
-            products_current_id: '["product-1"]',
+            cursor: 'opaque-cursor',
             per_page: perPage,
             search_product: 'sepatu',
             stock_filter: 'healthy',
@@ -21,7 +21,7 @@ describe('Request ukuran batch Seller Product', () => {
         expect(axios.get).toHaveBeenCalledTimes(1);
         expect(axios.get).toHaveBeenCalledWith('/product/seller-1', {
             params: {
-                products_current_id: '["product-1"]',
+                cursor: 'opaque-cursor',
                 per_page: perPage,
                 search_product: 'sepatu',
                 stock_filter: 'healthy',
@@ -29,5 +29,22 @@ describe('Request ukuran batch Seller Product', () => {
             },
         });
         expect(result).toBe(response);
+    });
+
+    it('menghilangkan cursor dari request batch pertama', async () => {
+        const response = { data: { products: [], next_cursor: null, has_more: false } };
+        axios.get.mockResolvedValue(response);
+
+        await store.dispatch('getProducts', {
+            user_id_seller: 'seller-1',
+            cursor: null,
+            per_page: 50,
+            search_product: '',
+            stock_filter: 'all',
+            sort_product: 'latest',
+        });
+
+        expect(axios.get.mock.calls[0][1].params).not.toHaveProperty('cursor');
+        expect(axios.get.mock.calls[0][1].params).not.toHaveProperty('products_current_id');
     });
 });
