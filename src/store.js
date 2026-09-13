@@ -983,14 +983,14 @@ export default createStore({
          * @param {*} data Payload yang digunakan oleh operasi saat ini.
          *
          * @returns {Promise<Object>} Response daftar seller atau rejection dari request backend; ukuran
-         * batch opsional diteruskan sebagai per_page, dengan fallback konfigurasi ditangani backend.
+         * batch dan cursor opsional diteruskan tanpa mengirim ulang ID produk yang sudah dimuat.
          */
         getProducts(context, data) {
             return new Promise((resolve, reject) => {
                 axios
                     .get(`/product/${data.user_id_seller}`, {
                         params: {
-                            products_current_id: data.products_current_id,
+                            ...(data.cursor ? { cursor: data.cursor } : {}),
                             per_page: data.per_page,
                             search_product: data.search_product,
                             stock_filter: data.stock_filter,
