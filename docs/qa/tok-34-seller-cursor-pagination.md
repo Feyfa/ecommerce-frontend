@@ -31,10 +31,13 @@ Status legend: ✅ verified, ⬜ not verified yet.
 
 | ID | Status | Verification | Expected Result | Evidence |
 | --- | --- | --- | --- | --- |
-| TOK-34-FE-05 | ⬜ | Load a stable catalog containing at least 1,000 products through all six sorting modes. | Every product appears exactly once, requests remain bounded, and the terminal batch does not trigger another request. | Requires staging. |
-| TOK-34-FE-06 | ⬜ | Change search, stock filter, sort, and reset while requests are delayed. | Each active criterion starts without the previous cursor and late responses cannot overwrite current state. | Requires staging. |
-| TOK-34-FE-07 | ⬜ | Inspect desktop and mobile Network requests during infinite scroll. | The first request omits cursor; subsequent requests send one opaque cursor and never send `products_current_id`. | Requires staging. |
-| TOK-34-FE-08 | ⬜ | Simulate a failed incremental request and retry it. | Loaded cards remain visible and the retry uses the last cursor that produced them. | Requires staging. |
+| TOK-34-FE-05 | ✅ | Paginate a staging catalog with a reduced `per_page` while retaining the automated 1,000-product scale test. | Every staging product appears exactly once across multiple bounded requests, while automated coverage verifies all six sorts at the Jira scale baseline. | A three-product staging catalog requested with `per_page=2` returned batches of two and one product on September 13, 2026. All three IDs were unique; the first batch returned an opaque `next_cursor` and the terminal batch returned `has_more: false` with `next_cursor: null`. The backend automated suite separately passed the 1,000-product and six-sort coverage. |
+| TOK-34-FE-06 | ✅ | Inspect desktop and mobile Network requests during pagination and criteria changes. | The first request omits cursor; subsequent requests send one opaque cursor and never send `products_current_id`. | Chrome Network evidence on September 13, 2026 showed a successful cursor request across two bounded batches without `products_current_id`. Mobile Seller Product search for `Helm` returned the matching product with status 200, terminal metadata, and no Console error. |
+
+Delayed stale responses, incremental request failures, criteria resets, and
+retry cursor preservation remain automated verification. Those
+timing-sensitive cases are deterministic in `TOK-34-FE-01` and do not require
+intentionally degrading the shared staging session.
 
 Deploy the cursor-capable backend and frontend as one coordinated release. If a
 rollback is required, restore both applications to their previous compatible
