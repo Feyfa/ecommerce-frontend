@@ -186,6 +186,21 @@ Use this format in `<script>` blocks and JavaScript modules only. Do not add `st
 
 Add contextual comments when they clarify why logic exists, how state synchronization works, which regression is being prevented, or why an implementation choice is required. Avoid comments on every line and prefer comments that explain intent rather than mechanics.
 
+## Command And Approval Readability
+
+- Keep simple commands on one line when they remain easy to read and review.
+- Format PHP, SQL, shell, or other complex commands across multiple lines with
+  clear indentation so the approval dialog remains easy to understand before
+  the command is approved.
+- Split complex operations into smaller commands with one clear purpose per
+  execution when that separation is safe and preserves the required atomicity.
+- Avoid placing complex scripts, especially `php -r` or long SQL statements,
+  on one dense line that is difficult to review.
+- When a temporary script is the safer approach, show or explain its contents
+  first, then use a short and specific command to execute it.
+- State explicitly in each approval question whether the command only reads
+  data or changes state.
+
 ## Git and Commit Workflow
 
 Before proposing or creating a commit:
