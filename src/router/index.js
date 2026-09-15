@@ -335,12 +335,10 @@ const router = createRouter({
      * Memproses scroll behavior di modul index.
      *
      * @param {*} to Route tujuan yang diproses oleh function.
-     * @param {*} from Route asal yang diproses oleh function.
-     * @param {*} savedPosition Nilai saved position yang diproses oleh function.
      *
      * @returns {Object} Object scroll behavior yang telah disiapkan.
      */
-    scrollBehavior(to, from, savedPosition) {
+    scrollBehavior(to) {
         if (to.hash) {
             return {
                 el: to.hash,

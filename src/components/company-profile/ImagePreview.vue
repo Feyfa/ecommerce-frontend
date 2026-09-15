@@ -14,7 +14,7 @@
         />
         <!-- zoom img -->
 
-        <div role="status" class="profile-image-loading" v-if="isProcessImageCompany">
+        <div v-if="isProcessImageCompany" role="status" class="profile-image-loading">
             <svg
                 aria-hidden="true"
                 class="w-[1.5rem] h-[1.5rem] text-gray-200 animate-spin dark:text-gray-600 fill-blue-600"
@@ -41,22 +41,22 @@
             @click.stop
         ></div>
 
-        <ul class="profile-image-menu" :class="this.$global.isClickDropdown.company ? 'is-open' : 'h-0'">
+        <ul class="profile-image-menu" :class="$global.isClickDropdown.company ? 'is-open' : 'h-0'">
             <li>
                 <span class="profile-image-menu-item" @click="zoomUserImage('in')"> Perbesar Foto </span>
             </li>
             <li>
                 <div>
                     <input
-                        class="top-0 left-0 right-0 bottom-0 hidden"
-                        type="file"
                         id="image-file"
                         ref="imageFile"
+                        class="top-0 left-0 right-0 bottom-0 hidden"
+                        type="file"
                         name="file"
                         accept="image/*"
                         @change="imageFileChange"
                     />
-                    <span class="profile-image-menu-item" @click="this.$refs.imageFile.click()"> Unggah Foto </span>
+                    <span class="profile-image-menu-item" @click="$refs.imageFile.click()"> Unggah Foto </span>
                 </div>
             </li>
             <li>

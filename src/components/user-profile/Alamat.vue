@@ -10,10 +10,10 @@
                         <span class="required-mark" aria-hidden="true">*</span>
                     </label>
                     <input
-                        placeholder="Contoh: Rumah, Kantor, Kos"
                         id="place"
-                        type="text"
                         v-model="place"
+                        placeholder="Contoh: Rumah, Kantor, Kos"
+                        type="text"
                         class="border w-full border-neutral-500 rounded outline-none h-12 px-2.5 shadow"
                         required
                         aria-required="true"
@@ -32,10 +32,10 @@
                         <span class="required-mark" aria-hidden="true">*</span>
                     </label>
                     <input
-                        placeholder="Masukkan nama penerima"
                         id="name"
-                        type="text"
                         v-model="name"
+                        placeholder="Masukkan nama penerima"
+                        type="text"
                         class="border w-full border-neutral-500 rounded outline-none h-12 px-2.5 shadow"
                         required
                         aria-required="true"
@@ -54,10 +54,10 @@
                         <span class="required-mark" aria-hidden="true">*</span>
                     </label>
                     <input
-                        placeholder="Masukkan nomor telepon"
                         id="phone"
-                        type="text"
                         v-model="phone"
+                        placeholder="Masukkan nomor telepon"
+                        type="text"
                         class="border w-full border-neutral-500 rounded outline-none h-12 px-2.5 shadow"
                         required
                         aria-required="true"
@@ -86,11 +86,11 @@
                 <div class="mt-2">
                     <div class="alamat-checkbox-row">
                         <input
-                            type="checkbox"
                             id="enable-add-alamat"
+                            v-model="enable"
+                            type="checkbox"
                             name="enable-add-alamat"
                             class="alamat-checkbox-input"
-                            v-model="enable"
                         />
                         <label
                             for="enable-add-alamat"
@@ -103,18 +103,18 @@
                     <div class="flex flex-col gap-2 mt-1 md:flex-row md:gap-20 lg:gap-40">
                         <button
                             class="alamat-primary-button w-full border py-2 px-8 mt-1.5"
-                            @click="addAlamatBuyer"
                             :disabled="isProcessAddAlamatBuyer"
                             :class="{ 'opacity-50': isProcessAddAlamatBuyer }"
+                            @click="addAlamatBuyer"
                         >
                             Tambah Alamat
                             <i v-if="isProcessAddAlamatBuyer" class="fa-solid fa-spinner fa-spin-pulse ml-1"></i>
                         </button>
                         <button
                             class="alamat-danger-button w-full border py-2 px-8 mt-1.5"
-                            @click="closeFormAddAlamat"
                             :disabled="isProcessAddAlamatBuyer"
                             :class="{ 'opacity-50': isProcessAddAlamatBuyer }"
+                            @click="closeFormAddAlamat"
                         >
                             Batal
                         </button>
@@ -134,10 +134,10 @@
                         <span class="required-mark" aria-hidden="true">*</span>
                     </label>
                     <input
-                        placeholder="Contoh: Rumah, Kantor, Kos"
                         id="place"
-                        type="text"
                         v-model="placeEdit"
+                        placeholder="Contoh: Rumah, Kantor, Kos"
+                        type="text"
                         class="border w-full border-neutral-500 rounded outline-none h-12 px-2.5 shadow"
                         required
                         aria-required="true"
@@ -156,10 +156,10 @@
                         <span class="required-mark" aria-hidden="true">*</span>
                     </label>
                     <input
-                        placeholder="Masukkan nama penerima"
                         id="name"
-                        type="text"
                         v-model="nameEdit"
+                        placeholder="Masukkan nama penerima"
+                        type="text"
                         class="border w-full border-neutral-500 rounded outline-none h-12 px-2.5 shadow"
                         required
                         aria-required="true"
@@ -178,10 +178,10 @@
                         <span class="required-mark" aria-hidden="true">*</span>
                     </label>
                     <input
-                        placeholder="Masukkan nomor telepon"
                         id="phone"
-                        type="text"
                         v-model="phoneEdit"
+                        placeholder="Masukkan nomor telepon"
+                        type="text"
                         class="border w-full border-neutral-500 rounded outline-none h-12 px-2.5 shadow"
                         required
                         aria-required="true"
@@ -213,19 +213,19 @@
                 />
                 <div class="flex flex-col gap-2 mt-1 md:flex-row md:gap-20 lg:gap-40">
                     <button
-                        @click="editAlamatBuyer"
                         class="alamat-primary-button w-full border py-2 px-8 mt-1.5"
                         :disabled="isProcessEditAlamatBuyer"
                         :class="{ 'opacity-50': isProcessEditAlamatBuyer }"
+                        @click="editAlamatBuyer"
                     >
                         Ubah Alamat
                         <i v-if="isProcessEditAlamatBuyer" class="fa-solid fa-spinner fa-spin-pulse ml-2"></i>
                     </button>
                     <button
-                        @click="closeFormEditAlamat"
                         class="alamat-danger-button w-full border py-2 px-8 mt-1.5"
                         :disabled="isProcessEditAlamatBuyer"
                         :class="{ 'opacity-50': isProcessEditAlamatBuyer }"
+                        @click="closeFormEditAlamat"
                     >
                         Batal
                     </button>
@@ -244,20 +244,20 @@
         <div class="mb-7 flex flex-col md:flex-row md:justify-between md:items-center gap-3">
             <div class="alamat-search-control w-full md:w-[40%] lg:w-[35%]">
                 <input
-                    placeholder="Cari Nama Alamat"
                     id="search-alamat"
+                    v-model="searchAlamat"
+                    placeholder="Cari Nama Alamat"
                     type="text"
                     class="alamat-search-input border w-full outline-none h-12 px-3"
-                    v-model="searchAlamat"
                     @keyup.enter="enterSearchAlamat"
                 />
             </div>
             <div class="alamat-add-control md:w-[25%] lg:w-[22%]">
                 <button
                     class="alamat-primary-button border w-[100%] h-12"
-                    @click="openFormAddAlamat"
                     :disabled="isProcessAddAlamatBuyer"
                     :class="{ 'opacity-50': isProcessAddAlamatBuyer }"
+                    @click="openFormAddAlamat"
                 >
                     Tambah Alamat
                 </button>
@@ -273,44 +273,47 @@
                 </span>
             </div>
             <div v-else>
-                <div v-if="this.alamats.length > 0" class="flex flex-col gap-5">
+                <div v-if="alamats.length > 0" class="flex flex-col gap-5">
                     <!-- kontent -->
                     <div
-                        v-for="(alamat, index) in alamats"
+                        v-for="(alamatItem, index) in alamats"
+                        :key="alamatItem.id"
                         class="alamat-card w-full py-3 px-3 gap-5 flex flex-row justify-between items-center"
-                        :class="{ 'is-selected': alamat.enable }"
+                        :class="{ 'is-selected': alamatItem.enable }"
                     >
                         <div class="flex flex-col gap-1 w-[80%] xl:w-[85%]">
                             <div class="flex flex-wrap items-center gap-2">
                                 <h4 class="font-semibold text-[.9rem]">
-                                    {{ alamat.place }}
+                                    {{ alamatItem.place }}
                                 </h4>
                                 <span
                                     class="location-source-badge"
-                                    :class="alamat.location_source === 'map' ? 'is-map' : 'is-unverified'"
+                                    :class="alamatItem.location_source === 'map' ? 'is-map' : 'is-unverified'"
                                 >
-                                    {{ alamat.location_source === 'map' ? 'Pinpoint' : 'Perlu Verifikasi' }}
+                                    {{ alamatItem.location_source === 'map' ? 'Pinpoint' : 'Perlu Verifikasi' }}
                                 </span>
                             </div>
                             <h3 class="font-semibold text-[1.1rem]">
-                                {{ alamat.name }}
+                                {{ alamatItem.name }}
                             </h3>
-                            <p class="text-[.9rem]">{{ alamat.phone }}</p>
-                            <p class="text-[.8rem]">{{ alamat.alamat }}</p>
+                            <p class="text-[.9rem]">{{ alamatItem.phone }}</p>
+                            <p class="text-[.8rem]">{{ alamatItem.alamat }}</p>
 
                             <div class="mt-2 text-[.8rem] text-violet-500">
                                 <span
-                                    @click="openFormEditAlamat(index)"
                                     class="border-r border-r-neutral-500 pr-3 cursor-pointer"
+                                    @click="openFormEditAlamat(index)"
                                 >
-                                    {{ alamat.location_source === 'map' ? 'Ubah' : 'Verifikasi' }}
+                                    {{ alamatItem.location_source === 'map' ? 'Ubah' : 'Verifikasi' }}
                                 </span>
-                                <span @click="deleteAlamatBuyer(alamat.id)" class="pl-3 cursor-pointer"> Hapus </span>
+                                <span class="pl-3 cursor-pointer" @click="deleteAlamatBuyer(alamatItem.id)">
+                                    Hapus
+                                </span>
                             </div>
                         </div>
                         <div class="w-[20%] xl:w-[15%]">
                             <div
-                                v-if="alamat.enable && alamat.location_source === 'map'"
+                                v-if="alamatItem.enable && alamatItem.location_source === 'map'"
                                 class="flex justify-center items-center"
                             >
                                 <i class="fas fa-check text-violet-500 text-2xl"></i>
@@ -318,17 +321,17 @@
                             <div v-else class="flex justify-end">
                                 <button
                                     class="alamat-primary-button text-[.7rem] border py-1.5 w-[100%] sm500:text-[.8rem] sm:text-[.9rem]"
-                                    @click="
-                                        alamat.location_source === 'map'
-                                            ? setEnableAlamatBuyer(alamat.id, index)
-                                            : openFormEditAlamat(index)
-                                    "
                                     :disabled="isProcessEnableAlamatBuyer[index]"
                                     :class="{
                                         'opacity-50': isProcessEnableAlamatBuyer[index],
                                     }"
+                                    @click="
+                                        alamatItem.location_source === 'map'
+                                            ? setEnableAlamatBuyer(alamatItem.id, index)
+                                            : openFormEditAlamat(index)
+                                    "
                                 >
-                                    {{ alamat.location_source === 'map' ? 'Pilih' : 'Verifikasi' }}
+                                    {{ alamatItem.location_source === 'map' ? 'Pilih' : 'Verifikasi' }}
                                     <i
                                         v-if="isProcessEnableAlamatBuyer[index]"
                                         class="fa-solid fa-spinner fa-spin-pulse ml-1"
@@ -367,6 +370,7 @@ const createEmptyLocation = () => ({
 });
 
 export default {
+    name: 'AlamatBuyer',
     components: {
         Modal,
         LocationPicker,
@@ -437,6 +441,83 @@ export default {
                 editAlamatBuyer: false,
             },
         };
+    },
+
+    watch: {
+        /**
+         * Menjalankan proses alamats dan menyinkronkan state hasilnya untuk alamat.
+         *
+         * @param {*} newValue Nilai terbaru yang diberikan oleh watcher reaktif.
+         *
+         * @returns {void} Function menerapkan efeknya melalui state komponen atau aplikasi.
+         */
+        alamats(newValue) {
+            this.isProcessEnableAlamatBuyer = Array(newValue.length).fill(false);
+        },
+
+        location: {
+            deep: true,
+            /**
+             * Menyinkronkan state komponen ketika location berubah untuk alamat.
+             *
+             * @param {*} newValue Nilai terbaru yang diberikan oleh watcher reaktif.
+             *
+             * @returns {void} Function menerapkan efeknya melalui state komponen atau aplikasi.
+             */
+            handler(newValue) {
+                if (!this.isMapPinpointInvalid(newValue)) {
+                    this.errors.location = '';
+                }
+                if (!this.isMapDetailInvalid(newValue)) {
+                    this.errors.addressDetail = '';
+                }
+            },
+        },
+
+        locationEdit: {
+            deep: true,
+            /**
+             * Menyinkronkan state komponen ketika location edit berubah untuk alamat.
+             *
+             * @param {*} newValue Nilai terbaru yang diberikan oleh watcher reaktif.
+             *
+             * @returns {void} Function menerapkan efeknya melalui state komponen atau aplikasi.
+             */
+            handler(newValue) {
+                if (!this.isMapPinpointInvalid(newValue)) {
+                    this.errorsEdit.location = '';
+                }
+                if (!this.isMapDetailInvalid(newValue)) {
+                    this.errorsEdit.addressDetail = '';
+                }
+            },
+        },
+
+        /**
+         * Menjalankan proses modal.add alamat buyer dan menyinkronkan state hasilnya untuk alamat.
+         *
+         * @param {*} newValue Nilai terbaru yang diberikan oleh watcher reaktif.
+         *
+         * @returns {void} Function menerapkan efeknya melalui state komponen atau aplikasi.
+         */
+        'modal.addAlamatBuyer': function (newValue) {
+            if (!newValue) {
+                this.resetFormAddAlamat();
+            }
+        },
+
+        /**
+         * Menjalankan proses modal.edit alamat buyer dan menyinkronkan state hasilnya untuk alamat.
+         *
+         * @param {*} newValue Nilai terbaru yang diberikan oleh watcher reaktif.
+         *
+         * @returns {void} Function menerapkan efeknya melalui state komponen atau aplikasi.
+         */
+        'modal.editAlamatBuyer': function (newValue) {
+            if (!newValue) {
+                this.resetFormEditAlamat();
+            }
+        },
     },
 
     /**
@@ -1077,83 +1158,6 @@ export default {
                             'Gagal memilih alamat. Periksa koneksi Anda dan coba lagi.',
                     });
                 });
-        },
-    },
-
-    watch: {
-        /**
-         * Menjalankan proses alamats dan menyinkronkan state hasilnya untuk alamat.
-         *
-         * @param {*} newValue Nilai terbaru yang diberikan oleh watcher reaktif.
-         *
-         * @returns {void} Function menerapkan efeknya melalui state komponen atau aplikasi.
-         */
-        alamats(newValue) {
-            this.isProcessEnableAlamatBuyer = Array(newValue.length).fill(false);
-        },
-
-        location: {
-            deep: true,
-            /**
-             * Menyinkronkan state komponen ketika location berubah untuk alamat.
-             *
-             * @param {*} newValue Nilai terbaru yang diberikan oleh watcher reaktif.
-             *
-             * @returns {void} Function menerapkan efeknya melalui state komponen atau aplikasi.
-             */
-            handler(newValue) {
-                if (!this.isMapPinpointInvalid(newValue)) {
-                    this.errors.location = '';
-                }
-                if (!this.isMapDetailInvalid(newValue)) {
-                    this.errors.addressDetail = '';
-                }
-            },
-        },
-
-        locationEdit: {
-            deep: true,
-            /**
-             * Menyinkronkan state komponen ketika location edit berubah untuk alamat.
-             *
-             * @param {*} newValue Nilai terbaru yang diberikan oleh watcher reaktif.
-             *
-             * @returns {void} Function menerapkan efeknya melalui state komponen atau aplikasi.
-             */
-            handler(newValue) {
-                if (!this.isMapPinpointInvalid(newValue)) {
-                    this.errorsEdit.location = '';
-                }
-                if (!this.isMapDetailInvalid(newValue)) {
-                    this.errorsEdit.addressDetail = '';
-                }
-            },
-        },
-
-        /**
-         * Menjalankan proses modal.add alamat buyer dan menyinkronkan state hasilnya untuk alamat.
-         *
-         * @param {*} newValue Nilai terbaru yang diberikan oleh watcher reaktif.
-         *
-         * @returns {void} Function menerapkan efeknya melalui state komponen atau aplikasi.
-         */
-        'modal.addAlamatBuyer': function (newValue) {
-            if (!newValue) {
-                this.resetFormAddAlamat();
-            }
-        },
-
-        /**
-         * Menjalankan proses modal.edit alamat buyer dan menyinkronkan state hasilnya untuk alamat.
-         *
-         * @param {*} newValue Nilai terbaru yang diberikan oleh watcher reaktif.
-         *
-         * @returns {void} Function menerapkan efeknya melalui state komponen atau aplikasi.
-         */
-        'modal.editAlamatBuyer': function (newValue) {
-            if (!newValue) {
-                this.resetFormEditAlamat();
-            }
         },
     },
 };

@@ -1,8 +1,8 @@
 <template>
     <div
         v-if="show"
-        @click.self="closeModal"
         class="fixed inset-0 bg-[rgba(15,23,42,.64)] z-[60] flex justify-center items-center px-4"
+        @click.self="closeModal"
     >
         <div
             :class="[
@@ -27,6 +27,7 @@ export default {
             default: '',
         },
     },
+    emits: ['update:show'],
 
     methods: {
         /**

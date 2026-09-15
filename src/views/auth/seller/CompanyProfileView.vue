@@ -1,12 +1,12 @@
 <template>
     <div
+        v-show="$global.showCompanyProfileView.allComponent"
         class="w-full flex flex-col justify-center mb-8"
         :class="embedded ? 'px-0' : 'px-5 lg:px-10'"
-        v-show="this.$global.showCompanyProfileView.allComponent"
     >
         <!-- image setting -->
         <div class="row w-full flex justify-center">
-            <ImagePreview :src="this.$global.companyImage" alt="User" />
+            <ImagePreview :src="$global.companyImage" alt="User" />
         </div>
         <!-- image setting -->
 
@@ -19,7 +19,7 @@
 
     <!-- loading view -->
     <div
-        v-show="!this.$global.showCompanyProfileView.allComponent"
+        v-show="!$global.showCompanyProfileView.allComponent"
         class="w-full text-xl h-full flex justify-center items-center"
     >
         <span>
@@ -46,17 +46,6 @@ export default {
         },
     },
 
-    /**
-     * Menginisialisasi behavior komponen yang bergantung pada browser setelah mounted untuk halaman company profile.
-     *
-     * @returns {void} Function menerapkan efeknya melalui state komponen atau aplikasi.
-     */
-    mounted() {
-        /* RESET TAMPILAN KOMPONEN PROFILE VIEW */
-        this.$global.showCompanyProfileView.allComponent = false;
-        /* RESET TAMPILAN KOMPONEN PROFILE VIEW */
-    },
-
     watch: {
         '$global.showCompanyProfileView': {
             /**
@@ -73,6 +62,17 @@ export default {
             },
             deep: true,
         },
+    },
+
+    /**
+     * Menginisialisasi behavior komponen yang bergantung pada browser setelah mounted untuk halaman company profile.
+     *
+     * @returns {void} Function menerapkan efeknya melalui state komponen atau aplikasi.
+     */
+    mounted() {
+        /* RESET TAMPILAN KOMPONEN PROFILE VIEW */
+        this.$global.showCompanyProfileView.allComponent = false;
+        /* RESET TAMPILAN KOMPONEN PROFILE VIEW */
     },
 };
 </script>

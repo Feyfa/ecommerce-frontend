@@ -13,6 +13,8 @@ const defaultInfo = logger.info;
  *
  * @returns {*} Nilai yang dihasilkan oleh operasi strip ansi.
  */
+// Byte escape ANSI memang harus menjadi bagian pola agar output logger dapat dibersihkan.
+// eslint-disable-next-line no-control-regex
 const stripAnsi = (value) => value.replace(/\x1B\[[0-?]*[ -/]*[@-~]/g, '');
 
 /**

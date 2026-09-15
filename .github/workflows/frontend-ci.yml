@@ -34,6 +34,9 @@ jobs:
       - name: Check frontend formatting
         run: npm run format:check
 
+      - name: Lint frontend source
+        run: npm run lint
+
       - name: Run frontend unit tests
         run: npm run test:unit
 

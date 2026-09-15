@@ -20,12 +20,12 @@
         </div>
 
         <button
-            v-if="!this.$global.isSidebarOpen"
+            v-if="!$global.isSidebarOpen"
             type="button"
             class="flex h-10 w-10 items-center justify-center rounded-lg border border-neutral-200 text-neutral-700 transition-colors hover:border-violet-200 hover:bg-violet-50 hover:text-violet-700 lg:hidden"
+            aria-label="Open sidebar"
             @click="toggleSidebarOpen"
             @click.stop
-            aria-label="Open sidebar"
         >
             <svg xmlns="http://www.w3.org/2000/svg" width="23" height="23" fill="currentColor" viewBox="0 0 16 16">
                 <path
@@ -36,12 +36,12 @@
         </button>
 
         <button
-            v-if="this.$global.isSidebarOpen"
+            v-if="$global.isSidebarOpen"
             type="button"
             class="flex h-10 w-10 items-center justify-center rounded-lg border border-neutral-200 text-neutral-700 transition-colors hover:border-violet-200 hover:bg-violet-50 hover:text-violet-700 lg:hidden"
+            aria-label="Close sidebar"
             @click="toggleSidebarOpen"
             @click.stop
-            aria-label="Close sidebar"
         >
             <svg xmlns="http://www.w3.org/2000/svg" width="25" height="25" fill="currentColor" viewBox="0 0 16 16">
                 <path

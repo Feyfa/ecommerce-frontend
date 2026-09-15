@@ -87,11 +87,11 @@
                             <label for="second_factor_code">{{ secondFactorInputLabel }}</label>
                             <div v-if="isBackupCodeSecondFactor" class="auth-input-wrap">
                                 <input
+                                    id="second_factor_code"
                                     v-model="secondFactorCode"
                                     type="text"
                                     inputmode="text"
                                     autocomplete="one-time-code"
-                                    id="second_factor_code"
                                     :placeholder="secondFactorInputPlaceholder"
                                     class="auth-input"
                                     :class="{ 'is-error-field': errors.secondFactorCode }"
@@ -152,11 +152,11 @@
                             <label for="email">Email</label>
                             <div class="auth-input-wrap">
                                 <input
+                                    id="email"
                                     v-model="email"
                                     required
                                     type="email"
                                     autocomplete="email"
-                                    id="email"
                                     placeholder="Masukkan email"
                                     class="auth-input"
                                     :class="{ 'is-error-field': errors.email }"
@@ -173,11 +173,11 @@
                             <label for="password">Password</label>
                             <div class="auth-input-wrap">
                                 <input
+                                    id="password"
                                     v-model="password"
                                     :type="isShowPassword ? 'text' : 'password'"
                                     required
                                     autocomplete="current-password"
-                                    id="password"
                                     placeholder="Masukkan password"
                                     class="auth-input"
                                     :class="{ 'is-error-field': errors.password }"

@@ -84,7 +84,8 @@ through Vite or committed to Git.
 
 ## macOS Setup
 
-This setup assumes Homebrew, Homebrew nginx, Homebrew PHP 8.3, and `mkcert`.
+This setup assumes Node.js 22.13 or newer within the Node.js 22 release line,
+Homebrew, Homebrew nginx, Homebrew PHP 8.3, and `mkcert`.
 
 Install `mkcert` if needed:
 
@@ -208,12 +209,19 @@ Run the frontend:
 ```bash
 cd "/Users/muhammadjidan/Documents/CODE LARAVEL10 AND VUEJS 3 VSC/Ecommerce/frontend"
 npm run format:check
+npm run lint
 npm run test:unit
 npm run dev
 ```
 
 Use `npm run format` to apply the repository's four-space Vue and JavaScript
 format before running `format:check` again.
+
+Use `npm run lint` to check all Vue and JavaScript source, unit tests, and
+repository-level JavaScript configuration. The command fails for every ESLint
+error or warning. Run `npm run lint:fix` for supported automatic fixes, review
+the resulting diff, and repeat both `format:check` and `lint` before handing off
+the change.
 
 Open:
 
@@ -227,7 +235,8 @@ The repository configuration stays the same on Windows. Only the machine setup c
 
 Install the required tools:
 
-- Node.js 22, or nvm-windows with Node.js 22.
+- Node.js 22.13 or newer within the Node.js 22 release line, installed directly
+  or through nvm-windows.
 - PHP 8.3.
 - Composer.
 - PostgreSQL, if the backend database is local.

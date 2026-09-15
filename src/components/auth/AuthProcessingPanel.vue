@@ -52,8 +52,6 @@
 
 <script>
 export default {
-    emits: ['retry', 'sign-out'],
-
     props: {
         title: { type: String, default: 'Menyiapkan Akun' },
         subtitle: { type: String, default: 'Mohon tunggu sebentar, kami sedang menyiapkan akun Anda.' },
@@ -68,6 +66,7 @@ export default {
         retrying: { type: Boolean, default: false },
         signingOut: { type: Boolean, default: false },
     },
+    emits: ['retry', 'sign-out'],
 
     computed: {
         /**

@@ -27,7 +27,7 @@
                         <el-option v-for="item in paymentList" :key="item.id" :label="item.name" :value="item.name" />
                     </el-select>
                 </div>
-                <div class="input-container flex flex-col w-full" v-show="paymentName && paymentName.trim() != ''">
+                <div v-show="paymentName && paymentName.trim() != ''" class="input-container flex flex-col w-full">
                     <label for="paymentAccount"> Nomor Rekening </label>
                     <el-input
                         v-model="paymentAccount"
@@ -60,8 +60,8 @@
                     </small>
                 </div>
                 <div
-                    class="input-container flex flex-col w-full border border-slate-200 bg-slate-50 rounded-lg p-3 gap-1 mt-3"
                     v-show="isPaymentAccountValid"
+                    class="input-container flex flex-col w-full border border-slate-200 bg-slate-50 rounded-lg p-3 gap-1 mt-3"
                 >
                     <p class="text-[0.85rem] -tracking-[0.2px]">Nama Pemilik Rekening</p>
                     <p class="uppercase tracking-[0.2px] font-medium">{{ paymentUsername }}</p>
@@ -71,18 +71,18 @@
                     <button
                         type="button"
                         class="account-modal-action is-cancel w-full mt-1.5"
-                        @click="closeFormAddPayment"
                         :disabled="isProcessAddPayment"
                         :class="{ 'opacity-50': isProcessAddPayment }"
+                        @click="closeFormAddPayment"
                     >
                         Cancel
                     </button>
                     <button
                         type="button"
                         class="account-modal-action is-primary w-full mt-1.5"
-                        @click="addPayment"
                         :disabled="isProcessAddPayment || !paymentName || !isPaymentAccountValid"
                         :class="{ 'opacity-50': isProcessAddPayment || !paymentName || !isPaymentAccountValid }"
+                        @click="addPayment"
                     >
                         Tambah Rekening
                         <i v-if="isProcessAddPayment" class="fa-solid fa-spinner fa-spin-pulse ml-1"></i>
@@ -99,11 +99,11 @@
         >
             <div class="account-search-control w-full md:w-[40%] lg:w-[35%]">
                 <input
-                    placeholder="Cari Rekening Bank"
                     id="search-payment"
+                    v-model="searchPayment"
+                    placeholder="Cari Rekening Bank"
                     type="text"
                     class="account-search-input border w-full outline-none h-12 px-3"
-                    v-model="searchPayment"
                     @keyup.enter="enterSearchPayment"
                 />
             </div>
@@ -111,9 +111,9 @@
                 <button
                     type="button"
                     class="account-add-button w-full h-12"
-                    @click="openFormAddPayment"
                     :disabled="isProcessGetPaymentList"
                     :class="{ 'opacity-50': isProcessGetPaymentList }"
+                    @click="openFormAddPayment"
                 >
                     Tambah Rekening
                     <i v-if="isProcessGetPaymentList" class="fa-solid fa-spinner fa-spin-pulse ml-1"></i>
@@ -130,10 +130,11 @@
                 </span>
             </div>
             <div v-else>
-                <div v-if="this.payments.length > 0" class="flex flex-col gap-5">
+                <div v-if="payments.length > 0" class="flex flex-col gap-5">
                     <!-- kontent -->
                     <div
                         v-for="(payment, index) in payments"
+                        :key="payment.id || payment.account"
                         class="payment-card w-full p-4 flex flex-col gap-4 sm:flex-row sm:justify-between sm:items-center"
                     >
                         <div class="flex items-center gap-4 min-w-0">
@@ -266,6 +267,32 @@ export default {
                 payment_view: false,
             },
         };
+    },
+
+    watch: {
+        /**
+         * Menjalankan proses modal.add payment dan menyinkronkan state hasilnya untuk halaman payment.
+         *
+         * @param {*} newValue Nilai terbaru yang diberikan oleh watcher reaktif.
+         *
+         * @returns {void} Function menerapkan efeknya melalui state komponen atau aplikasi.
+         */
+        'modal.addPayment': function (newValue) {
+            if (!newValue) {
+                this.resetFormAddPayment();
+            }
+        },
+
+        /**
+         * Menjalankan proses payments dan menyinkronkan state hasilnya untuk halaman payment.
+         *
+         * @param {*} newValue Nilai terbaru yang diberikan oleh watcher reaktif.
+         *
+         * @returns {void} Function menerapkan efeknya melalui state komponen atau aplikasi.
+         */
+        payments(newValue) {
+            this.isProcessDeletePayment = Array(newValue.length).fill(false);
+        },
     },
 
     /**
@@ -488,32 +515,6 @@ export default {
             this.isPaymentAccountValid = false;
             this.errors.paymentName = '';
             this.errors.paymentAccount = '';
-        },
-    },
-
-    watch: {
-        /**
-         * Menjalankan proses modal.add payment dan menyinkronkan state hasilnya untuk halaman payment.
-         *
-         * @param {*} newValue Nilai terbaru yang diberikan oleh watcher reaktif.
-         *
-         * @returns {void} Function menerapkan efeknya melalui state komponen atau aplikasi.
-         */
-        'modal.addPayment': function (newValue) {
-            if (!newValue) {
-                this.resetFormAddPayment();
-            }
-        },
-
-        /**
-         * Menjalankan proses payments dan menyinkronkan state hasilnya untuk halaman payment.
-         *
-         * @param {*} newValue Nilai terbaru yang diberikan oleh watcher reaktif.
-         *
-         * @returns {void} Function menerapkan efeknya melalui state komponen atau aplikasi.
-         */
-        payments(newValue) {
-            this.isProcessDeletePayment = Array(newValue.length).fill(false);
         },
     },
 };

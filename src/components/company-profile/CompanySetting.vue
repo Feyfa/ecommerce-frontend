@@ -15,13 +15,13 @@
                         <span class="required-mark" aria-hidden="true">*</span>
                     </label>
                     <input
-                        placeholder="name"
                         id="name"
+                        v-model="name"
+                        placeholder="name"
                         type="text"
                         class="border w-full border-neutral-500 rounded outline-none h-12 px-2.5 shadow"
                         required
                         aria-required="true"
-                        v-model="name"
                         :class="{
                             'is-error-field border border-red-500': errors.name,
                         }"
@@ -38,13 +38,13 @@
                         <span class="required-mark" aria-hidden="true">*</span>
                     </label>
                     <input
-                        placeholder="email"
                         id="email"
+                        v-model="email"
+                        placeholder="email"
                         type="text"
                         class="border w-full border-neutral-500 rounded outline-none h-12 px-2.5 shadow"
                         required
                         aria-required="true"
-                        v-model="email"
                         :class="{
                             'is-error-field border border-red-500': errors.email,
                         }"
@@ -61,17 +61,17 @@
                         <span class="required-mark" aria-hidden="true">*</span>
                     </label>
                     <input
+                        id="phone"
+                        v-model="phone"
                         placeholder="phone"
                         type="text"
-                        id="phone"
                         class="border w-full border-neutral-500 rounded outline-none h-12 px-2.5 shadow"
                         required
                         aria-required="true"
-                        v-model="phone"
-                        @keypress="validatePhone"
                         :class="{
                             'is-error-field border border-red-500': errors.phone,
                         }"
+                        @keypress="validatePhone"
                         @input="watchInputPhone"
                     />
                     <small v-if="errors.phone" class="text-red-500">
@@ -105,10 +105,10 @@
                     <label for="description"> Deskripsi </label>
                     <textarea
                         id="description"
+                        v-model="description"
                         :rows="rows.description"
                         placeholder="Deskripsi"
                         class="border w-full border-neutral-500 rounded outline-none py-1 px-2.5 shadow"
-                        v-model="description"
                     >
                     </textarea>
                 </div>
@@ -194,6 +194,27 @@ export default {
                 description: 3,
             },
         };
+    },
+
+    watch: {
+        location: {
+            deep: true,
+            /**
+             * Menyinkronkan state komponen ketika location berubah untuk company setting.
+             *
+             * @param {*} newValue Nilai terbaru yang diberikan oleh watcher reaktif.
+             *
+             * @returns {void} Function menerapkan efeknya melalui state komponen atau aplikasi.
+             */
+            handler(newValue) {
+                if (!this.isMapPinpointInvalid(newValue)) {
+                    this.errors.location = '';
+                }
+                if (!this.isMapDetailInvalid(newValue)) {
+                    this.errors.addressDetail = '';
+                }
+            },
+        },
     },
 
     /**
@@ -545,27 +566,6 @@ export default {
                 title: 'Pinpoint Tidak Tersedia',
                 message,
             });
-        },
-    },
-
-    watch: {
-        location: {
-            deep: true,
-            /**
-             * Menyinkronkan state komponen ketika location berubah untuk company setting.
-             *
-             * @param {*} newValue Nilai terbaru yang diberikan oleh watcher reaktif.
-             *
-             * @returns {void} Function menerapkan efeknya melalui state komponen atau aplikasi.
-             */
-            handler(newValue) {
-                if (!this.isMapPinpointInvalid(newValue)) {
-                    this.errors.location = '';
-                }
-                if (!this.isMapDetailInvalid(newValue)) {
-                    this.errors.addressDetail = '';
-                }
-            },
         },
     },
 };
