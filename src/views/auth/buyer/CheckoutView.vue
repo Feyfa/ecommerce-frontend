@@ -33,9 +33,9 @@
 
                             <button
                                 type="button"
-                                @click="getAlamatBuyer"
                                 class="inline-flex h-9 shrink-0 items-center justify-center rounded-md border border-slate-200 bg-white px-4 text-sm font-semibold text-slate-600 shadow-sm transition hover:border-violet-200 hover:bg-violet-50 hover:text-violet-600 disabled:cursor-not-allowed disabled:opacity-60"
                                 :disabled="isProcessGetAlamatBuyer"
+                                @click="getAlamatBuyer"
                             >
                                 Ganti
                                 <i v-if="isProcessGetAlamatBuyer" class="ml-2 fas fa-spinner fa-pulse"></i>
@@ -47,54 +47,51 @@
                         <div class="py-5">
                             <h3 class="mb-5 text-center text-2xl font-medium text-slate-950">Pilih Alamat</h3>
 
-                            <div
-                                v-if="this.alamats.length > 0"
-                                class="flex max-h-[710px] flex-col gap-4 overflow-auto px-5"
-                            >
-                                <div v-for="(alamat, index) in alamats" :key="alamat.id">
+                            <div v-if="alamats.length > 0" class="flex max-h-[710px] flex-col gap-4 overflow-auto px-5">
+                                <div v-for="(alamatItem, index) in alamats" :key="alamatItem.id">
                                     <div
                                         class="flex w-full flex-row items-center justify-between gap-5 rounded-md px-4 py-3"
                                         :class="{
-                                            'border-2 border-violet-500 bg-violet-50': alamat.enable,
-                                            'border border-slate-200 bg-white': !alamat.enable,
+                                            'border-2 border-violet-500 bg-violet-50': alamatItem.enable,
+                                            'border border-slate-200 bg-white': !alamatItem.enable,
                                         }"
                                     >
                                         <div class="flex w-[80%] flex-col gap-1 xl:w-[85%]">
                                             <h4 class="text-sm font-semibold text-slate-500">
-                                                {{ alamat.place }}
+                                                {{ alamatItem.place }}
                                             </h4>
                                             <span
-                                                v-if="alamat.location_source !== 'map'"
+                                                v-if="alamatItem.location_source !== 'map'"
                                                 class="text-xs font-semibold text-amber-600"
                                                 >Perlu Verifikasi</span
                                             >
                                             <h3 class="text-base font-semibold text-slate-950">
-                                                {{ alamat.name }}
+                                                {{ alamatItem.name }}
                                             </h3>
                                             <p class="text-sm text-slate-600">
-                                                {{ alamat.phone }}
+                                                {{ alamatItem.phone }}
                                             </p>
                                             <p class="text-sm leading-5 text-slate-500">
-                                                {{ alamat.alamat }}
+                                                {{ alamatItem.alamat }}
                                             </p>
                                         </div>
                                         <div class="w-[20%] xl:w-[15%]">
-                                            <div v-if="alamat.enable" class="flex items-center justify-center">
+                                            <div v-if="alamatItem.enable" class="flex items-center justify-center">
                                                 <i class="fas fa-check text-violet-500 text-2xl"></i>
                                             </div>
                                             <div v-else class="flex justify-end">
                                                 <button
                                                     class="inline-flex h-9 w-full items-center justify-center rounded-md border border-violet-500 bg-violet-500 text-sm font-semibold text-white transition hover:bg-violet-600 disabled:cursor-not-allowed disabled:opacity-60"
+                                                    :disabled="isProcessEnableAlamatBuyer[index]"
                                                     @click="
-                                                        alamat.location_source === 'map'
-                                                            ? setEnableAlamatBuyer(alamat.id, index)
+                                                        alamatItem.location_source === 'map'
+                                                            ? setEnableAlamatBuyer(alamatItem.id, index)
                                                             : $router.push({
                                                                   name: 'settings_addresses',
                                                               })
                                                     "
-                                                    :disabled="isProcessEnableAlamatBuyer[index]"
                                                 >
-                                                    {{ alamat.location_source === 'map' ? 'Pilih' : 'Verifikasi' }}
+                                                    {{ alamatItem.location_source === 'map' ? 'Pilih' : 'Verifikasi' }}
                                                     <i
                                                         v-if="isProcessEnableAlamatBuyer[index]"
                                                         class="fa-solid fa-spinner fa-spin-pulse ml-1"
@@ -115,9 +112,9 @@
                     <!-- KERANJANG -->
                     <div class="flex w-full flex-col gap-4">
                         <div
-                            class="overflow-hidden rounded-md border border-slate-200 bg-white shadow-sm"
                             v-for="(checkout, index1) in checkouts"
                             :key="checkout.user_id_seller"
+                            class="overflow-hidden rounded-md border border-slate-200 bg-white shadow-sm"
                         >
                             <!-- nama penjual -->
                             <div class="flex items-center justify-between gap-3 border-b border-slate-100 px-4 py-3">
@@ -143,7 +140,7 @@
 
                             <!-- keranjang -->
                             <div class="divide-y divide-slate-100">
-                                <div class="flex gap-3 px-4 py-4" v-for="item in checkout.keranjangs" :key="item.k_id">
+                                <div v-for="item in checkout.keranjangs" :key="item.k_id" class="flex gap-3 px-4 py-4">
                                     <div
                                         class="h-20 w-20 shrink-0 overflow-hidden rounded-md border border-slate-100 bg-white sm:h-24 sm:w-24"
                                     >
@@ -185,8 +182,8 @@
                                         <span class="text-xs font-semibold uppercase text-slate-500">Kurir</span>
                                         <el-select
                                             :id="`kurir-${index1}`"
-                                            class="checkout-courier-select w-full"
                                             v-model="kurirs[index1].name"
+                                            class="checkout-courier-select w-full"
                                             size="large"
                                             placement="bottom-start"
                                             :fallback-placements="['bottom-start', 'bottom', 'bottom-end']"
@@ -219,11 +216,11 @@
                                         >Catatan untuk penjual</span
                                     >
                                     <input
-                                        placeholder="Kasih catatan"
                                         :id="`noteds-${index1}`"
+                                        v-model="noteds[index1].noted"
+                                        placeholder="Kasih catatan"
                                         type="text"
                                         class="h-11 w-full rounded-md border border-slate-300 bg-white px-3 text-sm text-slate-900 outline-none transition placeholder:text-slate-400 focus:border-violet-400 focus:ring-2 focus:ring-violet-100"
-                                        v-model="noteds[index1].noted"
                                     />
                                 </label>
                             </div>
@@ -258,12 +255,12 @@
                                 </span>
                                 <span class="flex shrink-0 justify-center">
                                     <input
+                                        :id="item.name"
+                                        v-model="paymentName"
                                         class="h-4 w-4 cursor-pointer accent-violet-500"
                                         type="radio"
                                         name="paymentName"
-                                        :id="item.name"
                                         :value="item.name"
-                                        v-model="paymentName"
                                     />
                                 </span>
                             </div>
@@ -300,12 +297,12 @@
                             <span class="text-lg font-semibold text-slate-950">{{ formatRupiah(totalPriceAll) }}</span>
                         </div>
                         <button
-                            @click="processCheckout"
                             class="inline-flex h-11 w-full items-center justify-center rounded-md border border-violet-500 bg-violet-500 px-4 text-sm font-semibold text-white shadow-sm transition hover:bg-violet-600 active:scale-95"
                             :class="{
                                 'button-disabled cursor-not-allowed opacity-60': isProcessCheckout,
                             }"
                             :disabled="isProcessCheckout"
+                            @click="processCheckout"
                         >
                             Bayar Sekarang
                             <i v-if="isProcessCheckout" class="ml-2 fas fa-spinner fa-pulse"></i>
@@ -327,12 +324,12 @@
                 </div>
 
                 <button
-                    @click="processCheckout"
                     class="inline-flex h-11 w-40 shrink-0 items-center justify-center rounded-md border border-violet-500 bg-violet-500 px-4 text-sm font-semibold text-white shadow-sm transition hover:bg-violet-600 active:scale-95"
                     :class="{
                         'button-disabled cursor-not-allowed opacity-60': isProcessCheckout,
                     }"
                     :disabled="isProcessCheckout"
+                    @click="processCheckout"
                 >
                     Bayar
                     <i v-if="isProcessCheckout" class="ml-2 fas fa-spinner fa-pulse"></i>

@@ -1,8 +1,8 @@
 <template>
-    <div id="add-product-container" class="fixed inset-0 z-[3] bg-slate-950/50" v-show="show" @click="closeAddProduct">
+    <div v-show="show" id="add-product-container" class="fixed inset-0 z-[3] bg-slate-950/50" @click="closeAddProduct">
         <div
-            class="product-drawer-panel fixed bottom-0 right-0 top-14 flex w-full flex-col bg-white shadow-2xl sm:w-[55%] md:w-[45%] lg:w-[40%] xl:w-[35%] 2xl:w-[30%]"
             v-show="show"
+            class="product-drawer-panel fixed bottom-0 right-0 top-14 flex w-full flex-col bg-white shadow-2xl sm:w-[55%] md:w-[45%] lg:w-[40%] xl:w-[35%] 2xl:w-[30%]"
             @click.stop
         >
             <div class="border-b border-slate-200 px-5 py-4">
@@ -38,14 +38,14 @@
                                 Nama Produk
                             </label>
                             <input
-                                placeholder="Contoh: Baju Hitam"
                                 id="add-product-name"
+                                v-model="name"
+                                placeholder="Contoh: Baju Hitam"
                                 type="text"
                                 class="h-11 w-full rounded-md border border-slate-300 px-3 text-base text-slate-900 outline-none shadow-sm placeholder:text-slate-400 focus:border-violet-500 focus:ring-2 focus:ring-violet-100"
                                 :class="{
                                     'border-red-500 focus:border-red-500 focus:ring-red-100': errors.name,
                                 }"
-                                v-model="name"
                                 @input="watchInputName"
                             />
                             <small v-if="errors.name" class="text-sm text-red-500">
@@ -71,12 +71,12 @@
                                         Rp
                                     </div>
                                     <input
-                                        placeholder="50.000"
                                         id="add-product-price"
+                                        v-model="priceString"
+                                        placeholder="50.000"
                                         type="text"
                                         inputmode="numeric"
                                         class="h-full min-w-0 flex-1 px-3 text-base text-slate-900 outline-none placeholder:text-slate-400"
-                                        v-model="priceString"
                                         @keydown="restrictPriceInput"
                                         @input="watchInputPrice"
                                     />
@@ -89,15 +89,15 @@
                             <div class="input-container flex flex-col gap-y-1.5">
                                 <label for="add-product-stock" class="text-sm font-medium text-slate-700"> Stok </label>
                                 <input
-                                    placeholder="8"
                                     id="add-product-stock"
+                                    v-model="stock"
+                                    placeholder="8"
                                     type="number"
                                     min="1"
                                     class="h-11 w-full rounded-md border border-slate-300 px-3 text-base text-slate-900 outline-none shadow-sm placeholder:text-slate-400 focus:border-violet-500 focus:ring-2 focus:ring-violet-100"
                                     :class="{
                                         'border-red-500 focus:border-red-500 focus:ring-red-100': errors.stock,
                                     }"
-                                    v-model="stock"
                                     @input="watchInputStock"
                                 />
                                 <small v-if="errors.stock" class="text-sm text-red-500">
@@ -141,6 +141,7 @@ import ProductImagesInput from './ProductImagesInput.vue';
 import { getProductUploadErrorMessage } from '@/services/productUploadError';
 
 export default {
+    name: 'AddProduct',
     components: {
         ProductImagesInput,
     },
@@ -150,6 +151,7 @@ export default {
             required: true,
         },
     },
+    emits: ['onAfterAddProduct'],
 
     /**
      * Membuat state reaktif yang digunakan komponen untuk add.

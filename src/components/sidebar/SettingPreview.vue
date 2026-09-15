@@ -1,7 +1,7 @@
 <template>
     <div class="flex flex-col">
         <div
-            v-if="this.$global.isClickDropdown.userSetting"
+            v-if="$global.isClickDropdown.userSetting"
             class="mb-3 overflow-hidden rounded-lg border border-neutral-200 bg-white shadow-lg"
             @click="closeDropdownSetting"
         >
@@ -141,7 +141,7 @@
 
             <span
                 class="text-neutral-400 transition-transform duration-200 group-hover:text-violet-600"
-                :class="{ 'rotate-180': this.$global.isClickDropdown.userSetting }"
+                :class="{ 'rotate-180': $global.isClickDropdown.userSetting }"
             >
                 <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" viewBox="0 0 16 16">
                     <path

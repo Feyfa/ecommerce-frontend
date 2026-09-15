@@ -156,6 +156,22 @@ export default {
         },
     },
 
+    watch: {
+        modelValue: {
+            deep: true,
+            /**
+             * Menyinkronkan state komponen ketika nilai model location picker berubah.
+             *
+             * @param {*} value Nilai yang diproses oleh function.
+             *
+             * @returns {void} Function menerapkan efeknya melalui state komponen atau aplikasi.
+             */
+            handler(value) {
+                this.applyModelValue(value);
+            },
+        },
+    },
+
     /**
      * Menginisialisasi behavior komponen yang bergantung pada browser setelah mounted untuk location picker.
      *
@@ -587,22 +603,6 @@ export default {
         markUnavailable(message) {
             this.serviceError = message;
             this.$emit('unavailable', message);
-        },
-    },
-
-    watch: {
-        modelValue: {
-            deep: true,
-            /**
-             * Menyinkronkan state komponen ketika nilai model location picker berubah.
-             *
-             * @param {*} value Nilai yang diproses oleh function.
-             *
-             * @returns {void} Function menerapkan efeknya melalui state komponen atau aplikasi.
-             */
-            handler(value) {
-                this.applyModelValue(value);
-            },
         },
     },
 };

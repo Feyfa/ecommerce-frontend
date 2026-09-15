@@ -542,7 +542,7 @@ export default {
                 else throw new Error('Copy failed');
 
                 ElNotification({ type: 'success', title: 'Success', message: message });
-            } catch (error) {
+            } catch {
                 ElNotification({ type: 'error', title: 'Error', message: 'Data Gagal Disalin' });
             }
         },

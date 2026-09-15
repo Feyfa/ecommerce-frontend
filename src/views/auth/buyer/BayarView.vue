@@ -28,11 +28,11 @@
                     </label>
                     <el-select
                         id="paymentName"
+                        v-model="paymentName"
                         filterable
                         placeholder="Nama Bank"
                         size="large"
                         class="simulate-input !w-full"
-                        v-model="paymentName"
                         @change="paymentNameChange"
                         @blur="paymentNameBlur"
                     >
@@ -43,9 +43,9 @@
                     </small>
                 </div>
                 <div
+                    v-show="true"
                     class="simulate-field input-container flex w-full flex-col"
                     :class="{ 'is-error': errors.paymentVirtualAccount }"
-                    v-show="true"
                 >
                     <label for="paymentAccount" class="mb-1.5 font-medium text-slate-700">
                         Nomor Virtual Account
@@ -53,11 +53,11 @@
                     </label>
                     <el-input
                         id="paymentAccount"
+                        v-model="paymentVirtualAccount"
                         placeholder="Nomor Virtual Account"
                         class="simulate-input custom-input !w-full"
                         size="large"
                         clearable
-                        v-model="paymentVirtualAccount"
                         @change="paymentVirtualAccountChange"
                         @blur="paymentVirtualAccountBlur"
                     >
@@ -77,8 +77,8 @@
                     <button
                         type="button"
                         class="inline-flex h-11 w-full items-center justify-center gap-2 rounded-md border border-violet-500 bg-violet-500 px-6 text-sm font-semibold text-white shadow-sm transition hover:bg-violet-600 disabled:cursor-not-allowed disabled:opacity-60 sm:w-auto"
-                        @click="simulateChargeVirtualAccount"
                         :disabled="isChargeVirtualAccount"
+                        @click="simulateChargeVirtualAccount"
                     >
                         Bayar
                         <i v-if="isChargeVirtualAccount" class="fa-solid fa-spinner fa-spin-pulse"></i>
@@ -248,8 +248,7 @@ export default {
                     payment_slug: this.paymentSlug,
                     payment_account: this.paymentVirtualAccount,
                 })
-                .then((response) => {
-                    // console.log(response);
+                .then(() => {
                     this.isChargeVirtualAccount = false;
                     this.clearFormSimulateVirtualAccount();
                     ElNotification({

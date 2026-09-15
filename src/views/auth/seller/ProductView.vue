@@ -47,11 +47,11 @@
                 <div class="flex min-w-0 flex-col gap-1.5">
                     <label for="search-product" class="text-xs font-semibold text-slate-600">Cari Produk</label>
                     <input
-                        placeholder="Search produk"
                         id="search-product"
+                        v-model="searchProduct"
+                        placeholder="Search produk"
                         type="text"
                         class="h-11 w-full rounded-md border border-slate-300 px-3 text-base text-slate-900 outline-none shadow-sm placeholder:text-slate-400 focus:border-violet-500 focus:ring-2 focus:ring-violet-100"
-                        v-model="searchProduct"
                         @input="onSearchProductInput"
                         @keyup.enter="enterSearchProduct"
                     />
@@ -63,8 +63,8 @@
                     <label for="seller-stock-filter" class="text-xs font-semibold text-slate-600">Kondisi Stok</label>
                     <el-select
                         id="seller-stock-filter"
-                        aria-label="Filter stok produk"
                         v-model="stockFilter"
+                        aria-label="Filter stok produk"
                         class="product-stock-filter !w-full"
                         popper-class="product-filter-popper"
                         @change="applyProductFilters"
@@ -87,8 +87,8 @@
                     <label for="seller-product-sort" class="text-xs font-semibold text-slate-600">Urutkan Produk</label>
                     <el-select
                         id="seller-product-sort"
-                        aria-label="Urutkan produk"
                         v-model="sortProduct"
+                        aria-label="Urutkan produk"
                         class="product-sort-filter !w-full"
                         popper-class="product-filter-popper"
                         @change="applyProductFilters"
@@ -198,8 +198,8 @@
 
                         <!-- WHEN STOCK 0 -->
                         <div
-                            class="absolute inset-0 bg-slate-950/35 z-[1] flex justify-center items-start"
                             v-if="product.stock < 1"
+                            class="absolute inset-0 bg-slate-950/35 z-[1] flex justify-center items-start"
                         >
                             <img class="w-40 mt-10" :src="SoldOutImage" alt="SoldOutImage" />
                         </div>
@@ -276,14 +276,14 @@
     <!-- Product View -->
 
     <!-- Product Add View -->
-    <AddProduct :show="this.$global.modals.addProduct" @onAfterAddProduct="onAfterAddProduct" />
+    <AddProduct :show="$global.modals.addProduct" @on-after-add-product="onAfterAddProduct" />
     <!-- Product Add View -->
 
     <!-- Product Add View -->
     <EditProduct
-        :show="this.$global.modals.editProduct"
+        :show="$global.modals.editProduct"
         :product-id="editProductId"
-        @onAfterEditProduct="onAfterEditProduct"
+        @on-after-edit-product="onAfterEditProduct"
     />
     <!-- Product Add View -->
 
@@ -777,9 +777,7 @@ export default {
                     //   'length_products': this.products.length
                     // });
                 })
-                .catch((error) => {
-                    // console.error(error);
-
+                .catch(() => {
                     if (requestVersion !== this.productRequestVersion) {
                         return;
                     }

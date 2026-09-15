@@ -1,12 +1,12 @@
 <template>
     <div
+        v-show="$global.showUserProfileView.allComponent"
         class="w-full flex flex-col justify-center mb-8"
         :class="embedded ? 'px-0' : 'px-5 lg:px-10'"
-        v-show="this.$global.showUserProfileView.allComponent"
     >
         <!-- image setting -->
         <div class="row w-full flex justify-center">
-            <ImagePreview :src="this.$global.personImage" alt="User" />
+            <ImagePreview :src="$global.personImage" alt="User" />
         </div>
         <!-- image setting -->
 
@@ -25,7 +25,7 @@
 
     <!-- loading view -->
     <div
-        v-show="!this.$global.showUserProfileView.allComponent"
+        v-show="!$global.showUserProfileView.allComponent"
         class="w-full text-xl h-full flex justify-center items-center"
     >
         <span>
@@ -58,17 +58,6 @@ export default {
         },
     },
 
-    /**
-     * Menginisialisasi behavior komponen yang bergantung pada browser setelah mounted untuk halaman user profile.
-     *
-     * @returns {void} Function menerapkan efeknya melalui state komponen atau aplikasi.
-     */
-    mounted() {
-        /* RESET TAMPILAN KOMPONEN PROFILE VIEW */
-        this.$global.showUserProfileView.allComponent = false;
-        /* RESET TAMPILAN KOMPONEN PROFILE VIEW */
-    },
-
     watch: {
         '$global.showUserProfileView': {
             /**
@@ -87,6 +76,17 @@ export default {
             },
             deep: true,
         },
+    },
+
+    /**
+     * Menginisialisasi behavior komponen yang bergantung pada browser setelah mounted untuk halaman user profile.
+     *
+     * @returns {void} Function menerapkan efeknya melalui state komponen atau aplikasi.
+     */
+    mounted() {
+        /* RESET TAMPILAN KOMPONEN PROFILE VIEW */
+        this.$global.showUserProfileView.allComponent = false;
+        /* RESET TAMPILAN KOMPONEN PROFILE VIEW */
     },
 };
 </script>
