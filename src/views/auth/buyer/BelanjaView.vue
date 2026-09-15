@@ -16,11 +16,11 @@
                 <div class="flex min-w-0 flex-col gap-1.5 sm:flex-1 sm:max-w-[18rem]">
                     <label for="search-product" class="text-xs font-semibold text-slate-600">Cari</label>
                     <input
-                        placeholder="Search produk"
                         id="search-product"
+                        v-model="searchProduct"
+                        placeholder="Search produk"
                         type="text"
                         class="h-11 w-full rounded-md border border-slate-300 px-3 text-base text-slate-900 outline-none shadow-sm placeholder:text-slate-400 focus:border-violet-500 focus:ring-2 focus:ring-violet-100"
-                        v-model="searchProduct"
                         @keyup.enter="enterSearchProduct"
                     />
                 </div>
@@ -34,8 +34,8 @@
                         >
                             <el-select
                                 id="buyer-product-sort"
-                                aria-label="Urutkan produk belanja"
                                 v-model="sortProduct"
+                                aria-label="Urutkan produk belanja"
                                 class="product-sort-filter min-w-0 flex-1 !w-auto"
                                 popper-class="product-filter-popper"
                                 @change="reloadBelanjaProducts"

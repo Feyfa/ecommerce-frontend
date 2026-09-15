@@ -32,9 +32,9 @@
                     <div class="flex justify-center items-center">
                         <button
                             class="saldo-primary-button w-full px-5 h-10"
-                            @click="openModalRekening"
                             :disabled="isProcessGetPayment || saldoTotal <= 0"
                             :class="{ 'opacity-50': isProcessGetPayment || saldoTotal <= 0 }"
+                            @click="openModalRekening"
                         >
                             Tarik Saldo
                             <i v-if="isProcessGetPayment" class="ml-1 fas fa-spinner fa-pulse"></i>
@@ -109,10 +109,11 @@
 
                         <!-- list rekening -->
                         <div class="max-h-[510px] sm:max-h-[612px] overflow-auto">
-                            <div v-if="this.payments.length > 0" class="flex flex-col gap-5">
+                            <div v-if="payments.length > 0" class="flex flex-col gap-5">
                                 <!-- kontent -->
                                 <div
-                                    v-for="(item, index) in payments"
+                                    v-for="item in payments"
+                                    :key="item.account"
                                     class="withdraw-payment-item cursor-pointer w-full rounded py-3 px-3 flex flex-row justify-between items-center text-[0.8rem]"
                                     :class="{
                                         'is-selected': item.account == paymentAccount,
@@ -137,12 +138,12 @@
                                     <div class="w-[20%] xl:w-[15%]">
                                         <div class="flex justify-end">
                                             <input
+                                                :id="item.account"
+                                                v-model="paymentAccount"
                                                 class="accent-violet-500 scale-125 cursor-pointer mr-2"
                                                 type="radio"
                                                 name="paymentName"
-                                                :id="item.account"
                                                 :value="item.account"
-                                                v-model="paymentAccount"
                                             />
                                         </div>
                                     </div>
@@ -236,8 +237,8 @@
 
                 <!-- list riwayat saldo  -->
                 <div
-                    class="w-full max-h-[705px] overflow-auto"
                     ref="saldoHistoryContainer"
+                    class="w-full max-h-[705px] overflow-auto"
                     @scroll="saldoHistoryScroll"
                 >
                     <div v-if="isFetchSaldoHistory" class="text-center py-10">
@@ -248,8 +249,9 @@
                             <p class="text-sm font-medium">History Anda Kosong</p>
                         </div>
                         <div
-                            v-else
                             v-for="(item, index) in saldoHistory"
+                            v-else
+                            :key="item.id"
                             class="saldo-history-item py-3 px-4 text-[0.8rem] flex flex-col justify-center items-start gap-2"
                             :class="{ 'border-b border-b-slate-200': index != saldoHistory.length - 1 }"
                         >
@@ -264,7 +266,7 @@
                             <p class="text-neutral-500">{{ item.description }}</p>
                         </div>
                         <div
-                            v-show="this.saldoHistoryContainerLoading"
+                            v-show="saldoHistoryContainerLoading"
                             class="w-full h-[4rem] flex justify-center items-center"
                         >
                             <span>
@@ -356,17 +358,6 @@ export default {
         };
     },
 
-    /**
-     * Menginisialisasi behavior komponen yang bergantung pada browser setelah mounted untuk halaman saldo.
-     *
-     * @returns {void} Function menerapkan efeknya melalui state komponen atau aplikasi.
-     */
-    mounted() {
-        this.isFetchSaldoHistory = true;
-        this.getSaldo();
-        this.getSaldoHistory();
-    },
-
     computed: {
         mobileSaldoStartDate: {
             /**
@@ -436,6 +427,17 @@ export default {
                 this.closeModalRekening();
             }
         },
+    },
+
+    /**
+     * Menginisialisasi behavior komponen yang bergantung pada browser setelah mounted untuk halaman saldo.
+     *
+     * @returns {void} Function menerapkan efeknya melalui state komponen atau aplikasi.
+     */
+    mounted() {
+        this.isFetchSaldoHistory = true;
+        this.getSaldo();
+        this.getSaldoHistory();
     },
 
     methods: {

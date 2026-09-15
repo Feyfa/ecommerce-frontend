@@ -51,11 +51,11 @@
                     >
                         <label class="flex cursor-pointer items-center gap-3 text-sm font-semibold text-slate-900">
                             <input
-                                @change="checkedKeranjangAll"
                                 :checked="isCheckedKeranjangAll()"
                                 :disabled="availableKeranjangCount === 0 || isProcessCheckout || isProcessChecked"
                                 type="checkbox"
                                 class="h-5 w-5 rounded border-slate-300 accent-violet-500"
+                                @change="checkedKeranjangAll"
                             />
                             <span>Pilih Semua</span>
                         </label>
@@ -83,19 +83,19 @@
                     </div>
 
                     <div
-                        class="overflow-hidden rounded-md border border-slate-200 bg-white shadow-sm"
-                        v-for="(keranjang, index1) in keranjangGroups"
+                        v-for="keranjang in keranjangGroups"
                         :key="keranjang[0].k_user_id_seller"
+                        class="overflow-hidden rounded-md border border-slate-200 bg-white shadow-sm"
                     >
                         <div class="flex items-center gap-3 border-b border-slate-100 px-4 py-3">
                             <input
-                                @change="checkedKeranjangGroup($event, keranjang[0].k_user_id_seller)"
                                 :checked="isCheckedKeranjangGroup(keranjang)"
                                 :disabled="
                                     !hasAvailableKeranjangGroup(keranjang) || isProcessCheckout || isProcessChecked
                                 "
                                 type="checkbox"
                                 class="h-5 w-5 rounded border-slate-300 accent-violet-500"
+                                @change="checkedKeranjangGroup($event, keranjang[0].k_user_id_seller)"
                             />
                             <div class="flex min-w-0 flex-col">
                                 <span class="truncate text-sm font-semibold text-slate-950">{{
@@ -106,10 +106,10 @@
                         </div>
 
                         <div
-                            :id="`cart-item-${item.k_id}`"
-                            class="row relative flex gap-3 border-b border-slate-100 px-4 py-4 last:border-b-0"
                             v-for="item in keranjang"
+                            :id="`cart-item-${item.k_id}`"
                             :key="item.p_id"
+                            class="row relative flex gap-3 border-b border-slate-100 px-4 py-4 last:border-b-0"
                             :class="{
                                 'bg-slate-50/70': !item.is_purchasable,
                                 'border-l-4 border-l-amber-400 bg-amber-50/60': hasQuantityStockIssue(item),
@@ -118,11 +118,11 @@
                         >
                             <input
                                 v-if="item.is_purchasable"
-                                @change="checkedKeranjang($event, item.p_id)"
                                 :checked="item.k_checked != 0 ? true : false"
                                 :disabled="!isItemSelectable(item) || isProcessCheckout || isProcessChecked"
                                 type="checkbox"
                                 class="mt-9 h-5 w-5 shrink-0 rounded border-slate-300 accent-violet-500"
+                                @change="checkedKeranjang($event, item.p_id)"
                             />
 
                             <div v-else class="mt-9 h-5 w-5 shrink-0"></div>
@@ -137,8 +137,8 @@
                                 />
 
                                 <div
-                                    class="absolute inset-0 flex items-center justify-center bg-slate-950/30"
                                     v-if="item.unavailable_reason === 'OUT_OF_STOCK'"
+                                    class="absolute inset-0 flex items-center justify-center bg-slate-950/30"
                                 >
                                     <img class="w-20" :src="SoldOutImage" alt="SoldOutImage" />
                                 </div>
@@ -201,8 +201,8 @@
                                     </button>
 
                                     <div
-                                        class="flex items-center rounded-md border border-slate-300 bg-white shadow-sm"
                                         v-if="item.is_purchasable"
+                                        class="flex items-center rounded-md border border-slate-300 bg-white shadow-sm"
                                     >
                                         <button
                                             type="button"
@@ -227,10 +227,10 @@
                                             pattern="[0-9]*"
                                             aria-label="Jumlah produk"
                                             :disabled="isProcessCheckout || isQuantityProcessing(item.p_id)"
+                                            min="1"
                                             @focus="rememberTotalKeranjang(item)"
                                             @input="validationTotalKeranjang($event, item)"
                                             @blur="changeTotalKeranjang(item.p_id, item)"
-                                            min="1"
                                         />
 
                                         <button
@@ -298,7 +298,6 @@
                     </div>
                     <div class="w-40 shrink-0 lg:w-auto lg:pt-3">
                         <button
-                            @click="checkout"
                             class="inline-flex h-11 w-full items-center justify-center rounded-md border border-violet-500 bg-violet-500 px-4 text-sm font-semibold text-white shadow-sm transition hover:bg-violet-600 active:scale-95"
                             :class="{
                                 'button-disabled cursor-not-allowed opacity-60':
@@ -313,6 +312,7 @@
                                 isProcessChecked ||
                                 hasQuantityProcessing
                             "
+                            @click="checkout"
                         >
                             Checkout
                             <i v-if="isProcessCheckout" class="ml-2 fas fa-spinner fa-pulse"></i>
@@ -397,18 +397,6 @@ export default {
         };
     },
 
-    /**
-     * Menginisialisasi behavior komponen yang bergantung pada browser setelah mounted untuk halaman keranjang.
-     *
-     * @returns {void} Function menerapkan efeknya melalui state komponen atau aplikasi.
-     */
-    mounted() {
-        this.show.keranjang_view = false;
-        this.show.loading = true;
-
-        this.getKeranjang();
-    },
-
     computed: {
         /**
          * Mengembalikan keranjang groups yang dihitung dari state reaktif saat ini untuk halaman keranjang.
@@ -466,6 +454,18 @@ export default {
         hasQuantityProcessing() {
             return Object.values(this.quantityProcessing).some(Boolean);
         },
+    },
+
+    /**
+     * Menginisialisasi behavior komponen yang bergantung pada browser setelah mounted untuk halaman keranjang.
+     *
+     * @returns {void} Function menerapkan efeknya melalui state komponen atau aplikasi.
+     */
+    mounted() {
+        this.show.keranjang_view = false;
+        this.show.loading = true;
+
+        this.getKeranjang();
     },
 
     methods: {
@@ -718,9 +718,7 @@ export default {
                         product_ids: productIds,
                         user_id_buyer: this.$store.getters.user.id,
                     })
-                    .then((response) => {
-                        // console.log(response);
-
+                    .then(() => {
                         this.$router.push({ name: 'buyer_checkout' });
                     })
                     .catch((error) => {
@@ -1080,8 +1078,7 @@ export default {
                     this.updateButtonCheckoutState();
                     this.isProcessChecked = false;
                 })
-                .catch((error) => {
-                    // console.error(error);
+                .catch(() => {
                     this.isProcessChecked = false;
                 });
         },
@@ -1109,9 +1106,7 @@ export default {
                     this.updateButtonCheckoutState();
                     this.isProcessChecked = false;
                 })
-                .catch((error) => {
-                    // console.error(error);
-
+                .catch(() => {
                     this.show.keranjang_view = true;
                     this.show.loading = false;
                     this.isProcessChecked = false;
@@ -1144,8 +1139,7 @@ export default {
                     this.updateButtonCheckoutState();
                     this.isProcessChecked = false;
                 })
-                .catch((error) => {
-                    // console.error(error);
+                .catch(() => {
                     this.isProcessChecked = false;
                 });
         },
@@ -1177,8 +1171,7 @@ export default {
                     this.updateButtonCheckoutState();
                     this.isProcessChecked = false;
                 })
-                .catch((error) => {
-                    // console.error(error);
+                .catch(() => {
                     this.isProcessChecked = false;
                 });
         },
@@ -1209,8 +1202,7 @@ export default {
                     this.updateButtonCheckoutState();
                     this.isProcessChecked = false;
                 })
-                .catch((error) => {
-                    // console.error(error);
+                .catch(() => {
                     this.isProcessChecked = false;
                 });
         },

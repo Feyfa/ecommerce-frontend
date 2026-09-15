@@ -12,13 +12,13 @@
                 <div class="input-container flex flex-col w-full">
                     <label for="name"> Name </label>
                     <input
-                        placeholder="name"
                         id="name"
+                        v-model="name"
+                        placeholder="name"
                         type="text"
                         class="border w-full border-neutral-500 rounded outline-none h-12 px-2.5 shadow bg-neutral-100 text-neutral-600 cursor-not-allowed"
                         readonly
                         aria-readonly="true"
-                        v-model="name"
                         tabindex="-1"
                     />
                     <small class="text-neutral-500 mt-1"> Nama mengikuti akun autentikasi Anda. </small>
@@ -27,13 +27,13 @@
                 <div class="input-container flex flex-col w-full">
                     <label for="email"> Email </label>
                     <input
-                        placeholder="email"
                         id="email"
+                        v-model="email"
+                        placeholder="email"
                         type="email"
                         class="border w-full border-neutral-500 rounded outline-none h-12 px-2.5 shadow bg-neutral-100 text-neutral-600 cursor-not-allowed"
                         readonly
                         aria-readonly="true"
-                        v-model="email"
                         tabindex="-1"
                     />
                     <small class="text-neutral-500 mt-1"> Email mengikuti akun autentikasi Anda. </small>
@@ -45,15 +45,15 @@
                         <span class="required-mark" aria-hidden="true">*</span>
                     </label>
                     <input
+                        id="phone"
+                        v-model="phone"
                         placeholder="phone"
                         type="text"
-                        id="phone"
                         class="border w-full border-neutral-500 rounded outline-none h-12 px-2.5 shadow"
                         required
                         aria-required="true"
-                        v-model="phone"
-                        @keypress="validatePhone"
                         :class="{ 'is-error-field border border-red-500': errors.phone }"
+                        @keypress="validatePhone"
                         @input="watchInputPhone"
                     />
                     <small v-if="errors.phone" class="text-red-500">
@@ -81,8 +81,8 @@
                     <label for="jenis-kelamin"> Jenis Kelamin </label>
                     <el-select
                         id="jenis-kelamin"
-                        class="account-form-control"
                         v-model="jenis_kelamin"
+                        class="account-form-control"
                         placeholder="Pilih jenis kelamin"
                         size="large"
                     >

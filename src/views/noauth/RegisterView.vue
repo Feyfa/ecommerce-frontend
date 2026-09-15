@@ -76,10 +76,10 @@
                             <label for="verification_code">Kode Verifikasi</label>
                             <div class="auth-input-wrap">
                                 <input
+                                    id="verification_code"
                                     v-model="verificationCode"
                                     type="text"
                                     autocomplete="one-time-code"
-                                    id="verification_code"
                                     placeholder="Masukkan kode verifikasi"
                                     class="auth-input"
                                     :class="{ 'is-error-field': errors.verificationCode }"
@@ -109,10 +109,10 @@
                             <label for="name">Name</label>
                             <div class="auth-input-wrap">
                                 <input
+                                    id="name"
                                     v-model="name"
                                     type="text"
                                     autocomplete="name"
-                                    id="name"
                                     placeholder="Masukkan nama"
                                     class="auth-input"
                                     :class="{ 'is-error-field': errors.name }"
@@ -129,10 +129,10 @@
                             <label for="email">Email</label>
                             <div class="auth-input-wrap">
                                 <input
+                                    id="email"
                                     v-model="email"
                                     type="email"
                                     autocomplete="email"
-                                    id="email"
                                     placeholder="Masukkan email"
                                     class="auth-input"
                                     :class="{ 'is-error-field': errors.email }"
@@ -149,10 +149,10 @@
                             <label for="password">Password</label>
                             <div class="auth-input-wrap">
                                 <input
+                                    id="password"
                                     v-model="password"
                                     :type="isShowPassword ? 'text' : 'password'"
                                     autocomplete="new-password"
-                                    id="password"
                                     placeholder="Masukkan password"
                                     class="auth-input"
                                     :class="{ 'is-error-field': errors.password }"

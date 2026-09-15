@@ -4,7 +4,7 @@
         <NavbarComponent v-if="showNavbarSidebar()" />
 
         <div
-            v-if="this.$global.globalTemplate.loading"
+            v-if="$global.globalTemplate.loading"
             class="w-screen h-screen overflow-hidden flex justify-center items-center bg-slate-50 relative lg:static"
         >
             <span>
@@ -14,18 +14,18 @@
         <div v-else class="w-screen h-screen overflow-hidden flex relative lg:static">
             <SidebarComponent v-if="showNavbarSidebar()" />
             <div
+                ref="globalContainer"
                 class="h-screen bg-slate-50"
                 :class="{
                     'w-full overflow-y-auto pt-14': showNavbarSidebar(),
                     'w-full': !showNavbarSidebar(),
                 }"
-                ref="globalContainer"
                 @scroll="scrollGlobal"
             >
                 <RouterView />
 
                 <!-- untuk loadign di product dan belanja -->
-                <div v-show="this.$global.globalContainer.loading" class="w-full pt-4 h-[5rem] flex justify-center">
+                <div v-show="$global.globalContainer.loading" class="w-full pt-4 h-[5rem] flex justify-center">
                     <span>
                         <i class="fas fa-spinner fa-pulse text-2xl"></i>
                     </span>

@@ -164,12 +164,9 @@ export default createStore({
         /**
          * Mengambil saldo di modul store, termasuk penanganan request backend dan response lokal.
          *
-         * @param {*} context Context action Vuex untuk operasi store saat ini.
-         * @param {*} data Payload yang digunakan oleh operasi saat ini.
-         *
          * @returns {*} Nilai yang dihasilkan oleh operasi get saldo.
          */
-        getSaldo(context, data) {
+        getSaldo() {
             return new Promise((resolve, reject) => {
                 axios
                     .get('/saldo')
@@ -265,12 +262,9 @@ export default createStore({
         /**
          * Mengambil seller dashboard di modul store, termasuk penanganan request backend dan response lokal.
          *
-         * @param {*} context Context action Vuex untuk operasi store saat ini.
-         * @param {*} data Payload yang digunakan oleh operasi saat ini.
-         *
          * @returns {*} Nilai yang dihasilkan oleh operasi get seller dashboard.
          */
-        getSellerDashboard(context, data) {
+        getSellerDashboard() {
             return new Promise((resolve, reject) => {
                 axios
                     .get('/dashboard')
@@ -362,12 +356,9 @@ export default createStore({
         /**
          * Mengambil payment list di modul store, termasuk penanganan request backend dan response lokal.
          *
-         * @param {*} context Context action Vuex untuk operasi store saat ini.
-         * @param {*} data Payload yang digunakan oleh operasi saat ini.
-         *
          * @returns {*} Nilai yang dihasilkan oleh operasi get payment list.
          */
-        getPaymentList(context, data) {
+        getPaymentList() {
             return new Promise((resolve, reject) => {
                 axios
                     .get('/payment/list')
@@ -575,12 +566,9 @@ export default createStore({
         /**
          * Mengambil data checkout di modul store, termasuk penanganan request backend dan response lokal.
          *
-         * @param {*} context Context action Vuex untuk operasi store saat ini.
-         * @param {*} data Payload yang digunakan oleh operasi saat ini.
-         *
          * @returns {*} Nilai yang dihasilkan oleh operasi get data checkout.
          */
-        getDataCheckout(context, data) {
+        getDataCheckout() {
             return new Promise((resolve, reject) => {
                 axios
                     .get(`/checkout/data`)
@@ -1030,12 +1018,9 @@ export default createStore({
         /**
          * Mengambil company di modul store, termasuk penanganan request backend dan response lokal.
          *
-         * @param {*} context Context action Vuex untuk operasi store saat ini.
-         * @param {*} data Payload yang digunakan oleh operasi saat ini.
-         *
          * @returns {*} Nilai yang dihasilkan oleh operasi get company.
          */
-        getCompany(context, data) {
+        getCompany() {
             return new Promise((resolve, reject) => {
                 axios
                     .get('/company')
@@ -1051,12 +1036,9 @@ export default createStore({
         /**
          * Mengambil user di modul store, termasuk penanganan request backend dan response lokal.
          *
-         * @param {*} context Context action Vuex untuk operasi store saat ini.
-         * @param {*} data Payload yang digunakan oleh operasi saat ini.
-         *
          * @returns {*} Nilai yang dihasilkan oleh operasi get user.
          */
-        getUser(context, data) {
+        getUser() {
             return new Promise((resolve, reject) => {
                 axios
                     .get('/user')
@@ -1156,12 +1138,9 @@ export default createStore({
         /**
          * Menghapus gambar company di modul store, termasuk penanganan request backend dan response lokal.
          *
-         * @param {*} context Context action Vuex untuk operasi store saat ini.
-         * @param {*} data Payload yang digunakan oleh operasi saat ini.
-         *
          * @returns {*} Nilai yang dihasilkan oleh operasi delete gambar company.
          */
-        deleteImageCompany(context, data) {
+        deleteImageCompany() {
             return new Promise((resolve, reject) => {
                 axios
                     .delete('/company/image')

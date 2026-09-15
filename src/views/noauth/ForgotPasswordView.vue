@@ -28,11 +28,11 @@
                             <label for="forgot_email">Email</label>
                             <div class="auth-input-wrap">
                                 <input
+                                    id="forgot_email"
                                     v-model="email"
                                     required
                                     type="email"
                                     autocomplete="email"
-                                    id="forgot_email"
                                     placeholder="Masukkan email"
                                     class="auth-input"
                                     :class="{ 'is-error-field': errors.email }"
@@ -56,12 +56,12 @@
                             <label for="forgot_code">Kode Reset Password</label>
                             <div class="auth-input-wrap">
                                 <input
+                                    id="forgot_code"
                                     v-model="code"
                                     required
                                     type="text"
                                     inputmode="numeric"
                                     autocomplete="one-time-code"
-                                    id="forgot_code"
                                     placeholder="Masukkan kode reset"
                                     class="auth-input"
                                     :class="{ 'is-error-field': errors.code }"
@@ -105,11 +105,11 @@
                             <label for="new_password">Password Baru</label>
                             <div class="auth-input-wrap">
                                 <input
+                                    id="new_password"
                                     v-model="password"
                                     required
                                     :type="isShowPassword ? 'text' : 'password'"
                                     autocomplete="new-password"
-                                    id="new_password"
                                     placeholder="Masukkan password baru"
                                     class="auth-input"
                                     :class="{ 'is-error-field': errors.password }"
@@ -133,11 +133,11 @@
                             <label for="confirm_new_password">Konfirmasi Password Baru</label>
                             <div class="auth-input-wrap">
                                 <input
+                                    id="confirm_new_password"
                                     v-model="confirmPassword"
                                     required
                                     :type="isShowConfirmPassword ? 'text' : 'password'"
                                     autocomplete="new-password"
-                                    id="confirm_new_password"
                                     placeholder="Ulangi password baru"
                                     class="auth-input"
                                     :class="{ 'is-error-field': errors.confirmPassword }"

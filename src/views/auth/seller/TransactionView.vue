@@ -358,7 +358,7 @@ export default {
                 else throw new Error('Copy failed');
 
                 ElNotification({ type: 'success', title: 'Success', message: message });
-            } catch (error) {
+            } catch {
                 ElNotification({ type: 'error', title: 'Error', message: 'Data Gagal Disalin' });
             }
         },
@@ -411,8 +411,7 @@ export default {
                                 transaction_user_id: transaction_user_id,
                                 user_type: 'seller',
                             })
-                            .then((response) => {
-                                // console.log(response);
+                            .then(() => {
                                 this.isSellerApprovedTransaction[transaction_user_id] = false;
                                 this.selectedTransaction = null;
                                 this.getTransactions();
@@ -425,9 +424,10 @@ export default {
                             .catch((error) => {
                                 console.error(error);
                                 this.isSellerApprovedTransaction[transaction_user_id] = false;
-                                const message = typeof error.response.data.message
-                                    ? error.response.data.message
-                                    : 'Ups Sepertinya Ada Yang Salah';
+                                const message =
+                                    typeof error.response?.data?.message === 'string'
+                                        ? error.response.data.message
+                                        : 'Ups Sepertinya Ada Yang Salah';
                                 ElNotification({ type: 'error', title: 'Error', message: message });
                             });
                     }

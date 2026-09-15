@@ -12,6 +12,8 @@ See [Vite Configuration Reference](https://vitejs.dev/config/).
 
 ## Project Setup
 
+Use Node.js 22.13 or newer within the Node.js 22 release line.
+
 ```sh
 npm install
 ```
@@ -39,8 +41,27 @@ npm run format:check
 
 Run `format:check` before handing off a change. CI runs for Jira task branch
 pushes and for pull requests targeting `main` or `staging`. It installs
-dependencies with `npm ci`, then runs `format:check`, `test:unit`, and the
-production build in that order.
+dependencies with `npm ci`, then runs `format:check`, `lint`, `test:unit`, and
+the production build in that order.
+
+### Lint Frontend Source
+
+ESLint checks all Vue and JavaScript source, unit tests, and repository-level
+JavaScript configuration. The check uses the recommended JavaScript and Vue
+rules and fails when either an error or warning remains:
+
+```sh
+npm run lint
+```
+
+Apply supported automatic fixes with:
+
+```sh
+npm run lint:fix
+```
+
+Review automatic changes before keeping them. Prettier remains responsible for
+formatting, so run `format:check` after applying lint fixes.
 
 ### Run Unit Tests
 

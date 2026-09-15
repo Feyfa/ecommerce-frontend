@@ -186,6 +186,7 @@ export const prepareBrowserForNewAuthentication = async (store) => {
         } catch (error) {
             throw new Error(
                 error?.response?.data?.message || 'Sesi akun sebelumnya belum berhasil dibersihkan. Silakan coba lagi.',
+                { cause: error },
             );
         }
     }

@@ -580,6 +580,7 @@ import {
     clearClerkAuthErrorFromRoute,
     consumeClerkAuthErrorFromRoute,
     consumeGoogleLinkCallback,
+    getClerkErrorMessage,
     getClerkGoogleLinkErrorMessage,
     rememberClerkAuthReturnUrl,
     rememberGoogleLinkCallback,
@@ -2019,11 +2020,9 @@ export default {
         /**
          * Memproses protection icon untuk halaman security.
          *
-         * @param {*} key Key yang diproses oleh function.
-         *
          * @returns {string} Teks protection icon yang telah diformat atau ditentukan.
          */
-        protectionIcon(key) {
+        protectionIcon() {
             return 'fa-solid fa-shield-halved';
         },
 

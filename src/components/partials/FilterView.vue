@@ -9,32 +9,32 @@
             </button>
             <i
                 class="fa-solid fa-caret-down absolute right-3 top-2 bottom-2"
-                :class="{ 'rotate-180': this.$global.isFilterOpen }"
+                :class="{ 'rotate-180': $global.isFilterOpen }"
             ></i>
         </div>
         <ul
             class="absolute w-full bg-white mt-1 rounded-md shadow-md h-0 overflow-auto z-30"
-            :class="{ 'h-max p-1 border border-neutral-400': this.$global.isFilterOpen }"
+            :class="{ 'h-max p-1 border border-neutral-400': $global.isFilterOpen }"
             @click.stop
         >
             <li class="flex justify-between items-center h-6 text-sm">
-                <input type="radio" name="filter" id="latest" value="latest" v-model="filter" />
+                <input id="latest" v-model="filter" type="radio" name="filter" value="latest" />
                 <label class="cursor-pointer w-full pl-1.5" for="latest">Latest</label>
             </li>
             <li class="flex justify-between items-center h-6 text-sm">
-                <input type="radio" name="filter" id="oldest" value="oldest" v-model="filter" />
+                <input id="oldest" v-model="filter" type="radio" name="filter" value="oldest" />
                 <label class="cursor-pointer w-full pl-1.5" for="oldest">Oldest</label>
             </li>
             <li class="flex justify-between items-center h-6 text-sm">
-                <input type="radio" name="filter" id="done" value="done" v-model="filter" />
+                <input id="done" v-model="filter" type="radio" name="filter" value="done" />
                 <label class="cursor-pointer w-full pl-1.5" for="done">Done</label>
             </li>
             <li class="flex justify-between items-center h-6 text-sm">
-                <input type="radio" name="filter" id="pending" value="pending" v-model="filter" />
+                <input id="pending" v-model="filter" type="radio" name="filter" value="pending" />
                 <label class="cursor-pointer w-full pl-1.5" for="pending">Pending</label>
             </li>
             <li class="flex justify-between items-center h-6 text-sm">
-                <input type="radio" name="filter" id="expired" value="expired" v-model="filter" />
+                <input id="expired" v-model="filter" type="radio" name="filter" value="expired" />
                 <label class="cursor-pointer w-full pl-1.5" for="expired">Expired</label>
             </li>
             <li class="flex justify-between items-center text-sm mt-1">
@@ -51,15 +51,7 @@
 
 <script>
 export default {
-    /**
-     * Menginisialisasi behavior komponen yang bergantung pada browser setelah mounted untuk halaman filter.
-     *
-     * @returns {void} Function menerapkan efeknya melalui state komponen atau aplikasi.
-     */
-    mounted() {
-        this.$global.isFilterOpen = false;
-    },
-
+    emits: ['onSave'],
     /**
      * Membuat state reaktif yang digunakan komponen untuk halaman filter.
      *
@@ -69,6 +61,14 @@ export default {
         return {
             filter: 'latest',
         };
+    },
+    /**
+     * Menginisialisasi behavior komponen yang bergantung pada browser setelah mounted untuk halaman filter.
+     *
+     * @returns {void} Function menerapkan efeknya melalui state komponen atau aplikasi.
+     */
+    mounted() {
+        this.$global.isFilterOpen = false;
     },
 
     methods: {
