@@ -606,32 +606,6 @@ export default createStore({
         },
 
         /**
-         * Mengambil invoice di modul store, termasuk penanganan request backend dan response lokal.
-         *
-         * @param {*} context Context action Vuex untuk operasi store saat ini.
-         * @param {*} data Payload yang digunakan oleh operasi saat ini.
-         *
-         * @returns {*} Nilai yang dihasilkan oleh operasi get invoice.
-         */
-        getInvoice(context, data) {
-            return new Promise((resolve, reject) => {
-                axios
-                    .get('/invoice', {
-                        params: {
-                            user_id_buyer: data.user_id_buyer,
-                            filter: data.filter,
-                        },
-                    })
-                    .then((response) => {
-                        resolve(response);
-                    })
-                    .catch((error) => {
-                        reject(error);
-                    });
-            });
-        },
-
-        /**
          * Menghapus transaksi di modul store, termasuk penanganan request backend dan response lokal.
          *
          * @param {*} context Context action Vuex untuk operasi store saat ini.
