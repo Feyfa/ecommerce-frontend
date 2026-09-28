@@ -76,6 +76,12 @@ The image preview supports:
 - delete image with Element Plus confirmation UI.
 
 The profile image behavior should stay close to the product image zoom interaction so users see a familiar preview pattern.
+The file picker and client-side check accept JPEG, PNG, and GIF, up to the existing
+size limit. The backend validates the uploaded content and rejects SVG even if a
+client bypasses the picker.
+
+[TOK-61 Image Upload Security QA](../../qa/tok-61-image-upload-security.md)
+records the local frontend verification.
 
 ## Store/API Usage
 

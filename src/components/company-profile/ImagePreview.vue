@@ -53,7 +53,7 @@
                         class="top-0 left-0 right-0 bottom-0 hidden"
                         type="file"
                         name="file"
-                        accept="image/*"
+                        accept="image/jpeg,image/png,image/gif"
                         @change="imageFileChange"
                     />
                     <span class="profile-image-menu-item" @click="$refs.imageFile.click()"> Unggah Foto </span>
@@ -191,7 +191,7 @@ export default {
         },
 
         /**
-         * Menjalankan proses perubahan file gambar dan menyinkronkan state hasilnya untuk gambar preview, dengan mendelegasikan pekerjaan backend atau shared state melalui Vuex store.
+         * Memeriksa JPEG, PNG, atau GIF sebelum mengirim perubahan foto toko melalui Vuex dan memperbarui state preview.
          *
          * @param {*} event Event browser atau komponen yang memicu handler.
          *
@@ -199,16 +199,16 @@ export default {
          */
         imageFileChange(event) {
             const file = event.target.files[0];
-            // cek apakah file tipe nya image
-            const extensionValid = file ? file.type.startsWith('image/') : false;
+            // Cocokkan format yang ditawarkan browser dengan format yang diterima API.
+            const typeValid = file ? ['image/jpeg', 'image/png', 'image/gif'].includes(file.type) : false;
             // cek apakah file kurang dari 1mb
             const sizeValid = file ? file.size <= 1000000 : false;
 
-            // jika file bukan image
-            if (!extensionValid) {
+            // Tolak format di luar kontrak API sebelum mengirim file.
+            if (!typeValid) {
                 this.resetImageFileInput();
 
-                ElNotification({ type: 'error', title: 'Error', message: 'File harus berupa gambar.' });
+                ElNotification({ type: 'error', title: 'Error', message: 'File harus berformat JPEG, PNG, atau GIF.' });
             }
             // jika file di atas 1mb
             else if (!sizeValid) {
