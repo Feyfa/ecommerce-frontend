@@ -67,6 +67,11 @@ Current supported actions:
 - `errors`: validation errors returned by the backend.
 
 `ProductImagesInput.vue` owns the shared file input, local preview URLs, zoom viewer state, removal, and drag-and-drop ordering.
+Its picker and client-side check accept JPEG, PNG, and GIF for new images; the
+backend independently validates file content and rejects SVG.
+
+[TOK-61 Image Upload Security QA](../../qa/tok-61-image-upload-security.md)
+records the local frontend verification.
 
 ## Flows
 

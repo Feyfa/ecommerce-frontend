@@ -10,7 +10,14 @@
             <span class="shrink-0 text-xs font-medium text-slate-500">{{ images.length }} dari 5</span>
         </div>
 
-        <input ref="imageFile" class="hidden" type="file" accept="image/*" multiple @change="addImages" />
+        <input
+            ref="imageFile"
+            class="hidden"
+            type="file"
+            accept="image/jpeg,image/png,image/gif"
+            multiple
+            @change="addImages"
+        />
 
         <draggable
             v-model="images"
@@ -66,7 +73,7 @@
             Tambahkan Foto
         </button>
 
-        <p class="mt-2 text-xs text-slate-500">Format gambar, maksimal 1 MB per foto.</p>
+        <p class="mt-2 text-xs text-slate-500">Format JPEG, PNG, atau GIF; maksimal 1 MB per foto.</p>
         <small v-if="error" class="mt-2 block text-sm text-red-500">{{ error }}</small>
 
         <el-image-viewer
@@ -153,7 +160,7 @@ export default {
 
     methods: {
         /**
-         * Membuat gambar untuk produk gambar input.
+         * Menambahkan preview foto produk hanya untuk JPEG, PNG, atau GIF yang memenuhi batas ukuran dan jumlah.
          *
          * @param {*} event Event browser atau komponen yang memicu handler.
          *
@@ -173,7 +180,9 @@ export default {
                 return;
             }
 
-            const invalidType = selectedFiles.find((file) => !file.type.startsWith('image/'));
+            const invalidType = selectedFiles.find(
+                (file) => !['image/jpeg', 'image/png', 'image/gif'].includes(file.type),
+            );
             const invalidSize = selectedFiles.find((file) => file.size > 1024 * 1024);
 
             if (invalidType || invalidSize) {
@@ -181,7 +190,7 @@ export default {
                     type: 'error',
                     title: 'Error',
                     message: invalidType
-                        ? 'Setiap file foto harus berupa gambar.'
+                        ? 'Setiap file foto harus berformat JPEG, PNG, atau GIF.'
                         : 'Setiap foto maksimal berukuran 1 MB.',
                 });
                 this.clearFileInput();
