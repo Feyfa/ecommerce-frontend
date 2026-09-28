@@ -85,6 +85,11 @@ The company image preview supports:
 - delete image with Element Plus confirmation UI.
 
 The zoom behavior should stay close to the product image preview pattern.
+The file picker and client-side check accept JPEG, PNG, and GIF. The backend
+validates the uploaded content and rejects SVG even if a client bypasses the picker.
+
+[TOK-61 Image Upload Security QA](../../qa/tok-61-image-upload-security.md)
+records the local frontend verification.
 
 Successful image upload and deletion are audited by the backend as
 `company.image_uploaded` and `company.image_deleted`. The frontend does not
