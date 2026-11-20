@@ -1121,13 +1121,13 @@ export default {
          * @returns {Promise<void>} Promise diselesaikan setelah alur asynchronous selesai.
          */
         async loadAuditLogs({ append = false } = {}) {
-            // --- step 1 - start - lewati request pagination yang tidak diperlukan atau masih berjalan
+            // --- step 1 - lewati request pagination yang tidak diperlukan atau masih berjalan - start ---
             const shouldSkipLoadMore = append && (!this.hasMore || this.isLoadingMore);
-            // --- step 1 - end - lewati request pagination yang tidak diperlukan atau masih berjalan
+            // --- step 1 - lewati request pagination yang tidak diperlukan atau masih berjalan - end ---
 
             if (shouldSkipLoadMore) return;
 
-            // --- step 2 - start - siapkan state untuk pemuatan awal atau request pagination berikutnya
+            // --- step 2 - siapkan state untuk pemuatan awal atau request pagination berikutnya - start ---
             if (!append) {
                 this.collectionRequestVersion += 1;
                 this.nextCursor = null;
@@ -1139,11 +1139,11 @@ export default {
                 this.isLoadingMore = true;
                 this.loadMoreError = '';
             }
-            // --- step 2 - end - siapkan state untuk pemuatan awal atau request pagination berikutnya
+            // --- step 2 - siapkan state untuk pemuatan awal atau request pagination berikutnya - end ---
 
             const requestVersion = this.collectionRequestVersion;
 
-            // --- step 3 - start - terapkan response hanya jika versi filternya masih aktif
+            // --- step 3 - terapkan response hanya jika versi filternya masih aktif - start ---
             try {
                 const response = await axios.get('/audit-logs', {
                     params: this.buildCollectionParams(append),
@@ -1168,7 +1168,7 @@ export default {
                     this.isLoadingMore = false;
                 }
             }
-            // --- step 3 - end - terapkan response hanya jika versi filternya masih aktif
+            // --- step 3 - terapkan response hanya jika versi filternya masih aktif - end ---
         },
 
         /**
@@ -1231,7 +1231,7 @@ export default {
          * @returns {string} Teks resolve jakarta date value yang telah diformat atau ditentukan.
          */
         resolveJakartaDateValue(offsetDays = 0) {
-            // --- step 1 - start - ambil komponen tanggal saat ini dalam timezone aplikasi
+            // --- step 1 - ambil komponen tanggal saat ini dalam timezone aplikasi - start ---
             const parts = new Intl.DateTimeFormat('en-CA', {
                 timeZone: 'Asia/Jakarta',
                 year: 'numeric',
@@ -1239,9 +1239,9 @@ export default {
                 day: '2-digit',
             }).formatToParts(new Date());
             const values = Object.fromEntries(parts.map((part) => [part.type, part.value]));
-            // --- step 1 - end - ambil komponen tanggal saat ini dalam timezone aplikasi
+            // --- step 1 - ambil komponen tanggal saat ini dalam timezone aplikasi - end ---
 
-            // --- step 2 - start - hitung offset sebagai hari kalender tanpa konversi timezone browser
+            // --- step 2 - hitung offset sebagai hari kalender tanpa konversi timezone browser - start ---
             const date = new Date(
                 Date.UTC(Number(values.year), Number(values.month) - 1, Number(values.day) + offsetDays),
             );
@@ -1249,7 +1249,7 @@ export default {
             const year = date.getUTCFullYear();
             const month = String(date.getUTCMonth() + 1).padStart(2, '0');
             const day = String(date.getUTCDate()).padStart(2, '0');
-            // --- step 2 - end - hitung offset sebagai hari kalender tanpa konversi timezone browser
+            // --- step 2 - hitung offset sebagai hari kalender tanpa konversi timezone browser - end ---
 
             return `${year}-${month}-${day}`;
         },
@@ -1276,9 +1276,9 @@ export default {
          * @returns {Promise<void>} Promise diselesaikan setelah alur asynchronous selesai.
          */
         async loadDetail() {
-            // --- step 1 - start - pastikan request detail masih memiliki id target yang valid
+            // --- step 1 - pastikan request detail masih memiliki id target yang valid - start ---
             const auditId = this.selectedAudit?.id || '';
-            // --- step 1 - end - pastikan request detail masih memiliki id target yang valid
+            // --- step 1 - pastikan request detail masih memiliki id target yang valid - end ---
 
             if (!auditId) return;
 
@@ -1288,7 +1288,7 @@ export default {
             this.isIpVisible = false;
             this.isPhoneVisible = false;
 
-            // --- step 2 - start - terapkan response hanya selama modal dan target audit tidak berubah
+            // --- step 2 - terapkan response hanya selama modal dan target audit tidak berubah - start ---
             try {
                 const response = await axios.get(`/audit-logs/${auditId}`);
 
@@ -1302,7 +1302,7 @@ export default {
             } finally {
                 if (this.isCurrentDetailRequest(requestVersion, auditId)) this.isLoadingDetail = false;
             }
-            // --- step 2 - end - terapkan response hanya selama modal dan target audit tidak berubah
+            // --- step 2 - terapkan response hanya selama modal dan target audit tidak berubah - end ---
         },
 
         /**

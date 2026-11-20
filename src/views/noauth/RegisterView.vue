@@ -510,7 +510,7 @@ export default {
          * @returns {Promise<void>} Promise diselesaikan setelah alur asynchronous selesai.
          */
         async signUpWithGoogle() {
-            // --- step 1 - start - pastikan resource autentikasi siap sebelum memulai register Google
+            // --- step 1 - pastikan resource autentikasi siap sebelum memulai register Google - start ---
             if (!this.clerkSignInLoaded || !this.clerkSignInResource) {
                 ElNotification({
                     type: 'warning',
@@ -519,12 +519,12 @@ export default {
                 });
                 return;
             }
-            // --- step 1 - end - pastikan resource autentikasi siap sebelum memulai register Google
+            // --- step 1 - pastikan resource autentikasi siap sebelum memulai register Google - end ---
 
             this.isProcessingGoogleRegister = true;
 
             try {
-                // --- step 2 - start - siapkan sesi browser bersih dan tentukan resource sign-in aktif
+                // --- step 2 - siapkan sesi browser bersih dan tentukan resource sign-in aktif - start ---
                 await prepareBrowserForNewAuthentication(this.$store);
                 await this.$nextTick();
 
@@ -536,9 +536,9 @@ export default {
 
                 if (typeof signInResource?.authenticateWithRedirect !== 'function')
                     throw new Error('Form login Google belum siap. Silakan coba lagi.');
-                // --- step 2 - end - siapkan sesi browser bersih dan tentukan resource sign-in aktif
+                // --- step 2 - siapkan sesi browser bersih dan tentukan resource sign-in aktif - end ---
 
-                // --- step 3 - start - simpan konteks callback dan redirect melalui autentikasi Google
+                // --- step 3 - simpan konteks callback dan redirect melalui autentikasi Google - start ---
                 const { redirectUrl, redirectUrlComplete } = getClerkOauthRedirectUrls(this.clerkUi.signInUrl);
                 rememberClerkAuthReturnUrl(this.clerkUi.signUpUrl);
                 rememberGoogleLoginCallback();
@@ -548,7 +548,7 @@ export default {
                     redirectUrl,
                     redirectUrlComplete,
                 });
-                // --- step 3 - end - simpan konteks callback dan redirect melalui autentikasi Google
+                // --- step 3 - simpan konteks callback dan redirect melalui autentikasi Google - end ---
             } catch (error) {
                 ElNotification({
                     type: 'error',

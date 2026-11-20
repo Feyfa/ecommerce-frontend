@@ -176,7 +176,7 @@ export const prepareBrowserForNewAuthentication = async (store) => {
 
     if (isClerkBrowserSessionCleared(runtimeState)) return;
 
-    // --- step 1 - start - bersihkan akun Google belum terverifikasi saat token sesi lama masih dapat digunakan
+    // --- step 1 - bersihkan akun Google belum terverifikasi saat token sesi lama masih dapat digunakan - start ---
     if (runtimeState.isSignedIn && runtimeState.clerk?.session?.getToken) {
         try {
             await axios.post('/security/google/link/cleanup', null, {
@@ -190,18 +190,18 @@ export const prepareBrowserForNewAuthentication = async (store) => {
             );
         }
     }
-    // --- step 1 - end - bersihkan akun Google belum terverifikasi saat token sesi lama masih dapat digunakan
+    // --- step 1 - bersihkan akun Google belum terverifikasi saat token sesi lama masih dapat digunakan - end ---
 
-    // --- step 2 - start - tutup sesi browser lama dan tunggu konfirmasi provider
+    // --- step 2 - tutup sesi browser lama dan tunggu konfirmasi provider - start ---
     await signOutClerkBrowserSession();
-    // --- step 2 - end - tutup sesi browser lama dan tunggu konfirmasi provider
+    // --- step 2 - tutup sesi browser lama dan tunggu konfirmasi provider - end ---
 
-    // --- step 3 - start - sinkronkan state aplikasi dengan snapshot provider yang sudah logout
+    // --- step 3 - sinkronkan state aplikasi dengan snapshot provider yang sudah logout - start ---
     clearResolvedAuthSessionTtl();
     clearAuthSession();
     clearGoogleLoginCallback();
     syncClearedAuthSessionToStore(store);
-    // --- step 3 - end - sinkronkan state aplikasi dengan snapshot provider yang sudah logout
+    // --- step 3 - sinkronkan state aplikasi dengan snapshot provider yang sudah logout - end ---
 
     if (!isClerkBrowserSessionCleared(getClerkRuntimeState()))
         throw new Error('Sesi akun sebelumnya belum berhasil ditutup. Silakan coba lagi.');
@@ -222,7 +222,7 @@ export const logoutResolvedAuthSession = async (store, router, redirectUrl = '/l
     const finalRedirectUrl = redirectUrl || '/login';
 
     try {
-        // --- step 1 - start - coba catat audit tanpa menahan logout provider saat request gagal
+        // --- step 1 - coba catat audit tanpa menahan logout provider saat request gagal - start ---
         try {
             await axios.post(
                 '/auth/logout',
@@ -235,16 +235,16 @@ export const logoutResolvedAuthSession = async (store, router, redirectUrl = '/l
         } catch {
             console.warn('Logout audit could not be recorded.');
         }
-        // --- step 1 - end - coba catat audit tanpa menahan logout provider saat request gagal
+        // --- step 1 - coba catat audit tanpa menahan logout provider saat request gagal - end ---
 
-        // --- step 2 - start - bersihkan seluruh state sesi aplikasi setelah percobaan audit
+        // --- step 2 - bersihkan seluruh state sesi aplikasi setelah percobaan audit - start ---
         clearResolvedAuthSessionTtl();
         clearAuthSession();
         clearGoogleLoginCallback();
         syncClearedAuthSessionToStore(store);
-        // --- step 2 - end - bersihkan seluruh state sesi aplikasi setelah percobaan audit
+        // --- step 2 - bersihkan seluruh state sesi aplikasi setelah percobaan audit - end ---
 
-        // --- step 3 - start - konfirmasi dan sinkronkan logout provider sebelum membuka halaman login
+        // --- step 3 - konfirmasi dan sinkronkan logout provider sebelum membuka halaman login - start ---
         await signOutClerkBrowserSession();
 
         global.clerk = {
@@ -255,7 +255,7 @@ export const logoutResolvedAuthSession = async (store, router, redirectUrl = '/l
         };
 
         await router.replace(finalRedirectUrl);
-        // --- step 3 - end - konfirmasi dan sinkronkan logout provider sebelum membuka halaman login
+        // --- step 3 - konfirmasi dan sinkronkan logout provider sebelum membuka halaman login - end ---
     } finally {
         global.isLoggingOut = false;
     }
