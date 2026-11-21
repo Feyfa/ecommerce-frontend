@@ -253,7 +253,7 @@ export default {
             const isGoogleLoginCallback = hasGoogleLoginCallback();
             const isGoogleLinkCallback = hasGoogleLinkCallback();
 
-            // --- step 1 - start - validasi state callback sebelum menjalankan provider autentikasi
+            // --- step 1 - validasi state callback sebelum menjalankan provider autentikasi - start ---
             if (!hasCallbackPayload && !isGoogleLoginCallback && !isGoogleLinkCallback) {
                 await this.redirectToAuthForm('');
                 return;
@@ -269,7 +269,7 @@ export default {
 
                 return;
             }
-            // --- step 1 - end - validasi state callback sebelum menjalankan provider autentikasi
+            // --- step 1 - validasi state callback sebelum menjalankan provider autentikasi - end ---
 
             clearCancelledClerkSecondFactorStep();
             this.isProcessingCallback = true;
@@ -280,7 +280,7 @@ export default {
                 if (!runtimeState.loaded || !runtimeState.clerk?.handleRedirectCallback)
                     throw new Error('Layanan autentikasi belum siap memproses callback.');
 
-                // --- step 2 - start - siapkan redirect provider untuk login register dan penghubungan akun
+                // --- step 2 - siapkan redirect provider untuk login register dan penghubungan akun - start ---
                 const postAuthUrl = isGoogleLoginCallback ? this.clerkUi.signInUrl : this.clerkUi.signUpUrl;
                 let clerkRedirectUrl = '';
 
@@ -307,15 +307,15 @@ export default {
                     continueSignUpUrl: postAuthUrl,
                     verifyEmailAddressUrl: postAuthUrl,
                 };
-                // --- step 2 - end - siapkan redirect provider untuk login register dan penghubungan akun
+                // --- step 2 - siapkan redirect provider untuk login register dan penghubungan akun - end ---
 
-                // --- step 3 - start - selesaikan callback provider memakai strategi resource sesuai flow
+                // --- step 3 - selesaikan callback provider memakai strategi resource sesuai flow - start ---
                 if (isGoogleLoginCallback) callbackOptions.reloadResource = 'signIn';
 
                 await runtimeState.clerk.handleRedirectCallback(callbackOptions, customNavigate);
-                // --- step 3 - end - selesaikan callback provider memakai strategi resource sesuai flow
+                // --- step 3 - selesaikan callback provider memakai strategi resource sesuai flow - end ---
 
-                // --- step 4 - start - sinkronkan callback login yang selesai dengan bridge autentikasi backend
+                // --- step 4 - sinkronkan callback login yang selesai dengan bridge autentikasi backend - start ---
                 if (isGoogleLoginCallback) {
                     const latestRuntimeState = await waitForClerkLoaded({ timeout: 1200, interval: 50 });
                     const signInAttempt = this.getRuntimeClerkSignInAttempt(latestRuntimeState.clerk);
@@ -333,9 +333,9 @@ export default {
                     await this.bridgeGoogleCallbackToBackend(clerkRedirectUrl || this.clerkUi.signInUrl);
                     return;
                 }
-                // --- step 4 - end - sinkronkan callback login yang selesai dengan bridge autentikasi backend
+                // --- step 4 - sinkronkan callback login yang selesai dengan bridge autentikasi backend - end ---
 
-                // --- step 5 - start - verifikasi dan selesaikan callback penghubungan akun Google
+                // --- step 5 - verifikasi dan selesaikan callback penghubungan akun Google - start ---
                 if (isGoogleLinkCallback) {
                     const latestRuntimeState = await waitForClerkLoaded({ timeout: 1200, interval: 50 });
                     const googleAccountResult = await this.getGoogleExternalAccountResult(latestRuntimeState.clerk);
@@ -347,7 +347,7 @@ export default {
 
                     await this.$router.replace('/settings/security?google_link=callback');
                 }
-                // --- step 5 - end - verifikasi dan selesaikan callback penghubungan akun Google
+                // --- step 5 - verifikasi dan selesaikan callback penghubungan akun Google - end ---
             } catch (error) {
                 if (isClerkOauthCancelledError(error)) {
                     if (isGoogleLinkCallback) await this.redirectGoogleLinkFailure('');

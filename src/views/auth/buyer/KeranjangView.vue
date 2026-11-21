@@ -697,7 +697,7 @@ export default {
          * @returns {void} Function menerapkan efeknya melalui state komponen atau aplikasi.
          */
         checkout() {
-            // --- step 1 - start - kumpulkan produk valid yang dipilih untuk checkout
+            // --- step 1 - kumpulkan produk valid yang dipilih untuk checkout - start ---
             const keranjangAlReadyChecked = Object.values(this.keranjangs).some((group) =>
                 group.some((item) => this.isItemSelectable(item) && (item.k_checked === 1 || item.k_checked === true)),
             );
@@ -707,9 +707,9 @@ export default {
                 .flat()
                 .filter((item) => this.isItemSelectable(item) && (item.k_checked === 1 || item.k_checked === true))
                 .map((item) => item.p_id);
-            // --- step 1 - end - kumpulkan produk valid yang dipilih untuk checkout
+            // --- step 1 - kumpulkan produk valid yang dipilih untuk checkout - end ---
 
-            // --- step 2 - start - validasi checkout dan tangani perubahan alamat atau stok dari backend
+            // --- step 2 - validasi checkout dan tangani perubahan alamat atau stok dari backend - start ---
             if (keranjangAlReadyChecked) {
                 this.isProcessCheckout = true;
 
@@ -780,7 +780,7 @@ export default {
                         }
                     });
             }
-            // --- step 2 - end - validasi checkout dan tangani perubahan alamat atau stok dari backend
+            // --- step 2 - validasi checkout dan tangani perubahan alamat atau stok dari backend - end ---
         },
 
         /**
@@ -820,7 +820,7 @@ export default {
          * @returns {void} Function menerapkan efeknya melalui state komponen atau aplikasi.
          */
         changeTotalKeranjang(product_id, item) {
-            // --- step 1 - start - normalisasi jumlah baru dan hentikan proses ketika nilainya tidak berubah
+            // --- step 1 - normalisasi jumlah baru dan hentikan proses ketika nilainya tidak berubah - start ---
             const previousTotal = Number(this.quantityBeforeEdit[product_id] || item.k_total || 1);
             const previousTotalPrice = this.totalPrice;
 
@@ -835,9 +835,9 @@ export default {
             if (nextTotal === previousTotal) {
                 return;
             }
-            // --- step 1 - end - normalisasi jumlah baru dan hentikan proses ketika nilainya tidak berubah
+            // --- step 1 - normalisasi jumlah baru dan hentikan proses ketika nilainya tidak berubah - end ---
 
-            // --- step 2 - start - terapkan perubahan jumlah secara optimistis pada state lokal
+            // --- step 2 - terapkan perubahan jumlah secara optimistis pada state lokal - start ---
             this.quantityBeforeEdit = {
                 ...this.quantityBeforeEdit,
                 [product_id]: nextTotal,
@@ -845,9 +845,9 @@ export default {
 
             this.updateLocalTotalPrice(item, nextTotal - previousTotal);
             this.setQuantityProcessing(product_id, true);
-            // --- step 2 - end - terapkan perubahan jumlah secara optimistis pada state lokal
+            // --- step 2 - terapkan perubahan jumlah secara optimistis pada state lokal - end ---
 
-            // --- step 3 - start - simpan jumlah ke backend atau pulihkan state ketika request gagal
+            // --- step 3 - simpan jumlah ke backend atau pulihkan state ketika request gagal - start ---
             this.$store
                 .dispatch('storeTotalKeranjang', {
                     user_id_buyer: this.$store.getters.user.id,
@@ -889,7 +889,7 @@ export default {
                         });
                     }
                 });
-            // --- step 3 - end - simpan jumlah ke backend atau pulihkan state ketika request gagal
+            // --- step 3 - simpan jumlah ke backend atau pulihkan state ketika request gagal - end ---
         },
 
         /**

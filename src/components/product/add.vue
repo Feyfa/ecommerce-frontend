@@ -284,16 +284,16 @@ export default {
          * @returns {void} Function menerapkan efeknya melalui state komponen atau aplikasi.
          */
         addProduct() {
-            // --- step 1 - start - validasi data dan foto produk sebelum membuat payload
+            // --- step 1 - validasi data dan foto produk sebelum membuat payload - start ---
             if (this.productImages.length === 0 || !this.name || !this.price || this.stock === '') {
                 if (this.productImages.length === 0) this.errors.images = 'Produk wajib memiliki minimal 1 foto.';
                 if (!this.name) this.errors.name = 'The Field Name Is Required';
                 if (!this.price) this.errors.price = 'The Field Price Is Required';
                 if (this.stock === '') this.errors.stock = 'The Field Stock Is Required';
             } else {
-                // --- step 1 - end - validasi data dan foto produk sebelum membuat payload
+                // --- step 1 - validasi data dan foto produk sebelum membuat payload - end ---
 
-                // --- step 2 - start - susun payload produk dan urutan foto untuk backend
+                // --- step 2 - susun payload produk dan urutan foto untuk backend - start ---
                 this.isProcessAddProduct = true;
 
                 const form = new FormData();
@@ -305,9 +305,9 @@ export default {
                 form.append('name', this.name);
                 form.append('price', this.price);
                 form.append('stock', this.stock);
-                // --- step 2 - end - susun payload produk dan urutan foto untuk backend
+                // --- step 2 - susun payload produk dan urutan foto untuk backend - end ---
 
-                // --- step 3 - start - simpan produk dan petakan hasil atau error validasi ke tampilan
+                // --- step 3 - simpan produk dan petakan hasil atau error validasi ke tampilan - start ---
                 this.$store
                     .dispatch('addProduct', form)
                     .then((response) => {
@@ -366,7 +366,7 @@ export default {
                             message: getProductUploadErrorMessage(error),
                         });
                     });
-                // --- step 3 - end - simpan produk dan petakan hasil atau error validasi ke tampilan
+                // --- step 3 - simpan produk dan petakan hasil atau error validasi ke tampilan - end ---
             }
         },
     },

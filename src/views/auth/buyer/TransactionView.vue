@@ -413,20 +413,20 @@ export default {
         consumeCheckoutQuery() {
             if (!this.highlightedInvoiceId) return;
 
-            // --- step 1 - start - batalkan sorotan bila invoice tidak ada pada daftar yang dimuat
+            // --- step 1 - batalkan sorotan bila invoice tidak ada pada daftar yang dimuat - start ---
             if (!this.transactions.some((item) => this.isHighlightedTransaction(item))) {
                 this.highlightedInvoiceId = '';
                 return;
             }
-            // --- step 1 - end - batalkan sorotan bila invoice tidak ada pada daftar yang dimuat
+            // --- step 1 - batalkan sorotan bila invoice tidak ada pada daftar yang dimuat - end ---
 
-            // --- step 2 - start - bersihkan query supaya refresh dan tombol back tidak menyorot ulang
+            // --- step 2 - bersihkan query supaya refresh dan tombol back tidak menyorot ulang - start ---
             this.$router.replace({ name: 'buyer_transaction' });
-            // --- step 2 - end - bersihkan query supaya refresh dan tombol back tidak menyorot ulang
+            // --- step 2 - bersihkan query supaya refresh dan tombol back tidak menyorot ulang - end ---
 
-            // --- step 3 - start - jadwalkan geser layar setelah daftar kartu benar benar terpasang
+            // --- step 3 - jadwalkan geser layar setelah daftar kartu benar benar terpasang - start ---
             this.pendingHighlightScroll = true;
-            // --- step 3 - end - jadwalkan geser layar setelah daftar kartu benar benar terpasang
+            // --- step 3 - jadwalkan geser layar setelah daftar kartu benar benar terpasang - end ---
         },
 
         /**

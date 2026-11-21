@@ -694,15 +694,15 @@ export default {
          * @returns {void} Function menerapkan efeknya melalui state komponen atau aplikasi.
          */
         updateMobileSaldoDate(index, value) {
-            // --- step 1 - start - salin rentang terpilih agar perubahan computed tetap reaktif
+            // --- step 1 - salin rentang terpilih agar perubahan computed tetap reaktif - start ---
             const nextRange = Array.isArray(this.dateRange) ? [...this.dateRange] : [];
             nextRange[index] = value || '';
             this.dateRange = nextRange;
-            // --- step 1 - end - salin rentang terpilih agar perubahan computed tetap reaktif
+            // --- step 1 - salin rentang terpilih agar perubahan computed tetap reaktif - end ---
 
-            // --- step 2 - start - muat riwayat saldo hanya setelah kedua batas tanggal tersedia
+            // --- step 2 - muat riwayat saldo hanya setelah kedua batas tanggal tersedia - start ---
             if (nextRange[0] && nextRange[1]) this.changeDateRange();
-            // --- step 2 - end - muat riwayat saldo hanya setelah kedua batas tanggal tersedia
+            // --- step 2 - muat riwayat saldo hanya setelah kedua batas tanggal tersedia - end ---
         },
 
         /**

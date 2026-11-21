@@ -58,7 +58,7 @@ export default {
      * @returns {void} Function menerapkan efeknya melalui state komponen atau aplikasi.
      */
     setup() {
-        // --- step 1 - start - sinkronkan sesi autentikasi utama dengan state reaktif global
+        // --- step 1 - sinkronkan sesi autentikasi utama dengan state reaktif global - start ---
         if (isClerkEnabled) {
             const { isLoaded, isSignedIn, userId } = useAuth();
 
@@ -95,7 +95,7 @@ export default {
                 userId: '',
             };
         }
-        // --- step 1 - end - sinkronkan sesi autentikasi utama dengan state reaktif global
+        // --- step 1 - sinkronkan sesi autentikasi utama dengan state reaktif global - end ---
     },
 
     /**
