@@ -732,33 +732,53 @@ export default {
         },
 
         /**
-         * Mengambil color money untuk halaman saldo.
+         * Memilih warna berdasarkan arah mutasi yang dikenali.
          *
-         * @param {*} [type] Jenis operasi atau tampilan yang menentukan behavior yang diperlukan.
+         * @param {string|null} [type] Jenis mutasi dari API.
          *
-         * @returns {string} Teks get color money yang telah diformat atau ditentukan.
+         * @returns {string} Kelas warna nominal riwayat.
          */
         getColorMoney(type = '') {
-            if (type == 'withdrawal') {
-                return 'text-red-700';
-            } else {
-                return 'text-green-700';
+            // Jenis yang belum dikenal tetap tampil tanpa isyarat arus masuk atau keluar.
+            switch (type) {
+                case 'withdrawal':
+                    return 'text-red-700';
+                case 'incoming':
+                    return 'text-green-700';
+                default:
+                    return 'text-neutral-700';
             }
         },
 
         /**
-         * Tujuan method ini untuk menampilkan nominal history saldo
-         * dalam format rupiah walaupun harga dari API masih berupa string.
+         * Menampilkan nominal riwayat dengan tanda arah untuk jenis yang dikenali.
          *
-         * @param {*} [item] Item riwayat saldo yang nilainya akan diformat.
+         * @param {{type?: string|null, price?: number|string|null}} [item] Baris dari API.
          *
-         * @returns {string} Resolved text value.
+         * @returns {string} Nominal rupiah atau penanda nominal yang tidak tersedia.
          */
         formatSaldoHistoryPrice(item = {}) {
-            const prefix = item.type == 'withdrawal' ? '-' : '+';
-            const price = Number(item.price || 0);
+            // Nominal yang tidak tercatat harus bisa dibedakan dari nilai nol yang valid.
+            if (item.price === null || item.price === undefined) {
+                return '—';
+            }
 
-            return `${prefix} Rp${price.toLocaleString('id-ID')}`;
+            // --- step 1 - format nominal rupiah - start ---
+            const price = Number(item.price);
+            const amount = `Rp${price.toLocaleString('id-ID')}`;
+            // --- step 1 - format nominal rupiah - end ---
+
+            // --- step 2 - tentukan tanda mutasi - start ---
+            let prefix = '';
+
+            if (item.type === 'incoming') {
+                prefix = '+ ';
+            } else if (item.type === 'withdrawal') {
+                prefix = '- ';
+            }
+            // --- step 2 - tentukan tanda mutasi - end ---
+
+            return `${prefix}${amount}`;
         },
 
         /**
