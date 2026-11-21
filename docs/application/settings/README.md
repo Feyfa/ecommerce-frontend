@@ -36,6 +36,9 @@ Current supported areas:
 - `src/views/auth/SaldoView.vue`
   Balance settings content, history, date range filter, and withdrawal modal trigger.
 
+  History amounts for recognized types keep their incoming or withdrawal sign and color.
+  Unknown types use a neutral color and no sign. A missing amount is displayed as `—`.
+
 - `src/views/auth/PaymentView.vue`
   Bank account settings content, account list, add account modal trigger, and delete action.
 
