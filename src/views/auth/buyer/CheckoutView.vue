@@ -646,7 +646,7 @@ export default {
          * @returns {void} Function menerapkan efeknya melalui state komponen atau aplikasi.
          */
         processCheckout() {
-            // --- step 1 - start - validasi metode pembayaran sebelum memproses checkout
+            // --- step 1 - validasi metode pembayaran sebelum memproses checkout - start ---
             if (!this.paymentName || !this.paymentSlug || !this.paymentMethod) {
                 ElNotification({
                     type: 'error',
@@ -655,9 +655,9 @@ export default {
                 });
                 return;
             }
-            // --- step 1 - end - validasi metode pembayaran sebelum memproses checkout
+            // --- step 1 - validasi metode pembayaran sebelum memproses checkout - end ---
 
-            // --- step 2 - start - kirim checkout dan tangani hasil atau perubahan state dari backend
+            // --- step 2 - kirim checkout dan tangani hasil atau perubahan state dari backend - start ---
             this.isProcessCheckout = true;
             this.$store
                 .dispatch('processCheckout', {
@@ -745,7 +745,7 @@ export default {
                         });
                     }
                 });
-            // --- step 2 - end - kirim checkout dan tangani hasil atau perubahan state dari backend
+            // --- step 2 - kirim checkout dan tangani hasil atau perubahan state dari backend - end ---
         },
 
         /**
@@ -922,11 +922,11 @@ export default {
          * @returns {void} Function menerapkan efeknya melalui state komponen atau aplikasi.
          */
         getDataCheckout() {
-            // --- step 1 - start - tandai halaman sedang memuat data checkout
+            // --- step 1 - tandai halaman sedang memuat data checkout - start ---
             this.show.loading = true;
-            // --- step 1 - end - tandai halaman sedang memuat data checkout
+            // --- step 1 - tandai halaman sedang memuat data checkout - end ---
 
-            // --- step 2 - start - muat checkout lalu sinkronkan data dan status tampilan
+            // --- step 2 - muat checkout lalu sinkronkan data dan status tampilan - start ---
             this.$store
                 .dispatch('getDataCheckout')
                 .then((response) => {
@@ -992,7 +992,7 @@ export default {
                         window.location.href = '/buyer/keranjang';
                     }, 500);
                 });
-            // --- step 2 - end - muat checkout lalu sinkronkan data dan status tampilan
+            // --- step 2 - muat checkout lalu sinkronkan data dan status tampilan - end ---
         },
     },
 };

@@ -422,17 +422,17 @@ export default {
      * @returns {void} Request lama dibuat tidak berlaku, loading dilepas, dan observer dihentikan.
      */
     beforeUnmount() {
-        // --- step 1 - start - hentikan pagination dan invalidasi request halaman yang ditinggalkan
+        // --- step 1 - hentikan pagination dan invalidasi request halaman yang ditinggalkan - start ---
         this.productRequestVersion++;
         this.completeProduct = true;
         this.$global.globalContainer.loading = false;
-        // --- step 1 - end - hentikan pagination dan invalidasi request halaman yang ditinggalkan
+        // --- step 1 - hentikan pagination dan invalidasi request halaman yang ditinggalkan - end ---
 
-        // --- step 2 - start - lepaskan listener dan observer halaman
+        // --- step 2 - lepaskan listener dan observer halaman - start ---
         eventBus.off('scrollGlobal');
         this.paginationObserver?.disconnect();
         this.paginationObserver = null;
-        // --- step 2 - end - lepaskan listener dan observer halaman
+        // --- step 2 - lepaskan listener dan observer halaman - end ---
     },
 
     methods: {
@@ -737,13 +737,13 @@ export default {
          * @returns {void} Function menerapkan efeknya melalui state komponen atau aplikasi.
          */
         getProducts() {
-            // --- step 1 - start - siapkan versi request dan cursor batch saat ini
+            // --- step 1 - siapkan versi request dan cursor batch saat ini - start ---
             const requestVersion = ++this.productRequestVersion;
             const requestSearchProduct = this.activeSearchProduct;
             const requestCursor = this.nextCursor;
-            // --- step 1 - end - siapkan versi request dan cursor batch saat ini
+            // --- step 1 - siapkan versi request dan cursor batch saat ini - end ---
 
-            // --- step 2 - start - muat produk seller dan abaikan response dari versi filter yang sudah tidak aktif
+            // --- step 2 - muat produk seller dan abaikan response dari versi filter yang sudah tidak aktif - start ---
             this.$store
                 .dispatch('getProducts', {
                     user_id_seller: this.$store.getters.user.id,
@@ -794,7 +794,7 @@ export default {
                         message: 'Daftar produk gagal dimuat. Silakan coba lagi.',
                     });
                 });
-            // --- step 2 - end - muat produk seller dan abaikan response dari versi filter yang sudah tidak aktif
+            // --- step 2 - muat produk seller dan abaikan response dari versi filter yang sudah tidak aktif - end ---
         },
     },
 };

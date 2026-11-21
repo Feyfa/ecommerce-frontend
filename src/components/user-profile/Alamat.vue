@@ -741,7 +741,7 @@ export default {
          * @returns {false|void} Mengembalikan false ketika validasi client memblokir pengiriman; selain itu tidak mengembalikan nilai.
          */
         editAlamatBuyer() {
-            // --- step 1 - start - validasi identitas dan pinpoint alamat sebelum mengirim perubahan
+            // --- step 1 - validasi identitas dan pinpoint alamat sebelum mengirim perubahan - start ---
             const mapPinpointInvalid = this.isMapPinpointInvalid(this.locationEdit);
             const mapDetailInvalid = this.isMapDetailInvalid(this.locationEdit);
             if (
@@ -768,9 +768,9 @@ export default {
                 }
                 return false;
             }
-            // --- step 1 - end - validasi identitas dan pinpoint alamat sebelum mengirim perubahan
+            // --- step 1 - validasi identitas dan pinpoint alamat sebelum mengirim perubahan - end ---
 
-            // --- step 2 - start - simpan perubahan alamat dan petakan hasil atau error ke form
+            // --- step 2 - simpan perubahan alamat dan petakan hasil atau error ke form - start ---
             this.isProcessEditAlamatBuyer = true;
 
             this.$store
@@ -840,7 +840,7 @@ export default {
                         });
                     }
                 });
-            // --- step 2 - end - simpan perubahan alamat dan petakan hasil atau error ke form
+            // --- step 2 - simpan perubahan alamat dan petakan hasil atau error ke form - end ---
         },
 
         /**
@@ -977,7 +977,7 @@ export default {
          * @returns {false|void} Mengembalikan false ketika validasi client memblokir pengiriman; selain itu tidak mengembalikan nilai.
          */
         addAlamatBuyer() {
-            // --- step 1 - start - validasi identitas dan pinpoint alamat sebelum membuat alamat baru
+            // --- step 1 - validasi identitas dan pinpoint alamat sebelum membuat alamat baru - start ---
             const mapPinpointInvalid = this.isMapPinpointInvalid(this.location);
             const mapDetailInvalid = this.isMapDetailInvalid(this.location);
             if (this.place == '' || this.name == '' || this.phone == '' || mapPinpointInvalid || mapDetailInvalid) {
@@ -998,9 +998,9 @@ export default {
                 }
                 return false;
             }
-            // --- step 1 - end - validasi identitas dan pinpoint alamat sebelum membuat alamat baru
+            // --- step 1 - validasi identitas dan pinpoint alamat sebelum membuat alamat baru - end ---
 
-            // --- step 2 - start - simpan alamat baru dan petakan hasil atau error ke form
+            // --- step 2 - simpan alamat baru dan petakan hasil atau error ke form - start ---
             this.isProcessAddAlamatBuyer = true;
 
             this.$store
@@ -1070,7 +1070,7 @@ export default {
                         });
                     }
                 });
-            // --- step 2 - end - simpan alamat baru dan petakan hasil atau error ke form
+            // --- step 2 - simpan alamat baru dan petakan hasil atau error ke form - end ---
         },
 
         /**

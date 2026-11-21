@@ -607,18 +607,18 @@ export default {
      * @returns {void} Request lama dibuat tidak berlaku, loading dilepas, dan observer dihentikan.
      */
     beforeUnmount() {
-        // --- step 1 - start - hentikan pagination dan invalidasi request halaman yang ditinggalkan
+        // --- step 1 - hentikan pagination dan invalidasi request halaman yang ditinggalkan - start ---
         this.productRequestVersion++;
         this.completeProduct = true;
         this.$global.globalContainer.loading = false;
-        // --- step 1 - end - hentikan pagination dan invalidasi request halaman yang ditinggalkan
+        // --- step 1 - hentikan pagination dan invalidasi request halaman yang ditinggalkan - end ---
 
-        // --- step 2 - start - lepaskan listener dan observer halaman
+        // --- step 2 - lepaskan listener dan observer halaman - start ---
         eventBus.off('scrollGlobal');
         document.removeEventListener('pointerdown', this.handleBelanjaFilterDocumentPointerDown);
         this.paginationObserver?.disconnect();
         this.paginationObserver = null;
-        // --- step 2 - end - lepaskan listener dan observer halaman
+        // --- step 2 - lepaskan listener dan observer halaman - end ---
     },
 
     methods: {
@@ -808,7 +808,7 @@ export default {
          * @returns {void} Memperbarui filter aktif atau menampilkan pesan validasi di panel.
          */
         applyBelanjaFilters() {
-            // --- step 1 - start - normalisasi dan validasi nominal draft
+            // --- step 1 - normalisasi dan validasi nominal draft - start ---
             const minPrice = this.parseBelanjaPrice(this.draftMinPrice, 'Harga minimum');
             const maxPrice = this.parseBelanjaPrice(this.draftMaxPrice, 'Harga maksimum');
 
@@ -820,9 +820,9 @@ export default {
                 this.filterPriceError = 'Harga minimum tidak boleh lebih besar dari harga maksimum.';
                 return;
             }
-            // --- step 1 - end - normalisasi dan validasi nominal draft
+            // --- step 1 - normalisasi dan validasi nominal draft - end ---
 
-            // --- step 2 - start - terapkan filter aktif dan muat ulang bila berubah
+            // --- step 2 - terapkan filter aktif dan muat ulang bila berubah - start ---
             const hasChanged =
                 this.minPrice !== minPrice || this.maxPrice !== maxPrice || this.addedWithin !== this.draftAddedWithin;
             this.minPrice = minPrice;
@@ -833,7 +833,7 @@ export default {
             if (hasChanged) {
                 this.reloadBelanjaProducts();
             }
-            // --- step 2 - end - terapkan filter aktif dan muat ulang bila berubah
+            // --- step 2 - terapkan filter aktif dan muat ulang bila berubah - end ---
         },
 
         /**
@@ -1051,13 +1051,13 @@ export default {
          * @returns {void} Function menerapkan efeknya melalui state komponen atau aplikasi.
          */
         getBelanja() {
-            // --- step 1 - start - siapkan versi request serta halaman katalog yang akan dimuat
+            // --- step 1 - siapkan versi request serta halaman katalog yang akan dimuat - start ---
             const requestVersion = ++this.productRequestVersion;
             const requestSearchProduct = this.activeSearchProduct;
             const requestPage = this.currentPage;
-            // --- step 1 - end - siapkan versi request serta halaman katalog yang akan dimuat
+            // --- step 1 - siapkan versi request serta halaman katalog yang akan dimuat - end ---
 
-            // --- step 2 - start - muat produk dan abaikan response dari versi filter yang sudah tidak aktif
+            // --- step 2 - muat produk dan abaikan response dari versi filter yang sudah tidak aktif - start ---
             this.$store
                 .dispatch('getBelanja', {
                     page: requestPage,
@@ -1123,7 +1123,7 @@ export default {
                                 : 'Daftar produk gagal dimuat. Silakan coba lagi.',
                     });
                 });
-            // --- step 2 - end - muat produk dan abaikan response dari versi filter yang sudah tidak aktif
+            // --- step 2 - muat produk dan abaikan response dari versi filter yang sudah tidak aktif - end ---
         },
     },
 };

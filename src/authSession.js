@@ -15,18 +15,18 @@ let sessionExpirationPromise = null;
  * @returns {void} Function menerapkan efeknya melalui state komponen atau aplikasi.
  */
 export const clearAuthSession = () => {
-    // --- step 1 - start - hapus data autentikasi tersimpan dari browser
+    // --- step 1 - hapus data autentikasi tersimpan dari browser - start ---
     localStorage.removeItem('user');
     localStorage.removeItem('company');
     sessionStorage.removeItem('active_account_mode');
-    // --- step 1 - end - hapus data autentikasi tersimpan dari browser
+    // --- step 1 - hapus data autentikasi tersimpan dari browser - end ---
 
-    // --- step 2 - start - reset state tampilan agar data akun lama tidak lagi ditampilkan
+    // --- step 2 - reset state tampilan agar data akun lama tidak lagi ditampilkan - start ---
     global.isAuth = false;
     global.personImage = '/img/person.png';
     global.companyImage = '/img/company.png';
     global.isClickDropdown.userSetting = false;
-    // --- step 2 - end - reset state tampilan agar data akun lama tidak lagi ditampilkan
+    // --- step 2 - reset state tampilan agar data akun lama tidak lagi ditampilkan - end ---
 };
 
 /**
@@ -157,19 +157,19 @@ export const handleExpiredAuthSession = () => {
     if (sessionExpirationPromise) return sessionExpirationPromise;
 
     sessionExpirationPromise = (async () => {
-        // --- step 1 - start - bersihkan state sesi lama sebelum menunggu konfirmasi pengguna
+        // --- step 1 - bersihkan state sesi lama sebelum menunggu konfirmasi pengguna - start ---
         global.isLoggingOut = true;
         clearAuthSession();
-        // --- step 1 - end - bersihkan state sesi lama sebelum menunggu konfirmasi pengguna
+        // --- step 1 - bersihkan state sesi lama sebelum menunggu konfirmasi pengguna - end ---
 
-        // --- step 2 - start - tampilkan satu peringatan untuk request tanpa autentikasi yang berjalan bersamaan
+        // --- step 2 - tampilkan satu peringatan untuk request tanpa autentikasi yang berjalan bersamaan - start ---
         await showSessionExpiredWarning().catch(() => null);
-        // --- step 2 - end - tampilkan satu peringatan untuk request tanpa autentikasi yang berjalan bersamaan
+        // --- step 2 - tampilkan satu peringatan untuk request tanpa autentikasi yang berjalan bersamaan - end ---
 
-        // --- step 3 - start - tutup sesi provider dan muat ulang aplikasi dari halaman login
+        // --- step 3 - tutup sesi provider dan muat ulang aplikasi dari halaman login - start ---
         await signOutClerkBrowserSession().catch(() => false);
         window.location.replace('/login');
-        // --- step 3 - end - tutup sesi provider dan muat ulang aplikasi dari halaman login
+        // --- step 3 - tutup sesi provider dan muat ulang aplikasi dari halaman login - end ---
     })();
 
     return sessionExpirationPromise;

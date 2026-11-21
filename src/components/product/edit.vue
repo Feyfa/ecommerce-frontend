@@ -429,16 +429,16 @@ export default {
          * @returns {void} Function menerapkan efeknya melalui state komponen atau aplikasi.
          */
         editProduct() {
-            // --- step 1 - start - validasi data dan foto produk sebelum membuat payload perubahan
+            // --- step 1 - validasi data dan foto produk sebelum membuat payload perubahan - start ---
             if (this.productImages.length === 0 || !this.name || !this.price || this.stock === '') {
                 if (this.productImages.length === 0) this.errors.images = 'Produk wajib memiliki minimal 1 foto.';
                 if (!this.name) this.errors.name = 'The Field Name Is Required';
                 if (!this.price) this.errors.price = 'The Field Price Is Required';
                 if (this.stock === '') this.errors.stock = 'The Field Stock Is Required';
             } else {
-                // --- step 1 - end - validasi data dan foto produk sebelum membuat payload perubahan
+                // --- step 1 - validasi data dan foto produk sebelum membuat payload perubahan - end ---
 
-                // --- step 2 - start - susun payload perubahan beserta urutan foto lama dan baru
+                // --- step 2 - susun payload perubahan beserta urutan foto lama dan baru - start ---
                 this.isProcessEditProduct = true;
 
                 const form = new FormData();
@@ -457,9 +457,9 @@ export default {
                 form.append('price', this.price);
                 form.append('stock', this.stock);
                 form.append('_method', 'PUT');
-                // --- step 2 - end - susun payload perubahan beserta urutan foto lama dan baru
+                // --- step 2 - susun payload perubahan beserta urutan foto lama dan baru - end ---
 
-                // --- step 3 - start - simpan perubahan dan petakan hasil atau error validasi ke tampilan
+                // --- step 3 - simpan perubahan dan petakan hasil atau error validasi ke tampilan - start ---
                 this.$store
                     .dispatch('editProduct', form)
                     .then((response) => {
@@ -517,7 +517,7 @@ export default {
                             message: getProductUploadErrorMessage(error),
                         });
                     });
-                // --- step 3 - end - simpan perubahan dan petakan hasil atau error validasi ke tampilan
+                // --- step 3 - simpan perubahan dan petakan hasil atau error validasi ke tampilan - end ---
             }
         },
     },

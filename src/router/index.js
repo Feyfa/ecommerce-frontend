@@ -388,22 +388,22 @@ router.beforeEach(async (to) => {
     store.dispatch('fetchActiveAccountModeFromSessionStorage');
     /* REFRESH GET ITEM LOCALSTORAGE */
 
-    // --- step 1 - start - izinkan provider autentikasi menyelesaikan callback redirect tanpa gangguan guard
+    // --- step 1 - izinkan provider autentikasi menyelesaikan callback redirect tanpa gangguan guard - start ---
     if (to.name === 'auth_callback') {
         global.isAuth = false;
         return true;
     }
-    // --- step 1 - end - izinkan provider autentikasi menyelesaikan callback redirect tanpa gangguan guard
+    // --- step 1 - izinkan provider autentikasi menyelesaikan callback redirect tanpa gangguan guard - end ---
 
-    // --- step 2 - start - cegah route protected melakukan bootstrap selama logout berlangsung
+    // --- step 2 - cegah route protected melakukan bootstrap selama logout berlangsung - start ---
     if (global.isLoggingOut) {
         if (to.meta.public) return true;
 
         return { name: 'login' };
     }
-    // --- step 2 - end - cegah route protected melakukan bootstrap selama logout berlangsung
+    // --- step 2 - cegah route protected melakukan bootstrap selama logout berlangsung - end ---
 
-    // --- step 3 - start - periksa keberadaan autentikasi dari sesi browser utama
+    // --- step 3 - periksa keberadaan autentikasi dari sesi browser utama - start ---
     const browserAuthPresence = await getBrowserAuthPresence();
 
     if (!browserAuthPresence.hasAnySession) {
@@ -416,9 +416,9 @@ router.beforeEach(async (to) => {
 
         return { name: 'login' };
     }
-    // --- step 3 - end - periksa keberadaan autentikasi dari sesi browser utama
+    // --- step 3 - periksa keberadaan autentikasi dari sesi browser utama - end ---
 
-    // --- step 4 - start - selesaikan sesi aplikasi melalui endpoint autentikasi backend
+    // --- step 4 - selesaikan sesi aplikasi melalui endpoint autentikasi backend - start ---
     try {
         const canUseFreshAuthSession = hasFreshResolvedAuthSession() && Boolean(store.getters.user?.id);
 
@@ -442,7 +442,7 @@ router.beforeEach(async (to) => {
 
         return { name: 'login' };
     }
-    // --- step 4 - end - selesaikan sesi aplikasi melalui endpoint autentikasi backend
+    // --- step 4 - selesaikan sesi aplikasi melalui endpoint autentikasi backend - end ---
 });
 
 export default router;
