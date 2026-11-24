@@ -36,7 +36,27 @@ The history card shows:
 - balance transaction rows;
 - income amount in green with a `+ Rp` prefix;
 - withdrawal amount in red with a `- Rp` prefix;
+- `Pengembalian Saldo` (`withdrawal_refund`) amount in green with a `+ Rp`
+  prefix;
 - transaction description and related invoice/reference text.
+
+Withdrawal status:
+
+Since TOK-88 the backend holds the balance before Xendit confirms a withdrawal
+and sends `withdrawal_status` on every history row. A withdrawal row shows a
+label next to its title:
+
+| `withdrawal_status` | Label | Info text below the description |
+| --- | --- | --- |
+| `processing` | `Diproses` (amber) | `Menunggu konfirmasi bank. Saldo ditahan, jangan ulangi penarikan.` |
+| `completed` | `Berhasil` (green) | none |
+| `failed` | `Gagal` (red) | `Saldo sudah dikembalikan.` |
+
+A `null` or unknown value shows no label. That covers withdrawals made before
+TOK-88, whose final status was never recorded. A failed withdrawal keeps its
+`- Rp` row, and the backend adds a separate `Pengembalian Saldo` row that
+returns the amount. The backend's 24-hour overdue alert is an internal log and
+is never shown in the UI.
 
 History amounts should use Indonesian thousands separators even when the API sends the price as a string. For example:
 
@@ -90,6 +110,24 @@ The `Rp` prefix and amount input should feel like one soft input group, not two 
 Withdrawal should not submit when required input or selected bank account data is invalid.
 
 Use visual disabled state for unavailable actions.
+
+## Withdrawal Result
+
+After a successful request, the new history row is added at the top and the
+balance is reloaded. The notification follows `saldoHistory.withdrawal_status`:
+
+- `processing`: an info notification titled `Diproses` with
+  `Penarikan Sebesar Rp{amount} Sedang Diproses`;
+- anything else: the success notification
+  `Penarikan Sebesar Rp{amount} Berhasil`.
+
+Xendit normally answers `PENDING`, so most new withdrawals show `Diproses`
+until the backend `withdrawal:check` sees the final status. The page does not
+poll; the label changes after the user reloads the history.
+
+After an error, the page shows `response.data.message`, then reloads the
+balance and the history. When Xendit rejected the request, the reload shows the
+`Gagal` withdrawal and its `Pengembalian Saldo` row.
 
 ## Store/API Usage
 
