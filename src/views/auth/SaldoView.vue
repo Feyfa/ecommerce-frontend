@@ -255,15 +255,31 @@
                             class="saldo-history-item py-3 px-4 text-[0.8rem] flex flex-col justify-center items-start gap-2"
                             :class="{ 'border-b border-b-slate-200': index != saldoHistory.length - 1 }"
                         >
-                            <h3 class="text-[0.9rem] font-semibold">
-                                {{ item.title }}
-                                <!-- {{ item.id }} -->
-                            </h3>
+                            <div class="flex flex-wrap items-center gap-2">
+                                <h3 class="text-[0.9rem] font-semibold">
+                                    {{ item.title }}
+                                    <!-- {{ item.id }} -->
+                                </h3>
+                                <span
+                                    v-if="getWithdrawalStatusView(item)"
+                                    class="rounded-full px-2 py-0.5 text-[0.65rem] font-semibold"
+                                    :class="getWithdrawalStatusView(item).badgeClass"
+                                >
+                                    {{ getWithdrawalStatusView(item).label }}
+                                </span>
+                            </div>
                             <p class="text-neutral-700 text-[0.7rem] tracking-wide">{{ item.date }}</p>
                             <p class="font-semibold" :class="getColorMoney(item.type)">
                                 {{ formatSaldoHistoryPrice(item) }}
                             </p>
                             <p class="text-neutral-500">{{ item.description }}</p>
+                            <p
+                                v-if="getWithdrawalStatusView(item)?.info"
+                                class="text-[0.7rem]"
+                                :class="getWithdrawalStatusView(item).infoClass"
+                            >
+                                {{ getWithdrawalStatusView(item).info }}
+                            </p>
                         </div>
                         <div
                             v-show="saldoHistoryContainerLoading"
@@ -295,6 +311,29 @@
 import moment from 'moment';
 import { ElNotification } from 'element-plus';
 import Modal from '@/components/partials/ModalView.vue';
+
+// Tampilan status penarikan dari field `withdrawal_status` backend (TOK-88). Penarikan lama dan
+// baris selain penarikan bernilai null, jadi tidak diberi label karena statusnya tidak tercatat.
+const WITHDRAWAL_STATUS_VIEWS = {
+    processing: {
+        label: 'Diproses',
+        badgeClass: 'bg-amber-100 text-amber-800',
+        info: 'Menunggu konfirmasi bank. Saldo ditahan, jangan ulangi penarikan.',
+        infoClass: 'text-amber-700',
+    },
+    completed: {
+        label: 'Berhasil',
+        badgeClass: 'bg-green-100 text-green-800',
+        info: '',
+        infoClass: '',
+    },
+    failed: {
+        label: 'Gagal',
+        badgeClass: 'bg-red-100 text-red-800',
+        info: 'Saldo sudah dikembalikan.',
+        infoClass: 'text-red-700',
+    },
+};
 
 export default {
     components: {
@@ -442,7 +481,12 @@ export default {
 
     methods: {
         /**
-         * Menjalankan proses withdraw saldo dan menyinkronkan state hasilnya untuk halaman saldo, dengan mendelegasikan pekerjaan backend atau shared state melalui Vuex store.
+         * Mengirim penarikan saldo lalu memperbarui saldo, riwayat, dan notifikasi sesuai hasilnya.
+         *
+         * Sejak TOK-88 backend menahan saldo sebelum Xendit menjawab. Penarikan yang diterima
+         * biasanya masih berstatus Diproses, sehingga notifikasinya tidak menyebut berhasil.
+         * Penolakan Xendit menambah baris Gagal dan Pengembalian Saldo di riwayat, jadi saldo dan
+         * riwayat dimuat ulang setelah error.
          *
          * @returns {void} Function menerapkan efeknya melalui state komponen atau aplikasi.
          */
@@ -481,11 +525,10 @@ export default {
 
                     this.getSaldo();
                     this.closeModalRekening();
-                    ElNotification({
-                        type: 'success',
-                        title: 'Success',
-                        message: `Penarikan Sebesar Rp${withdrawPriceString} Berhasil`,
-                    });
+
+                    const status = response?.saldoHistory?.withdrawal_status;
+
+                    ElNotification(this.buildWithdrawNotification(status, withdrawPriceString));
                 })
                 .catch((error) => {
                     this.isProcessWithdraw = false;
@@ -494,7 +537,61 @@ export default {
                         title: 'Error',
                         message: error?.response?.data?.message ?? 'Something Went Wrong',
                     });
+
+                    // Penolakan Xendit sudah menulis baris Gagal dan Pengembalian Saldo di backend.
+                    this.getSaldo();
+                    this.reloadSaldoHistory();
                 });
+        },
+
+        /**
+         * Menyusun notifikasi penarikan yang diterima backend sesuai status penarikannya.
+         *
+         * @param {string|null|undefined} withdrawalStatus Status `withdrawal_status` dari backend.
+         * @param {string} amountString Nominal yang sudah diformat, misalnya `100.000`.
+         *
+         * @returns {{type: string, title: string, message: string}} Opsi untuk ElNotification.
+         */
+        buildWithdrawNotification(withdrawalStatus, amountString) {
+            // Diproses berarti dana belum pasti sampai, jadi jangan menyebutnya berhasil.
+            if (withdrawalStatus === 'processing') {
+                return {
+                    type: 'info',
+                    title: 'Diproses',
+                    message: `Penarikan Sebesar Rp${amountString} Sedang Diproses`,
+                };
+            }
+
+            return {
+                type: 'success',
+                title: 'Success',
+                message: `Penarikan Sebesar Rp${amountString} Berhasil`,
+            };
+        },
+
+        /**
+         * Mengambil tampilan label dan teks info untuk status penarikan pada satu baris riwayat.
+         *
+         * @param {{withdrawal_status?: string|null}} [item] Baris riwayat dari API.
+         *
+         * @returns {{label: string, badgeClass: string, info: string, infoClass: string}|null}
+         *     Tampilan status, atau null untuk baris tanpa status penarikan.
+         */
+        getWithdrawalStatusView(item = {}) {
+            // Status yang tidak dikenal tidak ditebak agar label tidak menyesatkan user.
+            return WITHDRAWAL_STATUS_VIEWS[item.withdrawal_status] ?? null;
+        },
+
+        /**
+         * Mengosongkan lalu memuat ulang riwayat saldo untuk rentang tanggal yang aktif.
+         *
+         * @returns {void} Function menerapkan efeknya melalui state komponen.
+         */
+        reloadSaldoHistory() {
+            // Daftar dikosongkan agar ID lama tidak mengecualikan baris yang berubah.
+            this.isFetchSaldoHistory = true;
+            this.saldoHistory = [];
+            this.getSaldoHistory();
         },
 
         /**
@@ -680,9 +777,7 @@ export default {
 
             this.startDate = this.dateRange[0];
             this.endDate = this.dateRange[1];
-            this.isFetchSaldoHistory = true;
-            this.saldoHistory = [];
-            this.getSaldoHistory();
+            this.reloadSaldoHistory();
         },
 
         /**
@@ -744,6 +839,7 @@ export default {
                 case 'withdrawal':
                     return 'text-red-700';
                 case 'incoming':
+                case 'withdrawal_refund':
                     return 'text-green-700';
                 default:
                     return 'text-neutral-700';
@@ -769,9 +865,10 @@ export default {
             // --- step 1 - format nominal rupiah - end ---
 
             // --- step 2 - tentukan tanda mutasi - start ---
+            // Pengembalian saldo dari penarikan yang gagal adalah dana masuk.
             let prefix = '';
 
-            if (item.type === 'incoming') {
+            if (item.type === 'incoming' || item.type === 'withdrawal_refund') {
                 prefix = '+ ';
             } else if (item.type === 'withdrawal') {
                 prefix = '- ';
